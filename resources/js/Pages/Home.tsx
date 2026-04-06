@@ -1,265 +1,186 @@
-import React from 'react';
-import { Head } from '@inertiajs/react';
-import Navigation from '@/Components/Navigation';
-import Footer from '@/Components/Footer';
+import React, { useEffect } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import Navigation from '@/Components/Navigation.jsx';
+import Footer from '@/Components/Footer.jsx';
+import { motion } from 'framer-motion';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
+import { Sparkles, TrendingUp } from 'lucide-react';
 import './home.css';
 
+const fadeUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] } }
+};
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.15 }
+    }
+};
+
 const Home: React.FC = () => {
+    const [emblaRefCategorias] = useEmblaCarousel({ loop: true, align: 'start' }, [Autoplay({ delay: 3500 })]);
+    const [emblaRefTendencias] = useEmblaCarousel({ loop: true, align: 'center' }, [Autoplay({ delay: 2500 })]);
+
     return (
         <div className="home-container1">
             <Head>
-                <title>Well Informed Green Hare - MORE</title>
-                <meta property="og:title" content="Well Informed Green Hare" />
-                <link rel="canonical" href="https://well-informed-green-hare-e1jpjw.teleporthq.app/" />
-                <meta property="og:url" content="https://well-informed-green-hare-e1jpjw.teleporthq.app/" />
+                <title>MORE - Colección Exclusiva</title>
             </Head>
 
             <Navigation />
 
-            <header className="more-header">
-                <div className="header-container">
-                    <div className="home-thq-brand-logo-elm brand-logo">
-                        <span>MORE</span>
-                    </div>
-                    <div className="auth-controls">
-                        <a href="#">
-                            <div className="btn-link">
-                                <span>Iniciar sesión</span>
-                            </div>
-                        </a>
-                        <a href="#">
-                            <div className="btn-sm btn-primary btn">
-                                <span>Registrarse</span>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </header>
-
             <section className="hero-impactante">
                 <div className="hero-video-wrapper">
-                    <video
-                        src="https://videos.pexels.com/video-files/19862866/19862866-hd_720_1280_30fps.mp4"
-                        loop
-                        muted
-                        autoPlay
-                        playsInline
-                        className="hero-bg-video"
-                    />
-                    <div className="home-thq-hero-overlay-gradient-elm" />
-                    <div className="home-thq-hero-video-controls-elm">
-                        <button
-                            aria-label="Pausar video"
-                            data-action="toggle-video"
-                            className="button video-control-btn"
-                        >
-                            <svg
-                                fill="none"
-                                width="20"
-                                xmlns="http://www.w3.org/2000/svg"
-                                height="20"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <rect x="6" y="4" width="4" height="16" />
-                                <rect x="14" y="4" width="4" height="16" />
-                            </svg>
-                        </button>
+                    <div className="ambient-bg">
+                        <div className="ambient-glow glow-1"></div>
+                        <div className="ambient-glow glow-2"></div>
+                        <div className="ambient-glow glow-3"></div>
                     </div>
+                    <div className="home-thq-hero-overlay-gradient-elm" />
                 </div>
                 <div className="hero-content-container">
-                    <h1 className="home-thq-hero-title-elm home-hero-title hero-title">
+                    <motion.h1
+                        initial={{ opacity: 0, scale: 0.98, y: 15 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                        className="home-thq-hero-title-elm home-hero-title hero-title"
+                    >
                         Colección Primavera 2025
-                    </h1>
-                    <p className="home-thq-hero-subtitle-elm hero-subtitle">
-                        Elegancia atemporal en cada pasarela. Diseño minimalista, calidad
-                        excepcional, estilo sin esfuerzo.
-                    </p>
-                    <div className="hero-cta-wrapper">
-                        <button disabled className="btn btn-outline">
-                            <span>Explorar Colección</span>
-                        </button>
-                    </div>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        className="home-thq-hero-subtitle-elm hero-subtitle"
+                    >
+                        Elegancia atemporal en cada pasarela. Diseño minimalista, calidad excepcional, estilo sin esfuerzo.
+                    </motion.p>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                        className="hero-cta-wrapper"
+                    >
+                        <Link href="/login" className="btn btn-primary btn-lg" style={{ display: 'inline-flex', padding: '1rem 2.5rem', borderRadius: '4px', textDecoration: 'none', letterSpacing: '0.05em' }}>
+                            Explorar Colección
+                        </Link>
+                    </motion.div>
                 </div>
             </section>
 
-            <section className="categorias-destacadas">
-                <div className="section-header">
+            <motion.section
+                variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
+                className="categorias-destacadas" style={{ padding: '6rem 0' }}
+            >
+                <motion.div variants={fadeUp} className="section-header" style={{ marginBottom: '3rem', textAlign: 'center' }}>
                     <h2 className="section-title">Categorías</h2>
-                </div>
-                <div className="carousel-outer">
-                    <div className="carousel-track">
-                        <div className="category-card">
-                            <img
-                                alt="Hombre"
-                                src="https://images.pexels.com/photos/36207069/pexels-photo-36207069.jpeg?auto=compress&cs=tinysrgb&w=1500"
-                            />
-                            <div className="category-overlay">
-                                <span className="category-name">Hombre</span>
-                            </div>
-                        </div>
-                        <div className="category-card">
-                            <img
-                                alt="Mujer"
-                                src="https://images.pexels.com/photos/4879302/pexels-photo-4879302.jpeg?auto=compress&cs=tinysrgb&w=1500"
-                            />
-                            <div className="category-overlay">
-                                <span className="category-name">Mujer</span>
-                            </div>
-                        </div>
-                        <div className="category-card">
-                            <img
-                                alt="Accesorios"
-                                src="https://images.pexels.com/photos/5059874/pexels-photo-5059874.jpeg?auto=compress&cs=tinysrgb&w=1500"
-                            />
-                            <div className="category-overlay">
-                                <span className="category-name">Accesorios</span>
-                            </div>
-                        </div>
-                        <div className="category-card">
-                            <img
-                                alt="Casual"
-                                src="https://images.pexels.com/photos/36510860/pexels-photo-36510860.jpeg?auto=compress&cs=tinysrgb&w=1500"
-                            />
-                            <div className="category-overlay">
-                                <span className="category-name">Casual</span>
-                            </div>
-                        </div>
-                        <div className="category-card">
-                            <img
-                                alt="Outerwear"
-                                src="https://images.pexels.com/photos/5119928/pexels-photo-5119928.jpeg?auto=compress&cs=tinysrgb&w=1500"
-                            />
-                            <div className="category-overlay">
-                                <span className="category-name">Outerwear</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </motion.div>
 
-            <section className="grid-productos">
-                <div className="section-header">
-                    <h2 className="section-title">Nuevos Lanzamientos</h2>
-                </div>
-                <div className="product-grid-container">
-                    {[
-                        { title: 'Blazer Estructurado', desc: 'Corte slim en lana italiana. Silueta refinada para cualquier ocasión.', img: 'https://images.pexels.com/photos/7760003/pexels-photo-7760003.jpeg?auto=compress&cs=tinysrgb&w=1500' },
-                        { title: 'Pantalón Wide-Leg', desc: 'Caída fluida en algodón premium. Elegancia relajada.', img: 'https://images.pexels.com/photos/36611867/pexels-photo-36611867.jpeg?auto=compress&cs=tinysrgb&w=1500' },
-                        { title: 'Camisa Crisp White', desc: 'Algodón egipcio de alto gramaje. El básico perfecto elevado.', img: 'https://images.pexels.com/photos/7682241/pexels-photo-7682241.jpeg?auto=compress&cs=tinysrgb&w=1500' },
-                        { title: 'Abrigo Minimal', desc: 'Líneas limpias, silueta oversized. Protección sin comprometer el estilo.', img: 'https://images.pexels.com/photos/6455010/pexels-photo-6455010.jpeg?auto=compress&cs=tinysrgb&w=1500' },
-                        { title: 'Chaqueta Ligera', desc: 'Técnica y sofisticada. La capa intermedia esencial.', img: 'https://images.pexels.com/photos/7682120/pexels-photo-7682120.jpeg?auto=compress&cs=tinysrgb&w=1500' },
-                        { title: 'Botín Chelsea', desc: 'Piel italiana con suela de cuero. Diseño atemporal.', img: 'https://images.pexels.com/photos/4936952/pexels-photo-4936952.jpeg?auto=compress&cs=tinysrgb&w=1500' }
-                    ].map((prod, idx) => (
-                        <div key={idx} className="product-card">
-                            <div className="product-image-box">
-                                <img alt={prod.title} src={prod.img} />
-                            </div>
-                            <div className="product-info">
-                                <h3 className="section-subtitle">{prod.title}</h3>
-                                <p className="section-content">{prod.desc}</p>
-                                <div className="product-action">
-                                    <button title="Requiere iniciar sesión" disabled className="btn-sm btn btn-outline">
-                                        Ver Detalles
-                                    </button>
+                <div className="embla" ref={emblaRefCategorias} style={{ overflow: 'hidden', padding: '1rem 0' }}>
+                    <div className="embla__container" style={{ display: 'flex' }}>
+                        {[
+                            { name: 'Hombre', img: 'https://images.pexels.com/photos/36207069/pexels-photo-36207069.jpeg' },
+                            { name: 'Mujer', img: 'https://images.pexels.com/photos/4879302/pexels-photo-4879302.jpeg' },
+                            { name: 'Accesorios', img: 'https://images.pexels.com/photos/5059874/pexels-photo-5059874.jpeg' },
+                            { name: 'Casual', img: 'https://images.pexels.com/photos/36510860/pexels-photo-36510860.jpeg' },
+                            { name: 'Outerwear', img: 'https://images.pexels.com/photos/5119928/pexels-photo-5119928.jpeg' }
+                        ].map((cat, idx) => (
+                            <motion.div variants={fadeUp} key={idx} className="embla__slide category-card" style={{ flex: '0 0 35%', minWidth: '0', marginRight: '2rem', borderRadius: '8px', overflow: 'hidden', position: 'relative', height: '400px', cursor: 'pointer' }}>
+                                <img alt={cat.name} src={cat.img + '?auto=compress&cs=tinysrgb&w=800'} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} />
+                                <div className="category-overlay" style={{ position: 'absolute', inset: '0', display: 'flex', alignItems: 'flex-end', padding: '2rem' }}>
+                                    <span className="category-name" style={{ fontSize: '1.5rem' }}>{cat.name}</span>
                                 </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section className="tendencias-radar">
-                <div className="radar-container">
-                    <div className="radar-header">
-                        <h2 className="section-title">Tendencias</h2>
-                        <div className="radar-icon-box">
-                            <svg fill="none" width="24" height="24" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="m22 7-8.5 8.5-5-5L2 17" />
-                                <path d="M16 7h6v6" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div className="radar-scroller">
-                        {['#Minimalismo', '#NeutralTones', '#Sostenible', '#TailoredFit', '#CapsuleWardrobe', '#TexturasMixtas'].map((tag, idx) => (
-                            <div key={idx} className="radar-item">
-                                <span className="radar-tag">{tag}</span>
-                                <span className="radar-stat">{idx === 0 ? 'Tendencia Principal' : 'Estilo'}</span>
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
                 </div>
-            </section>
+            </motion.section>
 
-            <section className="ia-moda">
-                <div className="ia-container">
-                    <div className="ia-content">
-                        <h2 className="section-title">Asesoría Personal</h2>
-                        <p className="section-content">
-                            Nuestro equipo de estilistas cura selecciones personalizadas
-                            basadas en tus preferencias. Descubre piezas que se adaptan
-                            perfectamente a tu estilo de vida y silueta.
-                        </p>
-                        <ul className="ia-features">
-                            <li className="ia-feature-item">
-                                <div className="feature-icon">
-                                    <svg fill="none" width="24" height="24" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M12 20v2m0-20v2m5 16v2m0-20v2M2 12h2m-2 5h2M2 7h2m16 5h2m-2 5h2M20 7h2M7 20v2M7 2v2" />
-                                        <rect x="4" y="4" rx="2" width="16" height="16" />
-                                        <rect x="8" y="8" rx="1" width="8" height="8" />
-                                    </svg>
-                                </div>
-                                <span>Selecciones Curadas por Estilistas</span>
-                            </li>
-                        </ul>
-                        <a href="#">
-                            <div className="btn btn-outline">
-                                <span>Solicitar Asesoría</span>
+            <motion.section
+                variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
+                className="grid-productos" style={{ padding: '4rem 5%', background: 'linear-gradient(to bottom, transparent, rgba(4,4,6,0.6))' }}
+            >
+                <motion.div variants={fadeUp} className="section-header" style={{ marginBottom: '4rem' }}>
+                    <h2 className="section-title" style={{ color: '#f8fafc' }}>Nuevos Lanzamientos</h2>
+                </motion.div>
+                <div className="product-grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem' }}>
+                    {[
+                        { title: 'Blazer Estructurado', desc: 'Corte slim en lana italiana. Silueta refinada.', img: 'https://images.pexels.com/photos/7760003/pexels-photo-7760003.jpeg' },
+                        { title: 'Pantalón Wide-Leg', desc: 'Caída fluida en algodón premium. Elegancia relajada.', img: 'https://images.pexels.com/photos/36611867/pexels-photo-36611867.jpeg' },
+                        { title: 'Camisa Crisp White', desc: 'Algodón egipcio de alto gramaje. Básico perfecto.', img: 'https://images.pexels.com/photos/7682241/pexels-photo-7682241.jpeg' },
+                        { title: 'Abrigo Minimal', desc: 'Líneas limpias, silueta oversized. Diseño puro.', img: 'https://images.pexels.com/photos/6455010/pexels-photo-6455010.jpeg' },
+                        { title: 'Chaqueta Ligera', desc: 'Técnica y sofisticada. Capa intermedia esencial.', img: 'https://images.pexels.com/photos/7682120/pexels-photo-7682120.jpeg' },
+                        { title: 'Botín Chelsea', desc: 'Piel italiana con suela de cuero. Atemporal.', img: 'https://images.pexels.com/photos/4936952/pexels-photo-4936952.jpeg' }
+                    ].map((prod, idx) => (
+                        <motion.div variants={fadeUp} key={idx} className="product-card" style={{ display: 'flex', flexDirection: 'column', borderRadius: '8px', overflow: 'hidden' }}>
+                            <div className="product-image-box" style={{ width: '100%', height: '400px', overflow: 'hidden' }}>
+                                <img alt={prod.title} src={prod.img + '?auto=compress&cs=tinysrgb&w=800'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
-                        </a>
+                            <div className="product-info" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flexGrow: 1 }}>
+                                <h3 className="section-subtitle">{prod.title}</h3>
+                                <p className="section-content" style={{ flexGrow: 1 }}>{prod.desc}</p>
+                                <div className="product-action" style={{ marginTop: '1rem' }}>
+                                    <Link href="/login" className="btn btn-outline" style={{ display: 'inline-block', width: '100%', textAlign: 'center', padding: '0.75rem 0', textDecoration: 'none', borderRadius: '4px' }}>
+                                        Ver Detalles
+                                    </Link>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </motion.section>
+
+            <motion.section
+                variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
+                className="tendencias-radar" style={{ padding: '6rem 0' }}
+            >
+                <div className="radar-container" style={{ margin: '0 5%' }}>
+                    <div className="radar-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                        <h2 className="section-title">Tendencias</h2>
+                        <TrendingUp color="#94a3b8" size={28} />
                     </div>
-                    <div className="ia-visual">
-                        <div className="ia-visual-backdrop" />
+
+                    <div className="embla" ref={emblaRefTendencias} style={{ overflow: 'hidden' }}>
+                        <div className="embla__container" style={{ display: 'flex', padding: '1rem 0' }}>
+                            {['#Minimalismo', '#NeutralTones', '#Sostenible', '#TailoredFit', '#CapsuleWardrobe', '#TexturasMixtas'].map((tag, idx) => (
+                                <div key={idx} className="embla__slide radar-item" style={{ flex: '0 0 auto', marginRight: '3rem', cursor: 'grab' }}>
+                                    <span className="radar-tag" style={{ fontSize: '1.2rem', color: '#f8fafc', fontWeight: 500, borderBottom: '1px solid rgba(0, 229, 255, 0.4)', paddingBottom: '4px' }}>{tag}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </motion.section>
+
+            <motion.section
+                initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+                className="ia-moda" style={{ padding: '6rem 5%' }}
+            >
+                <div className="ia-container" style={{ display: 'flex', gap: '4rem', alignItems: 'center', background: '#0d0d12', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', padding: '4rem' }}>
+                    <div className="ia-content" style={{ flex: '1' }}>
+                        <h2 className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <Sparkles color="#818cf8" size={28} /> Asesoría Personal
+                        </h2>
+                        <p className="section-content" style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#94a3b8', marginBottom: '2rem' }}>
+                            Nuestro equipo de estilistas cura selecciones personalizadas basadas en tus preferencias. Descubre piezas que se adaptan perfectamente a tu estilo de vida y silueta.
+                        </p>
+                        <Link href="/register" className="btn btn-primary" style={{ display: 'inline-flex', padding: '0.8rem 2rem', borderRadius: '4px', textDecoration: 'none', fontWeight: 500 }}>
+                            Solicitar Asesoría
+                        </Link>
+                    </div>
+                    <div className="ia-visual" style={{ flex: '1', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
                         <img
                             alt="Asesoría de Estilo"
-                            src="https://images.pexels.com/photos/1066171/pexels-photo-1066171.jpeg?auto=compress&cs=tinysrgb&w=1500"
-                            className="ia-demo-img"
+                            src="https://images.pexels.com/photos/1066171/pexels-photo-1066171.jpeg?auto=compress&cs=tinysrgb&w=800"
+                            style={{ width: '100%', height: 'auto', display: 'block' }}
                         />
-                        <div className="ia-data-overlay">
-                            <div className="data-point"><span>Estilistas Expertos</span></div>
-                            <div className="data-point"><span>Servicio Personalizado</span></div>
-                        </div>
                     </div>
                 </div>
-            </section>
-
-            <section className="llamado-accion-registro">
-                <div className="cta-card">
-                    <div className="cta-inner">
-                        <h2 className="section-title">Únete a MORE</h2>
-                        <p className="section-content">
-                            Regístrate para acceder a lanzamientos exclusivos, asesoramiento
-                            personalizado y una experiencia de compra diseñada para el amante
-                            de la moda consciente.
-                        </p>
-                        <div className="cta-benefits">
-                            <div className="benefit"><span>Envío Gratuito</span></div>
-                            <div className="benefit"><span>Asesoría Personal</span></div>
-                            <div className="benefit"><span>Acceso Exclusivo</span></div>
-                        </div>
-                        <div className="cta-button-box">
-                            <a href="#">
-                                <div className="btn-primary btn btn-lg">
-                                    <span>Registrarse</span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </motion.section>
 
             <Footer />
         </div>
@@ -267,3 +188,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+

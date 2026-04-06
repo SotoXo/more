@@ -30,17 +30,22 @@ export default function Login({
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Iniciar Sesión" />
+
+            <div className="mb-8 text-center">
+                <h2 className="text-2xl font-bold text-[#f8fafc] mb-2" style={{ fontFamily: '"Playfair Display", serif', letterSpacing: '0.05em' }}>Bienvenido de Vuelta</h2>
+                <p className="text-sm text-[#94a3b8]">Por favor, ingresa tus credenciales.</p>
+            </div>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mb-4 text-sm font-medium text-emerald-400">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="Correo Electrónico" />
 
                     <TextInput
                         id="email"
@@ -53,11 +58,11 @@ export default function Login({
                         onChange={(e) => setData('email', e.target.value)}
                     />
 
-                    <InputError message={errors.email} className="mt-2" />
+                    <InputError message={errors.email} className="mt-2 text-[#ef4444]" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                <div>
+                    <InputLabel htmlFor="password" value="Contraseña" />
 
                     <TextInput
                         id="password"
@@ -69,11 +74,11 @@ export default function Login({
                         onChange={(e) => setData('password', e.target.value)}
                     />
 
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={errors.password} className="mt-2 text-[#ef4444]" />
                 </div>
 
-                <div className="mt-4 block">
-                    <label className="flex items-center">
+                <div className="block">
+                    <label className="flex items-center cursor-pointer">
                         <Checkbox
                             name="remember"
                             checked={data.remember}
@@ -83,25 +88,34 @@ export default function Login({
                                     (e.target.checked || false) as false,
                                 )
                             }
+                            className="bg-[#0d0d12] border-[rgba(255,255,255,0.2)] text-[#818cf8] focus:ring-[#818cf8]"
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                        <span className="ms-3 text-sm text-[#94a3b8]">
+                            Mantenme conectado
                         </span>
                     </label>
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col gap-2">
+                        {canResetPassword && (
+                            <Link
+                                href={route('password.request')}
+                                className="text-sm text-[#94a3b8] underline transition duration-300 hover:text-[#f8fafc]"
+                            >
+                                ¿Olvidaste tu contraseña?
+                            </Link>
+                        )}
                         <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            href={route('register')}
+                            className="text-sm text-[#94a3b8] underline transition duration-300 hover:text-[#f8fafc]"
                         >
-                            Forgot your password?
+                            ¿No tienes una cuenta? Regístrate
                         </Link>
-                    )}
+                    </div>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
+                    <PrimaryButton className="w-full sm:w-auto" disabled={processing}>
+                        Iniciar Sesión
                     </PrimaryButton>
                 </div>
             </form>

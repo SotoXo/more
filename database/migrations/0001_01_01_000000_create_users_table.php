@@ -6,19 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+
+            // Datos personales
+            $table->string('nombre', 100);
+            $table->string('apellido_paterno', 100);
+            $table->string('apellido_materno', 100)->nullable();
+            $table->string('telefono', 20)->nullable();
+
+            // Rol (se agregará FK en una migración posterior)
+            $table->unsignedBigInteger('id_rol')->nullable();
+
+            // Compatibilidad con Laravel Auth
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Estado lógico
+            $table->boolean('estado')->default(true);
+
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index('id_rol');
+            $table->index('apellido_paterno');
+            $table->index('telefono');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -37,13 +52,10 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };
