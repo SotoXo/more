@@ -5,6 +5,7 @@ html, body {
     padding: 0;
     width: 100%;
     overflow-x: hidden;
+    scroll-behavior: smooth;
     background-color: #03040b; /* Base deep navy */
     color: #e2e8f0;
     -webkit-font-smoothing: antialiased;
@@ -16,3 +17,5 @@ html, body {
     display: flex;
     flex-direction: column;
 }
+
+

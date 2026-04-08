@@ -10,9 +10,10 @@ return new class extends Migration
     {
         Schema::create('temporadas', function (Blueprint $table) {
             $table->id('id_temporada');
-            $table->string('nombre_temporada', 50)->unique();
-            $table->string('descripcion', 255)->nullable();
-            $table->boolean('estado')->default(true);
+            $table->string('nom_tem', 50)->unique();
+            $table->string('des_tem', 255)->nullable();
+            $table->boolean('est_tem')->default(true);
+            $table->timestamp('fec_tem')->nullable();
             $table->timestamps();
         });
     }

@@ -10,19 +10,16 @@ return new class extends Migration
     {
         Schema::create('inventarios', function (Blueprint $table) {
             $table->id('id_inventario');
-            $table->unsignedBigInteger('id_prenda_variante');
-            $table->integer('cantidad_disponible')->default(0);
-            $table->integer('cantidad_reservada')->default(0);
-            $table->integer('stock_minimo')->default(0);
-            $table->string('ubicacion_fisica', 100)->nullable();
-            $table->timestamp('actualizado_en')->nullable();
+            $table->unsignedBigInteger('cod_prenda_variantes_inv')->unique();
+            $table->integer('cdi_inv')->default(0);
+            $table->integer('cre_inv')->default(0);
+            $table->string('ubi_inv', 100)->nullable();
+            $table->timestamps();
 
-            $table->foreign('id_prenda_variante')
+            $table->foreign('cod_prenda_variantes_inv')
                 ->references('id_prenda_variante')
                 ->on('prenda_variantes')
                 ->cascadeOnDelete();
-
-            $table->unique('id_prenda_variante');
         });
     }
 

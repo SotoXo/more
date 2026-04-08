@@ -10,9 +10,10 @@ return new class extends Migration
     {
         Schema::create('marcas', function (Blueprint $table) {
             $table->id('id_marca');
-            $table->string('nombre_marca', 100)->unique();
-            $table->string('descripcion', 255)->nullable();
-            $table->boolean('estado')->default(true);
+            $table->string('nom_mar', 100)->unique();
+            $table->string('des_mar', 255)->nullable();
+            $table->boolean('est_mar')->default(true);
+            $table->timestamp('fec_mar')->nullable();
             $table->timestamps();
         });
     }

@@ -10,9 +10,10 @@ return new class extends Migration
     {
         Schema::create('tallas', function (Blueprint $table) {
             $table->id('id_talla');
-            $table->string('nombre_talla', 20)->unique();
-            $table->unsignedInteger('orden_visualizacion')->default(0);
-            $table->boolean('estado')->default(true);
+            $table->string('nom_tal', 20)->unique();
+            $table->integer('ord_tal')->default(0);
+            $table->boolean('est_tal')->default(true);
+            $table->timestamp('fec_tal')->nullable();
             $table->timestamps();
         });
     }

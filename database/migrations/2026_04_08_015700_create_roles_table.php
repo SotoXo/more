@@ -10,9 +10,10 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id('id_rol');
-            $table->string('nombre_rol', 50)->unique();
-            $table->string('descripcion', 255)->nullable();
-            $table->boolean('estado')->default(true);
+            $table->string('nom_rol', 50)->unique();
+            $table->string('des_rol', 255)->nullable();
+            $table->boolean('est_rol')->default(true);
+            $table->timestamp('fec_rol')->nullable();
             $table->timestamps();
         });
     }

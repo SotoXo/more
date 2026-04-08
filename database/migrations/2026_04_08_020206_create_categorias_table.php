@@ -10,13 +10,14 @@ return new class extends Migration
     {
         Schema::create('categorias', function (Blueprint $table) {
             $table->id('id_categoria');
-            $table->string('nombre_categoria', 100)->unique();
-            $table->string('descripcion', 255)->nullable();
-            $table->unsignedBigInteger('id_categoria_padre')->nullable();
-            $table->boolean('estado')->default(true);
+            $table->string('nom_cat', 100)->unique();
+            $table->string('des_cat', 255)->nullable();
+            $table->unsignedBigInteger('cod_categoria_padre_cat')->nullable();
+            $table->boolean('est_cat')->default(true);
+            $table->timestamp('fec_cat')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_categoria_padre')
+            $table->foreign('cod_categoria_padre_cat')
                 ->references('id_categoria')
                 ->on('categorias')
                 ->nullOnDelete();

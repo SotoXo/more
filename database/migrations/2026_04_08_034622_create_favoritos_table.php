@@ -10,16 +10,25 @@ return new class extends Migration
     {
         Schema::create('favoritos', function (Blueprint $table) {
             $table->id('id_favorito');
-            $table->foreignId('id_usuario')->constrained('users')->cascadeOnDelete();
-            $table->unsignedBigInteger('id_prenda');
+            $table->unsignedBigInteger('cod_usuarios_fav');
+            $table->unsignedBigInteger('cod_prendas_fav');
+            $table->timestamp('fec_fav')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_prenda')
+            $table->foreign('cod_usuarios_fav')
+                ->references('id')
+                ->on('users')
+                ->cascadeOnDelete();
+
+            $table->foreign('cod_prendas_fav')
                 ->references('id_prenda')
                 ->on('prendas')
                 ->cascadeOnDelete();
 
-            $table->unique(['id_usuario', 'id_prenda']);
+            $table->unique(
+                ['cod_usuarios_fav', 'cod_prendas_fav'],
+                'uq_usuario_prenda_favorito'
+            );
         });
     }
 

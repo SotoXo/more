@@ -10,9 +10,10 @@ return new class extends Migration
     {
         Schema::create('colores', function (Blueprint $table) {
             $table->id('id_color');
-            $table->string('nombre_color', 50)->unique();
-            $table->string('codigo_hex', 7)->nullable();
-            $table->boolean('estado')->default(true);
+            $table->string('nom_col', 50)->unique();
+            $table->string('hex_col', 7)->nullable();
+            $table->boolean('est_col')->default(true);
+            $table->timestamp('fec_col')->nullable();
             $table->timestamps();
         });
     }

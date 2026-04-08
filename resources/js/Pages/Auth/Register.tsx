@@ -8,18 +8,18 @@ import { FormEventHandler } from 'react';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset, setError, clearErrors } = useForm({
-        nombre: '',
-        apellido_paterno: '',
-        apellido_materno: '',
-        telefono: '',
+        nom_usu: '',
+        app_usu: '',
+        apm_usu: '',
+        tel_usu: '',
         email: '',
         password: '',
         password_confirmation: '',
     });
 
-    const handleNameChange = (val: string, field: 'nombre' | 'apellido_paterno' | 'apellido_materno', maxLen: number) => {
-        // Prevent numbers
-        let cleanVal = val.replace(/[0-9]/g, '').slice(0, maxLen);
+    const handleNameChange = (val: string, field: 'nom_usu' | 'app_usu' | 'apm_usu', maxLen: number) => {
+        // Prevent numbers and transform to UPPERCASE in real-time
+        let cleanVal = val.toUpperCase().replace(/[0-9]/g, '').slice(0, maxLen);
         setData(field, cleanVal);
 
         if (cleanVal.length > 0 && cleanVal[0] !== cleanVal[0].toUpperCase()) {
@@ -32,14 +32,14 @@ export default function Register() {
     const handlePhoneChange = (val: string) => {
         // Prevent letters, only numbers, max 8
         let cleanVal = val.replace(/[^0-9]/g, '').slice(0, 8);
-        setData('telefono', cleanVal);
+        setData('tel_usu', cleanVal);
 
         if (cleanVal.length > 0 && !/^[67]/.test(cleanVal)) {
-            setError('telefono', 'Debe empezar con 6 o 7');
+            setError('tel_usu', 'Debe empezar con 6 o 7');
         } else if (cleanVal.length > 0 && cleanVal.length < 8) {
-            setError('telefono', 'Debe tener 8 dígitos');
+            setError('tel_usu', 'Debe tener 8 dígitos');
         } else {
-            clearErrors('telefono');
+            clearErrors('tel_usu');
         }
     };
 
@@ -62,62 +62,62 @@ export default function Register() {
 
             <form onSubmit={submit} className="flex flex-col gap-5">
                 <div>
-                    <InputLabel htmlFor="nombre" value="Nombre" />
+                    <InputLabel htmlFor="nom_usu" value="Nombre" />
                     <TextInput
-                        id="nombre"
-                        name="nombre"
-                        value={data.nombre}
+                        id="nom_usu"
+                        name="nom_usu"
+                        value={data.nom_usu}
                         className="mt-1 block w-full"
                         autoComplete="name"
                         isFocused={true}
                         maxLength={50}
-                        onChange={(e) => handleNameChange(e.target.value, 'nombre', 50)}
+                        onChange={(e) => handleNameChange(e.target.value, 'nom_usu', 50)}
                         required
                     />
-                    <InputError message={errors.nombre} className="mt-2 text-[#ef4444]" />
+                    <InputError message={errors.nom_usu} className="mt-2 text-[#ef4444]" />
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="apellido_paterno" value="Apellido Paterno" />
+                    <InputLabel htmlFor="app_usu" value="Apellido Paterno" />
                     <TextInput
-                        id="apellido_paterno"
-                        name="apellido_paterno"
-                        value={data.apellido_paterno}
+                        id="app_usu"
+                        name="app_usu"
+                        value={data.app_usu}
                         className="mt-1 block w-full"
                         maxLength={20}
-                        onChange={(e) => handleNameChange(e.target.value, 'apellido_paterno', 20)}
+                        onChange={(e) => handleNameChange(e.target.value, 'app_usu', 20)}
                         required
                     />
-                    <InputError message={errors.apellido_paterno} className="mt-2 text-[#ef4444]" />
+                    <InputError message={errors.app_usu} className="mt-2 text-[#ef4444]" />
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="apellido_materno" value="Apellido Materno" />
+                    <InputLabel htmlFor="apm_usu" value="Apellido Materno" />
                     <TextInput
-                        id="apellido_materno"
-                        name="apellido_materno"
-                        value={data.apellido_materno}
+                        id="apm_usu"
+                        name="apm_usu"
+                        value={data.apm_usu}
                         className="mt-1 block w-full"
                         maxLength={20}
-                        onChange={(e) => handleNameChange(e.target.value, 'apellido_materno', 20)}
+                        onChange={(e) => handleNameChange(e.target.value, 'apm_usu', 20)}
                         required
                     />
-                    <InputError message={errors.apellido_materno} className="mt-2 text-[#ef4444]" />
+                    <InputError message={errors.apm_usu} className="mt-2 text-[#ef4444]" />
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="telefono" value="Teléfono" />
+                    <InputLabel htmlFor="tel_usu" value="Teléfono" />
                     <TextInput
-                        id="telefono"
-                        name="telefono"
+                        id="tel_usu"
+                        name="tel_usu"
                         type="tel"
-                        value={data.telefono}
+                        value={data.tel_usu}
                         className="mt-1 block w-full"
                         maxLength={8}
                         onChange={(e) => handlePhoneChange(e.target.value)}
                         required
                     />
-                    <InputError message={errors.telefono} className="mt-2 text-[#ef4444]" />
+                    <InputError message={errors.tel_usu} className="mt-2 text-[#ef4444]" />
                 </div>
 
                 <div>

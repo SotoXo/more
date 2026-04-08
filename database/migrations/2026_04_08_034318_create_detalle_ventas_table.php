@@ -10,19 +10,20 @@ return new class extends Migration
     {
         Schema::create('detalle_ventas', function (Blueprint $table) {
             $table->id('id_detalle_venta');
-            $table->unsignedBigInteger('id_venta');
-            $table->unsignedBigInteger('id_prenda_variante');
-            $table->integer('cantidad');
-            $table->decimal('precio_unitario', 10, 2);
-            $table->decimal('subtotal', 10, 2);
+            $table->unsignedBigInteger('cod_ventas_dve');
+            $table->unsignedBigInteger('cod_prenda_variantes_dve');
+            $table->integer('can_dve');
+            $table->decimal('pun_dve', 10, 2);
+            $table->decimal('sub_dve', 10, 2);
+            $table->timestamp('fec_dve')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_venta')
+            $table->foreign('cod_ventas_dve')
                 ->references('id_venta')
                 ->on('ventas')
                 ->cascadeOnDelete();
 
-            $table->foreign('id_prenda_variante')
+            $table->foreign('cod_prenda_variantes_dve')
                 ->references('id_prenda_variante')
                 ->on('prenda_variantes')
                 ->restrictOnDelete();

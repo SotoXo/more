@@ -10,12 +10,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['nombre', 'apellido_paterno', 'apellido_materno', 'telefono', 'email', 'password', 'id_rol', 'estado'])]
+#[Fillable(['nom_usu', 'app_usu', 'apm_usu', 'tel_usu', 'email', 'password', 'cod_roles_usu', 'est_usu', 'fec_usu'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * Get the role associated with the user.
+     */
+    public function rol()
+    {
+        return $this->belongsTo(Role::class, 'cod_roles_usu', 'id_rol');
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -27,6 +35,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'est_usu' => 'boolean',
+            'fec_usu' => 'datetime',
         ];
     }
 }
