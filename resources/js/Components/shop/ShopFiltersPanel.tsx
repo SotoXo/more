@@ -1,10 +1,10 @@
-import {
-    priceFilterOptions,
-    type PriceFilterKey,
-    type ShopAvailability,
-    type ShopFilterOptions,
-    type ShopFilterState,
-} from '@/data/shop';
+import { priceFilterOptions } from '@/lib/shop';
+import type {
+    PriceFilterKey,
+    ShopAvailability,
+    ShopFilterOptions,
+    ShopFilterState,
+} from '@/types/shop';
 import { RotateCcw, X } from 'lucide-react';
 
 type MultiFilterKey = 'categories' | 'sizes' | 'colors' | 'styles' | 'brands';
@@ -23,7 +23,7 @@ type ShopFiltersPanelProps = {
 const availabilityOptions: Array<'all' | ShopAvailability> = [
     'all',
     'Disponible',
-    'Ultimas piezas',
+    'Últimas piezas',
     'Agotado',
 ];
 
@@ -44,7 +44,7 @@ function FilterGroup({
 
     return (
         <div>
-            <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-400">
+            <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">
                 {title}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -59,8 +59,8 @@ function FilterGroup({
                             className={[
                                 'rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
                                 active
-                                    ? 'border-white/25 bg-white/[0.12] text-white'
-                                    : 'border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/18 hover:bg-white/[0.06]',
+                                    ? 'more-pill-active'
+                                    : 'more-pill hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)] text-stone-300',
                             ].join(' ')}
                         >
                             {item}
@@ -84,12 +84,12 @@ export default function ShopFiltersPanel({
 }: ShopFiltersPanelProps) {
     return (
         <div
-            className={`rounded-[2rem] border border-white/10 bg-[#0c1117]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl ${className}`.trim()}
+            className={`more-panel-soft rounded-[2rem] p-6 ${className}`.trim()}
         >
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-400">
-                        Mati Boutique filters
+                    <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-500">
+                        Edición personalizada
                     </p>
                     <h3
                         className="mt-3 text-3xl leading-none text-white"
@@ -98,15 +98,18 @@ export default function ShopFiltersPanel({
                                 '"Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif',
                         }}
                     >
-                        Refine the selection
+                        Afinar la selección
                     </h3>
+                    <p className="mt-3 max-w-xs text-sm leading-6 text-stone-400">
+                        Filtros discretos para recorrer la tienda con más intención.
+                    </p>
                 </div>
 
                 {onClose && (
                     <button
                         type="button"
                         onClick={onClose}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white transition hover:border-white/18 hover:bg-white/[0.08]"
+                        className="more-icon-button inline-flex h-10 w-10 items-center justify-center"
                         aria-label="Cerrar filtros"
                     >
                         <X size={16} />
@@ -117,46 +120,52 @@ export default function ShopFiltersPanel({
             <button
                 type="button"
                 onClick={onClear}
-                className="mt-5 inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-stone-300 transition hover:text-white"
+                className="mt-5 inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-stone-300 transition hover:text-[rgb(223,184,166)]"
             >
                 <RotateCcw size={14} />
                 Limpiar filtros
             </button>
 
             <div className="mt-8 space-y-8">
+                <div className="more-divider" />
                 <FilterGroup
-                    title="Categoria"
+                    title="Categoría"
                     items={options.categories}
                     selectedValues={filters.categories}
                     onToggle={(value) => onToggle('categories', value)}
                 />
+                <div className="more-divider" />
                 <FilterGroup
                     title="Talla"
                     items={options.sizes}
                     selectedValues={filters.sizes}
                     onToggle={(value) => onToggle('sizes', value)}
                 />
+                <div className="more-divider" />
                 <FilterGroup
                     title="Color"
                     items={options.colors}
                     selectedValues={filters.colors}
                     onToggle={(value) => onToggle('colors', value)}
                 />
+                <div className="more-divider" />
                 <FilterGroup
-                    title="Estilo"
+                    title="Edición"
                     items={options.styles}
                     selectedValues={filters.styles}
                     onToggle={(value) => onToggle('styles', value)}
                 />
+                <div className="more-divider" />
                 <FilterGroup
                     title="Marca"
                     items={options.brands}
                     selectedValues={filters.brands}
                     onToggle={(value) => onToggle('brands', value)}
                 />
+                <div className="more-divider" />
 
                 <div>
-                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-400">
+                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">
                         Precio
                     </p>
                     <div className="mt-4 space-y-2">
@@ -171,20 +180,25 @@ export default function ShopFiltersPanel({
                                     className={[
                                         'flex w-full items-center justify-between rounded-[1.2rem] border px-4 py-3 text-left text-sm transition duration-300',
                                         active
-                                            ? 'border-white/24 bg-white/[0.09] text-white'
-                                            : 'border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/18 hover:bg-white/[0.06]',
+                                            ? 'border-[rgba(181,122,109,0.28)] bg-[rgba(181,122,109,0.12)] text-white'
+                                            : 'border-white/10 bg-white/[0.02] text-stone-300 hover:border-[rgba(181,122,109,0.22)] hover:bg-[rgba(181,122,109,0.07)]',
                                     ].join(' ')}
                                 >
                                     <span>{option.label}</span>
-                                    {active && <span className="text-[0.68rem] uppercase tracking-[0.18em]">Activo</span>}
+                                    {active && (
+                                        <span className="text-[0.68rem] uppercase tracking-[0.18em] text-[rgb(223,184,166)]">
+                                            Activo
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}
                     </div>
                 </div>
+                <div className="more-divider" />
 
                 <div>
-                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-400">
+                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">
                         Disponibilidad
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -200,8 +214,8 @@ export default function ShopFiltersPanel({
                                     className={[
                                         'rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
                                         active
-                                            ? 'border-white/24 bg-white/[0.12] text-white'
-                                            : 'border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/18 hover:bg-white/[0.06]',
+                                            ? 'more-pill-active'
+                                            : 'more-pill hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)] text-stone-300',
                                     ].join(' ')}
                                 >
                                     {label}

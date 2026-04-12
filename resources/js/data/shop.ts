@@ -131,42 +131,42 @@ export const shopCollections: Record<ShopCollectionKey, ShopCollectionConfig> = 
     mujer: {
         key: 'mujer',
         title: 'Mujer',
-        eyebrow: 'Selection Mati Boutique',
+        eyebrow: 'Selección Mati Boutique',
         subtitle: 'Siluetas limpias, tailoring suave y piezas que dominan sin exceso.',
-        description: 'Una seleccion pensada para verse editorial y sentirse facil.',
+        description: 'Una selección pensada para verse editorial y sentirse natural.',
         heroImage:
             'https://images.pexels.com/photos/4879302/pexels-photo-4879302.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Quiet luxury', 'Soft tailoring', 'After dark'],
+        highlights: ['Lujo sereno', 'Sastrería suave', 'After dark'],
     },
     hombre: {
         key: 'hombre',
         title: 'Hombre',
-        eyebrow: 'Mati Boutique edit',
+        eyebrow: 'Edición Mati Boutique',
         subtitle: 'Smart casual con estructura limpia, knit premium y capas precisas.',
         description: 'Looks urbanos con una base europea y una lectura mas actual.',
         heroImage:
             'https://images.pexels.com/photos/36207069/pexels-photo-36207069.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Old money', 'Clean street', 'Tailoring'],
+        highlights: ['Clásico moderno', 'Urbano limpio', 'Sastrería'],
     },
     accesorios: {
         key: 'accesorios',
         title: 'Accesorios',
-        eyebrow: 'Refined accents',
+        eyebrow: 'Acentos precisos',
         subtitle: 'Bolsos, cuero, metal suave y detalles que cierran el look.',
         description: 'La capa final para dar presencia sin perder limpieza visual.',
         heroImage:
             'https://images.pexels.com/photos/5059874/pexels-photo-5059874.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Leather lab', 'Soft gold', 'Minimal carry'],
+        highlights: ['Cuero preciso', 'Metal suave', 'Presencia ligera'],
     },
     novedades: {
         key: 'novedades',
-        title: 'New In',
-        eyebrow: 'Now landing',
+        title: 'Novedades',
+        eyebrow: 'Recién llegadas',
         subtitle: 'Las piezas nuevas que entran con mas ritmo a la seleccion actual.',
         description: 'Nuevas entradas entre tailoring, knit y accesorios con presencia.',
         heroImage:
             'https://images.pexels.com/photos/977585/pexels-photo-977585.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['New season', 'Fresh arrivals', 'Quiet edits'],
+        highlights: ['Nueva temporada', 'Llegadas recientes', 'Edición serena'],
     },
 };
 
@@ -635,33 +635,33 @@ export const homeHeroSlides: HomeHeroSlide[] = [
         title: 'Nueva temporada',
         subtitle: 'Curado por Mati Boutique.',
         image: 'https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        note: 'Soft tailoring, city layers, quiet shine.',
+        note: 'Sastrería suave, capas urbanas y brillo sereno.',
     },
     {
-        title: 'Minimal luxury',
-        subtitle: 'Looks limpios para todos los dias.',
+        title: 'Lujo esencial',
+        subtitle: 'Looks limpios para todos los días.',
         image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        note: 'Stone, black, ivory and deep navy.',
+        note: 'Piedra, negro, marfil y azul profundo.',
     },
     {
-        title: 'After dark edit',
+        title: 'Edición nocturna',
         subtitle: 'Texturas suaves y contraste preciso.',
         image: 'https://images.pexels.com/photos/6455010/pexels-photo-6455010.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        note: 'Editorial pieces for nights in motion.',
+        note: 'Piezas editoriales para noches en movimiento.',
     },
 ];
 
 export const homeCollectionCards: HomeCollectionCard[] = [
     {
-        title: 'Weekend tailoring',
+        title: 'Sastrería de fin de semana',
         image: 'https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=1200',
-        label: 'Mati Boutique edit',
+        label: 'Edición Mati Boutique',
         href: shopRoutes.collections,
     },
     {
-        title: 'Quiet evening',
+        title: 'Noche serena',
         image: 'https://images.pexels.com/photos/6311612/pexels-photo-6311612.jpeg?auto=compress&cs=tinysrgb&w=1200',
-        label: 'New season',
+        label: 'Nueva temporada',
         href: shopRoutes.editorial,
     },
 ];
@@ -698,7 +698,7 @@ export const homeCategoryTiles: HomeCategoryTile[] = [
         href: shopRoutes.women,
     },
     {
-        title: 'New In',
+        title: 'Novedades',
         image: 'https://images.pexels.com/photos/977585/pexels-photo-977585.jpeg?auto=compress&cs=tinysrgb&w=1200',
         span: 'md:col-span-6 lg:col-span-3',
         href: shopRoutes.newIn,
@@ -749,20 +749,20 @@ export const homeTrendLooks: HomeTrendLook[] = [
 
 export const editorialFeatures: EditorialFeature[] = [
     {
-        eyebrow: 'Selection Mati Boutique',
-        title: 'Quiet layers for the city',
+        eyebrow: 'Selección Mati Boutique',
+        title: 'Capas serenas para la ciudad',
         image: 'https://images.pexels.com/photos/6311387/pexels-photo-6311387.jpeg?auto=compress&cs=tinysrgb&w=1400',
         href: shopRoutes.men,
     },
     {
-        eyebrow: 'New season',
-        title: 'Soft tailoring, lighter shine',
+        eyebrow: 'Nueva temporada',
+        title: 'Sastrería suave, brillo contenido',
         image: 'https://images.pexels.com/photos/6311612/pexels-photo-6311612.jpeg?auto=compress&cs=tinysrgb&w=1400',
         href: shopRoutes.women,
     },
     {
-        eyebrow: 'Accessory focus',
-        title: 'The pieces that finish the look',
+        eyebrow: 'Foco en accesorios',
+        title: 'Las piezas que cierran el look',
         image: 'https://images.pexels.com/photos/5059874/pexels-photo-5059874.jpeg?auto=compress&cs=tinysrgb&w=1400',
         href: shopRoutes.accessories,
     },
@@ -770,18 +770,18 @@ export const editorialFeatures: EditorialFeature[] = [
 
 export const editorialMoments: EditorialMoment[] = [
     {
-        title: 'Quiet tailoring',
-        note: 'neutral structures',
+        title: 'Sastrería serena',
+        note: 'estructuras suaves',
         image: 'https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg?auto=compress&cs=tinysrgb&w=1400',
     },
     {
-        title: 'Soft shine',
-        note: 'dark satin',
+        title: 'Brillo contenido',
+        note: 'satin nocturno',
         image: 'https://images.pexels.com/photos/6455010/pexels-photo-6455010.jpeg?auto=compress&cs=tinysrgb&w=1400',
     },
     {
-        title: 'New season',
-        note: 'fresh arrivals',
+        title: 'Nueva temporada',
+        note: 'llegadas recientes',
         image: 'https://images.pexels.com/photos/977585/pexels-photo-977585.jpeg?auto=compress&cs=tinysrgb&w=1400',
     },
 ];

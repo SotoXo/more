@@ -2,16 +2,17 @@ import LandingFooter from '@/Components/landing/LandingFooter';
 import LandingHeader from '@/Components/landing/LandingHeader';
 import SectionHeading from '@/Components/landing/SectionHeading';
 import {
-    getProductsBySlugs,
-    homeArrivalSlugs,
-    homeCategoryTiles,
+    homeBrandEditorialCards,
+    homeCategoryVisuals,
     homeCollectionCards,
     homeHeroSlides,
-    homeSelectionSlugs,
-    homeTrendGroups,
-    homeTrendLooks,
-    shopRoutes,
-} from '@/data/shop';
+} from '@/data/storefront';
+import { shopRoutes } from '@/lib/shop';
+import type {
+    HomeBrandLink,
+    HomeCategoryLink,
+    ShopProduct,
+} from '@/types/shop';
 import type { LandingPageProps } from '@/types/landing';
 import { Head, Link, usePage } from '@inertiajs/react';
 import Autoplay from 'embla-carousel-autoplay';
@@ -20,8 +21,12 @@ import { motion, type Variants } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const arrivals = getProductsBySlugs(homeArrivalSlugs);
-const curatedSelection = getProductsBySlugs(homeSelectionSlugs);
+type HomeProps = {
+    novedades: ShopProduct[];
+    seleccion: ShopProduct[];
+    categorias: HomeCategoryLink[];
+    marcas: HomeBrandLink[];
+};
 
 const reveal: Variants = {
     hidden: { opacity: 0, y: 28 },
@@ -38,12 +43,13 @@ const stagger: Variants = {
 };
 
 const sectionShell = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8';
-const panelClass =
-    'rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-[0_28px_100px_rgba(0,0,0,0.38)] backdrop-blur-sm';
+const panelClass = 'more-panel rounded-[2rem]';
 const primaryButtonClass =
-    'inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-[0.78rem] uppercase tracking-[0.22em] text-slate-950 shadow-[0_18px_50px_rgba(255,255,255,0.14)] transition duration-300 hover:-translate-y-px hover:bg-stone-200';
+    'more-cta-primary px-6 py-3 text-[0.78rem] uppercase tracking-[0.22em]';
 const secondaryButtonClass =
-    'inline-flex items-center justify-center gap-2 rounded-full border border-white/12 px-6 py-3 text-[0.78rem] uppercase tracking-[0.22em] text-white transition duration-300 hover:-translate-y-px hover:border-white/20 hover:bg-white/[0.05]';
+    'more-cta-secondary px-6 py-3 text-[0.78rem] uppercase tracking-[0.22em]';
+const editorialLinkClass =
+    'more-cta-editorial text-[0.74rem] uppercase tracking-[0.24em]';
 const serifStyle = {
     fontFamily:
         '"Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif',
@@ -61,14 +67,14 @@ function CarouselButtons({
             <button
                 type="button"
                 onClick={onPrev}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white transition hover:border-white/20 hover:bg-white/[0.08]"
+                className="more-icon-button inline-flex h-11 w-11 items-center justify-center"
             >
                 <ChevronLeft size={18} />
             </button>
             <button
                 type="button"
                 onClick={onNext}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white transition hover:border-white/20 hover:bg-white/[0.08]"
+                className="more-icon-button inline-flex h-11 w-11 items-center justify-center"
             >
                 <ChevronRight size={18} />
             </button>
@@ -76,9 +82,17 @@ function CarouselButtons({
     );
 }
 
-export default function Home() {
+export default function Home({
+    novedades,
+    seleccion,
+    categorias,
+    marcas,
+}: HomeProps) {
     const page = usePage();
     const user = (page.props as unknown as LandingPageProps).auth?.user ?? null;
+
+    const arrivals = novedades;
+    const curatedSelection = seleccion;
 
     const [heroIndex, setHeroIndex] = useState(0);
     const [heroRef, heroApi] = useEmblaCarousel(
@@ -116,9 +130,9 @@ export default function Home() {
             <Head title="MORE | Mati Boutique" />
 
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-                <div className="absolute inset-x-0 top-0 h-[680px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_20%_20%,rgba(120,119,198,0.12),transparent_30%),linear-gradient(180deg,#0b1016_0%,#05070b_68%)]" />
+                <div className="absolute inset-x-0 top-0 h-[680px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_20%_20%,rgba(181,122,109,0.18),transparent_30%),linear-gradient(180deg,#0b1016_0%,#05070b_68%)]" />
                 <div className="absolute left-[-10%] top-[12%] h-80 w-80 rounded-full bg-white/6 blur-[120px]" />
-                <div className="absolute right-[-12%] top-[30%] h-[28rem] w-[28rem] rounded-full bg-stone-400/8 blur-[140px]" />
+                <div className="absolute right-[-12%] top-[30%] h-[28rem] w-[28rem] rounded-full bg-[rgba(181,122,109,0.12)] blur-[140px]" />
             </div>
 
             <LandingHeader user={user} />
@@ -147,7 +161,7 @@ export default function Home() {
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-transparent to-transparent" />
                                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_30%)]" />
                                                 <div className="absolute left-6 top-6 rounded-full border border-white/15 bg-black/20 px-4 py-2 text-[0.68rem] uppercase tracking-[0.26em] text-stone-200 backdrop-blur sm:left-8 sm:top-8">
-                                                    Curated by Mati Boutique
+                                                    MORE por Mati Boutique
                                                 </div>
                                             </div>
                                         ))}
@@ -180,31 +194,40 @@ export default function Home() {
 
                                         <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
                                             <Link
-                                                href={shopRoutes.collections}
+                                                href={shopRoutes.catalog}
                                                 className={primaryButtonClass}
                                             >
-                                                Explorar coleccion
+                                                Explorar catálogo
                                                 <ArrowRight size={16} />
                                             </Link>
                                             <Link
                                                 href={shopRoutes.newIn}
                                                 className={secondaryButtonClass}
                                             >
-                                                Ver novedades
+                                                Entrar a Novedades
+                                            </Link>
+                                            <Link
+                                                href={shopRoutes.editorial}
+                                                className={editorialLinkClass}
+                                            >
+                                                <Play size={14} />
+                                                Ver editorial
                                             </Link>
                                         </div>
 
                                         <div className="mt-6 flex flex-wrap gap-2">
-                                            {['New season edit', 'Quiet luxury', 'Mati Boutique'].map(
-                                                (chip) => (
-                                                    <span
-                                                        key={chip}
-                                                        className="rounded-full border border-white/12 bg-white/[0.05] px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:bg-white/[0.09]"
-                                                    >
-                                                        {chip}
-                                                    </span>
-                                                ),
-                                            )}
+                                            {[
+                                                `${categorias.length} capítulos para recorrer`,
+                                                `${marcas.length} firmas en selección`,
+                                                `${novedades.length} piezas destacadas`,
+                                            ].map((chip) => (
+                                                <span
+                                                    key={chip}
+                                                    className="more-pill rounded-full px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]"
+                                                >
+                                                    {chip}
+                                                </span>
+                                            ))}
                                         </div>
 
                                         <div className="mt-7 flex items-center gap-3">
@@ -240,6 +263,7 @@ export default function Home() {
                                                     className="h-[280px] w-full object-cover transition duration-700 group-hover:scale-[1.04]"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                                                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(181,122,109,0.12),transparent_40%)] opacity-80 transition duration-500 group-hover:opacity-100" />
                                                 <div className="absolute bottom-0 left-0 right-0 p-6">
                                                     <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-200">
                                                         {card.label}
@@ -251,37 +275,37 @@ export default function Home() {
                                                         {card.title}
                                                     </h2>
                                                     <p className="mt-4 text-[0.68rem] uppercase tracking-[0.22em] text-stone-200">
-                                                        Ver coleccion
+                                                        Ver colección
                                                     </p>
                                                 </div>
                                             </Link>
                                         ))}
                                     </div>
 
-                                    <div className="rounded-[1.8rem] border border-white/10 bg-[#0d1218] p-6 sm:p-8">
+                                    <div className="more-panel-soft rounded-[1.8rem] p-6 sm:p-8">
                                         <div className="flex items-center justify-between">
                                             <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-400">
                                                 Editorial Mati Boutique
                                             </p>
-                                            <span className="rounded-full border border-white/10 px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-stone-300">
-                                                New season
+                                            <span className="more-pill rounded-full px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-stone-300">
+                                                Edición insignia
                                             </span>
                                         </div>
                                         <h2
                                             className="mt-5 text-4xl leading-none text-white"
                                             style={serifStyle}
                                         >
-                                            Tailoring that moves quietly.
+                                            La elegancia entra en voz baja.
                                         </h2>
                                         <p className="mt-4 max-w-sm text-sm leading-7 text-stone-300">
-                                            Clean silhouettes, polished layers and pieces that move from day to night.
+                                            Capas pulidas, líneas serenas y una composición pensada para el día y la noche.
                                         </p>
                                         <div className="mt-5 flex flex-wrap gap-2">
-                                            {['Soft tailoring', 'Satin glow', 'City night'].map(
+                                            {['Sastrería suave', 'Brillo satinado', 'Noche urbana'].map(
                                                 (tag) => (
                                                     <span
                                                         key={tag}
-                                                        className="rounded-full border border-white/10 px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.2em] text-stone-300 transition duration-300 hover:-translate-y-px hover:border-white/20"
+                                                        className="more-pill rounded-full px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.2em] text-stone-300 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.24)]"
                                                     >
                                                         {tag}
                                                     </span>
@@ -290,10 +314,10 @@ export default function Home() {
                                         </div>
                                         <Link
                                             href={shopRoutes.editorial}
-                                            className="mt-7 inline-flex items-center gap-2 text-sm uppercase tracking-[0.22em] text-white"
+                                            className={`${editorialLinkClass} mt-7`}
                                         >
                                             <Play size={14} />
-                                            View editorial
+                                            Ver editorial
                                         </Link>
                                     </div>
                                 </div>
@@ -306,9 +330,9 @@ export default function Home() {
                     <div className={sectionShell}>
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                             <SectionHeading
-                                eyebrow="New in"
+                                eyebrow="Novedades"
                                 title="Novedades"
-                                description="A polished carousel of pieces ready to lead the floor."
+                                description="Piezas recién llegadas con líneas limpias y una presencia tranquila."
                             />
                             <CarouselButtons
                                 onPrev={() => arrivalApi?.scrollPrev()}
@@ -344,7 +368,7 @@ export default function Home() {
                                                 </div>
                                                 <div className="pt-5">
                                                     <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
-                                                        {item.line}
+                                                        {item.line || item.category}
                                                     </p>
                                                     <div className="mt-2 flex items-end justify-between gap-4">
                                                         <h3
@@ -353,7 +377,7 @@ export default function Home() {
                                                         >
                                                             {item.name}
                                                         </h3>
-                                                        <span className="text-sm text-stone-300">
+                                                        <span className="text-sm text-[rgb(223,184,166)]">
                                                             Bs {item.price}
                                                         </span>
                                                     </div>
@@ -370,9 +394,13 @@ export default function Home() {
                 <section className="pt-28">
                     <div className={sectionShell}>
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                            <SectionHeading eyebrow="Shop by mood" title="Categorias" />
-                            <Link href={shopRoutes.collections} className={secondaryButtonClass}>
-                                Explorar categorias
+                            <SectionHeading
+                                eyebrow="Capítulos de estilo"
+                                title="Categorías"
+                                description="Recorre la boutique por capítulos y encuentra el tono que define tu guardarropa."
+                            />
+                            <Link href={shopRoutes.catalog} className={secondaryButtonClass}>
+                                Ver catálogo completo
                             </Link>
                         </div>
 
@@ -383,29 +411,47 @@ export default function Home() {
                             viewport={{ once: true, amount: 0.15 }}
                             className="mt-10 grid gap-4 md:grid-cols-12"
                         >
-                            {homeCategoryTiles.map((tile) => (
-                                <motion.div key={tile.title} variants={reveal} className={tile.span}>
-                                    <Link
-                                        href={tile.href}
-                                        className="group relative block overflow-hidden rounded-[1.8rem]"
+                            {categorias.map((categoria, index) => {
+                                const visual =
+                                    homeCategoryVisuals[index % homeCategoryVisuals.length];
+
+                                return (
+                                    <motion.div
+                                        key={categoria.id}
+                                        variants={reveal}
+                                        className={visual.span}
                                     >
-                                        <img
-                                            src={tile.image}
-                                            alt={tile.title}
-                                            className="h-[300px] w-full object-cover transition duration-700 group-hover:scale-[1.04] sm:h-[360px]"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
-                                        <div className="absolute bottom-0 left-0 right-0 p-6">
-                                            <h3
-                                                className="text-4xl text-white"
-                                                style={serifStyle}
-                                            >
-                                                {tile.title}
-                                            </h3>
-                                        </div>
-                                    </Link>
-                                </motion.div>
-                            ))}
+                                        <Link
+                                            href={categoria.href}
+                                            className="group relative block overflow-hidden rounded-[1.8rem]"
+                                        >
+                                            <img
+                                                src={visual.image}
+                                                alt={categoria.name}
+                                                className="h-[300px] w-full object-cover transition duration-700 group-hover:scale-[1.04] sm:h-[360px]"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+                                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(181,122,109,0.12),transparent_46%)] opacity-80 transition duration-500 group-hover:opacity-100" />
+                                            <div className="absolute bottom-0 left-0 right-0 p-6">
+                                                <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-200">
+                                                    Capítulo curado
+                                                </p>
+                                                <h3
+                                                    className="mt-3 text-4xl text-white"
+                                                    style={serifStyle}
+                                                >
+                                                    {categoria.name}
+                                                </h3>
+                                                {categoria.desc && (
+                                                    <p className="mt-3 max-w-sm text-sm leading-7 text-stone-100">
+                                                        {categoria.desc}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </Link>
+                                    </motion.div>
+                                );
+                            })}
                         </motion.div>
                     </div>
                 </section>
@@ -416,81 +462,52 @@ export default function Home() {
                             <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
                                 <div>
                                     <SectionHeading
-                                        eyebrow="Now trending"
-                                        title="The season in motion."
-                                        description="Less noise. Better silhouettes. Rich neutrals."
+                                        eyebrow="Firmas seleccionadas"
+                                        title="Firmas en tienda"
+                                        description="Firmas que conviven bajo una misma mirada: calma, estructura y detalle."
                                     />
 
-                                    <div className="mt-8 space-y-5">
-                                        {homeTrendGroups.map((group) => (
-                                            <div key={group.title}>
-                                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-500">
-                                                    {group.title}
-                                                </p>
-                                                <div className="mt-3 flex flex-wrap gap-2">
-                                                    {group.items.map((item) => (
-                                                        <span
-                                                            key={item}
-                                                            className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[0.72rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:border-white/20 hover:bg-white/[0.08]"
-                                                        >
-                                                            {item}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="grid gap-4">
-                                    <Link
-                                        href={shopRoutes.editorial}
-                                        className="relative overflow-hidden rounded-[1.8rem]"
-                                    >
-                                        <img
-                                            src="https://images.pexels.com/photos/1066171/pexels-photo-1066171.jpeg?auto=compress&cs=tinysrgb&w=1400"
-                                            alt="Editorial trends"
-                                            className="h-[430px] w-full object-cover"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
-                                        <div className="absolute bottom-0 left-0 right-0 p-6">
-                                            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-200">
-                                                New season edit
-                                            </p>
-                                            <p className="mt-3 max-w-sm text-sm leading-7 text-stone-100">
-                                                Tailoring, soft neutrals and a cleaner silhouette language.
-                                            </p>
-                                        </div>
-                                    </Link>
-                                    <div className="grid gap-4 sm:grid-cols-3">
-                                        {homeTrendLooks.map((look) => (
+                                    <div className="mt-8 flex flex-wrap gap-3">
+                                        {marcas.map((marca) => (
                                             <Link
-                                                key={look.title}
-                                                href={look.href}
-                                                className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0c1117] transition duration-300 hover:-translate-y-1"
+                                                key={marca.id}
+                                                href={marca.href}
+                                                className="more-pill rounded-full px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.28)] hover:bg-[rgba(181,122,109,0.08)]"
                                             >
-                                                <div className="overflow-hidden">
-                                                    <img
-                                                        src={look.image}
-                                                        alt={look.title}
-                                                        className="h-[220px] w-full object-cover transition duration-[900ms] group-hover:scale-[1.04]"
-                                                    />
-                                                </div>
-                                                <div className="p-4">
-                                                    <p className="text-[0.7rem] uppercase tracking-[0.22em] text-stone-400">
-                                                        {look.note}
-                                                    </p>
-                                                    <p
-                                                        className="mt-2 text-2xl leading-none text-white"
-                                                        style={serifStyle}
-                                                    >
-                                                        {look.title}
-                                                    </p>
-                                                </div>
+                                                {marca.name}
                                             </Link>
                                         ))}
                                     </div>
                                 </div>
+
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    {homeBrandEditorialCards.map((card) => (
+                                        <Link
+                                            key={card.title}
+                                            href={card.href}
+                                            className="group more-panel-soft overflow-hidden rounded-[1.5rem] transition duration-300 hover:-translate-y-1"
+                                        >
+                                            <div className="overflow-hidden">
+                                                <img
+                                                    src={card.image}
+                                                    alt={card.title}
+                                                    className="h-[220px] w-full object-cover transition duration-[900ms] group-hover:scale-[1.04]"
+                                                />
+                                            </div>
+                                            <div className="p-4">
+                                                <p className="text-[0.7rem] uppercase tracking-[0.22em] text-stone-400">
+                                                    {card.note}
+                                                </p>
+                                                <p
+                                                    className="mt-2 text-2xl leading-none text-white"
+                                                    style={serifStyle}
+                                                >
+                                                    {card.title}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -517,7 +534,7 @@ export default function Home() {
                                         className="mt-4 max-w-xl text-5xl leading-none text-white sm:text-6xl"
                                         style={serifStyle}
                                     >
-                                        A cleaner way to dress.
+                                        Una forma más serena de vestir.
                                     </h2>
                                 </div>
                             </Link>
@@ -525,20 +542,20 @@ export default function Home() {
                             <div className="grid gap-4">
                                 <div className={`${panelClass} p-8 sm:p-10`}>
                                     <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-400">
-                                        More journal
+                                        Cuaderno MORE
                                     </p>
                                     <p
                                         className="mt-5 text-4xl leading-none text-white"
                                         style={serifStyle}
                                     >
-                                        Soft shine. Sharp lines. Zero noise.
+                                        Brillo suave. Líneas precisas. Ritmo contenido.
                                     </p>
                                     <p className="mt-5 max-w-sm text-sm leading-7 text-stone-300">
-                                        A wardrobe shaped by quiet contrast, elegant proportion and a boutique eye.
+                                        Una mirada de boutique para piezas que se sienten actuales, limpias y memorables.
                                     </p>
                                     <Link
                                         href={shopRoutes.editorial}
-                                        className="mt-7 inline-flex items-center gap-2 text-sm uppercase tracking-[0.22em] text-white"
+                                        className={`${editorialLinkClass} mt-7`}
                                     >
                                         <Play size={14} />
                                         Ver editorial
@@ -561,9 +578,9 @@ export default function Home() {
                     <div className={sectionShell}>
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                             <SectionHeading
-                                eyebrow="Selection Mati Boutique"
-                                title="Curated pieces"
-                                description="A tighter edit for a wardrobe with presence."
+                                eyebrow="Selección Mati Boutique"
+                                title="Piezas con presencia"
+                                description="Una edición más ceñida para un guardarropa con calma y carácter."
                             />
                             <CarouselButtons
                                 onPrev={() => selectionApi?.scrollPrev()}
@@ -591,7 +608,7 @@ export default function Home() {
                                             </div>
                                             <div className="pt-5">
                                                 <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
-                                                    {item.line}
+                                                    {item.line || item.category}
                                                 </p>
                                                 <h3
                                                     className="mt-2 text-3xl text-white"
@@ -610,29 +627,29 @@ export default function Home() {
 
                 <section className="pt-28">
                     <div className={sectionShell}>
-                        <div className="relative overflow-hidden rounded-[2.2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(13,18,24,0.95)_40%,rgba(8,11,15,0.98)_100%)] px-6 py-12 sm:px-10 lg:px-14">
-                            <div className="absolute -right-10 top-0 h-44 w-44 rounded-full bg-white/8 blur-[90px]" />
-                            <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-stone-400/8 blur-[90px]" />
+                        <div className="more-panel relative overflow-hidden rounded-[2.2rem] px-6 py-12 sm:px-10 lg:px-14">
+                            <div className="absolute -right-10 top-0 h-44 w-44 rounded-full bg-[rgba(223,184,166,0.12)] blur-[90px]" />
+                            <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-[rgba(103,63,69,0.16)] blur-[90px]" />
 
                             <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                                 <div>
                                     <p className="text-[0.72rem] uppercase tracking-[0.26em] text-stone-300">
-                                        More x Mati Boutique
+                                        MORE por Mati Boutique
                                     </p>
                                     <h2
                                         className="mt-4 max-w-3xl text-4xl leading-none text-white sm:text-5xl"
                                         style={serifStyle}
                                     >
-                                        Descubre la nueva seleccion.
+                                        Entra en el universo MORE.
                                     </h2>
                                 </div>
 
                                 <div className="flex flex-col gap-4 sm:flex-row lg:flex-col">
                                     <Link href={shopRoutes.collections} className={primaryButtonClass}>
-                                        Explorar el universo Mati Boutique
+                                        Ver colecciones
                                     </Link>
                                     <Link href={shopRoutes.newIn} className={secondaryButtonClass}>
-                                        Encontrar tu proximo look
+                                        Ver novedades
                                     </Link>
                                 </div>
                             </div>

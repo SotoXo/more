@@ -1,6 +1,6 @@
 import SectionHeading from '@/Components/landing/SectionHeading';
 import ProductCard from '@/Components/shop/ProductCard';
-import type { ShopProduct } from '@/data/shop';
+import type { ShopProduct } from '@/types/shop';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -19,6 +19,10 @@ export default function ProductRail({
 }: ProductRailProps) {
     const [railRef, railApi] = useEmblaCarousel({ align: 'start', loop: false });
 
+    if (products.length === 0) {
+        return null;
+    }
+
     return (
         <section>
             <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -31,14 +35,14 @@ export default function ProductRail({
                     <button
                         type="button"
                         onClick={() => railApi?.scrollPrev()}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white transition hover:border-white/20 hover:bg-white/[0.08]"
+                        className="more-icon-button inline-flex h-11 w-11 items-center justify-center"
                     >
                         <ChevronLeft size={18} />
                     </button>
                     <button
                         type="button"
                         onClick={() => railApi?.scrollNext()}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white transition hover:border-white/20 hover:bg-white/[0.08]"
+                        className="more-icon-button inline-flex h-11 w-11 items-center justify-center"
                     >
                         <ChevronRight size={18} />
                     </button>

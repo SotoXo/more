@@ -17,10 +17,11 @@ export default function StoreLayout({ title, children }: StoreLayoutProps) {
             <Head title={title} />
 
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-                <div className="absolute inset-x-0 top-0 h-[720px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_38%),radial-gradient(circle_at_18%_18%,rgba(110,168,255,0.12),transparent_28%),linear-gradient(180deg,#0b1016_0%,#05070b_70%)]" />
+                <div className="absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_36%),radial-gradient(circle_at_18%_16%,rgba(181,122,109,0.16),transparent_28%),linear-gradient(180deg,#0b1016_0%,#05070b_72%)]" />
                 <div className="absolute left-[-10%] top-[10%] h-80 w-80 rounded-full bg-white/6 blur-[120px]" />
-                <div className="absolute right-[-14%] top-[28%] h-[30rem] w-[30rem] rounded-full bg-sky-300/8 blur-[150px]" />
-                <div className="absolute bottom-[-10%] left-[18%] h-72 w-72 rounded-full bg-stone-300/6 blur-[130px]" />
+                <div className="absolute right-[-14%] top-[26%] h-[30rem] w-[30rem] rounded-full bg-[rgba(181,122,109,0.12)] blur-[150px]" />
+                <div className="absolute bottom-[-10%] left-[18%] h-72 w-72 rounded-full bg-[rgba(103,63,69,0.14)] blur-[130px]" />
+                <div className="absolute inset-x-0 top-28 h-px bg-[linear-gradient(90deg,transparent,rgba(223,184,166,0.18),transparent)]" />
             </div>
 
             <LandingHeader user={user} />

@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Categoria;
+use App\Models\Marca;
+use App\Models\Prenda;
+use App\Services\ProductMapper;
+use Inertia\Inertia;
+
+class HomeController extends Controller
+{
+    public function index()
+    {
+        $novedadesPrendas = ProductMapper::withRelations(
+            Prenda::where('est_pre', true)
+        )
+            ->orderByDesc('fec_pre')
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get();
+
+        $novedades = ProductMapper::toShopProductArray($novedadesPrendas);
+        $novedades = ProductMapper::attachFavoriteState($novedades, auth()->user());
+
+        $seleccionPrendas = ProductMapper::withRelations(
+            Prenda::where('est_pre', true)
+        )
+            ->orderByDesc('fec_pre')
+            ->orderByDesc('created_at')
+            ->skip(8)
+            ->limit(8)
+            ->get();
+
+        $seleccion = ProductMapper::toShopProductArray($seleccionPrendas);
+        $seleccion = ProductMapper::attachFavoriteState($seleccion, auth()->user());
+
+        $categorias = Categoria::where('est_cat', true)
+            ->whereNull('cod_categoria_padre_cat')
+            ->orderBy('nom_cat')
+            ->get(['id_categoria', 'nom_cat', 'des_cat'])
+            ->map(fn($c) => [
+                'id'    => $c->id_categoria,
+                'name'  => $c->nom_cat,
+                'desc'  => $c->des_cat,
+                'href'  => '/catalogo?categoria=' . urlencode($c->nom_cat),
+            ])
+            ->values()
+            ->toArray();
+
+        $marcas = Marca::where('est_mar', true)
+            ->orderBy('nom_mar')
+            ->get(['id_marca', 'nom_mar', 'des_mar'])
+            ->map(fn($m) => [
+                'id'   => $m->id_marca,
+                'name' => $m->nom_mar,
+                'href' => '/catalogo?marca=' . urlencode($m->nom_mar),
+            ])
+            ->values()
+            ->toArray();
+
+        return Inertia::render('Home', [
+            'novedades' => $novedades,
+            'seleccion' => $seleccion,
+            'categorias' => $categorias,
+            'marcas'     => $marcas,
+        ]);
+    }
+}

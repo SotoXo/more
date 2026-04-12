@@ -2,21 +2,24 @@ import ShopFiltersPanel from '@/Components/shop/ShopFiltersPanel';
 import ProductCard from '@/Components/shop/ProductCard';
 import StoreLayout from '@/Components/shop/StoreLayout';
 import ShopToolbar from '@/Components/shop/ShopToolbar';
+import { collectionPresentation } from '@/data/storefront';
 import {
     createDefaultFilters,
     filterProducts,
-    getCollectionProducts,
-    getProductFilterOptions,
-    shopCollections,
     shopRoutes,
     sortProducts,
-    type ShopCollectionKey,
-    type ShopFilterState,
-    type ShopSortKey,
-} from '@/data/shop';
+} from '@/lib/shop';
+import type {
+    ShopCollectionKey,
+    ShopFilterOptions,
+    ShopFilterState,
+    ShopProduct,
+    ShopSortKey,
+} from '@/types/shop';
+import { motion } from 'framer-motion';
 import { Link } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type MultiFilterKey = keyof Pick<
     ShopFilterState,
@@ -29,30 +32,56 @@ const serifStyle = {
     fontFamily:
         '"Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif',
 };
+const primaryButtonClass =
+    'more-cta-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em]';
+const secondaryButtonClass =
+    'more-cta-secondary px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em]';
+const editorialLinkClass =
+    'more-cta-editorial text-[0.72rem] uppercase tracking-[0.22em]';
+
+type CollectionProps = {
+    collection: ShopCollectionKey;
+    products: ShopProduct[];
+    filterOptions: ShopFilterOptions;
+    initialFilters: ShopFilterState;
+};
 
 export default function Collection({
     collection,
-}: {
-    collection: ShopCollectionKey;
-}) {
-    const config = shopCollections[collection];
-    const collectionProducts = getCollectionProducts(collection);
-    const [filters, setFilters] = useState(createDefaultFilters);
+    products,
+    filterOptions,
+    initialFilters,
+}: CollectionProps) {
+    const config = collectionPresentation[collection];
+    const [filters, setFilters] = useState<ShopFilterState>(initialFilters);
     const [sort, setSort] = useState<ShopSortKey>(
         collection === 'novedades' ? 'newest' : 'recommended',
     );
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-    const filterOptions = getProductFilterOptions(collectionProducts);
-    const filteredProducts = sortProducts(
-        filterProducts(collectionProducts, filters),
-        sort,
+    useEffect(() => {
+        setFilters(initialFilters);
+        setSort(collection === 'novedades' ? 'newest' : 'recommended');
+        setIsMobileFiltersOpen(false);
+    }, [collection, initialFilters]);
+
+    const filteredProducts = useMemo(
+        () => sortProducts(filterProducts(products, filters), sort),
+        [filters, products, sort],
     );
 
     const secondaryHref =
-        collection === 'novedades' ? shopRoutes.collections : shopRoutes.newIn;
+        collection === 'catalogo'
+            ? shopRoutes.newIn
+            : collection === 'novedades'
+              ? shopRoutes.collections
+              : shopRoutes.catalog;
     const secondaryLabel =
-        collection === 'novedades' ? 'Ver colecciones' : 'Ver novedades';
+        collection === 'catalogo'
+            ? 'Ver novedades'
+            : collection === 'novedades'
+              ? 'Ver colecciones'
+              : 'Ver catálogo';
 
     function toggleFilter(group: MultiFilterKey, value: string) {
         setFilters((current) => {
@@ -69,7 +98,12 @@ export default function Collection({
         <StoreLayout title={`MORE | ${config.title}`}>
             <section className="px-4 sm:px-6 lg:px-8">
                 <div className={`${sectionShell} px-0`}>
-                    <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                    <motion.div
+                        initial={{ opacity: 0, y: 24 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]"
+                    >
                         <div className="relative overflow-hidden rounded-[2.2rem] border border-white/10">
                             <img
                                 src={config.heroImage}
@@ -78,6 +112,7 @@ export default function Collection({
                             />
                             <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/28 to-transparent" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(181,122,109,0.14),transparent_40%)]" />
                             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 lg:p-10">
                                 <p className="text-[0.7rem] uppercase tracking-[0.28em] text-stone-200">
                                     {config.eyebrow}
@@ -95,15 +130,15 @@ export default function Collection({
                         </div>
 
                         <div className="flex flex-col gap-4">
-                            <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-7 backdrop-blur-xl sm:p-8">
-                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-400">
-                                    Mati Boutique curation
+                            <div className="more-panel rounded-[2rem] p-7 sm:p-8">
+                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-500">
+                                    Curaduría Mati Boutique
                                 </p>
                                 <p
                                     className="mt-5 text-4xl leading-none text-white"
                                     style={serifStyle}
                                 >
-                                    {collectionProducts.length} piezas en seleccion.
+                                    {products.length} piezas en escena.
                                 </p>
                                 <p className="mt-5 max-w-md text-sm leading-7 text-stone-300">
                                     {config.description}
@@ -113,7 +148,7 @@ export default function Collection({
                                     {config.highlights.map((item) => (
                                         <span
                                             key={item}
-                                            className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-200"
+                                            className="more-pill rounded-full px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-200"
                                         >
                                             {item}
                                         </span>
@@ -121,28 +156,32 @@ export default function Collection({
                                 </div>
                             </div>
 
-                            <div className="rounded-[2rem] border border-white/10 bg-[#0c1117] p-7 sm:p-8">
-                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-400">
-                                    Explore further
+                            <div className="more-panel-soft rounded-[2rem] p-7 sm:p-8">
+                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-500">
+                                    Sigue el recorrido
                                 </p>
-                                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                                <p className="mt-4 max-w-sm text-sm leading-7 text-stone-300">
+                                    Sigue hacia otra edición de la tienda o entra en una lectura
+                                    más inspiracional de la selección.
+                                </p>
+                                <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
                                     <Link
                                         href={secondaryHref}
-                                        className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition duration-300 hover:-translate-y-px hover:bg-stone-200"
+                                        className={primaryButtonClass}
                                     >
                                         {secondaryLabel}
                                         <ArrowRight size={15} />
                                     </Link>
                                     <Link
                                         href={shopRoutes.editorial}
-                                        className="inline-flex items-center justify-center rounded-full border border-white/12 px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-white transition duration-300 hover:-translate-y-px hover:border-white/20 hover:bg-white/[0.05]"
+                                        className={editorialLinkClass}
                                     >
                                         Editorial Mati Boutique
                                     </Link>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
@@ -188,22 +227,22 @@ export default function Collection({
                                     ))}
                                 </div>
                             ) : (
-                                <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] px-6 py-12 text-center">
+                                <div className="more-panel-soft rounded-[2rem] px-6 py-12 text-center">
                                     <p
                                         className="text-4xl leading-none text-white"
                                         style={serifStyle}
                                     >
-                                        No hay coincidencias por ahora.
+                                        No encontramos esa combinación.
                                     </p>
                                     <p className="mt-4 text-sm text-stone-300">
-                                        Limpia filtros o vuelve a la seleccion completa.
+                                        Limpia los filtros y vuelve a mirar la edición completa.
                                     </p>
                                     <button
                                         type="button"
                                         onClick={() => setFilters(createDefaultFilters())}
-                                        className="mt-6 inline-flex rounded-full border border-white/12 px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-white transition duration-300 hover:border-white/20 hover:bg-white/[0.05]"
+                                        className={`${secondaryButtonClass} mt-6`}
                                     >
-                                        Ver toda la categoria
+                                        Ver toda la categoría
                                     </button>
                                 </div>
                             )}

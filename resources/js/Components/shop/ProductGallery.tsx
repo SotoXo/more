@@ -1,4 +1,4 @@
-import type { ShopProduct } from '@/data/shop';
+import type { ShopProduct } from '@/types/shop';
 import { useState } from 'react';
 
 export default function ProductGallery({ product }: { product: ShopProduct }) {
@@ -8,12 +8,13 @@ export default function ProductGallery({ product }: { product: ShopProduct }) {
 
     return (
         <div className="space-y-4">
-            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b1016]">
+            <div className="more-panel relative overflow-hidden rounded-[2rem]">
                 <img
                     src={selectedImage}
                     alt={product.name}
-                    className="h-[520px] w-full object-cover lg:h-[700px]"
+                    className="h-[520px] w-full object-cover transition duration-[900ms] lg:h-[700px]"
                 />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(181,122,109,0.08),transparent_30%,rgba(0,0,0,0.08)_100%)]" />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
@@ -28,14 +29,14 @@ export default function ProductGallery({ product }: { product: ShopProduct }) {
                             className={[
                                 'overflow-hidden rounded-[1.3rem] border transition duration-300',
                                 active
-                                    ? 'border-white/28'
-                                    : 'border-white/8 hover:border-white/16',
+                                    ? 'border-[rgba(181,122,109,0.44)] shadow-[0_18px_40px_rgba(181,122,109,0.14)]'
+                                    : 'border-white/8 hover:border-[rgba(181,122,109,0.22)]',
                             ].join(' ')}
                         >
                             <img
                                 src={image}
                                 alt={product.name}
-                                className="h-28 w-full object-cover sm:h-36"
+                                className="h-28 w-full object-cover transition duration-500 hover:scale-[1.03] sm:h-36"
                             />
                         </button>
                     );

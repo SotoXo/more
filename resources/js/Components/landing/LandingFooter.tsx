@@ -1,6 +1,7 @@
-import { shopRoutes } from '@/data/shop';
+import { shopRoutes } from '@/lib/shop';
 import type { LandingUser } from '@/types/landing';
 import { Link } from '@inertiajs/react';
+import { ArrowRight } from 'lucide-react';
 import { FormEvent } from 'react';
 
 const shopLinks = [
@@ -11,46 +12,52 @@ const shopLinks = [
 ];
 
 const editorialLinks = [
-    { label: 'Editorial', href: shopRoutes.editorial, route: true },
-    { label: 'Seleccion Mati Boutique', href: shopRoutes.collections, route: true },
-    { label: 'Now Trending', href: shopRoutes.newIn, route: true },
-    { label: 'Ayuda', href: '/login', route: true },
+    { label: 'Editorial', href: shopRoutes.editorial },
+    { label: 'Selección curada', href: shopRoutes.collections },
+    { label: 'Novedades', href: shopRoutes.newIn },
+    { label: 'Guía de compra', href: shopRoutes.catalog },
 ];
 
 export default function LandingFooter({ user }: { user: LandingUser }) {
-    const accessHref = user ? '/dashboard' : '/login';
+    const accessHref = user ? '/cuenta' : '/login';
     const accountHref = user ? '/profile' : '/register';
+    const supportHref = user ? '/cuenta/favoritos' : shopRoutes.collections;
+    const supportLabel = user ? 'Favoritos' : 'Guía de compra';
+
     const onSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
     };
 
     return (
-        <footer className="border-t border-white/8 bg-[#05070b]">
+        <footer className="mt-24 border-t border-white/8 bg-[#05070b]">
             <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-                <div className="grid gap-10 border-b border-white/8 pb-12 lg:grid-cols-[1.15fr_0.7fr_0.7fr_0.95fr]">
+                <div className="grid gap-10 border-b border-white/8 pb-12 lg:grid-cols-[1.1fr_0.72fr_0.72fr_0.96fr]">
                     <div className="max-w-md">
-                        <p className="text-sm font-semibold uppercase tracking-[0.42em] text-white">
-                            MORE
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <p className="text-sm font-semibold uppercase tracking-[0.42em] text-white">
+                                MORE
+                            </p>
+                            <span className="h-px w-10 bg-[linear-gradient(90deg,rgba(223,184,166,0.92),transparent)]" />
+                        </div>
                         <p className="mt-3 text-[0.72rem] uppercase tracking-[0.24em] text-stone-400">
-                            Mati Boutique curates the wardrobe
+                            Firma Mati Boutique
                         </p>
                         <p className="mt-5 max-w-sm text-sm leading-7 text-stone-300">
-                            A digital fashion house shaped by refined edits,
-                            quiet tailoring and boutique instinct.
+                            Un guardarropa pensado con calma: sastrería suave, contraste
+                            preciso y piezas que se sienten elegantes sin esfuerzo.
                         </p>
                         <div className="mt-6 flex flex-wrap items-center gap-3 text-[0.72rem] uppercase tracking-[0.22em] text-stone-400">
-                            <span>Instagram</span>
-                            <span>TikTok</span>
-                            <span>Pinterest</span>
+                            <span className="more-pill rounded-full px-3 py-1.5">Instagram</span>
+                            <span className="more-pill rounded-full px-3 py-1.5">TikTok</span>
+                            <span className="more-pill rounded-full px-3 py-1.5">Pinterest</span>
                         </div>
                     </div>
 
                     <div>
                         <p className="text-[0.72rem] uppercase tracking-[0.26em] text-white">
-                            Shop
+                            Tienda
                         </p>
-                        <div className="mt-4 space-y-3">
+                        <div className="mt-5 space-y-3">
                             {shopLinks.map((link) => (
                                 <Link
                                     key={link.label}
@@ -67,24 +74,24 @@ export default function LandingFooter({ user }: { user: LandingUser }) {
                         <p className="text-[0.72rem] uppercase tracking-[0.26em] text-white">
                             Cuenta
                         </p>
-                        <div className="mt-4 space-y-3">
+                        <div className="mt-5 space-y-3">
                             <Link
                                 href={accessHref}
                                 className="block text-sm text-stone-400 transition hover:text-white"
                             >
-                                {user ? 'Dashboard' : 'Iniciar sesion'}
+                                {user ? 'Mi cuenta' : 'Iniciar sesión'}
                             </Link>
                             <Link
                                 href={accountHref}
                                 className="block text-sm text-stone-400 transition hover:text-white"
                             >
-                                {user ? 'Mi cuenta' : 'Registrate'}
+                                {user ? 'Editar perfil' : 'Crear cuenta'}
                             </Link>
                             <Link
-                                href="/login"
+                                href={supportHref}
                                 className="block text-sm text-stone-400 transition hover:text-white"
                             >
-                                Ayuda
+                                {supportLabel}
                             </Link>
                             {user && (
                                 <Link
@@ -93,7 +100,7 @@ export default function LandingFooter({ user }: { user: LandingUser }) {
                                     as="button"
                                     className="block text-left text-sm text-stone-400 transition hover:text-white"
                                 >
-                                    Cerrar sesion
+                                    Cerrar sesión
                                 </Link>
                             )}
                         </div>
@@ -104,17 +111,17 @@ export default function LandingFooter({ user }: { user: LandingUser }) {
                             Newsletter
                         </p>
                         <p className="mt-4 max-w-xs text-sm leading-7 text-stone-300">
-                            New drops, curated edits and quiet arrivals.
+                            Novedades, ediciones curadas y piezas para mirar con tiempo.
                         </p>
                         <form onSubmit={onSubmit} className="mt-5 space-y-3">
                             <input
                                 type="email"
-                                placeholder="Email"
-                                className="w-full rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-white/20 focus:outline-none focus:ring-0"
+                                placeholder="Tu email"
+                                className="w-full rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-[rgba(181,122,109,0.3)] focus:outline-none focus:ring-0"
                             />
                             <button
                                 type="submit"
-                                className="w-full rounded-full border border-white/12 px-4 py-3 text-[0.72rem] uppercase tracking-[0.24em] text-white transition hover:border-white/20 hover:bg-white/[0.06]"
+                                className="more-cta-secondary w-full px-4 py-3 text-[0.72rem] uppercase tracking-[0.24em]"
                             >
                                 Suscribirme
                             </button>
@@ -122,45 +129,42 @@ export default function LandingFooter({ user }: { user: LandingUser }) {
                     </div>
                 </div>
 
-                <div className="grid gap-8 border-b border-white/8 py-8 lg:grid-cols-[0.75fr_1.25fr]">
+                <div className="grid gap-8 border-b border-white/8 py-8 lg:grid-cols-[0.8fr_1.2fr]">
                     <div>
                         <p className="text-[0.72rem] uppercase tracking-[0.26em] text-stone-400">
-                            More journal
+                            Cuaderno MORE
                         </p>
                         <p className="mt-3 text-sm leading-7 text-stone-300">
-                            Editorial, now trending and Mati Boutique selections.
+                            Inspiración visual, rutas de compra y una mirada más narrativa
+                            sobre la boutique.
                         </p>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        {editorialLinks.map((link) =>
-                            link.route ? (
-                                <Link
-                                    key={link.label}
-                                    href={link.href}
-                                    className="rounded-full border border-white/10 px-4 py-3 text-center text-[0.72rem] uppercase tracking-[0.22em] text-stone-300 transition hover:border-white/20 hover:text-white"
-                                >
+                        {editorialLinks.map((link) => (
+                            <Link
+                                key={link.label}
+                                href={link.href}
+                                className="group rounded-full border border-white/10 px-4 py-3 text-center text-[0.72rem] uppercase tracking-[0.22em] text-stone-300 transition hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)] hover:text-white"
+                            >
+                                <span className="inline-flex items-center gap-2">
                                     {link.label}
-                                </Link>
-                            ) : (
-                                <Link
-                                    key={link.label}
-                                    href={link.href}
-                                    className="rounded-full border border-white/10 px-4 py-3 text-center text-[0.72rem] uppercase tracking-[0.22em] text-stone-300 transition hover:border-white/20 hover:text-white"
-                                >
-                                    {link.label}
-                                </Link>
-                            ),
-                        )}
+                                    <ArrowRight
+                                        size={13}
+                                        className="opacity-60 transition group-hover:translate-x-0.5 group-hover:opacity-100"
+                                    />
+                                </span>
+                            </Link>
+                        ))}
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-4 pt-6 text-sm text-stone-500 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-4">
-                        <span>Atencion boutique</span>
+                        <span>Atención boutique</span>
                         <span>WhatsApp</span>
                         <span>La Paz</span>
                     </div>
-                    <p>MORE x Mati Boutique</p>
+                    <p>MORE por Mati Boutique</p>
                 </div>
             </div>
         </footer>

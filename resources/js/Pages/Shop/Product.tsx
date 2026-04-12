@@ -5,14 +5,16 @@ import ProductRail from '@/Components/shop/ProductRail';
 import StoreLayout from '@/Components/shop/StoreLayout';
 import {
     formatPrice,
-    getCompleteLookProducts,
-    getProductBySlug,
-    getRelatedProducts,
+    getAvailabilityFromStock,
     shopRoutes,
-} from '@/data/shop';
-import { Link } from '@inertiajs/react';
-import { Heart } from 'lucide-react';
-import { useState } from 'react';
+} from '@/lib/shop';
+import type { ShopProduct, ShopVariant } from '@/types/shop';
+import type { LandingPageProps } from '@/types/landing';
+import axios from 'axios';
+import { motion } from 'framer-motion';
+import { Link, router, usePage } from '@inertiajs/react';
+import { Heart, ShoppingBag } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 const sectionShell = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8';
 
@@ -20,54 +22,165 @@ const serifStyle = {
     fontFamily:
         '"Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif',
 };
+const primaryButtonClass =
+    'more-cta-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] disabled:cursor-not-allowed disabled:opacity-60';
+const secondaryButtonClass =
+    'more-cta-secondary px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em]';
 
-export default function Product({ productSlug }: { productSlug: string }) {
-    const product = getProductBySlug(productSlug);
+type ProductPageProps = {
+    product: ShopProduct;
+    variants: ShopVariant[];
+    relatedProducts: ShopProduct[];
+    completeLookProducts: ShopProduct[];
+    isFavorite: boolean;
+};
 
-    if (!product) {
-        return (
-            <StoreLayout title="MORE | Producto">
-                <section className="px-4 sm:px-6 lg:px-8">
-                    <div className={`${sectionShell} px-0`}>
-                        <div className="rounded-[2.2rem] border border-white/10 bg-white/[0.04] px-6 py-16 text-center">
-                            <p className="text-[0.72rem] uppercase tracking-[0.26em] text-stone-400">
-                                Mati Boutique
-                            </p>
-                            <h1
-                                className="mt-4 text-5xl leading-none text-white"
-                                style={serifStyle}
-                            >
-                                Producto no encontrado.
-                            </h1>
-                            <p className="mt-4 text-sm text-stone-300">
-                                Vuelve a la seleccion principal y descubre otras piezas.
-                            </p>
-                            <div className="mt-8 flex justify-center">
-                                <Link
-                                    href={shopRoutes.newIn}
-                                    className="rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950"
-                                >
-                                    Ver novedades
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </StoreLayout>
-        );
-    }
+export default function Product({
+    product,
+    variants,
+    relatedProducts,
+    completeLookProducts,
+    isFavorite,
+}: ProductPageProps) {
+    const page = usePage();
+    const user = (page.props as unknown as LandingPageProps).auth?.user ?? null;
+    const [favorite, setFavorite] = useState(isFavorite);
+    const [favoritePending, setFavoritePending] = useState(false);
+    const [addToCartPending, setAddToCartPending] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<string | null>(null);
+    const headingMeta =
+        product.line ||
+        [product.brand, product.style].filter(Boolean).join(' / ') ||
+        product.category;
 
-    const relatedProducts = getRelatedProducts(product, 4);
-    const completeLookProducts = getCompleteLookProducts(product, 3);
-    const [selectedSize, setSelectedSize] = useState(product.sizes[0] ?? null);
-    const [isFavorite, setIsFavorite] = useState(false);
+    const colorOptions = useMemo(() => {
+        const seen = new Set<string>();
 
+        return variants.filter((variant) => {
+            const key = `${variant.color}|${variant.color_hex ?? ''}`;
+
+            if (seen.has(key)) {
+                return false;
+            }
+
+            seen.add(key);
+            return true;
+        });
+    }, [variants]);
+
+    const [selectedColor, setSelectedColor] = useState<string | null>(
+        colorOptions[0]?.color ?? product.color ?? null,
+    );
+    const availableVariants = useMemo(() => {
+        if (!selectedColor) {
+            return variants;
+        }
+
+        return variants.filter((variant) => variant.color === selectedColor);
+    }, [selectedColor, variants]);
+    const [selectedSize, setSelectedSize] = useState<string | null>(
+        availableVariants.find((variant) => variant.stock > 0)?.talla ??
+            availableVariants[0]?.talla ??
+            product.sizes[0] ??
+            null,
+    );
+
+    useEffect(() => {
+        setFavorite(isFavorite);
+    }, [isFavorite, product.id]);
+
+    useEffect(() => {
+        const nextSize =
+            availableVariants.find((variant) => variant.stock > 0)?.talla ??
+            availableVariants[0]?.talla ??
+            null;
+
+        if (!availableVariants.some((variant) => variant.talla === selectedSize)) {
+            setSelectedSize(nextSize);
+        }
+    }, [availableVariants, selectedSize]);
+
+    const selectedVariant = useMemo(
+        () =>
+            availableVariants.find((variant) => variant.talla === selectedSize) ??
+            availableVariants[0] ??
+            null,
+        [availableVariants, selectedSize],
+    );
+
+    const displayPrice = selectedVariant?.precio ?? product.price;
+    const displayAvailability = selectedVariant
+        ? getAvailabilityFromStock(selectedVariant.stock)
+        : product.availability;
     const departmentHref =
         product.department === 'mujer'
             ? shopRoutes.women
             : product.department === 'hombre'
               ? shopRoutes.men
               : shopRoutes.accessories;
+
+    async function handleToggleFavorite() {
+        if (!user) {
+            router.visit('/login');
+            return;
+        }
+
+        if (favoritePending) {
+            return;
+        }
+
+        setFavoritePending(true);
+        setStatusMessage(null);
+
+        try {
+            const response = await axios.post('/api/favoritos/toggle', {
+                prenda_id: product.id,
+            });
+            const nextValue = Boolean(response.data?.is_favorite);
+
+            setFavorite(nextValue);
+            setStatusMessage(
+                nextValue
+                    ? 'Producto guardado en favoritos.'
+                    : 'Producto eliminado de favoritos.',
+            );
+        } catch (error) {
+            if (
+                axios.isAxiosError(error) &&
+                [401, 403, 419].includes(error.response?.status ?? 0)
+            ) {
+                router.visit('/login');
+                return;
+            }
+
+            console.error('No se pudo actualizar favoritos.', error);
+            setStatusMessage('No se pudo actualizar favoritos.');
+        } finally {
+            setFavoritePending(false);
+        }
+    }
+
+    async function handleAddToCart() {
+        if (!selectedVariant || selectedVariant.stock <= 0 || addToCartPending) {
+            return;
+        }
+
+        setAddToCartPending(true);
+        setStatusMessage(null);
+
+        try {
+            await axios.post('/api/carrito/agregar', {
+                variante_id: selectedVariant.id,
+                cantidad: 1,
+            });
+            setStatusMessage('Variante agregada a la bolsa.');
+        } catch (error) {
+            console.error('No se pudo agregar al carrito.', error);
+            setStatusMessage('No se pudo agregar la variante a la bolsa.');
+        } finally {
+            setAddToCartPending(false);
+        }
+    }
 
     return (
         <StoreLayout title={`MORE | ${product.name}`}>
@@ -82,21 +195,29 @@ export default function Product({ productSlug }: { productSlug: string }) {
                             {product.department}
                         </Link>
                         <span>/</span>
-                        <span className="text-stone-200">{product.name}</span>
+                        <span className="text-[rgb(223,184,166)]">{product.name}</span>
                     </div>
 
-                    <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+                    <motion.div
+                        initial={{ opacity: 0, y: 24 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start"
+                    >
                         <ProductGallery product={product} />
 
                         <div className="lg:sticky lg:top-28">
-                            <div className="rounded-[2.2rem] border border-white/10 bg-white/[0.05] p-6 backdrop-blur-xl sm:p-8">
-                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-400">
-                                    {product.line}
+                            <div className="more-panel rounded-[2.2rem] p-6 sm:p-8">
+                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-500">
+                                    {headingMeta}
                                 </p>
                                 <div className="mt-4 flex items-start justify-between gap-4">
                                     <div>
+                                        <p className="text-[0.72rem] uppercase tracking-[0.24em] text-[rgb(223,184,166)]">
+                                            Selección Mati Boutique
+                                        </p>
                                         <h1
-                                            className="text-5xl leading-[0.92] text-white sm:text-6xl"
+                                            className="mt-3 text-5xl leading-[0.92] text-white sm:text-6xl"
                                             style={serifStyle}
                                         >
                                             {product.name}
@@ -108,50 +229,90 @@ export default function Product({ productSlug }: { productSlug: string }) {
 
                                     <button
                                         type="button"
-                                        onClick={() => setIsFavorite((value) => !value)}
+                                        onClick={handleToggleFavorite}
                                         aria-label="Guardar producto"
-                                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.04] text-white transition duration-300 hover:-translate-y-px hover:border-white/20 hover:bg-white/[0.08]"
+                                        disabled={favoritePending}
+                                        className="more-icon-button inline-flex h-11 w-11 items-center justify-center"
                                     >
                                         <Heart
                                             size={17}
-                                            className={isFavorite ? 'fill-white text-white' : ''}
+                                            className={favorite ? 'fill-white text-white' : ''}
                                         />
                                     </button>
                                 </div>
 
                                 <div className="mt-8 flex flex-wrap items-center gap-3">
-                                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-stone-200">
-                                        {formatPrice(product.price)}
+                                    <span className="more-pill-active rounded-full px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em]">
+                                        {formatPrice(displayPrice)}
                                     </span>
-                                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-stone-200">
-                                        {product.color}
+                                    <span className="more-pill rounded-full px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em]">
+                                        {selectedColor ?? product.color}
                                     </span>
-                                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-stone-200">
-                                        {product.availability}
+                                    <span className="more-pill rounded-full px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em]">
+                                        {displayAvailability}
                                     </span>
                                 </div>
 
+                                {colorOptions.length > 0 && (
+                                    <div className="mt-8 border-t border-white/10 pt-8">
+                                        <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">
+                                            Colores
+                                        </p>
+                                        <div className="mt-4 flex flex-wrap gap-2">
+                                            {colorOptions.map((variant) => {
+                                                const active = selectedColor === variant.color;
+
+                                                return (
+                                                    <button
+                                                        key={`${variant.id}-${variant.color}`}
+                                                        type="button"
+                                                        onClick={() => setSelectedColor(variant.color)}
+                                                        className={[
+                                                            'inline-flex items-center gap-2 rounded-full border px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] transition duration-300',
+                                                            active
+                                                                ? 'more-pill-active'
+                                                                : 'more-pill text-stone-300 hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]',
+                                                        ].join(' ')}
+                                                    >
+                                                        <span
+                                                            className="h-3 w-3 rounded-full border border-white/10"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    variant.color_hex ?? '#ffffff',
+                                                            }}
+                                                        />
+                                                        {variant.color}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="mt-8 border-t border-white/10 pt-8">
-                                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-400">
+                                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">
                                         Tallas
                                     </p>
                                     <div className="mt-4 flex flex-wrap gap-2">
-                                        {product.sizes.map((size) => {
-                                            const active = selectedSize === size;
+                                        {availableVariants.map((variant) => {
+                                            const active = selectedSize === variant.talla;
 
                                             return (
                                                 <button
-                                                    key={size}
+                                                    key={variant.id}
                                                     type="button"
-                                                    onClick={() => setSelectedSize(size)}
+                                                    onClick={() => setSelectedSize(variant.talla)}
                                                     className={[
                                                         'rounded-full border px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] transition duration-300',
                                                         active
-                                                            ? 'border-white/24 bg-white/[0.12] text-white'
-                                                            : 'border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/18 hover:bg-white/[0.06]',
+                                                            ? 'more-pill-active'
+                                                            : 'more-pill text-stone-300 hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]',
+                                                        variant.stock <= 0
+                                                            ? 'opacity-40 line-through'
+                                                            : '',
                                                     ].join(' ')}
                                                 >
-                                                    {size}
+                                                    {variant.talla}
                                                 </button>
                                             );
                                         })}
@@ -159,50 +320,63 @@ export default function Product({ productSlug }: { productSlug: string }) {
                                 </div>
 
                                 <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                                    <div className="rounded-[1.5rem] border border-white/10 bg-[#0c1117] p-5">
-                                        <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
-                                            Brand
+                                    <div className="more-panel-soft rounded-[1.5rem] p-5">
+                                        <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-500">
+                                            Firma
                                         </p>
                                         <p className="mt-3 text-sm text-stone-100">
                                             {product.brand}
                                         </p>
                                     </div>
-                                    <div className="rounded-[1.5rem] border border-white/10 bg-[#0c1117] p-5">
-                                        <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
-                                            Style
+                                    <div className="more-panel-soft rounded-[1.5rem] p-5">
+                                        <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-500">
+                                            Disponibilidad
                                         </p>
                                         <p className="mt-3 text-sm text-stone-100">
-                                            {product.style}
+                                            {selectedVariant
+                                                ? `${selectedVariant.stock} unidades disponibles`
+                                                : displayAvailability}
                                         </p>
                                     </div>
                                 </div>
 
+                                {statusMessage && (
+                                    <p className="mt-6 text-sm text-stone-300">{statusMessage}</p>
+                                )}
+
                                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                                    <Link
-                                        href={departmentHref}
-                                        className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition duration-300 hover:-translate-y-px hover:bg-stone-200"
+                                    <button
+                                        type="button"
+                                        onClick={handleAddToCart}
+                                        disabled={
+                                            !selectedVariant ||
+                                            selectedVariant.stock <= 0 ||
+                                            addToCartPending
+                                        }
+                                        className={primaryButtonClass}
                                     >
-                                        Volver a la seleccion
-                                    </Link>
+                                        <ShoppingBag size={15} />
+                                        Agregar a la bolsa
+                                    </button>
                                     <Link
-                                        href={shopRoutes.newIn}
-                                        className="inline-flex items-center justify-center rounded-full border border-white/12 px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-white transition duration-300 hover:-translate-y-px hover:border-white/20 hover:bg-white/[0.05]"
+                                        href="/bolsa"
+                                        className={secondaryButtonClass}
                                     >
-                                        Ver nuevas entradas
+                                        Ver bolsa
                                     </Link>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
             <section className="pt-16">
                 <div className={sectionShell}>
                     <ProductRail
-                        eyebrow="Related pieces"
+                        eyebrow="Dentro del mismo tono"
                         title="Productos relacionados"
-                        description="Mas opciones dentro del mismo mood editorial."
+                        description="Una continuidad natural para seguir dentro del mismo tono."
                         products={relatedProducts}
                     />
                 </div>
@@ -212,15 +386,15 @@ export default function Product({ productSlug }: { productSlug: string }) {
                 <div className={sectionShell}>
                     <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                         <SectionHeading
-                            eyebrow="Complete the look"
+                            eyebrow="Cierra el look"
                             title="Completa el look"
-                            description="Una combinacion pensada para mantener el tono y el ritmo de la pieza principal."
+                            description="Piezas que acompañan el look con contraste, textura y ritmo."
                         />
                         <Link
-                            href={shopRoutes.collections}
-                            className="inline-flex items-center justify-center rounded-full border border-white/12 px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-white transition duration-300 hover:-translate-y-px hover:border-white/20 hover:bg-white/[0.05]"
+                            href={shopRoutes.catalog}
+                            className={secondaryButtonClass}
                         >
-                            Ver colecciones
+                            Ver catálogo
                         </Link>
                     </div>
 

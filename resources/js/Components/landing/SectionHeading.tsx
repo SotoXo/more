@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 type SectionHeadingProps = {
     eyebrow?: string;
     title: string;
@@ -19,21 +21,33 @@ export default function SectionHeading({
     const centered = align === 'center';
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className={[
                 'flex flex-col gap-4',
                 centered ? 'mx-auto max-w-3xl text-center' : 'max-w-2xl',
             ].join(' ')}
         >
             {eyebrow && (
-                <span
+                <div
                     className={[
-                        'inline-flex w-fit items-center rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-[0.68rem] uppercase tracking-[0.3em] text-stone-300',
-                        centered ? 'mx-auto' : '',
+                        'flex items-center gap-3',
+                        centered ? 'justify-center' : '',
                     ].join(' ')}
                 >
-                    {eyebrow}
-                </span>
+                    <span className="h-px w-8 bg-[linear-gradient(90deg,rgba(223,184,166,0.85),transparent)]" />
+                    <span
+                        className={[
+                            'inline-flex w-fit items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[0.68rem] uppercase tracking-[0.3em] text-stone-300',
+                            centered ? 'mx-auto' : '',
+                        ].join(' ')}
+                    >
+                        {eyebrow}
+                    </span>
+                </div>
             )}
 
             <h2
@@ -48,6 +62,6 @@ export default function SectionHeading({
                     {description}
                 </p>
             )}
-        </div>
+        </motion.div>
     );
 }
