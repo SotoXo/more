@@ -31,6 +31,13 @@ export type SuperadminAction = {
     kind?: 'primary' | 'secondary' | 'ghost';
 };
 
+export type SuperadminSegmentedFilter = {
+    label: string;
+    href: string;
+    active?: boolean;
+    count?: string;
+};
+
 export type SuperadminMetric = {
     label: string;
     value: string;
@@ -141,6 +148,8 @@ export type SuperadminFormField = {
     required?: boolean;
     disabled?: boolean;
     accept?: string;
+    transform?: 'uppercase' | 'lowercase' | 'digits';
+    maxLength?: number;
     options?: SuperadminFormFieldOption[];
 };
 
@@ -154,6 +163,12 @@ export type SuperadminFormSubmit = {
     action: string;
     method: 'post' | 'put';
     deleteAction?: string | null;
+};
+
+export type SuperadminFormStateAction = {
+    label: string;
+    value: string;
+    confirm?: string;
 };
 
 export type SuperadminDetailField = {

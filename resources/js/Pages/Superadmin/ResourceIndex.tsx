@@ -7,17 +7,19 @@ import SuperadminMetricCard from '@/Components/Superadmin/SuperadminMetricCard';
 import SuperadminPageHeader from '@/Components/Superadmin/SuperadminPageHeader';
 import type { LandingPageProps } from '@/types/landing';
 import type {
+    SuperadminAction,
     SuperadminAppliedFilter,
     SuperadminBreadcrumb,
     SuperadminEmptyState as EmptyStateData,
     SuperadminFilterControl,
     SuperadminMetric,
     SuperadminResourceMeta,
+    SuperadminSegmentedFilter,
     SuperadminSortOption,
     SuperadminTableColumn,
     SuperadminTableRow,
 } from '@/types/superadmin';
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 type ResourceIndexProps = {
     meta: SuperadminResourceMeta;
@@ -25,6 +27,9 @@ type ResourceIndexProps = {
     metrics: SuperadminMetric[];
     columns: SuperadminTableColumn[];
     rows: SuperadminTableRow[];
+    headerActions?: SuperadminAction[];
+    segmentedFilters?: SuperadminSegmentedFilter[];
+    filterAction?: string;
     filterControls: SuperadminFilterControl[];
     sortOptions: SuperadminSortOption[];
     sortBy?: string;
@@ -39,6 +44,9 @@ export default function ResourceIndex({
     metrics,
     columns,
     rows,
+    headerActions = [],
+    segmentedFilters = [],
+    filterAction,
     filterControls,
     sortOptions,
     sortBy,
@@ -57,10 +65,42 @@ export default function ResourceIndex({
                     title={meta.title}
                     description={meta.description}
                     breadcrumbs={breadcrumbs}
-                    actions={meta.createHref ? [{ label: 'Nuevo registro', href: meta.createHref, kind: 'primary' }] : []}
+                    actions={
+                        headerActions.length > 0
+                            ? headerActions
+                            : meta.createHref
+                            ? [{ label: 'Nuevo registro', href: meta.createHref, kind: 'primary' }]
+                            : []
+                    }
                 />
 
                 <SuperadminFlashNotice success={flash?.success} error={flash?.error} />
+
+                {segmentedFilters.length > 0 && (
+                    <section className="sa-panel rounded-[1.6rem] p-4">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap">
+                            {segmentedFilters.map((filter) => (
+                                <Link
+                                    key={`${filter.label}-${filter.href}`}
+                                    href={filter.href}
+                                    className={[
+                                        'flex items-center justify-between gap-3 rounded-[1.1rem] border px-4 py-3 text-sm transition lg:min-w-[12rem]',
+                                        filter.active
+                                            ? 'border-[rgba(126,154,178,0.34)] bg-[rgba(126,154,178,0.18)] text-white'
+                                            : 'border-white/8 bg-[#0d141d] text-stone-300 hover:border-white/14 hover:text-white',
+                                    ].join(' ')}
+                                >
+                                    <span className="font-medium">{filter.label}</span>
+                                    {filter.count && (
+                                        <span className="text-[0.72rem] uppercase tracking-[0.18em] text-stone-400">
+                                            {filter.count}
+                                        </span>
+                                    )}
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     {metrics.map((metric, index) => (
@@ -70,7 +110,7 @@ export default function ResourceIndex({
 
                 <section className="space-y-4">
                     <SuperadminListFilters
-                        action={meta.indexHref}
+                        action={filterAction ?? meta.indexHref}
                         controls={filterControls}
                         sortOptions={sortOptions}
                         sortBy={sortBy}

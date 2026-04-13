@@ -6,6 +6,7 @@ import type { LandingPageProps } from '@/types/landing';
 import type {
     SuperadminBreadcrumb,
     SuperadminFormSection as SuperadminFormSectionData,
+    SuperadminFormStateAction,
     SuperadminFormSubmit,
     SuperadminResourceMeta,
 } from '@/types/superadmin';
@@ -21,7 +22,10 @@ type ResourceFormProps = {
     mode: 'create' | 'edit';
     recordLabel?: string | null;
     sections: SuperadminFormSectionData[];
+    title?: string | null;
+    description?: string | null;
     submit?: SuperadminFormSubmit | null;
+    stateAction?: SuperadminFormStateAction | null;
 };
 
 function buildInitialData(sections: SuperadminFormSectionData[]) {
@@ -45,7 +49,10 @@ export default function ResourceForm({
     mode,
     recordLabel,
     sections,
+    title,
+    description,
     submit,
+    stateAction,
 }: ResourceFormProps) {
     const page = usePage<LandingPageProps>();
     const flash = page.props.flash;
@@ -64,30 +71,35 @@ export default function ResourceForm({
     } = useForm<Record<string, FormValue>>(initialData);
 
     const isCreate = mode === 'create';
-    const title = isCreate ? `Nuevo ${meta.singular}` : recordLabel ?? `Editar ${meta.singular}`;
-    const description = isCreate ? `Alta de ${meta.singular}.` : `Edicion de ${meta.singular}.`;
+    const resolvedTitle = title ?? (isCreate ? `Nuevo ${meta.singular}` : recordLabel ?? `Editar ${meta.singular}`);
+    const resolvedDescription = description ?? (isCreate ? `Alta de ${meta.singular}.` : `Edicion de ${meta.singular}.`);
 
     useEffect(() => {
         setData(buildInitialData(sections));
     }, [currentUrl, setData]);
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
+    const submitForm = (overrides: Partial<Record<string, FormValue>> = {}) => {
         if (!submit) {
             return;
         }
 
+        const hasFiles = Object.entries(data).some(([name, value]) => {
+            if (name in overrides) {
+                return overrides[name] instanceof File;
+            }
+
+            return value instanceof File;
+        });
+
         const options = {
             preserveScroll: true,
-            forceFormData: Object.values(data).some((value) => value instanceof File),
+            forceFormData: hasFiles,
         };
 
-        const hasFiles = options.forceFormData;
         transform((values) =>
             submit.method === 'put' && hasFiles
-                ? { ...values, _method: 'put' }
-                : values,
+                ? { ...values, ...overrides, _method: 'put' }
+                : { ...values, ...overrides },
         );
 
         if (submit.method === 'put' && !hasFiles) {
@@ -101,6 +113,25 @@ export default function ResourceForm({
         }
 
         post(submit.action, options);
+    };
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        submitForm();
+    };
+
+    const handleStateAction = () => {
+        if (!submit || !stateAction) {
+            return;
+        }
+
+        if (stateAction.confirm && !window.confirm(stateAction.confirm)) {
+            return;
+        }
+
+        submitForm({
+            est_usu: stateAction.value === '1',
+        });
     };
 
     const handleDelete = () => {
@@ -118,12 +149,12 @@ export default function ResourceForm({
     };
 
     return (
-        <SuperadminLayout title={`MORE | ${title}`}>
+        <SuperadminLayout title={`MORE | ${resolvedTitle}`}>
             <div className="space-y-8">
                 <SuperadminPageHeader
                     eyebrow={meta.sectionLabel}
-                    title={title}
-                    description={description}
+                    title={resolvedTitle}
+                    description={resolvedDescription}
                     breadcrumbs={breadcrumbs}
                     actions={[{ label: 'Volver al modulo', href: meta.indexHref, kind: 'ghost' }]}
                 />
@@ -156,6 +187,17 @@ export default function ResourceForm({
                                 >
                                     Cancelar
                                 </Link>
+
+                                {stateAction && (
+                                    <button
+                                        type="button"
+                                        onClick={handleStateAction}
+                                        disabled={processing}
+                                        className="rounded-full border border-[rgba(183,108,112,0.28)] bg-[rgba(183,108,112,0.12)] px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] text-[rgb(245,208,210)] transition hover:bg-[rgba(183,108,112,0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+                                    >
+                                        {stateAction.label}
+                                    </button>
+                                )}
 
                                 {submit?.deleteAction && (
                                     <button

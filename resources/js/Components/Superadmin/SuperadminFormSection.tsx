@@ -54,9 +54,27 @@ export default function SuperadminFormSection({
         value === true || value === 1 || value === '1';
 
     const handleTextualChange =
-        (fieldName: string) =>
+        (field: FormSectionData['fields'][number]) =>
         (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-            onChange(fieldName, event.currentTarget.value);
+            let nextValue = event.currentTarget.value;
+
+            if (field.transform === 'uppercase') {
+                nextValue = nextValue.toUpperCase();
+            }
+
+            if (field.transform === 'lowercase') {
+                nextValue = nextValue.toLowerCase();
+            }
+
+            if (field.transform === 'digits') {
+                nextValue = nextValue.replace(/\D/g, '');
+            }
+
+            if (typeof field.maxLength === 'number') {
+                nextValue = nextValue.slice(0, field.maxLength);
+            }
+
+            onChange(field.name, nextValue);
         };
 
     return (
@@ -99,15 +117,16 @@ export default function SuperadminFormSection({
                                     className="sa-input mt-3 min-h-[150px] px-4 py-3 text-sm"
                                     placeholder={field.placeholder}
                                     value={String(value ?? '')}
+                                    maxLength={field.maxLength}
                                     disabled={disabled}
-                                    onChange={handleTextualChange(field.name)}
+                                    onChange={handleTextualChange(field)}
                                 />
                             ) : field.type === 'select' ? (
                                 <select
                                     className="sa-input mt-3 px-4 py-3 text-sm"
                                     value={String(value ?? '')}
                                     disabled={disabled}
-                                    onChange={handleTextualChange(field.name)}
+                                    onChange={handleTextualChange(field)}
                                 >
                                     {!field.required && <option value="">Sin seleccionar</option>}
                                     {field.options?.map((option) => (
@@ -157,8 +176,9 @@ export default function SuperadminFormSection({
                                     className="sa-input mt-3 px-4 py-3 text-sm"
                                     placeholder={field.placeholder}
                                     value={String(value ?? '')}
+                                    maxLength={field.maxLength}
                                     disabled={disabled}
-                                    onChange={handleTextualChange(field.name)}
+                                    onChange={handleTextualChange(field)}
                                 />
                             )}
 

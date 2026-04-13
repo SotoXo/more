@@ -19,6 +19,7 @@ use App\Models\Talla;
 use App\Models\Temporada;
 use App\Models\User;
 use App\Models\Venta;
+use App\Support\UserValidation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -31,7 +32,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 
 class ResourceController extends Controller
@@ -42,6 +42,9 @@ class ResourceController extends Controller
         $rows = $this->indexRows($definition, $request);
         $filterControls = $this->filterControls($definition, $request);
         $sortOptions = $this->sortOptions($definition);
+        $headerActions = $this->headerActions($definition, $request);
+        $segmentedFilters = $this->segmentedFilters($definition, $request);
+        $emptyState = $this->emptyState($definition, $request);
 
         return Inertia::render('Superadmin/ResourceIndex', [
             'meta' => $this->meta($definition),
@@ -49,17 +52,15 @@ class ResourceController extends Controller
             'metrics' => $this->metrics($definition),
             'columns' => $this->columns($definition),
             'rows' => $rows,
+            'headerActions' => $headerActions,
+            'segmentedFilters' => $segmentedFilters,
+            'filterAction' => $this->filterAction($definition, $request),
             'filterControls' => $filterControls,
             'sortOptions' => $sortOptions,
             'sortBy' => $request->string('sort_by')->toString(),
             'sortDirection' => $request->input('sort_dir', 'desc'),
             'appliedFilters' => $this->appliedFilters($filterControls, $sortOptions, $request),
-            'emptyState' => [
-                'title' => 'Sin registros',
-                'description' => 'No hay registros disponibles en ' . mb_strtolower($definition['title']) . '.',
-                'actionLabel' => $this->supportsCrud($definition) ? 'Nuevo registro' : null,
-                'actionHref' => $this->supportsCrud($definition) ? $this->createHref($definition) : null,
-            ],
+            'emptyState' => $emptyState,
             'errorState' => [
                 'title' => 'No se pudo cargar el modulo',
                 'description' => 'Vuelve al panel e intenta otra vez.',
@@ -69,10 +70,10 @@ class ResourceController extends Controller
         ]);
     }
 
-    public function create(string $section, string $resource)
+    public function create(Request $request, string $section, string $resource)
     {
         $definition = $this->definition($section, $resource);
-        $viewData = $this->viewData($definition);
+        $viewData = $this->viewData($definition, null, $request);
 
         if ($this->definitionKey($definition) === 'catalogo.prendas') {
             return Inertia::render('Superadmin/ProductCreate', [
@@ -95,6 +96,8 @@ class ResourceController extends Controller
             'mode' => 'create',
             'recordLabel' => null,
             'sections' => $viewData['formSections'],
+            'title' => $viewData['formTitle'] ?? null,
+            'description' => $viewData['formDescription'] ?? null,
             'submit' => $this->supportsCrud($definition)
                 ? [
                     'action' => $this->indexHref($definition),
@@ -124,11 +127,11 @@ class ResourceController extends Controller
         ]);
     }
 
-    public function edit(string $section, string $resource, string $record)
+    public function edit(Request $request, string $section, string $resource, string $record)
     {
         $definition = $this->definition($section, $resource);
         $resolvedRecord = $this->resolveRecord($definition, $record);
-        $viewData = $this->viewData($definition, $resolvedRecord);
+        $viewData = $this->viewData($definition, $resolvedRecord, $request);
 
         return Inertia::render('Superadmin/ResourceForm', [
             'meta' => $this->meta($definition),
@@ -136,13 +139,18 @@ class ResourceController extends Controller
             'mode' => 'edit',
             'recordLabel' => $viewData['recordLabel'],
             'sections' => $viewData['formSections'],
+            'title' => $viewData['formTitle'] ?? null,
+            'description' => $viewData['formDescription'] ?? null,
             'submit' => $this->supportsCrud($definition)
                 ? [
                     'action' => $this->showHref($definition, $this->recordKey($resolvedRecord)),
                     'method' => 'put',
-                    'deleteAction' => $this->showHref($definition, $this->recordKey($resolvedRecord)),
+                    'deleteAction' => $this->definitionKey($definition) === 'seguridad.usuarios'
+                        ? null
+                        : $this->showHref($definition, $this->recordKey($resolvedRecord)),
                 ]
                 : null,
+            'stateAction' => $this->stateAction($definition, $resolvedRecord, $request->user()),
         ]);
     }
 
@@ -461,6 +469,135 @@ class ResourceController extends Controller
         ];
     }
 
+    private function headerActions(array $definition, Request $request): array
+    {
+        if ($this->definitionKey($definition) === 'seguridad.usuarios') {
+            return $this->managedUserRoles()
+                ->map(fn (array $role) => [
+                    'label' => 'Nuevo ' . $role['singular'],
+                    'href' => $this->createHref($definition) . '?role_slug=' . urlencode($role['slug']),
+                    'kind' => $role['slug'] === $request->string('role_slug')->toString() ? 'primary' : 'secondary',
+                ])
+                ->values()
+                ->all();
+        }
+
+        if (!$this->supportsCrud($definition)) {
+            return [];
+        }
+
+        return [[
+            'label' => 'Nuevo registro',
+            'href' => $this->createHref($definition),
+            'kind' => 'primary',
+        ]];
+    }
+
+    private function segmentedFilters(array $definition, Request $request): array
+    {
+        if ($this->definitionKey($definition) !== 'seguridad.usuarios') {
+            return [];
+        }
+
+        $activeSlug = $request->string('role_slug')->toString();
+        $baseHref = $this->indexHref($definition);
+        $query = collect($request->query())
+            ->except(['role_slug'])
+            ->all();
+
+        $allHref = $query ? $baseHref . '?' . http_build_query($query) : $baseHref;
+
+        $filters = [[
+            'label' => 'Todos',
+            'href' => $allHref,
+            'active' => $activeSlug === '',
+            'count' => (string) User::query()->count(),
+        ]];
+
+        return array_merge(
+            $filters,
+            $this->managedUserRoles()
+                ->map(function (array $role) use ($activeSlug, $baseHref, $query) {
+                    $href = $baseHref . '?' . http_build_query([
+                        ...$query,
+                        'role_slug' => $role['slug'],
+                    ]);
+
+                    return [
+                        'label' => $role['label'],
+                        'href' => $href,
+                        'active' => $activeSlug === $role['slug'],
+                        'count' => (string) $role['count'],
+                    ];
+                })
+                ->values()
+                ->all(),
+        );
+    }
+
+    private function filterAction(array $definition, Request $request): string
+    {
+        if ($this->definitionKey($definition) !== 'seguridad.usuarios') {
+            return $this->indexHref($definition);
+        }
+
+        $query = [];
+
+        if ($request->string('role_slug')->toString() !== '') {
+            $query['role_slug'] = $request->string('role_slug')->toString();
+        }
+
+        return $query === []
+            ? $this->indexHref($definition)
+            : $this->indexHref($definition) . '?' . http_build_query($query);
+    }
+
+    private function emptyState(array $definition, Request $request): array
+    {
+        if ($this->definitionKey($definition) === 'seguridad.usuarios') {
+            $activeRole = $this->activeManagedUserRole($request);
+
+            return [
+                'title' => $activeRole
+                    ? 'Sin ' . mb_strtolower($activeRole['label'], 'UTF-8')
+                    : 'Sin usuarios',
+                'description' => $activeRole
+                    ? 'No hay cuentas registradas en ese grupo por ahora.'
+                    : 'No hay usuarios registrados en este modulo.',
+                'actionLabel' => $activeRole ? 'Nuevo ' . $activeRole['singular'] : 'Nuevo usuario',
+                'actionHref' => $activeRole
+                    ? $this->createHref($definition) . '?role_slug=' . urlencode($activeRole['slug'])
+                    : $this->createHref($definition),
+            ];
+        }
+
+        return [
+            'title' => 'Sin registros',
+            'description' => 'No hay registros disponibles en ' . mb_strtolower($definition['title']) . '.',
+            'actionLabel' => $this->supportsCrud($definition) ? 'Nuevo registro' : null,
+            'actionHref' => $this->supportsCrud($definition) ? $this->createHref($definition) : null,
+        ];
+    }
+
+    private function stateAction(array $definition, mixed $record, $authUser = null): ?array
+    {
+        if ($this->definitionKey($definition) !== 'seguridad.usuarios' || !$record instanceof User) {
+            return null;
+        }
+
+        if ($authUser && (int) $authUser->getAuthIdentifier() === (int) $record->id) {
+            return null;
+        }
+
+        return [
+            'label' => $record->est_usu ? 'Desactivar' : 'Reactivar',
+            'value' => $record->est_usu ? '0' : '1',
+            'confirm' => $record->est_usu
+                ? 'Se desactivara el acceso de este usuario al sistema.'
+                : 'Se reactivara el acceso de este usuario al sistema.',
+        ];
+    }
+
     private function breadcrumbs(array $definition, ?string $last = null, ?string $mode = null): array
     {
         $crumbs = [
@@ -689,9 +826,9 @@ class ResourceController extends Controller
             'taxonomy' => $this->taxonomyMetrics($definition),
             'users' => [
                 ['label' => 'Usuarios', 'value' => (string) User::query()->count(), 'note' => 'Cuentas registradas.', 'tone' => 'accent'],
-                ['label' => 'Activos', 'value' => (string) User::query()->where('est_usu', true)->count(), 'note' => 'Usuarios habilitados.', 'tone' => 'success'],
-                ['label' => 'Roles activos', 'value' => (string) Role::query()->count(), 'note' => 'Roles disponibles.', 'tone' => 'neutral'],
-                ['label' => 'Ultima alta', 'value' => $this->latestDate(User::query(), 'fec_usu'), 'note' => 'Ultimo movimiento.', 'tone' => 'warning'],
+                ['label' => 'Superadmins', 'value' => (string) $this->countUsersByRoleSlug('superadmin'), 'note' => 'Acceso total al panel.', 'tone' => 'danger'],
+                ['label' => 'Vendedores', 'value' => (string) $this->countUsersByRoleSlug('vendedor'), 'note' => 'Operacion comercial.', 'tone' => 'warning'],
+                ['label' => 'Clientes', 'value' => (string) $this->countUsersByRoleSlug('cliente'), 'note' => 'Cuentas del ecommerce.', 'tone' => 'success'],
             ],
             'products' => [
                 ['label' => 'Prendas', 'value' => (string) Prenda::query()->count(), 'note' => 'Prendas registradas.', 'tone' => 'accent'],
@@ -754,6 +891,17 @@ class ResourceController extends Controller
     private function filterControls(array $definition, Request $request): array
     {
         return match ($definition['kind']) {
+            'users' => [
+                [
+                    'key' => 'search',
+                    'label' => 'Buscar',
+                    'type' => 'text',
+                    'value' => $request->string('search')->toString(),
+                    'placeholder' => 'Nombre o correo',
+                ],
+                $this->selectFilter('role', 'Rol', $request, $this->managedUserRoleOptions()),
+                $this->selectFilter('status', 'Estado', $request, $this->booleanSelectOptions('Activos', 'Inactivos')),
+            ],
             'products' => [
                 $this->selectFilter('category', 'Categoria', $request, $this->categoryOptions()),
                 $this->selectFilter('brand', 'Marca', $request, $this->brandOptions()),
@@ -816,6 +964,12 @@ class ResourceController extends Controller
     private function sortOptions(array $definition): array
     {
         return match ($definition['kind']) {
+            'users' => [
+                ['label' => 'Nombre', 'value' => 'name'],
+                ['label' => 'Fecha', 'value' => 'date'],
+                ['label' => 'Rol', 'value' => 'role'],
+                ['label' => 'Estado', 'value' => 'status'],
+            ],
             'products' => [
                 ['label' => 'Nombre', 'value' => 'name'],
                 ['label' => 'Fecha', 'value' => 'date'],
@@ -886,6 +1040,18 @@ class ResourceController extends Controller
                 'label' => 'Orden',
                 'value' => $sortLabel . ' · ' . ($request->input('sort_dir', 'desc') === 'asc' ? 'Ascendente' : 'Descendente'),
             ]);
+        }
+
+        if ($request->string('role_slug')->toString() !== '') {
+            $role = $this->managedUserRoles()
+                ->firstWhere('slug', $request->string('role_slug')->toString());
+
+            if ($role) {
+                $applied->prepend([
+                    'label' => 'Grupo',
+                    'value' => $role['label'],
+                ]);
+            }
         }
 
         return $applied->all();
@@ -963,6 +1129,7 @@ class ResourceController extends Controller
 
         return $records->filter(function ($record) use ($key, $request) {
             return match ($key) {
+                'seguridad.usuarios' => $this->userMatchesFilters($record, $request),
                 'catalogo.prendas' => $this->productMatchesFilters($record, $request),
                 'catalogo.variantes' => $this->variantMatchesFilters($record, $request),
                 'inventario.stock', 'inventario.alertas' => $this->inventoryMatchesFilters($record, $request),
@@ -984,6 +1151,13 @@ class ResourceController extends Controller
         }
 
         $resolver = match ($key) {
+            'seguridad.usuarios' => fn ($record) => match ($sortBy) {
+                'name' => $this->userName($record),
+                'date' => $record->fec_usu?->timestamp ?? 0,
+                'role' => mb_strtolower((string) ($record->rol?->nom_rol ?? ''), 'UTF-8'),
+                'status' => $record->est_usu ? 1 : 0,
+                default => $this->userName($record),
+            },
             'catalogo.prendas' => fn ($record) => match ($sortBy) {
                 'name' => $record->nom_pre ?? '',
                 'date' => $record->fec_pre?->timestamp ?? 0,
@@ -1027,6 +1201,35 @@ class ResourceController extends Controller
         }
 
         return $records->sortBy($resolver, SORT_NATURAL | SORT_FLAG_CASE, $direction === 'desc');
+    }
+
+    private function userMatchesFilters($record, Request $request): bool
+    {
+        $activeSegment = $request->string('role_slug')->toString();
+        if ($activeSegment !== '' && mb_strtolower((string) ($record->rol?->nom_rol ?? ''), 'UTF-8') !== $activeSegment) {
+            return false;
+        }
+
+        if (!$this->matchesOption($request->input('role'), $record->cod_roles_usu)) {
+            return false;
+        }
+
+        if (!$this->matchesBooleanOption($request->input('status'), $record->est_usu)) {
+            return false;
+        }
+
+        $search = trim($request->string('search')->toString());
+        if ($search === '') {
+            return true;
+        }
+
+        $haystack = mb_strtolower(trim(implode(' ', array_filter([
+            $this->userName($record),
+            $record->email,
+            $record->rol?->nom_rol,
+        ]))), 'UTF-8');
+
+        return str_contains($haystack, mb_strtolower($search, 'UTF-8'));
     }
 
     private function productMatchesFilters($record, Request $request): bool
@@ -1296,20 +1499,7 @@ class ResourceController extends Controller
                 'des_rol' => ['nullable', 'string', 'max:255'],
                 'est_rol' => ['nullable', 'boolean'],
             ],
-            'seguridad.usuarios' => [
-                'nom_usu' => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
-                'app_usu' => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
-                'apm_usu' => ['nullable', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
-                'tel_usu' => ['nullable', 'string', 'max:20', 'regex:/^[67]\d{7}$/'],
-                'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($record?->id, 'id')],
-                'cod_roles_usu' => ['required', 'integer', Rule::exists('roles', 'id_rol')],
-                'est_usu' => ['nullable', 'boolean'],
-                'password' => [
-                    $record ? 'nullable' : 'required',
-                    'confirmed',
-                    Password::min(8)->letters()->mixedCase()->numbers(),
-                ],
-            ],
+            'seguridad.usuarios' => UserValidation::adminRules($record instanceof User ? $record : null),
             'catalogo.categorias' => [
                 'nom_cat' => ['required', 'string', 'max:100', Rule::unique('categorias', 'nom_cat')->ignore($record?->id_categoria, 'id_categoria')],
                 'des_cat' => ['nullable', 'string', 'max:255'],
@@ -1386,6 +1576,7 @@ class ResourceController extends Controller
         };
 
         $messages = [
+            ...UserValidation::messages(),
             'regex' => 'Formato invalido.',
             'password.confirmed' => 'La confirmacion de la contrasena no coincide.',
             'tel_usu.regex' => 'El telefono debe tener 8 digitos y comenzar con 6 o 7.',
@@ -1402,6 +1593,29 @@ class ResourceController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($key === 'seguridad.usuarios') {
+            $validator->after(function ($validator) use ($request, $record) {
+                if (!$record instanceof User) {
+                    return;
+                }
+
+                $authUser = $request->user();
+                $isSameUser = $authUser && (int) $authUser->getAuthIdentifier() === (int) $record->id;
+
+                if ($isSameUser && !$request->boolean('est_usu', (bool) $record->est_usu)) {
+                    $validator->errors()->add('est_usu', 'No puedes desactivar tu propio usuario desde el panel.');
+                }
+
+                if ($isSameUser) {
+                    $selectedRole = Role::query()->find($request->input('cod_roles_usu'));
+
+                    if (!$selectedRole || strcasecmp((string) $selectedRole->nom_rol, 'superadmin') !== 0) {
+                        $validator->errors()->add('cod_roles_usu', 'Tu usuario debe conservar el rol superadmin para mantener acceso al panel.');
+                    }
+                }
+            });
+        }
 
         if ($key === 'catalogo.categorias') {
             $validator->after(function ($validator) use ($request, $record) {
@@ -1965,11 +2179,11 @@ class ResourceController extends Controller
         return $query->where($keyName, $record)->firstOrFail();
     }
 
-    private function viewData(array $definition, mixed $record = null): array
+    private function viewData(array $definition, mixed $record = null, ?Request $request = null): array
     {
         return match ($definition['kind']) {
             'taxonomy' => $this->taxonomyViewData($definition, $record),
-            'users' => $this->userViewData($record),
+            'users' => $this->userViewData($record, $request),
             'products' => $this->productViewData($definition, $record),
             'variants' => $this->variantViewData($definition, $record),
             'images' => $this->imageViewData($record),
@@ -2014,7 +2228,7 @@ class ResourceController extends Controller
             'secondary' => $record->email,
             'status' => $this->booleanStatus($record->est_usu),
             'cells' => [
-                'role' => $record->rol?->nom_rol ?? 'Sin rol',
+                'role' => $record->rol?->nom_rol ? $this->roleLabel((string) $record->rol->nom_rol) : 'Sin rol',
                 'email' => $record->email ?? 'Sin correo',
                 'phone' => $record->tel_usu ?: 'Sin telefono',
                 'date' => $this->formatDate($record->fec_usu),
@@ -2311,57 +2525,80 @@ class ResourceController extends Controller
         ];
     }
 
-    private function userViewData($record = null): array
+    private function userViewData($record = null, ?Request $request = null): array
     {
         $name = $record ? $this->userName($record) : 'Nuevo usuario';
+        $presetRole = !$record ? $this->activeManagedUserRole($request) : null;
+        $selectedRoleId = $record?->cod_roles_usu ?? $presetRole['id'] ?? '';
+        $selectedRoleLabel = $record?->rol?->nom_rol
+            ? $this->roleLabel((string) $record->rol->nom_rol)
+            : ($presetRole ? $this->roleLabel((string) $presetRole['singular']) : 'Usuario');
+        $stateLabel = $record ? ($record->est_usu ? 'Activo' : 'Inactivo') : 'Activo';
 
         return [
             'recordLabel' => $name,
+            'formTitle' => $record
+                ? 'Editar usuario'
+                : ($presetRole ? 'Nuevo ' . $presetRole['singular'] : 'Nuevo usuario'),
+            'formDescription' => $record
+                ? 'Actualiza datos, rol, estado y acceso.'
+                : ($presetRole
+                    ? 'Registra un nuevo ' . $presetRole['singular'] . ' desde el panel.'
+                    : 'Registra una nueva cuenta administrativa o comercial.'),
             'formSections' => [
                 [
-                    'title' => 'Datos del usuario',
-                    'description' => 'Datos personales y contacto.',
+                    'title' => 'Identidad',
+                    'description' => 'Datos personales y contacto del usuario.',
                     'fields' => [
-                        ['name' => 'nom_usu', 'label' => 'Nombre', 'value' => $record?->nom_usu ?? '', 'required' => true, 'placeholder' => 'NOMBRE'],
-                        ['name' => 'app_usu', 'label' => 'Apellido paterno', 'value' => $record?->app_usu ?? '', 'required' => true, 'placeholder' => 'APELLIDO PATERNO'],
-                        ['name' => 'apm_usu', 'label' => 'Apellido materno', 'value' => $record?->apm_usu ?? '', 'placeholder' => 'APELLIDO MATERNO'],
-                        ['name' => 'tel_usu', 'label' => 'Telefono', 'value' => $record?->tel_usu ?? '', 'type' => 'tel', 'placeholder' => '70000000'],
-                        ['name' => 'email', 'label' => 'Correo', 'value' => $record?->email ?? '', 'type' => 'email', 'required' => true, 'placeholder' => 'correo@dominio.com'],
+                        ['name' => 'nom_usu', 'label' => 'Nombre', 'value' => $record?->nom_usu ?? '', 'required' => true, 'placeholder' => 'NOMBRE', 'transform' => 'uppercase', 'maxLength' => 100],
+                        ['name' => 'app_usu', 'label' => 'Apellido paterno', 'value' => $record?->app_usu ?? '', 'required' => true, 'placeholder' => 'APELLIDO PATERNO', 'transform' => 'uppercase', 'maxLength' => 100],
+                        ['name' => 'apm_usu', 'label' => 'Apellido materno', 'value' => $record?->apm_usu ?? '', 'required' => true, 'placeholder' => 'APELLIDO MATERNO', 'transform' => 'uppercase', 'maxLength' => 100],
+                        ['name' => 'tel_usu', 'label' => 'Telefono', 'value' => $record?->tel_usu ?? '', 'type' => 'tel', 'required' => true, 'placeholder' => '70000000', 'transform' => 'digits', 'maxLength' => 8],
+                        ['name' => 'email', 'label' => 'Correo', 'value' => $record?->email ?? '', 'type' => 'email', 'required' => true, 'placeholder' => 'correo@dominio.com', 'transform' => 'lowercase', 'maxLength' => 255],
                     ],
                 ],
                 [
-                    'title' => 'Acceso',
-                    'description' => 'Rol, estado y credenciales.',
+                    'title' => 'Acceso y rol',
+                    'description' => 'Rol asignado, estado y datos de acceso.',
                     'fields' => [
-                        ['name' => 'cod_roles_usu', 'label' => 'Rol', 'value' => (string) ($record?->cod_roles_usu ?? ''), 'type' => 'select', 'options' => $this->roleOptions(), 'required' => true],
-                        ['name' => 'est_usu', 'label' => 'Estado', 'value' => $record ? ($record->est_usu ? '1' : '0') : '1', 'type' => 'toggle'],
-                        ['name' => 'password', 'label' => 'Contrasena', 'value' => '', 'type' => 'password', 'required' => !$record, 'hint' => $record ? 'Deja este campo vacio si no deseas cambiar la contrasena.' : 'Debe incluir mayuscula, minuscula y numero.'],
-                        ['name' => 'password_confirmation', 'label' => 'Confirmar contrasena', 'value' => '', 'type' => 'password', 'required' => !$record],
+                        ['name' => 'cod_roles_usu', 'label' => 'Rol', 'value' => (string) $selectedRoleId, 'type' => 'select', 'options' => $this->managedUserRoleOptions($record?->rol), 'required' => true],
+                        ['name' => 'est_usu', 'label' => 'Estado', 'value' => $record ? ($record->est_usu ? '1' : '0') : '1', 'type' => 'toggle', 'hint' => 'Controla si el usuario puede ingresar al sistema.'],
                         ['name' => 'fec_usu', 'label' => 'Fecha de alta', 'value' => $this->formatDate($record?->fec_usu), 'disabled' => true],
+                    ],
+                ],
+                [
+                    'title' => 'Contrasena',
+                    'description' => $record
+                        ? 'Solo completa estos campos si necesitas cambiar la contrasena actual.'
+                        : 'Define una contrasena segura para la nueva cuenta.',
+                    'fields' => [
+                        ['name' => 'password', 'label' => 'Contrasena', 'value' => '', 'type' => 'password', 'required' => !$record, 'hint' => 'Debe incluir una mayuscula, una minuscula y un numero.'],
+                        ['name' => 'password_confirmation', 'label' => 'Confirmar contrasena', 'value' => '', 'type' => 'password', 'required' => !$record],
                     ],
                 ],
             ],
             'summaryMetrics' => [
-                ['label' => 'Rol', 'value' => $record?->rol?->nom_rol ?? 'Sin rol', 'note' => 'Rol asignado.', 'tone' => 'accent'],
-                ['label' => 'Estado', 'value' => $record ? ($record->est_usu ? 'Activo' : 'Inactivo') : 'Nuevo', 'note' => 'Estado del usuario.', 'tone' => $record && !$record->est_usu ? 'danger' : 'success'],
+                ['label' => 'Rol', 'value' => $selectedRoleLabel, 'note' => 'Rol asignado.', 'tone' => 'accent'],
+                ['label' => 'Estado', 'value' => $stateLabel, 'note' => 'Estado del usuario.', 'tone' => $record && !$record->est_usu ? 'danger' : 'success'],
                 ['label' => 'Alta', 'value' => $this->formatDate($record?->fec_usu), 'note' => 'Fecha de alta.', 'tone' => 'neutral'],
                 ['label' => 'Telefono', 'value' => $record?->tel_usu ?: 'Sin telefono', 'note' => 'Telefono registrado.', 'tone' => 'warning'],
             ],
             'detailSections' => [
                 [
-                    'title' => 'Detalle del usuario',
-                    'description' => 'Informacion principal del usuario.',
+                    'title' => 'Ficha del usuario',
+                    'description' => 'Resumen administrativo de la cuenta.',
                     'fields' => [
                         ['label' => 'Nombre', 'value' => $name, 'tone' => 'accent'],
                         ['label' => 'Correo', 'value' => $record?->email ?? 'Sin correo', 'tone' => 'neutral'],
-                        ['label' => 'Rol', 'value' => $record?->rol?->nom_rol ?? 'Sin rol', 'tone' => 'warning'],
+                        ['label' => 'Rol', 'value' => $selectedRoleLabel, 'tone' => 'warning'],
+                        ['label' => 'Estado', 'value' => $stateLabel, 'tone' => $record && !$record->est_usu ? 'danger' : 'success'],
                         ['label' => 'Telefono', 'value' => $record?->tel_usu ?: 'Sin telefono', 'tone' => 'success'],
                     ],
                 ],
             ],
             'timeline' => [
                 ['title' => 'Alta de cuenta', 'note' => 'Fecha de registro.', 'date' => $this->formatDate($record?->fec_usu), 'tone' => 'accent'],
-                ['title' => 'Rol', 'note' => 'Rol actual.', 'date' => $record?->rol?->nom_rol ?? 'Sin rol', 'tone' => 'success'],
+                ['title' => 'Rol', 'note' => 'Rol actual.', 'date' => $selectedRoleLabel, 'tone' => 'success'],
                 ['title' => 'Correo', 'note' => 'Correo registrado.', 'date' => $record?->email ?? 'Sin correo', 'tone' => 'neutral'],
             ],
             'relatedColumns' => [],
@@ -2380,6 +2617,95 @@ class ResourceController extends Controller
             ])
             ->values()
             ->all();
+    }
+
+    private function managedUserRoleOptions($currentRole = null): array
+    {
+        $allowed = $this->managedUserRoles()
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $roles = Role::query()
+            ->when($allowed !== [], fn ($query) => $query->whereIn('id_rol', $allowed))
+            ->orderBy('nom_rol')
+            ->get();
+
+        if ($currentRole && !$roles->contains(fn ($role) => (int) $role->id_rol === (int) $currentRole->id_rol)) {
+            $roles->push($currentRole);
+        }
+
+        return $roles
+            ->sortBy('nom_rol', SORT_NATURAL | SORT_FLAG_CASE)
+            ->map(fn ($role) => [
+                'label' => $this->roleLabel((string) $role->nom_rol),
+                'value' => (string) $role->id_rol,
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function managedUserRoles(): Collection
+    {
+        $roleMap = Role::query()
+            ->orderBy('nom_rol')
+            ->get()
+            ->keyBy(fn ($role) => mb_strtolower((string) $role->nom_rol, 'UTF-8'));
+
+        $counts = DB::table('users')
+            ->join('roles', 'roles.id_rol', '=', 'users.cod_roles_usu')
+            ->selectRaw('LOWER(roles.nom_rol) as slug, COUNT(*) as total')
+            ->groupByRaw('LOWER(roles.nom_rol)')
+            ->pluck('total', 'slug');
+
+        return collect([
+            ['slug' => 'superadmin', 'label' => 'Superadmins', 'singular' => 'superadmin'],
+            ['slug' => 'vendedor', 'label' => 'Vendedores', 'singular' => 'vendedor'],
+            ['slug' => 'cliente', 'label' => 'Clientes', 'singular' => 'cliente'],
+        ])->map(function (array $role) use ($roleMap, $counts) {
+            $model = $roleMap->get($role['slug']);
+
+            return [
+                ...$role,
+                'id' => $model?->id_rol,
+                'count' => (int) ($counts[$role['slug']] ?? 0),
+            ];
+        })->filter(fn (array $role) => $role['id'] !== null)->values();
+    }
+
+    private function activeManagedUserRole(?Request $request): ?array
+    {
+        if (!$request) {
+            return null;
+        }
+
+        $slug = $request->string('role_slug')->toString();
+
+        if ($slug === '') {
+            return null;
+        }
+
+        return $this->managedUserRoles()->firstWhere('slug', $slug);
+    }
+
+    private function countUsersByRoleSlug(string $slug): int
+    {
+        return User::query()
+            ->whereHas('rol', function ($query) use ($slug) {
+                $query->whereRaw('LOWER(nom_rol) = ?', [mb_strtolower($slug, 'UTF-8')]);
+            })
+            ->count();
+    }
+
+    private function roleLabel(string $value): string
+    {
+        return match (mb_strtolower($value, 'UTF-8')) {
+            'superadmin' => 'Superadmin',
+            'vendedor' => 'Vendedor',
+            'cliente' => 'Cliente',
+            default => $value,
+        };
     }
 
     private function categoryParentOptions($record = null): array
