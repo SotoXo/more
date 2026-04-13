@@ -17,6 +17,22 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public function nombreCompleto(): string
+    {
+        return trim(implode(' ', array_filter([
+            $this->nom_usu,
+            $this->app_usu,
+            $this->apm_usu,
+        ]))) ?: ($this->email ?? '');
+    }
+
+    public function isSuperadmin(): bool
+    {
+        $this->loadMissing('rol');
+
+        return strcasecmp((string) $this->rol?->nom_rol, 'superadmin') === 0;
+    }
+
     /**
      * Get the role associated with the user.
      */

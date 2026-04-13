@@ -7,6 +7,12 @@ use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PrendaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
+use App\Http\Controllers\Superadmin\LogsController as SuperadminLogsController;
+use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
+use App\Http\Controllers\Superadmin\ReportsController as SuperadminReportsController;
+use App\Http\Controllers\Superadmin\ResourceController as SuperadminResourceController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // ─── Landing ────────────────────────────────────────────────
@@ -49,6 +55,23 @@ Route::middleware('auth')->prefix('cuenta')->name('cuenta.')->group(function () 
     Route::get('/favoritos', [FavoritoController::class, 'index'])->name('favoritos');
 });
 
+Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/', [SuperadminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/perfil', [SuperadminProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/perfil', [SuperadminProfileController::class, 'update'])->name('profile.update');
+    Route::put('/perfil/password', [SuperadminProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::get('/reportes', [SuperadminReportsController::class, 'index'])->name('reports');
+    Route::get('/logs', [SuperadminLogsController::class, 'index'])->name('logs');
+    Route::post('/{section}/{resource}/inline', [SuperadminResourceController::class, 'storeInline'])->name('resources.inline');
+    Route::get('/{section}/{resource}', [SuperadminResourceController::class, 'index'])->name('resources.index');
+    Route::get('/{section}/{resource}/nuevo', [SuperadminResourceController::class, 'create'])->name('resources.create');
+    Route::post('/{section}/{resource}', [SuperadminResourceController::class, 'store'])->name('resources.store');
+    Route::get('/{section}/{resource}/{record}/editar', [SuperadminResourceController::class, 'edit'])->name('resources.edit');
+    Route::match(['put', 'patch'], '/{section}/{resource}/{record}', [SuperadminResourceController::class, 'update'])->name('resources.update');
+    Route::delete('/{section}/{resource}/{record}', [SuperadminResourceController::class, 'destroy'])->name('resources.destroy');
+    Route::get('/{section}/{resource}/{record}', [SuperadminResourceController::class, 'show'])->name('resources.show');
+});
+
 // ─── Perfil (Breeze) ────────────────────────────────────────
 Route::middleware('auth')->group(function () {
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
@@ -57,7 +80,19 @@ Route::middleware('auth')->group(function () {
 });
 
 // Dashboard legacy → redirige a cuenta
-Route::get('/dashboard', fn () => redirect()->route('cuenta.index'))
+Route::get('/dashboard', function (Request $request) {
+    $user = $request->user();
+
+    if ($user && method_exists($user, 'isSuperadmin')) {
+        $user->loadMissing('rol');
+
+        if ($user->isSuperadmin()) {
+            return redirect()->route('superadmin.dashboard');
+        }
+    }
+
+    return redirect()->route('cuenta.index');
+})
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 

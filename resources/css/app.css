@@ -199,3 +199,177 @@ textarea:focus-visible {
 .more-accent-text {
     color: rgb(var(--more-accent-strong-rgb));
 }
+
+:root {
+    --sa-accent-rgb: 126 154 178;
+    --sa-accent-strong-rgb: 194 214 232;
+    --sa-accent-deep-rgb: 53 72 96;
+    --sa-success-rgb: 113 168 148;
+    --sa-warning-rgb: 201 160 106;
+    --sa-danger-rgb: 183 108 112;
+}
+
+.sa-shell {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0b1118 0%, #0d141c 100%);
+}
+
+.sa-grid-pattern::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 18%);
+    opacity: 0.22;
+}
+
+.sa-panel {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #101822;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.sa-panel-soft {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #0d151e;
+    box-shadow: none;
+}
+
+.sa-panel-muted {
+    border: 1px dashed rgba(255, 255, 255, 0.14);
+    background: #0d141c;
+}
+
+.sa-accent-line {
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(var(--sa-accent-strong-rgb), 0.9) 0%,
+        rgba(var(--sa-accent-rgb), 0.28) 32%,
+        transparent 100%
+    );
+}
+
+.sa-button-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(var(--sa-accent-rgb), 0.28);
+    background: rgb(230, 239, 247);
+    color: #0d1722;
+    box-shadow: none;
+}
+
+.sa-button-primary:hover {
+    transform: translateY(-1px);
+    background: rgb(240, 246, 251);
+}
+
+.sa-button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(var(--sa-accent-rgb), 0.22);
+    background: rgba(var(--sa-accent-rgb), 0.1);
+    color: #edf5fb;
+}
+
+.sa-button-secondary:hover {
+    transform: translateY(-1px);
+    border-color: rgba(var(--sa-accent-rgb), 0.36);
+    background: rgba(var(--sa-accent-rgb), 0.16);
+}
+
+.sa-button-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #0e151e;
+    color: #dde6ef;
+}
+
+.sa-button-ghost:hover {
+    border-color: rgba(var(--sa-accent-rgb), 0.24);
+    background: #13202d;
+}
+
+.sa-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #121b25;
+    color: #e3ebf2;
+}
+
+.sa-badge-accent {
+    border-color: rgba(var(--sa-accent-rgb), 0.42);
+    background: rgba(var(--sa-accent-rgb), 0.14);
+    color: rgb(var(--sa-accent-strong-rgb));
+}
+
+.sa-badge-success {
+    border-color: rgba(var(--sa-success-rgb), 0.34);
+    background: rgba(var(--sa-success-rgb), 0.14);
+    color: rgb(205, 241, 226);
+}
+
+.sa-badge-warning {
+    border-color: rgba(var(--sa-warning-rgb), 0.34);
+    background: rgba(var(--sa-warning-rgb), 0.14);
+    color: rgb(244, 224, 190);
+}
+
+.sa-badge-danger {
+    border-color: rgba(var(--sa-danger-rgb), 0.34);
+    background: rgba(var(--sa-danger-rgb), 0.14);
+    color: rgb(245, 208, 210);
+}
+
+.sa-input {
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #0b1219;
+    color: #edf2f7;
+}
+
+.sa-input::placeholder {
+    color: rgba(196, 206, 217, 0.62);
+}
+
+.sa-input:hover {
+    border-color: rgba(var(--sa-accent-rgb), 0.26);
+}
+
+.sa-input:focus-visible {
+    box-shadow:
+        0 0 0 1px rgba(var(--sa-accent-rgb), 0.24),
+        0 0 0 4px rgba(var(--sa-accent-rgb), 0.12);
+}
+
+.sa-input:disabled {
+    opacity: 1;
+    color: #dbe4ec;
+    background: #111a24;
+}
+
+.sa-table-row {
+    transition:
+        background-color 200ms ease,
+        border-color 200ms ease;
+}
+
+.sa-table-row:hover {
+    background: rgba(var(--sa-accent-rgb), 0.06);
+}

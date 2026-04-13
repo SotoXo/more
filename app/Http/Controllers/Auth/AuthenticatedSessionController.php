@@ -34,17 +34,12 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        
-        // Lógica de redirección basada en rol
-        if ($user->rol) {
-            $nom_rol = strtoupper($user->rol->nom_rol);
-            
-            if ($nom_rol === 'ADMIN' || $nom_rol === 'ADMINISTRADOR') {
-                return redirect()->intended('/dashboard');
-            }
-            
-            if ($nom_rol === 'VENDEDOR') {
-                return redirect()->intended('/ventas');
+
+        if ($user && method_exists($user, 'isSuperadmin')) {
+            $user->loadMissing('rol');
+
+            if ($user->isSuperadmin()) {
+                return redirect()->intended('/superadmin');
             }
         }
 

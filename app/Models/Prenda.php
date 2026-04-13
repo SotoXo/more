@@ -43,6 +43,11 @@ class Prenda extends Model
         return $this->belongsTo(Temporada::class, 'cod_temporadas_pre', 'id_temporada');
     }
 
+    public function usuarioRegistra()
+    {
+        return $this->belongsTo(User::class, 'cod_usuario_registra_pre', 'id');
+    }
+
     public function variantes()
     {
         return $this->hasMany(PrendaVariante::class, 'cod_prendas_prv', 'id_prenda');

@@ -6,12 +6,23 @@ use App\Models\Categoria;
 use App\Models\Marca;
 use App\Models\Prenda;
 use App\Services\ProductMapper;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $user = $request->user();
+
+        if ($user && method_exists($user, 'isSuperadmin')) {
+            $user->loadMissing('rol');
+
+            if ($user->isSuperadmin()) {
+                return redirect()->route('superadmin.dashboard');
+            }
+        }
+
         $novedadesPrendas = ProductMapper::withRelations(
             Prenda::where('est_pre', true)
         )
