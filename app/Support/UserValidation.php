@@ -25,7 +25,7 @@ class UserValidation
         return [
             'nom_usu' => self::upperNameRules(),
             'app_usu' => self::upperNameRules(),
-            'apm_usu' => self::upperNameRules(),
+            'apm_usu' => self::upperNameRulesNullable(),
             'tel_usu' => self::phoneRules(),
             'email' => self::emailRules($user),
             'cod_roles_usu' => ['required', 'integer', Rule::exists('roles', 'id_rol')],
@@ -57,6 +57,16 @@ class UserValidation
     {
         return [
             'required',
+            'string',
+            'max:100',
+            'regex:/^[\p{Lu}]+(?:\s+[\p{Lu}]+)*$/u',
+        ];
+    }
+
+    private static function upperNameRulesNullable(): array
+    {
+        return [
+            'nullable',
             'string',
             'max:100',
             'regex:/^[\p{Lu}]+(?:\s+[\p{Lu}]+)*$/u',

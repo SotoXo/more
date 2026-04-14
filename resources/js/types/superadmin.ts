@@ -90,12 +90,14 @@ export type SuperadminRowStatus = {
     tone?: SuperadminTone;
 };
 
+export type SuperadminTableCell = string | { label: string; tone?: SuperadminTone };
+
 export type SuperadminTableRow = {
     id: string | number;
     primary: string;
     secondary?: string;
     status?: SuperadminRowStatus;
-    cells: Record<string, string>;
+    cells: Record<string, SuperadminTableCell>;
     showHref?: string;
     editHref?: string;
 };

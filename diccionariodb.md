@@ -29,9 +29,12 @@
 
 ## categorias
 
+## categorias
+
 - `id_categoria` → identificador único de la categoría
 - `nom_cat` → nombre de la categoría
 - `des_cat` → descripción de la categoría
+- `tip_tal_cat` → tipo de sistema de talla sugerido para la categoría
 - `cod_categoria_padre_cat` → código de la categoría padre asociado a la categoría
 - `est_cat` → estado de la categoría
 - `fec_cat` → fecha de registro de la categoría
@@ -51,8 +54,11 @@
 ## colores
 
 - `id_color` → identificador único del color
-- `nom_col` → nombre del color
-- `hex_col` → código hexadecimal del color
+- `nom_col` → nombre real o tono real del color
+- `fam_col` → familia o color dominante asociado al color
+- `hex_col` → código hexadecimal real del color
+- `hex_dom_col` → código hexadecimal del color dominante o base
+- `ord_col` → orden de visualización del color en filtros o paletas
 - `est_col` → estado del color
 - `fec_col` → fecha de registro del color
 - `created_at` → fecha de creación del registro en Laravel
@@ -60,8 +66,12 @@
 
 ## tallas
 
+## tallas
+
 - `id_talla` → identificador único de la talla
-- `nom_tal` → nombre de la talla
+- `nom_tal` → nombre visible de la talla
+- `sis_tal` → sistema de talla asociado a la talla
+- `gru_tal` → grupo de uso de la talla según tipo de prenda
 - `ord_tal` → orden de visualización de la talla
 - `est_tal` → estado de la talla
 - `fec_tal` → fecha de registro de la talla
@@ -70,9 +80,13 @@
 
 ## temporadas
 
+## temporadas
+
 - `id_temporada` → identificador único de la temporada
 - `nom_tem` → nombre de la temporada
+- `cod_tem` → código corto o clave de la temporada
 - `des_tem` → descripción de la temporada
+- `ord_tem` → orden de visualización de la temporada
 - `est_tem` → estado de la temporada
 - `fec_tem` → fecha de registro de la temporada
 - `created_at` → fecha de creación del registro en Laravel

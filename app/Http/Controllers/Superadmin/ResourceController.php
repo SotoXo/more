@@ -50,7 +50,7 @@ class ResourceController extends Controller
             'meta' => $this->meta($definition),
             'breadcrumbs' => $this->breadcrumbs($definition),
             'metrics' => $this->metrics($definition),
-            'columns' => $this->columns($definition),
+            'columns' => $this->columns($definition, $request),
             'rows' => $rows,
             'headerActions' => $headerActions,
             'segmentedFilters' => $segmentedFilters,
@@ -734,7 +734,7 @@ class ResourceController extends Controller
     {
         return match ($definition['kind']) {
             'taxonomy' => $this->taxonomyRows($definition, $this->indexRecords($definition, $request)),
-            'users' => $this->userRows($definition, $this->indexRecords($definition, $request)),
+            'users' => $this->userRows($definition, $this->indexRecords($definition, $request), $request),
             'products' => $this->productRows($definition, $this->indexRecords($definition, $request)),
             'variants' => $this->variantRows($definition, $this->indexRecords($definition, $request)),
             'images' => $this->imageRows($definition, $this->indexRecords($definition, $request)),
@@ -748,7 +748,7 @@ class ResourceController extends Controller
         };
     }
 
-    private function columns(array $definition): array
+    private function columns(array $definition, ?Request $request = null): array
     {
         return match ($definition['kind']) {
             'taxonomy' => [
@@ -756,12 +756,7 @@ class ResourceController extends Controller
                 ['key' => 'linked', 'label' => 'Cruces', 'align' => 'center'],
                 ['key' => 'date', 'label' => 'Fecha', 'align' => 'right'],
             ],
-            'users' => [
-                ['key' => 'role', 'label' => 'Rol'],
-                ['key' => 'email', 'label' => 'Correo'],
-                ['key' => 'phone', 'label' => 'Telefono'],
-                ['key' => 'date', 'label' => 'Alta', 'align' => 'right'],
-            ],
+            'users' => $this->userColumns($request),
             'products' => [
                 ['key' => 'brand', 'label' => 'Marca'],
                 ['key' => 'category', 'label' => 'Categoria'],
@@ -1603,15 +1598,46 @@ class ResourceController extends Controller
                 $authUser = $request->user();
                 $isSameUser = $authUser && (int) $authUser->getAuthIdentifier() === (int) $record->id;
 
+                // Autoproteccion: el superadmin no puede desactivarse a si mismo
                 if ($isSameUser && !$request->boolean('est_usu', (bool) $record->est_usu)) {
                     $validator->errors()->add('est_usu', 'No puedes desactivar tu propio usuario desde el panel.');
                 }
 
+                // Autoproteccion: el superadmin no puede cambiar su propio rol
                 if ($isSameUser) {
                     $selectedRole = Role::query()->find($request->input('cod_roles_usu'));
 
                     if (!$selectedRole || strcasecmp((string) $selectedRole->nom_rol, 'superadmin') !== 0) {
                         $validator->errors()->add('cod_roles_usu', 'Tu usuario debe conservar el rol superadmin para mantener acceso al panel.');
+                    }
+                }
+
+                // Proteccion del ultimo superadmin activo (cuando se edita a otro usuario)
+                if (!$isSameUser) {
+                    $record->loadMissing('rol');
+                    $isCurrentlySuperadmin = $record->rol
+                        && strcasecmp((string) $record->rol->nom_rol, 'superadmin') === 0;
+                    $isCurrentlyActive = (bool) $record->est_usu;
+
+                    if ($isCurrentlySuperadmin && $isCurrentlyActive) {
+                        $activeSuperadminCount = User::query()
+                            ->whereHas('rol', fn ($q) => $q->whereRaw('LOWER(nom_rol) = ?', ['superadmin']))
+                            ->where('est_usu', true)
+                            ->count();
+
+                        if ($activeSuperadminCount <= 1) {
+                            $tryingToDeactivate = !$request->boolean('est_usu', (bool) $record->est_usu);
+                            if ($tryingToDeactivate) {
+                                $validator->errors()->add('est_usu', 'No puedes desactivar este usuario porque es el unico superadmin activo del sistema.');
+                            }
+
+                            $selectedRole = Role::query()->find($request->input('cod_roles_usu'));
+                            $tryingToChangeRole = $selectedRole
+                                && strcasecmp((string) $selectedRole->nom_rol, 'superadmin') !== 0;
+                            if ($tryingToChangeRole) {
+                                $validator->errors()->add('cod_roles_usu', 'No puedes cambiar el rol de este usuario porque es el unico superadmin activo del sistema.');
+                            }
+                        }
                     }
                 }
             });
@@ -2126,23 +2152,7 @@ class ResourceController extends Controller
 
     private function userDeleteBlockedReason($record, $authUser = null): ?string
     {
-        if ($authUser && (int) $authUser->getAuthIdentifier() === (int) $record->id) {
-            return 'No puedes eliminar tu propio usuario.';
-        }
-
-        $hasOperations = Venta::query()
-            ->where('cod_usuario_cliente_ven', $record->id)
-            ->orWhere('cod_usuario_vendedor_ven', $record->id)
-            ->exists()
-            || Reserva::query()
-                ->where('cod_usuario_cliente_res', $record->id)
-                ->orWhere('cod_usuario_responsable_res', $record->id)
-                ->exists()
-            || Favorito::query()->where('cod_usuarios_fav', $record->id)->exists();
-
-        return $hasOperations
-            ? 'No puedes eliminar este usuario porque tiene movimientos asociados.'
-            : null;
+        return 'Los usuarios no se eliminan del sistema. Para dar de baja a un usuario, cambia su estado a inactivo.';
     }
 
     private function normalizeUpper(?string $value): ?string
@@ -2220,22 +2230,72 @@ class ResourceController extends Controller
         })->all();
     }
 
-    private function userRows(array $definition, Collection $records): array
+    private function userColumns(?Request $request = null): array
     {
-        return $records->map(fn ($record) => [
-            'id' => $record->id,
-            'primary' => $this->userName($record),
-            'secondary' => $record->email,
-            'status' => $this->booleanStatus($record->est_usu),
-            'cells' => [
-                'role' => $record->rol?->nom_rol ? $this->roleLabel((string) $record->rol->nom_rol) : 'Sin rol',
+        $slug = $request ? $request->string('role_slug')->toString() : '';
+
+        if ($slug === 'superadmin') {
+            return [
+                ['key' => 'email', 'label' => 'Correo'],
+                ['key' => 'status_label', 'label' => 'Estado'],
+                ['key' => 'date', 'label' => 'Alta', 'align' => 'right'],
+            ];
+        }
+
+        if ($slug === 'vendedor' || $slug === 'cliente') {
+            return [
+                ['key' => 'email', 'label' => 'Correo'],
+                ['key' => 'phone', 'label' => 'Telefono'],
+                ['key' => 'status_label', 'label' => 'Estado'],
+                ['key' => 'date', 'label' => 'Alta', 'align' => 'right'],
+            ];
+        }
+
+        // Tab "Todos": incluye columna de rol
+        return [
+            ['key' => 'role', 'label' => 'Rol'],
+            ['key' => 'email', 'label' => 'Correo'],
+            ['key' => 'phone', 'label' => 'Telefono'],
+            ['key' => 'status_label', 'label' => 'Estado'],
+            ['key' => 'date', 'label' => 'Alta', 'align' => 'right'],
+        ];
+    }
+
+    private function userRows(array $definition, Collection $records, ?Request $request = null): array
+    {
+        $slug = $request ? $request->string('role_slug')->toString() : '';
+
+        return $records->map(function ($record) use ($definition, $slug) {
+            $rolLabel = $record->rol?->nom_rol ? $this->roleLabel((string) $record->rol->nom_rol) : 'Sin rol';
+            $rolSlug = $record->rol ? mb_strtolower((string) $record->rol->nom_rol, 'UTF-8') : '';
+
+            $rolTone = match ($rolSlug) {
+                'superadmin' => 'danger',
+                'vendedor' => 'warning',
+                'cliente' => 'success',
+                default => 'neutral',
+            };
+
+            $cells = [
+                'role' => ['label' => $rolLabel, 'tone' => $rolTone],
                 'email' => $record->email ?? 'Sin correo',
-                'phone' => $record->tel_usu ?: 'Sin telefono',
+                'phone' => $record->tel_usu ?: '—',
+                'status_label' => $record->est_usu
+                    ? ['label' => 'Activo', 'tone' => 'success']
+                    : ['label' => 'Inactivo', 'tone' => 'neutral'],
                 'date' => $this->formatDate($record->fec_usu),
-            ],
-            'showHref' => $this->showHref($definition, $record->id),
-            'editHref' => $this->editHref($definition, $record->id),
-        ])->all();
+            ];
+
+            return [
+                'id' => $record->id,
+                'primary' => $this->userName($record),
+                'secondary' => $slug === 'superadmin' ? $record->email : ($record->rol?->nom_rol ? $this->roleLabel((string) $record->rol->nom_rol) : 'Sin rol'),
+                'status' => $this->booleanStatus($record->est_usu),
+                'cells' => $cells,
+                'showHref' => $this->showHref($definition, $record->id),
+                'editHref' => $this->editHref($definition, $record->id),
+            ];
+        })->all();
     }
 
     private function productRows(array $definition, Collection $records): array
@@ -2552,7 +2612,7 @@ class ResourceController extends Controller
                     'fields' => [
                         ['name' => 'nom_usu', 'label' => 'Nombre', 'value' => $record?->nom_usu ?? '', 'required' => true, 'placeholder' => 'NOMBRE', 'transform' => 'uppercase', 'maxLength' => 100],
                         ['name' => 'app_usu', 'label' => 'Apellido paterno', 'value' => $record?->app_usu ?? '', 'required' => true, 'placeholder' => 'APELLIDO PATERNO', 'transform' => 'uppercase', 'maxLength' => 100],
-                        ['name' => 'apm_usu', 'label' => 'Apellido materno', 'value' => $record?->apm_usu ?? '', 'required' => true, 'placeholder' => 'APELLIDO MATERNO', 'transform' => 'uppercase', 'maxLength' => 100],
+                        ['name' => 'apm_usu', 'label' => 'Apellido materno', 'value' => $record?->apm_usu ?? '', 'required' => false, 'placeholder' => 'APELLIDO MATERNO (opcional)', 'transform' => 'uppercase', 'maxLength' => 100],
                         ['name' => 'tel_usu', 'label' => 'Telefono', 'value' => $record?->tel_usu ?? '', 'type' => 'tel', 'required' => true, 'placeholder' => '70000000', 'transform' => 'digits', 'maxLength' => 8],
                         ['name' => 'email', 'label' => 'Correo', 'value' => $record?->email ?? '', 'type' => 'email', 'required' => true, 'placeholder' => 'correo@dominio.com', 'transform' => 'lowercase', 'maxLength' => 255],
                     ],
@@ -2572,8 +2632,8 @@ class ResourceController extends Controller
                         ? 'Solo completa estos campos si necesitas cambiar la contrasena actual.'
                         : 'Define una contrasena segura para la nueva cuenta.',
                     'fields' => [
-                        ['name' => 'password', 'label' => 'Contrasena', 'value' => '', 'type' => 'password', 'required' => !$record, 'hint' => 'Debe incluir una mayuscula, una minuscula y un numero.'],
-                        ['name' => 'password_confirmation', 'label' => 'Confirmar contrasena', 'value' => '', 'type' => 'password', 'required' => !$record],
+                        ['name' => 'password', 'label' => 'Contrasena', 'value' => '', 'type' => 'password', 'required' => !$record, 'hint' => $record ? 'Dejar en blanco para mantener la contrasena actual. Si la cambias, debe incluir mayuscula, minuscula y numero.' : 'Debe incluir una mayuscula, una minuscula y un numero.'],
+                        ['name' => 'password_confirmation', 'label' => 'Confirmar contrasena', 'value' => '', 'type' => 'password', 'required' => !$record, 'hint' => $record ? 'Repite la nueva contrasena solo si la estas cambiando.' : null],
                     ],
                 ],
             ],

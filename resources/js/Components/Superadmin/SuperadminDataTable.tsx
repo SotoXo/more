@@ -1,7 +1,14 @@
-import type { SuperadminTableColumn, SuperadminTableRow } from '@/types/superadmin';
+import type { SuperadminTableCell, SuperadminTableColumn, SuperadminTableRow } from '@/types/superadmin';
 import { Link } from '@inertiajs/react';
 import { ChevronRight, PenSquare } from 'lucide-react';
 import SuperadminBadge from './SuperadminBadge';
+
+function CellContent({ value }: { value: SuperadminTableCell }) {
+    if (typeof value === 'object' && value !== null) {
+        return <SuperadminBadge tone={value.tone}>{value.label}</SuperadminBadge>;
+    }
+    return <>{value}</>;
+}
 
 export default function SuperadminDataTable({
     columns,
@@ -57,7 +64,7 @@ export default function SuperadminDataTable({
                                             key={`${row.id}-${column.key}`}
                                             className={`px-6 py-5 text-sm text-stone-300 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'}`}
                                         >
-                                            {cellValue}
+                                            <CellContent value={cellValue} />
                                         </td>
                                     );
                                 })}
