@@ -30,7 +30,22 @@ class User extends Authenticatable
     {
         $this->loadMissing('rol');
 
-        return strcasecmp((string) $this->rol?->nom_rol, 'superadmin') === 0;
+        return $this->isActive()
+            && $this->rol
+            && $this->rol->isActive()
+            && $this->rol->isSuperadminRole();
+    }
+
+    public function isActive(): bool
+    {
+        return (bool) $this->est_usu;
+    }
+
+    public function hasValidActiveRole(): bool
+    {
+        $this->loadMissing('rol');
+
+        return $this->rol !== null && $this->rol->isActive();
     }
 
     /**

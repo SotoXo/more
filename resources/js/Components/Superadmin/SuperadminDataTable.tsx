@@ -1,6 +1,6 @@
 import type { SuperadminTableCell, SuperadminTableColumn, SuperadminTableRow } from '@/types/superadmin';
 import { Link } from '@inertiajs/react';
-import { ChevronRight, PenSquare } from 'lucide-react';
+import { Eye, PenSquare } from 'lucide-react';
 import SuperadminBadge from './SuperadminBadge';
 
 function CellContent({ value }: { value: SuperadminTableCell }) {
@@ -17,7 +17,9 @@ export default function SuperadminDataTable({
     columns: SuperadminTableColumn[];
     rows: SuperadminTableRow[];
 }) {
-    const hasActions = rows.some((row) => row.editHref || row.showHref);
+    const hasEditActions = rows.some((row) => row.editHref);
+    const hasShowActions = rows.some((row) => row.showHref);
+    const hasActions = hasEditActions || hasShowActions;
 
     return (
         <div className="sa-panel overflow-hidden rounded-[1.6rem]">
@@ -38,7 +40,7 @@ export default function SuperadminDataTable({
                             ))}
                             {hasActions && (
                                 <th className="px-6 py-4 text-right text-[0.72rem] uppercase tracking-[0.18em] text-stone-300">
-                                    Acciones
+                                    {hasEditActions ? 'Acciones' : 'Consulta'}
                                 </th>
                             )}
                         </tr>
@@ -92,9 +94,9 @@ export default function SuperadminDataTable({
                                                 <Link
                                                     href={row.showHref}
                                                     className="sa-button-secondary h-10 w-10 p-0"
-                                                    aria-label={`Ver ${row.primary}`}
+                                                    aria-label={`${hasEditActions ? 'Ver' : 'Consultar'} ${row.primary}`}
                                                 >
-                                                    <ChevronRight size={15} />
+                                                    <Eye size={15} />
                                                 </Link>
                                             )}
                                         </div>

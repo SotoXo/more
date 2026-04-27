@@ -15,21 +15,29 @@ export default function Logs({
     entries,
 }: LogsProps) {
     return (
-        <SuperadminLayout title="MORE | Logs">
+        <SuperadminLayout title="MORE | Bitácora">
             <div className="space-y-8">
                 <SuperadminPageHeader
-                    eyebrow="Logs"
-                    title="Logs y auditoria"
-                    description="Movimientos recientes del sistema."
+                    eyebrow="Bitácora"
+                    title="Bitácora"
+                    description="Consulta de movimientos recientes del sistema."
                     breadcrumbs={[
                         { label: 'Superadmin', href: '/superadmin' },
-                        { label: 'Logs' },
+                        { label: 'Bitácora' },
                     ]}
                     actions={[
                         { label: 'Volver al panel', href: '/superadmin', kind: 'ghost' },
-                        { label: 'Filtrar', kind: 'secondary' },
                     ]}
                 />
+
+                <section className="sa-panel rounded-[1.6rem] p-5">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <SuperadminBadge tone="accent">Solo lectura</SuperadminBadge>
+                        <p className="max-w-3xl text-sm leading-6 text-stone-300">
+                            Esta vista reúne eventos recientes; no es todavía una auditoría transaccional completa.
+                        </p>
+                    </div>
+                </section>
 
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     {metrics.map((metric, index) => (

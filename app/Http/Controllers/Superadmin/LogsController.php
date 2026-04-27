@@ -24,7 +24,7 @@ class LogsController extends Controller
                 $entries->push([
                     'id' => 'USR-' . $user->id,
                     'title' => trim(implode(' ', array_filter([$user->nom_usu, $user->app_usu, $user->apm_usu]))) ?: $user->email,
-                    'description' => 'Alta o actualizacion de usuario.',
+                    'description' => 'Alta o actualización de usuario.',
                     'date' => $this->formatDate($user->fec_usu),
                     'tone' => 'accent',
                     'sort' => $user->fec_usu?->timestamp ?? 0,
@@ -40,7 +40,7 @@ class LogsController extends Controller
                 $entries->push([
                     'id' => 'PRE-' . $prenda->id_prenda,
                     'title' => $prenda->nom_pre,
-                    'description' => 'Alta o actualizacion de prenda.',
+                    'description' => 'Alta o actualización de prenda.',
                     'date' => $this->formatDate($prenda->fec_pre),
                     'tone' => 'success',
                     'sort' => $prenda->fec_pre?->timestamp ?? 0,
@@ -91,7 +91,7 @@ class LogsController extends Controller
                 [
                     'id' => 'LOG-000',
                     'title' => 'Sin movimientos recientes',
-                    'description' => 'Todavia no hay registros para mostrar.',
+                    'description' => 'Todavía no hay registros para mostrar.',
                     'date' => 'Sin fecha',
                     'tone' => 'neutral',
                 ],
@@ -115,11 +115,11 @@ class LogsController extends Controller
                 [
                     'label' => 'Prendas',
                     'value' => (string) Prenda::query()->count(),
-                    'note' => 'Catalogo registrado.',
+                    'note' => 'Catálogo registrado.',
                     'tone' => 'success',
                 ],
                 [
-                    'label' => 'Operacion',
+                    'label' => 'Operación',
                     'value' => (string) (Venta::query()->count() + Reserva::query()->count()),
                     'note' => 'Ventas y reservas.',
                     'tone' => 'warning',

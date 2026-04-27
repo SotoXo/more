@@ -79,7 +79,7 @@ export default function SuperadminSidebar({
                                             <>
                                                 <span className="min-w-0 flex-1 text-sm font-medium">{item.label}</span>
                                                 {item.badge && (
-                                                    <SuperadminBadge tone="accent">
+                                                    <SuperadminBadge tone={item.badgeTone ?? 'accent'}>
                                                         {item.badge}
                                                     </SuperadminBadge>
                                                 )}

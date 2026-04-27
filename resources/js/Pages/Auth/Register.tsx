@@ -18,26 +18,24 @@ export default function Register() {
     });
 
     const handleNameChange = (val: string, field: 'nom_usu' | 'app_usu' | 'apm_usu', maxLen: number) => {
-        // Prevent numbers and transform to UPPERCASE in real-time
         let cleanVal = val.toUpperCase().replace(/[0-9]/g, '').slice(0, maxLen);
         setData(field, cleanVal);
 
         if (cleanVal.length > 0 && cleanVal[0] !== cleanVal[0].toUpperCase()) {
-            setError(field, 'Debe iniciar con mayúscula');
+            setError(field, 'Debe estar en MAYÚSCULAS y no puede contener números.');
         } else {
             clearErrors(field);
         }
     };
 
     const handlePhoneChange = (val: string) => {
-        // Prevent letters, only numbers, max 8
         let cleanVal = val.replace(/[^0-9]/g, '').slice(0, 8);
         setData('tel_usu', cleanVal);
 
         if (cleanVal.length > 0 && !/^[67]/.test(cleanVal)) {
-            setError('tel_usu', 'Debe empezar con 6 o 7');
+            setError('tel_usu', 'El teléfono debe empezar con 6 o 7.');
         } else if (cleanVal.length > 0 && cleanVal.length < 8) {
-            setError('tel_usu', 'Debe tener 8 dígitos');
+            setError('tel_usu', 'El teléfono debe tener 8 dígitos.');
         } else {
             clearErrors('tel_usu');
         }
@@ -56,7 +54,7 @@ export default function Register() {
             <Head title="Registrarse" />
 
             <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-[#f8fafc] mb-2" style={{ fontFamily: '"Playfair Display", serif', letterSpacing: '0.05em' }}>Crea tu Cuenta</h2>
+                <h2 className="text-2xl font-bold text-[#f8fafc] mb-2" style={{ fontFamily: '"Playfair Display", serif', letterSpacing: '0.05em' }}>Crea tu cuenta</h2>
                 <p className="text-sm text-[#94a3b8]">Únete para disfrutar de la experiencia completa.</p>
             </div>
 
@@ -78,7 +76,7 @@ export default function Register() {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="app_usu" value="Apellido Paterno" />
+                    <InputLabel htmlFor="app_usu" value="Apellido paterno" />
                     <TextInput
                         id="app_usu"
                         name="app_usu"
@@ -92,7 +90,7 @@ export default function Register() {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="apm_usu" value="Apellido Materno" />
+                    <InputLabel htmlFor="apm_usu" value="Apellido materno" />
                     <TextInput
                         id="apm_usu"
                         name="apm_usu"
@@ -121,7 +119,7 @@ export default function Register() {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="email" value="Correo Electrónico" />
+                    <InputLabel htmlFor="email" value="Correo electrónico" />
                     <TextInput
                         id="email"
                         type="email"
@@ -129,7 +127,7 @@ export default function Register() {
                         value={data.email}
                         className="mt-1 block w-full"
                         autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
+                        onChange={(e) => setData('email', e.target.value.trim().toLowerCase())}
                         required
                     />
                     <InputError message={errors.email} className="mt-2 text-[#ef4444]" />
@@ -151,7 +149,7 @@ export default function Register() {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password_confirmation" value="Confirmar Contraseña" />
+                    <InputLabel htmlFor="password_confirmation" value="Confirmar contraseña" />
                     <TextInput
                         id="password_confirmation"
                         type="password"

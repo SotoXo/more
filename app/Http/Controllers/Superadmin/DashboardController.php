@@ -54,7 +54,7 @@ class DashboardController extends Controller
                 [
                     'label' => 'Ventas',
                     'value' => (string) $ventasCount,
-                    'note' => $reservasCount . ' reservas activas.',
+                    'note' => 'Consulta comercial. ' . $reservasCount . ' reservas activas.',
                     'tone' => 'warning',
                     'href' => '/superadmin/comercial/ventas',
                 ],
@@ -75,30 +75,30 @@ class DashboardController extends Controller
                     'href' => '/superadmin/seguridad/usuarios',
                 ],
                 [
-                    'eyebrow' => 'Catalogo',
+                    'eyebrow' => 'Catálogo',
                     'title' => 'Prendas y variantes',
-                    'description' => $prendasCount . ' prendas, ' . $variantesCount . ' variantes y ' . $imagenesCount . ' imagenes.',
+                    'description' => $prendasCount . ' prendas, ' . $variantesCount . ' variantes y ' . $imagenesCount . ' imágenes.',
                     'tone' => 'success',
                     'href' => '/superadmin/catalogo/prendas',
                 ],
                 [
                     'eyebrow' => 'Inventario',
-                    'title' => 'Control de stock',
-                    'description' => 'Disponible, reservado y alertas por SKU.',
+                    'title' => 'Consulta de existencias',
+                    'description' => 'Disponible, reservado y alertas por código interno, sin movimientos de inventario en esta fase.',
                     'tone' => 'warning',
                     'href' => '/superadmin/inventario/stock',
                 ],
                 [
                     'eyebrow' => 'Comercial',
-                    'title' => 'Ventas y reservas',
-                    'description' => 'Seguimiento de operaciones, apartados y favoritos.',
+                    'title' => 'Consulta comercial',
+                    'description' => 'Lectura de ventas, apartados y favoritos registrados.',
                     'tone' => 'accent',
                     'href' => '/superadmin/comercial/ventas',
                 ],
             ],
             'alerts' => [
                 [
-                    'eyebrow' => 'Stock critico',
+                    'eyebrow' => 'Existencias críticas',
                     'title' => $lowStockCount . ' registros por revisar',
                     'description' => 'Disponibles con margen de 2 unidades o menos.',
                     'tone' => $lowStockCount > 0 ? 'warning' : 'success',
@@ -112,7 +112,7 @@ class DashboardController extends Controller
                 [
                     'eyebrow' => 'Reservas activas',
                     'title' => $reservasCount . ' registros',
-                    'description' => 'Reservas abiertas dentro del modulo comercial.',
+                    'description' => 'Reservas abiertas dentro del módulo comercial.',
                     'tone' => 'neutral',
                 ],
             ],
@@ -120,7 +120,7 @@ class DashboardController extends Controller
                 [
                     'title' => $latestPrenda?->nom_pre ?? 'Sin prendas recientes',
                     'description' => $latestPrenda
-                        ? 'Ultima prenda registrada el ' . $this->formatDate($latestPrenda->fec_pre)
+                        ? 'Última prenda registrada el ' . $this->formatDate($latestPrenda->fec_pre)
                         : 'No hay prendas registradas.',
                     'date' => $this->formatDate($latestPrenda?->fec_pre),
                     'tone' => 'accent',
@@ -128,7 +128,7 @@ class DashboardController extends Controller
                 [
                     'title' => $latestVenta?->nve_ven ?: 'Sin ventas recientes',
                     'description' => $latestVenta
-                        ? 'Ultima venta por ' . $this->money((float) $latestVenta->tot_ven)
+                        ? 'Última venta por ' . $this->money((float) $latestVenta->tot_ven)
                         : 'No hay ventas registradas.',
                     'date' => $this->formatDate($latestVenta?->fec_ven),
                     'tone' => 'success',
@@ -136,7 +136,7 @@ class DashboardController extends Controller
                 [
                     'title' => $latestReserva?->nre_res ?: 'Sin reservas recientes',
                     'description' => $latestReserva
-                        ? 'Ultima reserva registrada el ' . $this->formatDate($latestReserva->fec_res)
+                        ? 'Última reserva registrada el ' . $this->formatDate($latestReserva->fec_res)
                         : 'No hay reservas registradas.',
                     'date' => $this->formatDate($latestReserva?->fec_res),
                     'tone' => 'warning',

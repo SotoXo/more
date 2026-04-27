@@ -17,10 +17,8 @@ import {
     Sparkles,
     Users2,
     Warehouse,
-    Waypoints,
     BookOpenText,
     ScrollText,
-    Images,
     SwatchBook,
 } from 'lucide-react';
 
@@ -75,6 +73,11 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
         label: 'Catálogo',
         items: [
             {
+                label: 'Prendas',
+                href: superadminRoutes.resource('catalogo', 'prendas'),
+                icon: Shirt,
+            },
+            {
                 label: 'Categorías',
                 href: superadminRoutes.resource('catalogo', 'categorias'),
                 icon: FolderKanban,
@@ -99,40 +102,31 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
                 href: superadminRoutes.resource('catalogo', 'temporadas'),
                 icon: SwatchBook,
             },
-            {
-                label: 'Prendas',
-                href: superadminRoutes.resource('catalogo', 'prendas'),
-                icon: Shirt,
-            },
-            {
-                label: 'Variantes',
-                href: superadminRoutes.resource('catalogo', 'variantes'),
-                icon: Waypoints,
-            },
-            {
-                label: 'Imágenes',
-                href: superadminRoutes.resource('catalogo', 'imagenes'),
-                icon: Images,
-            },
         ],
     },
     {
         label: 'Inventario',
         items: [
             {
-                label: 'Control de stock',
+                label: 'Existencias',
                 href: superadminRoutes.resource('inventario', 'stock'),
                 icon: Warehouse,
+                badge: 'Consulta',
+                badgeTone: 'accent',
             },
             {
-                label: 'Ajustes',
+                label: 'Ajustes sugeridos',
                 href: superadminRoutes.resource('inventario', 'ajustes'),
                 icon: Boxes,
+                badge: 'No listo',
+                badgeTone: 'warning',
             },
             {
-                label: 'Alertas',
+                label: 'Alertas de inventario',
                 href: superadminRoutes.resource('inventario', 'alertas'),
                 icon: PackageSearch,
+                badge: 'Consulta',
+                badgeTone: 'accent',
             },
         ],
     },
@@ -140,17 +134,17 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
         label: 'Comercial',
         items: [
             {
-                label: 'Ventas',
+                label: 'Consulta de ventas',
                 href: superadminRoutes.resource('comercial', 'ventas'),
                 icon: Receipt,
             },
             {
-                label: 'Reservas',
+                label: 'Consulta de reservas',
                 href: superadminRoutes.resource('comercial', 'reservas'),
                 icon: ClipboardList,
             },
             {
-                label: 'Favoritos',
+                label: 'Favoritos guardados',
                 href: superadminRoutes.resource('comercial', 'favoritos'),
                 icon: Sparkles,
             },
@@ -160,12 +154,12 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
         label: 'Análisis',
         items: [
             {
-                label: 'Reportes',
+                label: 'Reportes de consulta',
                 href: superadminRoutes.reports,
                 icon: BookOpenText,
             },
             {
-                label: 'Logs',
+                label: 'Bitácora',
                 href: superadminRoutes.logs,
                 icon: ScrollText,
             },

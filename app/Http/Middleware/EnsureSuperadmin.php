@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureSuperadmin
@@ -16,7 +17,21 @@ class EnsureSuperadmin
 
         $user->loadMissing('rol');
 
-        abort_unless($user->isSuperadmin(), 403);
+        if (method_exists($user, 'isActive') && ! $user->isActive()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->with('error', 'Tu cuenta esta inactiva. Solicita la reactivacion a un superadmin.');
+        }
+
+        if (! method_exists($user, 'isSuperadmin') || ! $user->isSuperadmin()) {
+            return redirect()
+                ->route('dashboard')
+                ->with('error', 'No tienes permisos para acceder al panel superadmin.');
+        }
 
         return $next($request);
     }

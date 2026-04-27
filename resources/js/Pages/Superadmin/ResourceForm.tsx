@@ -72,7 +72,8 @@ export default function ResourceForm({
 
     const isCreate = mode === 'create';
     const resolvedTitle = title ?? (isCreate ? `Nuevo ${meta.singular}` : recordLabel ?? `Editar ${meta.singular}`);
-    const resolvedDescription = description ?? (isCreate ? `Alta de ${meta.singular}.` : `Edicion de ${meta.singular}.`);
+    const resolvedDescription = description ?? (isCreate ? `Alta de ${meta.singular}.` : `Edición de ${meta.singular}.`);
+    const errorEntries = Object.entries(errors);
 
     useEffect(() => {
         setData(buildInitialData(sections));
@@ -139,7 +140,7 @@ export default function ResourceForm({
             return;
         }
 
-        if (!window.confirm(`Se eliminara este ${meta.singular}. Esta accion no se puede deshacer.`)) {
+        if (!window.confirm(`Se eliminará este ${meta.singular}. Esta acción no se puede deshacer.`)) {
             return;
         }
 
@@ -156,10 +157,18 @@ export default function ResourceForm({
                     title={resolvedTitle}
                     description={resolvedDescription}
                     breadcrumbs={breadcrumbs}
-                    actions={[{ label: 'Volver al modulo', href: meta.indexHref, kind: 'ghost' }]}
+                    actions={[{ label: 'Volver al módulo', href: meta.indexHref, kind: 'ghost' }]}
                 />
 
                 <SuperadminFlashNotice success={flash?.success} error={flash?.error} />
+
+                {errorEntries.length > 0 && (
+                    <section className="rounded-[1.4rem] border border-[rgba(183,108,112,0.28)] bg-[rgba(183,108,112,0.1)] p-4">
+                        <p className="text-sm font-medium text-[rgb(245,208,210)]">
+                            Revisa {errorEntries.length === 1 ? 'el campo marcado' : 'los campos marcados'} antes de guardar.
+                        </p>
+                    </section>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {sections.map((section) => (
@@ -177,7 +186,9 @@ export default function ResourceForm({
                     <div className="sa-panel rounded-[1.6rem] p-5">
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <p className="text-sm text-stone-300">
-                                Revisa los datos antes de guardar.
+                                {submit
+                                    ? 'Revisa los datos antes de guardar.'
+                                    : 'Vista de consulta. Este módulo no tiene acciones de guardado en esta fase.'}
                             </p>
 
                             <div className="flex flex-col gap-3 sm:flex-row">

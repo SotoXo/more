@@ -37,19 +37,19 @@ class UserValidation
     public static function messages(): array
     {
         return [
-            'nom_usu.regex' => 'El nombre debe estar en mayusculas y solo puede contener letras y espacios.',
-            'app_usu.regex' => 'El apellido paterno debe estar en mayusculas y solo puede contener letras y espacios.',
-            'apm_usu.regex' => 'El apellido materno debe estar en mayusculas y solo puede contener letras y espacios.',
-            'tel_usu.regex' => 'El telefono debe tener 8 digitos y comenzar con 6 o 7.',
-            'email.email' => 'Ingresa un correo valido.',
-            'email.lowercase' => 'El correo debe registrarse en minusculas.',
-            'email.unique' => 'Ese correo ya esta registrado.',
-            'password.confirmed' => 'La confirmacion de la contrasena no coincide.',
-            'password.min' => 'La contrasena debe tener al menos 8 caracteres.',
-            'password.mixed' => 'La contrasena debe incluir mayusculas y minusculas.',
-            'password.numbers' => 'La contrasena debe incluir al menos un numero.',
+            'nom_usu.regex' => 'El nombre debe estar en MAYÚSCULAS y solo puede contener letras y espacios.',
+            'app_usu.regex' => 'El apellido paterno debe estar en MAYÚSCULAS y solo puede contener letras y espacios.',
+            'apm_usu.regex' => 'El apellido materno debe estar en MAYÚSCULAS y solo puede contener letras y espacios.',
+            'tel_usu.regex' => 'El teléfono debe tener 8 dígitos y comenzar con 6 o 7.',
+            'email.email' => 'Ingresa un correo electrónico válido.',
+            'email.lowercase' => 'El correo debe registrarse en minúsculas.',
+            'email.unique' => 'Ese correo ya está registrado.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.mixed' => 'La contraseña debe incluir mayúsculas y minúsculas.',
+            'password.numbers' => 'La contraseña debe incluir al menos un número.',
             'cod_roles_usu.required' => 'Selecciona un rol para el usuario.',
-            'cod_roles_usu.exists' => 'El rol seleccionado no es valido.',
+            'cod_roles_usu.exists' => 'El rol seleccionado no es válido.',
         ];
     }
 

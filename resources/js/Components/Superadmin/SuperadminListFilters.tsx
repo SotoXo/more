@@ -186,7 +186,7 @@ export default function SuperadminListFilters({
 
                             <label className="space-y-2">
                                 <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">
-                                    Direccion
+                                    Dirección
                                 </span>
                                 <select
                                     value={currentSortDirection}

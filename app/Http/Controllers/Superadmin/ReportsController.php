@@ -30,21 +30,21 @@ class ReportsController extends Controller
         return Inertia::render('Superadmin/Reports', [
             'metrics' => $this->metrics($records),
             'columns' => [
-                ['key' => 'category', 'label' => 'Categoria'],
+                ['key' => 'category', 'label' => 'Categoría'],
                 ['key' => 'brand', 'label' => 'Marca'],
                 ['key' => 'color', 'label' => 'Color'],
                 ['key' => 'size', 'label' => 'Talla'],
                 ['key' => 'price', 'label' => 'Precio', 'align' => 'right'],
-                ['key' => 'stock', 'label' => 'Stock', 'align' => 'right'],
+                ['key' => 'stock', 'label' => 'Disponible', 'align' => 'right'],
                 ['key' => 'date', 'label' => 'Fecha', 'align' => 'right'],
             ],
             'rows' => $records->map(fn ($record) => [
                 'id' => $record->id_prenda_variante,
                 'primary' => $record->prenda?->nom_pre ?? 'Variante #' . $record->id_prenda_variante,
-                'secondary' => $record->sku_prv ?: 'Sin SKU',
+                'secondary' => $record->sku_prv ?: 'Sin código interno',
                 'status' => $this->stockStatus($this->available($record)),
                 'cells' => [
-                    'category' => $record->prenda?->categoria?->nom_cat ?? 'Sin categoria',
+                    'category' => $record->prenda?->categoria?->nom_cat ?? 'Sin categoría',
                     'brand' => $record->prenda?->marca?->nom_mar ?? 'Sin marca',
                     'color' => $record->color?->nom_col ?? 'Sin color',
                     'size' => $record->talla?->nom_tal ?? 'Sin talla',
@@ -53,14 +53,14 @@ class ReportsController extends Controller
                     'date' => $this->formatDate($record->fec_prv),
                 ],
                 'showHref' => '/superadmin/catalogo/variantes/' . $record->id_prenda_variante,
-                'editHref' => '/superadmin/catalogo/variantes/' . $record->id_prenda_variante . '/editar',
+                'editHref' => null,
             ])->all(),
             'filterControls' => $this->filterControls($request),
             'sortOptions' => [
                 ['label' => 'Nombre', 'value' => 'name'],
                 ['label' => 'Fecha', 'value' => 'date'],
                 ['label' => 'Precio', 'value' => 'price'],
-                ['label' => 'Stock', 'value' => 'stock'],
+                ['label' => 'Existencias', 'value' => 'stock'],
                 ['label' => 'Estado', 'value' => 'status'],
             ],
             'sortBy' => $request->string('sort_by')->toString(),
@@ -78,13 +78,13 @@ class ReportsController extends Controller
     private function filterControls(Request $request): array
     {
         return [
-            $this->selectFilter('category', 'Categoria', $request, $this->categoryOptions()),
+            $this->selectFilter('category', 'Categoría', $request, $this->categoryOptions()),
             $this->selectFilter('brand', 'Marca', $request, $this->brandOptions()),
             $this->selectFilter('season', 'Temporada', $request, $this->seasonOptions()),
-            $this->selectFilter('gender', 'Genero', $request, $this->genderOptions()),
+            $this->selectFilter('gender', 'Género', $request, $this->genderOptions()),
             $this->selectFilter('color', 'Color', $request, $this->colorOptions()),
             $this->selectFilter('size', 'Talla', $request, $this->sizeOptions()),
-            $this->selectFilter('stock', 'Stock', $request, $this->stockOptions()),
+            $this->selectFilter('stock', 'Disponibilidad', $request, $this->stockOptions()),
             $this->numberFilter('price_min', 'Precio desde', $request),
             $this->numberFilter('price_max', 'Precio hasta', $request),
             $this->dateFilter('date_from', 'Fecha desde', $request),
@@ -108,7 +108,7 @@ class ReportsController extends Controller
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Stock disponible',
+                'label' => 'Disponible',
                 'value' => (string) $available,
                 'note' => 'Saldo disponible en los resultados.',
                 'tone' => $available > 0 ? 'success' : 'danger',
@@ -120,7 +120,7 @@ class ReportsController extends Controller
                 'tone' => 'neutral',
             ],
             [
-                'label' => 'Stock critico',
+                'label' => 'Existencias críticas',
                 'value' => (string) $critical,
                 'note' => 'Variantes con margen corto.',
                 'tone' => $critical > 0 ? 'warning' : 'success',
@@ -221,7 +221,7 @@ class ReportsController extends Controller
                 ['label' => 'Nombre', 'value' => 'name'],
                 ['label' => 'Fecha', 'value' => 'date'],
                 ['label' => 'Precio', 'value' => 'price'],
-                ['label' => 'Stock', 'value' => 'stock'],
+                    ['label' => 'Existencias', 'value' => 'stock'],
                 ['label' => 'Estado', 'value' => 'status'],
             ])->firstWhere('value', $sortBy)['label'] ?? $sortBy;
 

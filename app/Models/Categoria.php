@@ -9,7 +9,7 @@ class Categoria extends Model
     protected $table = 'categorias';
     protected $primaryKey = 'id_categoria';
 
-    protected $fillable = ['nom_cat', 'des_cat', 'cod_categoria_padre_cat', 'est_cat', 'fec_cat'];
+    protected $fillable = ['nom_cat', 'des_cat', 'tip_tal_cat', 'cod_categoria_padre_cat', 'est_cat', 'fec_cat'];
 
     protected $casts = [
         'est_cat' => 'boolean',

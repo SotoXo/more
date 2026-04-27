@@ -12,6 +12,7 @@ import type {
     SuperadminResourceMeta,
     SuperadminTableColumn,
     SuperadminTableRow,
+    SuperadminTone,
     SuperadminTimelineItem,
 } from '@/types/superadmin';
 import { usePage } from '@inertiajs/react';
@@ -43,6 +44,12 @@ export default function ResourceShow({
 }: ResourceShowProps) {
     const page = usePage<LandingPageProps>();
     const flash = page.props.flash;
+    const moduleStatusTone: SuperadminTone =
+        meta.moduleStatus === 'crud'
+            ? 'success'
+            : meta.moduleStatus === 'not_ready'
+            ? 'warning'
+            : 'accent';
 
     return (
         <SuperadminLayout title={`MORE | ${recordLabel}`}>
@@ -53,12 +60,36 @@ export default function ResourceShow({
                     description={`Detalle de ${meta.singular}.`}
                     breadcrumbs={breadcrumbs}
                     actions={[
-                        { label: 'Volver al modulo', href: meta.indexHref, kind: 'ghost' },
+                        { label: 'Volver al módulo', href: meta.indexHref, kind: 'ghost' },
                         ...(editHref ? [{ label: 'Editar', href: editHref, kind: 'secondary' as const }] : []),
                     ]}
                 />
 
                 <SuperadminFlashNotice success={flash?.success} error={flash?.error} />
+
+                {(meta.moduleStatusLabel || meta.moduleStatusDescription) && (
+                    <section className="sa-panel rounded-[1.6rem] p-5">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex flex-wrap items-center gap-2">
+                                {meta.moduleStatusLabel && (
+                                    <SuperadminBadge tone={moduleStatusTone}>
+                                        {meta.moduleStatusLabel}
+                                    </SuperadminBadge>
+                                )}
+                                {meta.moduleIsSecondary && (
+                                    <SuperadminBadge tone="neutral">
+                                        Secundario
+                                    </SuperadminBadge>
+                                )}
+                            </div>
+                            {meta.moduleStatusDescription && (
+                                <p className="max-w-3xl text-sm leading-6 text-stone-300">
+                                    {meta.moduleStatusDescription}
+                                </p>
+                            )}
+                        </div>
+                    </section>
+                )}
 
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     {summaryMetrics.map((metric, index) => (

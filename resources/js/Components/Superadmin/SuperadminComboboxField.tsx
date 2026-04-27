@@ -11,6 +11,7 @@ export default function SuperadminComboboxField({
     error,
     hint,
     createLabel,
+    createMode = 'header',
     onChange,
     onCreate,
 }: {
@@ -22,6 +23,7 @@ export default function SuperadminComboboxField({
     error?: string;
     hint?: string;
     createLabel?: string;
+    createMode?: 'header' | 'list';
     onChange: (value: string) => void;
     onCreate?: (seed: string) => void;
 }) {
@@ -67,7 +69,7 @@ export default function SuperadminComboboxField({
                 <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">
                     {label}
                 </span>
-                {onCreate && (
+                {onCreate && createMode === 'header' && (
                     <button
                         type="button"
                         onClick={() => onCreate(query)}
@@ -82,10 +84,19 @@ export default function SuperadminComboboxField({
             <button
                 type="button"
                 onClick={() => setOpen((current) => !current)}
-                className={`sa-input flex w-full items-center justify-between text-left ${open ? 'border-white/18' : ''}`}
+                aria-invalid={Boolean(error)}
+                className={`sa-input flex w-full items-center justify-between text-left ${open ? 'border-white/18' : ''} ${
+                    error ? 'border-[rgba(183,108,112,0.5)] bg-[rgba(183,108,112,0.07)]' : ''
+                }`}
             >
-                <span className={selected ? 'text-white' : 'text-stone-400'}>
-                    {selected?.label ?? placeholder}
+                <span className={`flex items-center gap-3 ${selected ? 'text-white' : 'text-stone-400'}`}>
+                    {selected?.swatch && (
+                        <span
+                            className="inline-flex h-3.5 w-3.5 rounded-full border border-white/15"
+                            style={{ backgroundColor: selected.swatch }}
+                        />
+                    )}
+                    <span>{selected?.label ?? placeholder}</span>
                 </span>
                 <ChevronDown size={16} className={`transition ${open ? 'rotate-180' : ''}`} />
             </button>
@@ -104,31 +115,71 @@ export default function SuperadminComboboxField({
 
                     <div className="mt-3 max-h-56 space-y-1 overflow-y-auto">
                         {filteredOptions.length > 0 ? (
-                            filteredOptions.map((option) => (
-                                <button
-                                    key={`${label}-${option.value}`}
-                                    type="button"
-                                    onClick={() => {
-                                        onChange(option.value);
-                                        setOpen(false);
-                                    }}
-                                    className={`flex w-full items-center justify-between rounded-[1rem] px-3 py-2 text-left text-sm transition ${
-                                        option.value === value
-                                            ? 'bg-[rgba(124,140,255,0.18)] text-white'
-                                            : 'text-stone-300 hover:bg-white/6 hover:text-white'
-                                    }`}
-                                >
-                                    <span>{option.label}</span>
-                                    {option.value === value && (
-                                        <span className="text-[0.64rem] uppercase tracking-[0.18em] text-stone-300">
-                                            Actual
+                            <>
+                                {filteredOptions.map((option) => (
+                                    <button
+                                        key={`${label}-${option.value}`}
+                                        type="button"
+                                        onClick={() => {
+                                            onChange(option.value);
+                                            setOpen(false);
+                                        }}
+                                        className={`flex w-full items-center justify-between rounded-[1rem] px-3 py-2 text-left text-sm transition ${
+                                            option.value === value
+                                                ? 'bg-[rgba(124,140,255,0.18)] text-white'
+                                                : 'text-stone-300 hover:bg-white/6 hover:text-white'
+                                        }`}
+                                    >
+                                        <span className="flex items-center gap-3">
+                                            {option.swatch && (
+                                                <span
+                                                    className="inline-flex h-3.5 w-3.5 rounded-full border border-white/15"
+                                                    style={{ backgroundColor: option.swatch }}
+                                                />
+                                            )}
+                                            <span>{option.label}</span>
                                         </span>
-                                    )}
-                                </button>
-                            ))
+                                        {option.value === value && (
+                                            <span className="text-[0.64rem] uppercase tracking-[0.18em] text-stone-300">
+                                                Actual
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+
+                                {onCreate && createMode === 'list' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            onCreate(query);
+                                            setOpen(false);
+                                        }}
+                                        className="flex w-full items-center gap-3 rounded-[1rem] border border-dashed border-white/10 px-3 py-2 text-left text-sm text-stone-300 transition hover:border-white/18 hover:bg-white/5 hover:text-white"
+                                    >
+                                        <Plus size={14} />
+                                        <span>{createLabel ?? `Crear ${label}`}</span>
+                                    </button>
+                                )}
+                            </>
                         ) : (
-                            <div className="rounded-[1rem] border border-dashed border-white/10 px-3 py-4 text-sm text-stone-400">
-                                No hay coincidencias para esta busqueda.
+                            <div className="space-y-2">
+                                <div className="rounded-[1rem] border border-dashed border-white/10 px-3 py-4 text-sm text-stone-400">
+                                    No hay coincidencias para esta búsqueda.
+                                </div>
+
+                                {onCreate && createMode === 'list' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            onCreate(query);
+                                            setOpen(false);
+                                        }}
+                                        className="flex w-full items-center gap-3 rounded-[1rem] border border-dashed border-white/10 px-3 py-2 text-left text-sm text-stone-300 transition hover:border-white/18 hover:bg-white/5 hover:text-white"
+                                    >
+                                        <Plus size={14} />
+                                        <span>{createLabel ?? `Crear ${label}`}</span>
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>

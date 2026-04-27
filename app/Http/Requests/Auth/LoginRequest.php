@@ -33,6 +33,22 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => Str::lower(trim((string) $this->input('email'))),
+        ]);
+    }
+
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Ingresa tu correo electrónico.',
+            'email.email' => 'Ingresa un correo electrónico válido.',
+            'password.required' => 'Ingresa tu contraseña.',
+        ];
+    }
+
     /**
      * Attempt to authenticate the request's credentials.
      *
@@ -47,6 +63,17 @@ class LoginRequest extends FormRequest
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
+            ]);
+        }
+
+        $user = Auth::user();
+
+        if ($user && method_exists($user, 'isActive') && ! $user->isActive()) {
+            Auth::guard('web')->logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Esta cuenta está inactiva. Solicita la reactivación a un superadmin.',
             ]);
         }
 

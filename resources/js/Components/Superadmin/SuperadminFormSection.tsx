@@ -40,12 +40,16 @@ function PasswordField({
     field,
     value,
     disabled,
+    hasError,
     onChange,
+    onBlur,
 }: {
     field: FormSectionData['fields'][number];
     value: string;
     disabled: boolean;
+    hasError: boolean;
     onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    onBlur: () => void;
 }) {
     const [show, setShow] = useState(false);
 
@@ -53,11 +57,15 @@ function PasswordField({
         <div className="relative mt-3">
             <input
                 type={show ? 'text' : 'password'}
-                className="sa-input w-full px-4 py-3 pr-12 text-sm"
+                aria-invalid={hasError}
+                className={`sa-input w-full px-4 py-3 pr-12 text-sm ${
+                    hasError ? 'border-[rgba(183,108,112,0.5)] bg-[rgba(183,108,112,0.07)]' : ''
+                }`}
                 placeholder={field.placeholder}
                 value={value}
                 maxLength={field.maxLength}
                 disabled={disabled}
+                onBlur={onBlur}
                 onChange={onChange}
             />
             <button
@@ -97,8 +105,74 @@ export default function SuperadminFormSection({
     readOnly?: boolean;
     onChange: (name: string, value: FormValue) => void;
 }) {
+    const [touched, setTouched] = useState<Record<string, boolean>>({});
     const isToggleChecked = (value: FormValue) =>
         value === true || value === 1 || value === '1';
+
+    const markTouched = (name: string) => {
+        setTouched((current) => ({ ...current, [name]: true }));
+    };
+
+    const clientErrorFor = (
+        field: FormSectionData['fields'][number],
+        value: FormValue,
+    ) => {
+        if (!touched[field.name] || readOnly || field.disabled) {
+            return null;
+        }
+
+        const stringValue = String(value ?? '').trim();
+
+        if (field.required && stringValue === '') {
+            return 'Este campo es obligatorio.';
+        }
+
+        if (stringValue === '') {
+            return null;
+        }
+
+        if (field.disallowNumbers && /\d/.test(stringValue)) {
+            return 'No se permiten números en este campo.';
+        }
+
+        if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(stringValue)) {
+            return 'Ingresa un correo electrónico válido.';
+        }
+
+        if (field.type === 'tel' && !/^[67]\d{7}$/.test(stringValue)) {
+            return 'El teléfono debe tener 8 dígitos y comenzar con 6 o 7.';
+        }
+
+        if (field.type === 'number') {
+            const numericValue = Number(stringValue);
+
+            if (!Number.isFinite(numericValue)) {
+                return 'Ingresa un número válido.';
+            }
+
+            if (typeof field.min === 'number' && numericValue < field.min) {
+                return `El valor mínimo permitido es ${field.min}.`;
+            }
+
+            if (typeof field.max === 'number' && numericValue > field.max) {
+                return `El valor máximo permitido es ${field.max}.`;
+            }
+        }
+
+        if (field.pattern) {
+            try {
+                const regex = new RegExp(field.pattern);
+
+                if (!regex.test(stringValue)) {
+                    return field.invalidMessage ?? 'Revisa el formato de este campo.';
+                }
+            } catch {
+                return null;
+            }
+        }
+
+        return null;
+    };
 
     const handleTextualChange =
         (field: FormSectionData['fields'][number]) =>
@@ -121,6 +195,7 @@ export default function SuperadminFormSection({
                 nextValue = nextValue.slice(0, field.maxLength);
             }
 
+            markTouched(field.name);
             onChange(field.name, nextValue);
         };
 
@@ -141,7 +216,11 @@ export default function SuperadminFormSection({
                 {section.fields.map((field) => {
                     const value = data[field.name] ?? field.value;
                     const disabled = readOnly || processing || Boolean(field.disabled);
-                    const error = errors[field.name];
+                    const clientError = clientErrorFor(field, value);
+                    const error = errors[field.name] ?? clientError;
+                    const errorClass = error
+                        ? 'border-[rgba(183,108,112,0.5)] bg-[rgba(183,108,112,0.07)]'
+                        : '';
 
                     return (
                         <div
@@ -157,22 +236,31 @@ export default function SuperadminFormSection({
                                         Obligatorio
                                     </span>
                                 )}
+                                {!field.required && !field.disabled && (
+                                    <span className="text-[0.65rem] uppercase tracking-[0.14em] text-stone-500">
+                                        Opcional
+                                    </span>
+                                )}
                             </div>
 
                             {field.type === 'textarea' ? (
                                 <textarea
-                                    className="sa-input mt-3 min-h-[150px] px-4 py-3 text-sm"
+                                    aria-invalid={Boolean(error)}
+                                    className={`sa-input mt-3 min-h-[150px] px-4 py-3 text-sm ${errorClass}`}
                                     placeholder={field.placeholder}
                                     value={String(value ?? '')}
                                     maxLength={field.maxLength}
                                     disabled={disabled}
+                                    onBlur={() => markTouched(field.name)}
                                     onChange={handleTextualChange(field)}
                                 />
                             ) : field.type === 'select' ? (
                                 <select
-                                    className="sa-input mt-3 px-4 py-3 text-sm"
+                                    aria-invalid={Boolean(error)}
+                                    className={`sa-input mt-3 px-4 py-3 text-sm ${errorClass}`}
                                     value={String(value ?? '')}
                                     disabled={disabled}
+                                    onBlur={() => markTouched(field.name)}
                                     onChange={handleTextualChange(field)}
                                 >
                                     {!field.required && <option value="">Sin seleccionar</option>}
@@ -199,9 +287,10 @@ export default function SuperadminFormSection({
                                     <TogglePreview
                                         checked={isToggleChecked(value)}
                                         disabled={disabled}
-                                        onClick={() =>
-                                            onChange(field.name, !isToggleChecked(value))
-                                        }
+                                        onClick={() => {
+                                            markTouched(field.name);
+                                            onChange(field.name, !isToggleChecked(value));
+                                        }}
                                     />
                                 </div>
                             ) : field.type === 'file' ? (
@@ -209,14 +298,17 @@ export default function SuperadminFormSection({
                                     <input
                                         type="file"
                                         accept={field.accept}
-                                        className="sa-input w-full px-4 py-3 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-[rgba(126,154,178,0.18)] file:px-4 file:py-2 file:text-xs file:uppercase file:tracking-[0.16em] file:text-[rgb(205,223,236)]"
+                                        aria-invalid={Boolean(error)}
+                                        className={`sa-input w-full px-4 py-3 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-[rgba(126,154,178,0.18)] file:px-4 file:py-2 file:text-xs file:uppercase file:tracking-[0.16em] file:text-[rgb(205,223,236)] ${errorClass}`}
                                         disabled={disabled}
-                                        onChange={(event) =>
+                                        onBlur={() => markTouched(field.name)}
+                                        onChange={(event) => {
+                                            markTouched(field.name);
                                             onChange(
                                                 field.name,
                                                 event.currentTarget.files?.[0] ?? null,
-                                            )
-                                        }
+                                            );
+                                        }}
                                     />
                                     {field.value && (
                                         <p className="text-xs leading-6 text-stone-500">
@@ -229,16 +321,22 @@ export default function SuperadminFormSection({
                                     field={field}
                                     value={String(value ?? '')}
                                     disabled={disabled}
+                                    hasError={Boolean(error)}
                                     onChange={handleTextualChange(field)}
+                                    onBlur={() => markTouched(field.name)}
                                 />
                             ) : (
                                 <input
                                     type={field.type === 'color' ? 'text' : field.type ?? 'text'}
-                                    className="sa-input mt-3 px-4 py-3 text-sm"
+                                    aria-invalid={Boolean(error)}
+                                    className={`sa-input mt-3 px-4 py-3 text-sm ${errorClass}`}
                                     placeholder={field.placeholder}
                                     value={String(value ?? '')}
                                     maxLength={field.maxLength}
+                                    min={field.min}
+                                    max={field.max}
                                     disabled={disabled}
+                                    onBlur={() => markTouched(field.name)}
                                     onChange={handleTextualChange(field)}
                                 />
                             )}

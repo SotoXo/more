@@ -11,6 +11,12 @@ class Role extends Model
 {
     use HasFactory;
 
+    public const SYSTEM_ROLE_NAMES = [
+        'superadmin',
+        'vendedor',
+        'cliente',
+    ];
+
     /**
      * The table associated with the model.
      *
@@ -31,6 +37,26 @@ class Role extends Model
     public function users()
     {
         return $this->hasMany(User::class, 'cod_roles_usu', 'id_rol');
+    }
+
+    public function normalizedName(): string
+    {
+        return mb_strtolower(trim((string) $this->nom_rol), 'UTF-8');
+    }
+
+    public function isSystemRole(): bool
+    {
+        return in_array($this->normalizedName(), self::SYSTEM_ROLE_NAMES, true);
+    }
+
+    public function isSuperadminRole(): bool
+    {
+        return $this->normalizedName() === 'superadmin';
+    }
+
+    public function isActive(): bool
+    {
+        return (bool) $this->est_rol;
     }
 
     /**

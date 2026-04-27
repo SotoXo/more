@@ -19,7 +19,7 @@ const iconButtonClass =
     'more-icon-button inline-flex h-10 w-10 items-center justify-center text-stone-100';
 
 const dropdownLinkClass =
-    'flex items-center gap-3 rounded-[0.95rem] px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-300 transition hover:bg-[rgba(181,122,109,0.12)] hover:text-white';
+    'flex items-center gap-3 rounded-[1rem] px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-200 transition hover:bg-[rgba(181,122,109,0.12)] hover:text-white';
 
 function AccountDropdown({
     user,
@@ -36,10 +36,10 @@ function AccountDropdown({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="more-panel absolute right-0 top-full mt-3 w-64 rounded-[1.45rem] p-2"
+            className="more-panel absolute right-0 top-full mt-3 w-64 rounded-[1.35rem] p-2"
         >
             <div className="border-b border-white/8 px-4 py-3">
-                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-500">
+                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-300">
                     Cuenta
                 </p>
                 <p className="mt-2 text-sm text-white">{user.nom_usu}</p>
@@ -82,7 +82,7 @@ function AccountDropdown({
                     method="post"
                     as="button"
                     onClick={onClose}
-                    className="flex w-full items-center gap-3 rounded-[0.95rem] px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-400 transition hover:bg-[rgba(181,122,109,0.12)] hover:text-white"
+                    className="flex w-full items-center gap-3 rounded-[1rem] px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-300 transition hover:bg-[rgba(181,122,109,0.12)] hover:text-white"
                 >
                     <LogOut size={14} />
                     Cerrar sesión
@@ -135,8 +135,8 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                     className={[
                         'mx-auto flex max-w-7xl items-center justify-between rounded-full border px-4 py-3 transition-all duration-500 sm:px-6',
                         isScrolled || isOpen
-                            ? 'border-[rgba(181,122,109,0.22)] bg-[#070b11]/90 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl'
-                            : 'border-white/8 bg-[#070b11]/58 backdrop-blur-xl',
+                            ? 'border-[rgba(181,122,109,0.28)] bg-[#05070a]/92 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl'
+                            : 'border-white/10 bg-[#05070a]/68 backdrop-blur-xl',
                     ].join(' ')}
                 >
                     <Link href="/" className="flex items-center gap-4">
@@ -165,7 +165,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                         'relative text-[0.72rem] uppercase tracking-[0.24em] transition duration-300 after:absolute after:left-0 after:top-full after:mt-1 after:h-px after:w-full after:origin-left after:transition-all',
                                         active
                                             ? 'text-white after:scale-x-100 after:bg-[linear-gradient(90deg,rgba(223,184,166,0.96),rgba(181,122,109,0.28))]'
-                                            : 'text-stone-300 after:scale-x-[0.25] after:bg-[linear-gradient(90deg,rgba(223,184,166,0.82),transparent)] hover:text-white hover:after:scale-x-100',
+                                            : 'text-stone-200 after:scale-x-[0.25] after:bg-[linear-gradient(90deg,rgba(223,184,166,0.82),transparent)] hover:text-white hover:after:scale-x-100',
                                     ].join(' ')}
                                 >
                                     {item.label}
@@ -200,7 +200,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                 <button
                                     type="button"
                                     onClick={() => setAccountOpen((value) => !value)}
-                                    className="inline-flex items-center gap-2 rounded-full border border-[rgba(181,122,109,0.18)] bg-[rgba(181,122,109,0.08)] px-4 py-2 text-[0.7rem] uppercase tracking-[0.22em] text-stone-100"
+                                    className="inline-flex items-center gap-2 rounded-full border border-[rgba(181,122,109,0.22)] bg-[rgba(181,122,109,0.1)] px-4 py-2 text-[0.7rem] uppercase tracking-[0.22em] text-stone-100"
                                 >
                                     {user.nom_usu}
                                     <ChevronDown
@@ -221,7 +221,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             <>
                                 <Link
                                     href="/login"
-                                    className="ml-1 text-[0.72rem] uppercase tracking-[0.24em] text-stone-300 transition hover:text-white"
+                                    className="ml-1 text-[0.72rem] uppercase tracking-[0.24em] text-stone-200 transition hover:text-white"
                                 >
                                     Iniciar sesión
                                 </Link>
@@ -237,7 +237,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
 
                     <button
                         type="button"
-                        aria-label="Abrir menu"
+                        aria-label="Abrir menú"
                         aria-expanded={isOpen}
                         onClick={() => setIsOpen((value) => !value)}
                         className="more-icon-button inline-flex h-10 w-10 items-center justify-center text-white lg:hidden"
@@ -263,7 +263,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.98 }}
                             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                            className="more-panel relative mx-auto max-w-xl rounded-[2rem] p-6"
+                            className="more-panel relative mx-auto max-w-xl rounded-[1.6rem] p-6"
                         >
                             <div className="border-b border-white/10 pb-5">
                                 <p className="text-sm font-semibold uppercase tracking-[0.38em] text-white">
@@ -281,14 +281,14 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                         href={item.href}
                                         onClick={() => setIsOpen(false)}
                                         className={[
-                                            'flex items-center justify-between rounded-[1.5rem] border px-4 py-4 text-sm uppercase tracking-[0.2em] transition duration-300',
+                                            'flex items-center justify-between rounded-[1.2rem] border px-4 py-4 text-sm uppercase tracking-[0.2em] transition duration-300',
                                             currentPath === item.href
                                                 ? 'border-[rgba(181,122,109,0.28)] bg-[rgba(181,122,109,0.12)] text-white'
-                                                : 'border-white/8 bg-white/[0.03] text-white hover:border-[rgba(181,122,109,0.22)] hover:bg-[rgba(181,122,109,0.1)]',
+                                                : 'border-white/10 bg-black/20 text-white hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.1)]',
                                         ].join(' ')}
                                     >
                                         <span>{item.label}</span>
-                                        <span className="text-stone-500">/</span>
+                                        <span className="text-stone-300">/</span>
                                     </Link>
                                 ))}
                             </div>
@@ -335,7 +335,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                                 key={link.href}
                                                 href={link.href}
                                                 onClick={() => setIsOpen(false)}
-                                                className="block rounded-[1.2rem] border border-white/8 bg-white/[0.03] px-4 py-3 text-[0.74rem] uppercase tracking-[0.2em] text-white transition hover:border-[rgba(181,122,109,0.22)] hover:bg-[rgba(181,122,109,0.1)]"
+                                                className="block rounded-[1.1rem] border border-white/10 bg-black/20 px-4 py-3 text-[0.74rem] uppercase tracking-[0.2em] text-white transition hover:border-[rgba(181,122,109,0.22)] hover:bg-[rgba(181,122,109,0.1)]"
                                             >
                                                 {link.label}
                                             </Link>

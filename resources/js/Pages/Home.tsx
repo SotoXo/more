@@ -7,7 +7,7 @@ import {
     homeCollectionCards,
     homeHeroSlides,
 } from '@/data/storefront';
-import { shopRoutes } from '@/lib/shop';
+import { formatPrice, shopRoutes } from '@/lib/shop';
 import type {
     HomeBrandLink,
     HomeCategoryLink,
@@ -43,7 +43,7 @@ const stagger: Variants = {
 };
 
 const sectionShell = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8';
-const panelClass = 'more-panel rounded-[2rem]';
+const panelClass = 'more-panel rounded-[1.8rem]';
 const primaryButtonClass =
     'more-cta-primary px-6 py-3 text-[0.78rem] uppercase tracking-[0.22em]';
 const secondaryButtonClass =
@@ -125,25 +125,30 @@ export default function Home({
         };
     }, [heroApi]);
 
+    const homeBackground =
+        'radial-gradient(circle at 18% 0%, rgba(181,122,109,0.15), transparent 25%), radial-gradient(circle at 86% 14%, rgba(255,255,255,0.055), transparent 22%), linear-gradient(180deg, #0b0f14 0%, #080b10 38%, #05070a 72%, #030407 100%)';
+
     return (
-        <div className="relative min-h-screen overflow-x-hidden bg-[#05070b] text-white">
+        <div
+            className="more-store-bg relative min-h-screen overflow-x-hidden bg-[#05070a] text-white"
+            style={{ background: homeBackground }}
+        >
             <Head title="MORE | Mati Boutique" />
 
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-                <div className="absolute inset-x-0 top-0 h-[680px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_20%_20%,rgba(181,122,109,0.18),transparent_30%),linear-gradient(180deg,#0b1016_0%,#05070b_68%)]" />
-                <div className="absolute left-[-10%] top-[12%] h-80 w-80 rounded-full bg-white/6 blur-[120px]" />
-                <div className="absolute right-[-12%] top-[30%] h-[28rem] w-[28rem] rounded-full bg-[rgba(181,122,109,0.12)] blur-[140px]" />
+                <div className="absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(circle_at_18%_12%,rgba(181,122,109,0.22),transparent_30%),linear-gradient(180deg,#0b0f14_0%,#05070a_72%,transparent_100%)]" />
+                <div className="absolute inset-x-0 top-28 h-px bg-[linear-gradient(90deg,transparent,rgba(223,184,166,0.2),transparent)]" />
             </div>
 
             <LandingHeader user={user} />
 
-            <main className="pb-24">
-                <section className="px-4 pt-28 sm:px-6 sm:pt-32 lg:px-8">
+            <main className="bg-[#05070a] pb-24" style={{ background: homeBackground }}>
+                <section className="bg-transparent px-4 pt-28 sm:px-6 sm:pt-32 lg:px-8">
                     <div className="mx-auto max-w-7xl">
-                        <div className={`${panelClass} overflow-hidden p-3 sm:p-4`}>
+                        <div className="more-hero-shell overflow-hidden p-2 sm:p-3">
                             <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
                                 <div
-                                    className="relative overflow-hidden rounded-[1.8rem]"
+                                    className="relative overflow-hidden rounded-[1.6rem]"
                                     ref={heroRef}
                                 >
                                     <div className="flex">
@@ -157,10 +162,10 @@ export default function Home({
                                                     alt={slide.title}
                                                     className="h-[74vh] min-h-[590px] w-full object-cover scale-[1.02] transition duration-[1600ms]"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/26 to-transparent" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-transparent to-transparent" />
-                                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_30%)]" />
-                                                <div className="absolute left-6 top-6 rounded-full border border-white/15 bg-black/20 px-4 py-2 text-[0.68rem] uppercase tracking-[0.26em] text-stone-200 backdrop-blur sm:left-8 sm:top-8">
+                                                <div className="absolute inset-0 bg-gradient-to-r from-black/82 via-black/38 to-black/8" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/16 to-transparent" />
+                                                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(181,122,109,0.12),transparent_36%,rgba(0,0,0,0.12))]" />
+                                                <div className="absolute left-6 top-6 rounded-full border border-white/15 bg-black/35 px-4 py-2 text-[0.68rem] uppercase tracking-[0.26em] text-stone-100 backdrop-blur sm:left-8 sm:top-8">
                                                     MORE por Mati Boutique
                                                 </div>
                                             </div>
@@ -187,7 +192,7 @@ export default function Home({
                                             <p className="mt-4 text-base text-stone-100 sm:text-lg">
                                                 {homeHeroSlides[heroIndex]?.subtitle}
                                             </p>
-                                            <p className="mt-2 text-sm uppercase tracking-[0.22em] text-stone-300">
+                                            <p className="mt-2 text-sm uppercase tracking-[0.22em] text-stone-200">
                                                 {homeHeroSlides[heroIndex]?.note}
                                             </p>
                                         </motion.div>
@@ -223,7 +228,7 @@ export default function Home({
                                             ].map((chip) => (
                                                 <span
                                                     key={chip}
-                                                    className="more-pill rounded-full px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]"
+                                                    className="more-chip px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]"
                                                 >
                                                     {chip}
                                                 </span>
@@ -255,17 +260,17 @@ export default function Home({
                                             <Link
                                                 key={card.title}
                                                 href={card.href}
-                                                className="group relative overflow-hidden rounded-[1.8rem]"
+                                                className="group relative overflow-hidden rounded-[1.6rem] border border-white/10"
                                             >
                                                 <img
                                                     src={card.image}
                                                     alt={card.title}
                                                     className="h-[280px] w-full object-cover transition duration-700 group-hover:scale-[1.04]"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/18 to-transparent" />
                                                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(181,122,109,0.12),transparent_40%)] opacity-80 transition duration-500 group-hover:opacity-100" />
                                                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                                                    <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-200">
+                                                    <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-100">
                                                         {card.label}
                                                     </p>
                                                     <h2
@@ -274,7 +279,7 @@ export default function Home({
                                                     >
                                                         {card.title}
                                                     </h2>
-                                                    <p className="mt-4 text-[0.68rem] uppercase tracking-[0.22em] text-stone-200">
+                                                    <p className="mt-4 text-[0.68rem] uppercase tracking-[0.22em] text-stone-100">
                                                         Ver colección
                                                     </p>
                                                 </div>
@@ -282,12 +287,12 @@ export default function Home({
                                         ))}
                                     </div>
 
-                                    <div className="more-panel-soft rounded-[1.8rem] p-6 sm:p-8">
+                                    <div className="more-panel-soft rounded-[1.6rem] p-6 sm:p-8">
                                         <div className="flex items-center justify-between">
-                                            <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-400">
+                                            <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-300">
                                                 Editorial Mati Boutique
                                             </p>
-                                            <span className="more-pill rounded-full px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-stone-300">
+                                            <span className="more-chip px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-stone-200">
                                                 Edición insignia
                                             </span>
                                         </div>
@@ -297,7 +302,7 @@ export default function Home({
                                         >
                                             La elegancia entra en voz baja.
                                         </h2>
-                                        <p className="mt-4 max-w-sm text-sm leading-7 text-stone-300">
+                                        <p className="mt-4 max-w-sm text-sm leading-7 text-stone-200/90">
                                             Capas pulidas, líneas serenas y una composición pensada para el día y la noche.
                                         </p>
                                         <div className="mt-5 flex flex-wrap gap-2">
@@ -305,7 +310,7 @@ export default function Home({
                                                 (tag) => (
                                                     <span
                                                         key={tag}
-                                                        className="more-pill rounded-full px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.2em] text-stone-300 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.24)]"
+                                                        className="more-chip px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.24)]"
                                                     >
                                                         {tag}
                                                     </span>
@@ -326,7 +331,7 @@ export default function Home({
                     </div>
                 </section>
 
-                <section className="pt-28">
+                <section className="bg-transparent pt-28">
                     <div className={sectionShell}>
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                             <SectionHeading
@@ -355,19 +360,19 @@ export default function Home({
                                             className="group transition duration-500 hover:-translate-y-1"
                                         >
                                             <Link href={shopRoutes.product(item.slug)} className="block">
-                                                <div className="relative overflow-hidden rounded-[1.8rem]">
+                                                <div className="relative overflow-hidden rounded-[1.35rem] border border-white/10">
                                                     <img
                                                         src={item.image}
                                                         alt={item.name}
                                                         className="h-[430px] w-full object-cover transition duration-[900ms] group-hover:scale-[1.04]"
                                                     />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/58 via-transparent to-transparent" />
-                                                    <div className="absolute left-4 top-4 rounded-full border border-white/12 bg-black/20 px-3 py-1 text-[0.62rem] uppercase tracking-[0.2em] text-stone-100 backdrop-blur">
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/8 to-transparent" />
+                                                    <div className="absolute left-4 top-4 rounded-full border border-white/12 bg-black/35 px-3 py-1 text-[0.62rem] uppercase tracking-[0.2em] text-stone-100 backdrop-blur">
                                                         {item.category}
                                                     </div>
                                                 </div>
                                                 <div className="pt-5">
-                                                    <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
+                                                    <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-300">
                                                         {item.line || item.category}
                                                     </p>
                                                     <div className="mt-2 flex items-end justify-between gap-4">
@@ -377,8 +382,8 @@ export default function Home({
                                                         >
                                                             {item.name}
                                                         </h3>
-                                                        <span className="text-sm text-[rgb(223,184,166)]">
-                                                            Bs {item.price}
+                                                        <span className="shrink-0 text-sm font-medium text-[rgb(236,205,191)]">
+                                                            {formatPrice(item.price)}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -391,7 +396,7 @@ export default function Home({
                     </div>
                 </section>
 
-                <section className="pt-28">
+                <section className="bg-transparent pt-28">
                     <div className={sectionShell}>
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                             <SectionHeading
@@ -423,17 +428,17 @@ export default function Home({
                                     >
                                         <Link
                                             href={categoria.href}
-                                            className="group relative block overflow-hidden rounded-[1.8rem]"
+                                            className="group relative block overflow-hidden rounded-[1.6rem] border border-white/10"
                                         >
                                             <img
                                                 src={visual.image}
                                                 alt={categoria.name}
                                                 className="h-[300px] w-full object-cover transition duration-700 group-hover:scale-[1.04] sm:h-[360px]"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/84 via-black/24 to-transparent" />
                                             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(181,122,109,0.12),transparent_46%)] opacity-80 transition duration-500 group-hover:opacity-100" />
                                             <div className="absolute bottom-0 left-0 right-0 p-6">
-                                                <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-200">
+                                                <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-100">
                                                     Capítulo curado
                                                 </p>
                                                 <h3
@@ -443,7 +448,7 @@ export default function Home({
                                                     {categoria.name}
                                                 </h3>
                                                 {categoria.desc && (
-                                                    <p className="mt-3 max-w-sm text-sm leading-7 text-stone-100">
+                                                    <p className="mt-3 max-w-sm text-sm leading-7 text-stone-50">
                                                         {categoria.desc}
                                                     </p>
                                                 )}
@@ -456,9 +461,9 @@ export default function Home({
                     </div>
                 </section>
 
-                <section className="pt-28">
+                <section className="bg-transparent pt-28">
                     <div className={sectionShell}>
-                        <div className={`${panelClass} overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10`}>
+                        <div className={`${panelClass} more-editorial-wash overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10`}>
                             <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
                                 <div>
                                     <SectionHeading
@@ -472,7 +477,7 @@ export default function Home({
                                             <Link
                                                 key={marca.id}
                                                 href={marca.href}
-                                                className="more-pill rounded-full px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.28)] hover:bg-[rgba(181,122,109,0.08)]"
+                                                className="more-chip px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-200 transition duration-300 hover:-translate-y-px hover:border-[rgba(181,122,109,0.28)] hover:bg-[rgba(181,122,109,0.08)]"
                                             >
                                                 {marca.name}
                                             </Link>
@@ -485,7 +490,7 @@ export default function Home({
                                         <Link
                                             key={card.title}
                                             href={card.href}
-                                            className="group more-panel-soft overflow-hidden rounded-[1.5rem] transition duration-300 hover:-translate-y-1"
+                                            className="group more-panel-soft overflow-hidden rounded-[1.35rem] transition duration-300 hover:-translate-y-1"
                                         >
                                             <div className="overflow-hidden">
                                                 <img
@@ -495,7 +500,7 @@ export default function Home({
                                                 />
                                             </div>
                                             <div className="p-4">
-                                                <p className="text-[0.7rem] uppercase tracking-[0.22em] text-stone-400">
+                                                <p className="text-[0.7rem] uppercase tracking-[0.22em] text-stone-300">
                                                     {card.note}
                                                 </p>
                                                 <p
@@ -513,21 +518,21 @@ export default function Home({
                     </div>
                 </section>
 
-                <section className="pt-28">
+                <section className="bg-transparent pt-28">
                     <div className={sectionShell}>
                         <div className="grid gap-4 lg:grid-cols-[1.12fr_0.88fr]">
                             <Link
                                 href={shopRoutes.editorial}
-                                className="relative overflow-hidden rounded-[2rem]"
+                                className="relative overflow-hidden rounded-[1.8rem] border border-white/10"
                             >
                                 <img
                                     src="https://images.pexels.com/photos/6311387/pexels-photo-6311387.jpeg?auto=compress&cs=tinysrgb&w=1600"
                                     alt="Editorial Mati Boutique"
                                     className="h-[620px] w-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/84 via-black/20 to-transparent" />
                                 <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-10">
-                                    <p className="text-[0.72rem] uppercase tracking-[0.26em] text-stone-200">
+                                    <p className="text-[0.72rem] uppercase tracking-[0.26em] text-stone-100">
                                         Editorial Mati Boutique
                                     </p>
                                     <h2
@@ -550,7 +555,7 @@ export default function Home({
                                     >
                                         Brillo suave. Líneas precisas. Ritmo contenido.
                                     </p>
-                                    <p className="mt-5 max-w-sm text-sm leading-7 text-stone-300">
+                                    <p className="mt-5 max-w-sm text-sm leading-7 text-stone-200/90">
                                         Una mirada de boutique para piezas que se sienten actuales, limpias y memorables.
                                     </p>
                                     <Link
@@ -562,7 +567,7 @@ export default function Home({
                                     </Link>
                                 </div>
 
-                                <Link href={shopRoutes.collections} className="overflow-hidden rounded-[2rem]">
+                                <Link href={shopRoutes.collections} className="overflow-hidden rounded-[1.6rem] border border-white/10">
                                     <img
                                         src="https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1400"
                                         alt="Lookbook"
@@ -574,7 +579,7 @@ export default function Home({
                     </div>
                 </section>
 
-                <section className="pt-28">
+                <section className="bg-transparent pt-28">
                     <div className={sectionShell}>
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                             <SectionHeading
@@ -599,7 +604,7 @@ export default function Home({
                                             href={shopRoutes.product(item.slug)}
                                             className="group block transition duration-500 hover:-translate-y-1"
                                         >
-                                            <div className="overflow-hidden rounded-[1.8rem]">
+                                            <div className="overflow-hidden rounded-[1.35rem] border border-white/10">
                                                 <img
                                                     src={item.image}
                                                     alt={item.name}
@@ -607,7 +612,7 @@ export default function Home({
                                                 />
                                             </div>
                                             <div className="pt-5">
-                                                <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
+                                                <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-300">
                                                     {item.line || item.category}
                                                 </p>
                                                 <h3
@@ -625,15 +630,12 @@ export default function Home({
                     </div>
                 </section>
 
-                <section className="pt-28">
+                <section className="bg-transparent pt-28">
                     <div className={sectionShell}>
-                        <div className="more-panel relative overflow-hidden rounded-[2.2rem] px-6 py-12 sm:px-10 lg:px-14">
-                            <div className="absolute -right-10 top-0 h-44 w-44 rounded-full bg-[rgba(223,184,166,0.12)] blur-[90px]" />
-                            <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-[rgba(103,63,69,0.16)] blur-[90px]" />
-
+                        <div className="more-panel more-editorial-wash relative overflow-hidden rounded-[1.8rem] px-6 py-12 sm:px-10 lg:px-14">
                             <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                                 <div>
-                                    <p className="text-[0.72rem] uppercase tracking-[0.26em] text-stone-300">
+                                    <p className="text-[0.72rem] uppercase tracking-[0.26em] text-stone-200">
                                         MORE por Mati Boutique
                                     </p>
                                     <h2

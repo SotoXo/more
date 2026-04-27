@@ -49,8 +49,8 @@ class ProfileController extends Controller
                 Rule::unique('users', 'email')->ignore($user->id, 'id'),
             ],
         ], [
-            'regex' => 'Formato invalido.',
-            'tel_usu.regex' => 'El telefono debe tener 8 digitos y comenzar con 6 o 7.',
+            'regex' => 'Formato inválido.',
+            'tel_usu.regex' => 'El teléfono debe tener 8 dígitos y comenzar con 6 o 7.',
         ]);
 
         $payload = [
@@ -86,8 +86,8 @@ class ProfileController extends Controller
                 Password::min(8)->letters()->mixedCase()->numbers(),
             ],
         ], [
-            'current_password.current_password' => 'La contrasena actual no es correcta.',
-            'password.confirmed' => 'La confirmacion de la contrasena no coincide.',
+            'current_password.current_password' => 'La contraseña actual no es correcta.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
         ]);
 
         $request->user()->forceFill([
@@ -96,7 +96,7 @@ class ProfileController extends Controller
 
         return redirect()
             ->route('superadmin.profile.edit')
-            ->with('success', 'Contrasena actualizada correctamente.');
+            ->with('success', 'Contraseña actualizada correctamente.');
     }
 
     private function normalizeUpper(?string $value): ?string

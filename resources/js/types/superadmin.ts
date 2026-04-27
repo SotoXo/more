@@ -17,6 +17,7 @@ export type SuperadminNavItem = {
     href: string;
     icon: LucideIcon;
     badge?: string;
+    badgeTone?: SuperadminTone;
     exact?: boolean;
 };
 
@@ -77,6 +78,10 @@ export type SuperadminResourceMeta = {
     description: string;
     indexHref: string;
     createHref?: string | null;
+    moduleStatus?: 'crud' | 'read_only' | 'not_ready';
+    moduleStatusLabel?: string;
+    moduleStatusDescription?: string;
+    moduleIsSecondary?: boolean;
 };
 
 export type SuperadminTableColumn = {
@@ -138,6 +143,7 @@ export type SuperadminErrorState = {
 export type SuperadminFormFieldOption = {
     label: string;
     value: string;
+    swatch?: string;
 };
 
 export type SuperadminFormField = {
@@ -152,6 +158,11 @@ export type SuperadminFormField = {
     accept?: string;
     transform?: 'uppercase' | 'lowercase' | 'digits';
     maxLength?: number;
+    min?: number;
+    max?: number;
+    pattern?: string;
+    invalidMessage?: string;
+    disallowNumbers?: boolean;
     options?: SuperadminFormFieldOption[];
 };
 

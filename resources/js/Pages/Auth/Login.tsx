@@ -30,10 +30,10 @@ export default function Login({
 
     return (
         <GuestLayout>
-            <Head title="Iniciar Sesión" />
+            <Head title="Iniciar sesión" />
 
             <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-[#f8fafc] mb-2" style={{ fontFamily: '"Playfair Display", serif', letterSpacing: '0.05em' }}>Bienvenido de Vuelta</h2>
+                <h2 className="text-2xl font-bold text-[#f8fafc] mb-2" style={{ fontFamily: '"Playfair Display", serif', letterSpacing: '0.05em' }}>Bienvenido de vuelta</h2>
                 <p className="text-sm text-[#94a3b8]">Por favor, ingresa tus credenciales.</p>
             </div>
 
@@ -45,7 +45,7 @@ export default function Login({
 
             <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="email" value="Correo Electrónico" />
+                    <InputLabel htmlFor="email" value="Correo electrónico" />
 
                     <TextInput
                         id="email"
@@ -54,8 +54,9 @@ export default function Login({
                         value={data.email}
                         className="mt-1 block w-full"
                         autoComplete="username"
+                        placeholder="correo@dominio.com"
                         isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
+                        onChange={(e) => setData('email', e.target.value.trim().toLowerCase())}
                     />
 
                     <InputError message={errors.email} className="mt-2 text-[#ef4444]" />
@@ -71,6 +72,7 @@ export default function Login({
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="current-password"
+                        placeholder="Ingresa tu contraseña"
                         onChange={(e) => setData('password', e.target.value)}
                     />
 
@@ -115,7 +117,7 @@ export default function Login({
                     </div>
 
                     <PrimaryButton className="w-full sm:w-auto" disabled={processing}>
-                        Iniciar Sesión
+                        Iniciar sesión
                     </PrimaryButton>
                 </div>
             </form>

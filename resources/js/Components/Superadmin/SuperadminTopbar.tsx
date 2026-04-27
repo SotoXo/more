@@ -48,7 +48,7 @@ export default function SuperadminTopbar({
                         className="sa-button-ghost h-11 px-4 text-[0.72rem] uppercase tracking-[0.22em]"
                     >
                         <LogOut size={15} />
-                        Cerrar sesion
+                        Cerrar sesión
                     </Link>
                 </div>
 

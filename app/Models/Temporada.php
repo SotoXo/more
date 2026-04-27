@@ -9,9 +9,10 @@ class Temporada extends Model
     protected $table = 'temporadas';
     protected $primaryKey = 'id_temporada';
 
-    protected $fillable = ['nom_tem', 'des_tem', 'est_tem', 'fec_tem'];
+    protected $fillable = ['nom_tem', 'cod_tem', 'des_tem', 'ord_tem', 'est_tem', 'fec_tem'];
 
     protected $casts = [
+        'ord_tem' => 'integer',
         'est_tem' => 'boolean',
         'fec_tem' => 'datetime',
     ];

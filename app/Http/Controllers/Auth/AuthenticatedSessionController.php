@@ -34,13 +34,27 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
+        $intended = $request->session()->get('url.intended');
+        $intendedIsSuperadmin = $this->isSuperadminPath($intended);
 
         if ($user && method_exists($user, 'isSuperadmin')) {
             $user->loadMissing('rol');
 
             if ($user->isSuperadmin()) {
-                return redirect()->intended('/superadmin');
+                if ($intendedIsSuperadmin) {
+                    return redirect()->intended('/superadmin');
+                }
+
+                $request->session()->forget('url.intended');
+
+                return redirect('/superadmin');
             }
+        }
+
+        if ($intendedIsSuperadmin) {
+            $request->session()->forget('url.intended');
+
+            return redirect()->route('dashboard');
         }
 
         return redirect()->intended('/');
@@ -58,5 +72,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function isSuperadminPath(mixed $url): bool
+    {
+        if (! is_string($url) || $url === '') {
+            return false;
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+
+        return $path === '/superadmin' || str_starts_with((string) $path, '/superadmin/');
     }
 }

@@ -2,39 +2,47 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Database\Seeders\Concerns\InteractsWithCatalogMasters;
+use Illuminate\Database\Seeder;
 
 class MarcasTableSeeder extends Seeder
 {
+    use InteractsWithCatalogMasters;
+
     public function run(): void
     {
         $now = Carbon::now();
 
         $marcas = [
-            'Zara',
-            'Bershka',
-            'Stradivarius',
-            'Ralph Lauren',
-            'Hugo Boss',
-            'Massimo Dutti',
-            'Mango',
-            'Pull&Bear',
-            'Reserved',
+            'ZARA',
+            'BERSHKA',
+            'STRADIVARIUS',
+            'RALPH LAUREN',
+            'HUGO BOSS',
+            'MASSIMO DUTTI',
+            'MANGO',
+            'PULL&BEAR',
+            'RESERVED',
             'COS',
         ];
 
         foreach ($marcas as $marca) {
-            DB::table('marcas')->updateOrInsert(
-                ['nom_mar' => $marca],
+            $this->upsertCanonicalMaster(
+                'marcas',
+                'id_marca',
+                'nom_mar',
                 [
-                    'des_mar' => "Marca {$marca}",
+                    'nom_mar' => $marca,
+                    'des_mar' => null,
                     'est_mar' => true,
                     'fec_mar' => $now,
                     'created_at' => $now,
                     'updated_at' => $now,
-                ]
+                ],
+                [
+                    ['table' => 'prendas', 'column' => 'cod_marcas_pre'],
+                ],
             );
         }
     }

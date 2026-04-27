@@ -111,7 +111,7 @@ export default function Dashboard({
 
                     <div className="sa-panel rounded-[1.6rem] p-5">
                         <p className="text-[0.72rem] uppercase tracking-[0.18em] text-stone-300">
-                            Ultimos movimientos
+                            Últimos movimientos
                         </p>
                         <div className="mt-5 space-y-3">
                             {activity.map((item) => (

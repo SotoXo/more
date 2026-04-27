@@ -29,8 +29,6 @@
 
 ## categorias
 
-## categorias
-
 - `id_categoria` → identificador único de la categoría
 - `nom_cat` → nombre de la categoría
 - `des_cat` → descripción de la categoría
@@ -66,8 +64,6 @@
 
 ## tallas
 
-## tallas
-
 - `id_talla` → identificador único de la talla
 - `nom_tal` → nombre visible de la talla
 - `sis_tal` → sistema de talla asociado a la talla
@@ -77,8 +73,6 @@
 - `fec_tal` → fecha de registro de la talla
 - `created_at` → fecha de creación del registro en Laravel
 - `updated_at` → fecha de última actualización del registro en Laravel
-
-## temporadas
 
 ## temporadas
 

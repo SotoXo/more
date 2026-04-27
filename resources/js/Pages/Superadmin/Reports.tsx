@@ -1,4 +1,5 @@
 import SuperadminDataTable from '@/Components/Superadmin/SuperadminDataTable';
+import SuperadminBadge from '@/Components/Superadmin/SuperadminBadge';
 import SuperadminEmptyState from '@/Components/Superadmin/SuperadminEmptyState';
 import SuperadminLayout from '@/Components/Superadmin/SuperadminLayout';
 import SuperadminListFilters from '@/Components/Superadmin/SuperadminListFilters';
@@ -42,14 +43,23 @@ export default function Reports({
             <div className="space-y-8">
                 <SuperadminPageHeader
                     eyebrow="Reportes"
-                    title="Reportes"
-                    description="Explora variantes, precio y stock con filtros operativos."
+                    title="Reportes de consulta"
+                    description="Consulta variantes, precio y existencias con filtros operativos."
                     breadcrumbs={[
                         { label: 'Superadmin', href: '/superadmin' },
                         { label: 'Reportes' },
                     ]}
                     actions={[{ label: 'Volver al panel', href: '/superadmin', kind: 'ghost' }]}
                 />
+
+                <section className="sa-panel rounded-[1.6rem] p-5">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <SuperadminBadge tone="accent">Solo lectura</SuperadminBadge>
+                        <p className="max-w-3xl text-sm leading-6 text-stone-300">
+                            Esta pantalla permite filtrar e inspeccionar resultados; no crea ni edita registros.
+                        </p>
+                    </div>
+                </section>
 
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     {metrics.map((metric, index) => (

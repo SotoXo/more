@@ -53,6 +53,8 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
                     value: profile.nom_usu ?? '',
                     required: true,
                     placeholder: 'NOMBRE',
+                    transform: 'uppercase',
+                    hint: 'Se guarda en MAYÚSCULAS. No admite números.',
                 },
                 {
                     name: 'app_usu',
@@ -60,19 +62,26 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
                     value: profile.app_usu ?? '',
                     required: true,
                     placeholder: 'APELLIDO PATERNO',
+                    transform: 'uppercase',
+                    hint: 'Se guarda en MAYÚSCULAS. No admite números.',
                 },
                 {
                     name: 'apm_usu',
                     label: 'Apellido materno',
                     value: profile.apm_usu ?? '',
                     placeholder: 'APELLIDO MATERNO',
+                    transform: 'uppercase',
+                    hint: 'Se guarda en MAYÚSCULAS. No admite números.',
                 },
                 {
                     name: 'tel_usu',
-                    label: 'Telefono',
+                    label: 'Teléfono',
                     value: profile.tel_usu ?? '',
                     type: 'tel',
                     placeholder: '70000000',
+                    transform: 'digits',
+                    maxLength: 8,
+                    hint: 'Debe tener 8 dígitos y comenzar con 6 o 7.',
                 },
                 {
                     name: 'email',
@@ -81,6 +90,7 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
                     type: 'email',
                     required: true,
                     placeholder: 'correo@dominio.com',
+                    transform: 'lowercase',
                 },
             ],
         },
@@ -112,27 +122,27 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
 
     const passwordSections: SuperadminFormSectionData[] = [
         {
-            title: 'Cambio de contrasena',
+            title: 'Cambio de contraseña',
             description: 'Actualiza la clave de acceso del panel.',
             fields: [
                 {
                     name: 'current_password',
-                    label: 'Contrasena actual',
+                    label: 'Contraseña actual',
                     value: '',
                     type: 'password',
                     required: true,
                 },
                 {
                     name: 'password',
-                    label: 'Nueva contrasena',
+                    label: 'Nueva contraseña',
                     value: '',
                     type: 'password',
                     required: true,
-                    hint: 'Debe incluir mayuscula, minuscula y numero.',
+                    hint: 'Debe incluir mayúscula, minúscula y número.',
                 },
                 {
                     name: 'password_confirmation',
-                    label: 'Confirmar contrasena',
+                    label: 'Confirmar contraseña',
                     value: '',
                     type: 'password',
                     required: true,
@@ -223,7 +233,7 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
                                         disabled={passwordForm.processing}
                                         className="sa-button-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-70"
                                     >
-                                        {passwordForm.processing ? 'Actualizando' : 'Actualizar contrasena'}
+                                        {passwordForm.processing ? 'Actualizando' : 'Actualizar contraseña'}
                                     </button>
                                 </div>
                             </div>
@@ -248,10 +258,10 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
 
                         <div className="sa-panel rounded-[1.6rem] p-6">
                             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-stone-300">
-                                Sesion
+                                Sesión
                             </p>
                             <p className="mt-3 text-sm leading-6 text-stone-300">
-                                Cierra la sesion actual desde el panel.
+                                Cierra la sesión actual desde el panel.
                             </p>
                             <div className="mt-5">
                                 <Link
@@ -260,7 +270,7 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
                                     as="button"
                                     className="sa-button-ghost w-full px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em]"
                                 >
-                                    Cerrar sesion
+                                    Cerrar sesión
                                 </Link>
                             </div>
                         </div>

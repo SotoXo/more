@@ -1,4 +1,5 @@
 import SuperadminDataTable from '@/Components/Superadmin/SuperadminDataTable';
+import SuperadminBadge from '@/Components/Superadmin/SuperadminBadge';
 import SuperadminEmptyState from '@/Components/Superadmin/SuperadminEmptyState';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import SuperadminLayout from '@/Components/Superadmin/SuperadminLayout';
@@ -18,6 +19,7 @@ import type {
     SuperadminSortOption,
     SuperadminTableColumn,
     SuperadminTableRow,
+    SuperadminTone,
 } from '@/types/superadmin';
 import { Link, usePage } from '@inertiajs/react';
 
@@ -56,6 +58,12 @@ export default function ResourceIndex({
 }: ResourceIndexProps) {
     const page = usePage<LandingPageProps>();
     const flash = page.props.flash;
+    const moduleStatusTone: SuperadminTone =
+        meta.moduleStatus === 'crud'
+            ? 'success'
+            : meta.moduleStatus === 'not_ready'
+            ? 'warning'
+            : 'accent';
 
     return (
         <SuperadminLayout title={`MORE | ${meta.title}`}>
@@ -65,16 +73,34 @@ export default function ResourceIndex({
                     title={meta.title}
                     description={meta.description}
                     breadcrumbs={breadcrumbs}
-                    actions={
-                        headerActions.length > 0
-                            ? headerActions
-                            : meta.createHref
-                            ? [{ label: 'Nuevo registro', href: meta.createHref, kind: 'primary' }]
-                            : []
-                    }
+                    actions={headerActions}
                 />
 
                 <SuperadminFlashNotice success={flash?.success} error={flash?.error} />
+
+                {(meta.moduleStatusLabel || meta.moduleStatusDescription) && (
+                    <section className="sa-panel rounded-[1.6rem] p-5">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex flex-wrap items-center gap-2">
+                                {meta.moduleStatusLabel && (
+                                    <SuperadminBadge tone={moduleStatusTone}>
+                                        {meta.moduleStatusLabel}
+                                    </SuperadminBadge>
+                                )}
+                                {meta.moduleIsSecondary && (
+                                    <SuperadminBadge tone="neutral">
+                                        Secundario
+                                    </SuperadminBadge>
+                                )}
+                            </div>
+                            {meta.moduleStatusDescription && (
+                                <p className="max-w-3xl text-sm leading-6 text-stone-300">
+                                    {meta.moduleStatusDescription}
+                                </p>
+                            )}
+                        </div>
+                    </section>
+                )}
 
                 {segmentedFilters.length > 0 && (
                     <section className="sa-panel rounded-[1.6rem] p-4">

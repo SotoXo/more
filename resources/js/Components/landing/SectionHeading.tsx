@@ -41,7 +41,7 @@ export default function SectionHeading({
                     <span className="h-px w-8 bg-[linear-gradient(90deg,rgba(223,184,166,0.85),transparent)]" />
                     <span
                         className={[
-                            'inline-flex w-fit items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[0.68rem] uppercase tracking-[0.3em] text-stone-300',
+                            'inline-flex w-fit items-center rounded-full border border-[rgba(223,184,166,0.18)] bg-black/20 px-3 py-1 text-[0.68rem] uppercase tracking-[0.3em] text-stone-200',
                             centered ? 'mx-auto' : '',
                         ].join(' ')}
                     >
@@ -51,14 +51,14 @@ export default function SectionHeading({
             )}
 
             <h2
-                className="text-4xl leading-[0.94] tracking-[-0.02em] text-white sm:text-[3.4rem]"
+                className="text-4xl leading-[0.94] text-white sm:text-[3.4rem]"
                 style={titleStyle}
             >
                 {title}
             </h2>
 
             {description && (
-                <p className="max-w-xl text-sm leading-7 text-stone-300 sm:text-[1.02rem]">
+                <p className="max-w-xl text-sm leading-7 text-stone-200/90 sm:text-[1.02rem]">
                     {description}
                 </p>
             )}
