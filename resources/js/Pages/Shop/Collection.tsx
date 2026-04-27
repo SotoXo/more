@@ -1,7 +1,7 @@
 import ShopFiltersPanel from '@/Components/shop/ShopFiltersPanel';
 import ProductCard from '@/Components/shop/ProductCard';
 import StoreLayout from '@/Components/shop/StoreLayout';
-import ShopToolbar from '@/Components/shop/ShopToolbar';
+import ShopToolbar, { type ShopViewMode } from '@/Components/shop/ShopToolbar';
 import { collectionPresentation } from '@/data/storefront';
 import {
     createDefaultFilters,
@@ -18,12 +18,12 @@ import type {
 } from '@/types/shop';
 import { motion } from 'framer-motion';
 import { Link } from '@inertiajs/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 type MultiFilterKey = keyof Pick<
     ShopFilterState,
-    'categories' | 'sizes' | 'colors' | 'styles' | 'brands'
+    'categories' | 'sizes' | 'colors' | 'styles' | 'brands' | 'locations'
 >;
 
 const sectionShell = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8';
@@ -36,8 +36,6 @@ const primaryButtonClass =
     'more-cta-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em]';
 const secondaryButtonClass =
     'more-cta-secondary px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em]';
-const editorialLinkClass =
-    'more-cta-editorial text-[0.72rem] uppercase tracking-[0.22em]';
 
 type CollectionProps = {
     collection: ShopCollectionKey;
@@ -57,6 +55,7 @@ export default function Collection({
     const [sort, setSort] = useState<ShopSortKey>(
         collection === 'novedades' ? 'newest' : 'recommended',
     );
+    const [viewMode, setViewMode] = useState<ShopViewMode>('amplia');
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
     useEffect(() => {
@@ -82,6 +81,10 @@ export default function Collection({
             : collection === 'novedades'
               ? 'Ver colecciones'
               : 'Ver catálogo';
+    const gridClass =
+        viewMode === 'compacta'
+            ? 'grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-4'
+            : 'grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3';
 
     function toggleFilter(group: MultiFilterKey, value: string) {
         setFilters((current) => {
@@ -102,49 +105,41 @@ export default function Collection({
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]"
+                        className="more-panel relative overflow-hidden rounded-[2rem] p-4 sm:p-5 lg:p-6"
                     >
-                        <div className="relative overflow-hidden rounded-[2.2rem] border border-white/10">
-                            <img
-                                src={config.heroImage}
-                                alt={config.title}
-                                className="h-[380px] w-full object-cover sm:h-[470px] lg:h-[560px]"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/28 to-transparent" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-transparent to-transparent" />
-                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(181,122,109,0.14),transparent_40%)]" />
-                            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 lg:p-10">
-                                <p className="text-[0.7rem] uppercase tracking-[0.28em] text-stone-200">
-                                    {config.eyebrow}
-                                </p>
-                                <h1
-                                    className="mt-4 text-5xl leading-[0.9] text-white sm:text-6xl lg:text-[5.2rem]"
-                                    style={serifStyle}
-                                >
-                                    {config.title}
-                                </h1>
-                                <p className="mt-4 max-w-lg text-sm leading-7 text-stone-100 sm:text-base">
-                                    {config.subtitle}
-                                </p>
-                            </div>
-                        </div>
+                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">
+                            <div className="flex min-h-[360px] flex-col justify-between p-3 sm:p-5 lg:p-6">
+                                <div>
+                                    <div className="flex flex-wrap items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-stone-300">
+                                        <Link href={shopRoutes.home} className="transition hover:text-white">
+                                            Inicio
+                                        </Link>
+                                        <ChevronRight size={13} className="text-stone-500" />
+                                        <span className="text-[rgb(236,205,191)]">
+                                            {config.title}
+                                        </span>
+                                    </div>
+                                    <p className="mt-8 text-[0.7rem] uppercase tracking-[0.28em] text-stone-300">
+                                        {config.eyebrow}
+                                    </p>
+                                    <h1
+                                        className="mt-4 max-w-3xl text-5xl leading-[0.9] text-white sm:text-6xl lg:text-[5.4rem]"
+                                        style={serifStyle}
+                                    >
+                                        {config.title}
+                                    </h1>
+                                    <p className="mt-5 max-w-2xl text-sm leading-7 text-stone-200 sm:text-base">
+                                        {config.subtitle}
+                                    </p>
+                                    <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-300">
+                                        {config.description}
+                                    </p>
+                                </div>
 
-                        <div className="flex flex-col gap-4">
-                            <div className="more-panel rounded-[2rem] p-7 sm:p-8">
-                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-500">
-                                    Curaduría Mati Boutique
-                                </p>
-                                <p
-                                    className="mt-5 text-4xl leading-none text-white"
-                                    style={serifStyle}
-                                >
-                                    {products.length} piezas en escena.
-                                </p>
-                                <p className="mt-5 max-w-md text-sm leading-7 text-stone-300">
-                                    {config.description}
-                                </p>
-
-                                <div className="mt-6 flex flex-wrap gap-2">
+                                <div className="mt-8 flex flex-wrap items-center gap-3">
+                                    <span className="more-pill-active rounded-full px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em]">
+                                        {products.length} {products.length === 1 ? 'producto' : 'productos'}
+                                    </span>
                                     {config.highlights.map((item) => (
                                         <span
                                             key={item}
@@ -156,27 +151,23 @@ export default function Collection({
                                 </div>
                             </div>
 
-                            <div className="more-panel-soft rounded-[2rem] p-7 sm:p-8">
-                                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-500">
-                                    Sigue el recorrido
-                                </p>
-                                <p className="mt-4 max-w-sm text-sm leading-7 text-stone-300">
-                                    Sigue hacia otra edición de la tienda o entra en una lectura
-                                    más inspiracional de la selección.
-                                </p>
-                                <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="relative hidden overflow-hidden rounded-[1.6rem] border border-white/10 lg:block">
+                                <img
+                                    src={config.heroImage}
+                                    alt={config.title}
+                                    className="h-full min-h-[360px] w-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/10 to-transparent" />
+                                <div className="absolute bottom-0 left-0 right-0 p-5">
+                                    <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-200">
+                                        Sigue el recorrido
+                                    </p>
                                     <Link
                                         href={secondaryHref}
-                                        className={primaryButtonClass}
+                                        className={`${primaryButtonClass} mt-4`}
                                     >
                                         {secondaryLabel}
                                         <ArrowRight size={15} />
-                                    </Link>
-                                    <Link
-                                        href={shopRoutes.editorial}
-                                        className={editorialLinkClass}
-                                    >
-                                        Editorial Mati Boutique
                                     </Link>
                                 </div>
                             </div>
@@ -216,12 +207,14 @@ export default function Collection({
                                 title={config.title}
                                 resultCount={filteredProducts.length}
                                 sort={sort}
+                                viewMode={viewMode}
                                 onSortChange={setSort}
+                                onViewModeChange={setViewMode}
                                 onOpenFilters={() => setIsMobileFiltersOpen(true)}
                             />
 
                             {filteredProducts.length > 0 ? (
-                                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                                <div className={gridClass}>
                                     {filteredProducts.map((product) => (
                                         <ProductCard key={product.slug} product={product} />
                                     ))}
@@ -252,8 +245,8 @@ export default function Collection({
             </section>
 
             {isMobileFiltersOpen && (
-                <div className="fixed inset-0 z-[60] bg-[#05070b]/86 px-4 py-24 backdrop-blur-xl lg:hidden">
-                    <div className="mx-auto max-w-lg">
+                <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#05070b]/90 px-4 py-24 backdrop-blur-xl lg:hidden">
+                    <div className="mx-auto max-w-lg pb-8">
                         <ShopFiltersPanel
                             filters={filters}
                             options={filterOptions}

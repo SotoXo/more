@@ -195,6 +195,14 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             <ShoppingBag size={16} />
                         </Link>
 
+                        <Link
+                            href={user ? '/cuenta/reservas' : '/login'}
+                            aria-label="Reservas"
+                            className={iconButtonClass}
+                        >
+                            <Package size={16} />
+                        </Link>
+
                         {user ? (
                             <div ref={accountRef} className="relative ml-1">
                                 <button
@@ -316,6 +324,14 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                     onClick={() => setIsOpen(false)}
                                 >
                                     <ShoppingBag size={16} />
+                                </Link>
+                                <Link
+                                    href={user ? '/cuenta/reservas' : '/login'}
+                                    className={iconButtonClass}
+                                    aria-label="Reservas"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    <Package size={16} />
                                 </Link>
                             </div>
 

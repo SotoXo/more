@@ -62,19 +62,24 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'login' => trans('auth.failed'),
             ]);
         }
 
         $user = Auth::user();
 
-        if ($user && method_exists($user, 'isActive') && ! $user->isActive()) {
-            Auth::guard('web')->logout();
-            RateLimiter::hit($this->throttleKey());
+        if (! $user) {
+            $this->failLogin(trans('auth.failed'));
+        }
 
-            throw ValidationException::withMessages([
-                'email' => 'Esta cuenta está inactiva. Solicita la reactivación a un superadmin.',
-            ]);
+        $user->loadMissing('rol');
+
+        if (method_exists($user, 'isActive') && ! $user->isActive()) {
+            $this->failLogin(trans('auth.inactive'));
+        }
+
+        if (! method_exists($user, 'hasValidActiveRole') || ! $user->hasValidActiveRole()) {
+            $this->failLogin(trans('auth.invalid_role'));
         }
 
         RateLimiter::clear($this->throttleKey());
@@ -96,7 +101,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'login' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -109,5 +114,20 @@ class LoginRequest extends FormRequest
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+    }
+
+    /**
+     * End the authenticated attempt when account rules reject access.
+     *
+     * @throws ValidationException
+     */
+    private function failLogin(string $message): never
+    {
+        Auth::guard('web')->logout();
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'login' => $message,
+        ]);
     }
 }

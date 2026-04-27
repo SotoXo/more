@@ -19,11 +19,11 @@ class ProductMapper
         $variantesActivas = $prenda->variantes
             ->filter(fn($v) => $v->est_prv);
 
+        $stockDisponible = fn($v) => max(0, ($v->inventario?->cdi_inv ?? 0) - ($v->inventario?->cre_inv ?? 0));
+
         $precioMin = $variantesActivas->min('pve_prv') ?? (float) $prenda->prb_pre;
 
-        $stockTotal = $variantesActivas->sum(function ($v) {
-            return max(0, ($v->inventario?->cdi_inv ?? 0) - ($v->inventario?->cre_inv ?? 0));
-        });
+        $stockTotal = $variantesActivas->sum($stockDisponible);
 
         if ($stockTotal === 0) {
             $availability = 'Agotado';
@@ -34,14 +34,34 @@ class ProductMapper
         }
 
         $sizes = $variantesActivas
-            ->filter(fn($v) => $v->talla !== null)
+            ->filter(fn($v) => $v->talla !== null && $stockDisponible($v) > 0)
             ->sortBy(fn($v) => $v->talla?->ord_tal ?? 0)
             ->map(fn($v) => $v->talla->nom_tal)
             ->unique()
             ->values()
             ->toArray();
 
-        $firstVariant = $variantesActivas->first();
+        $variantesDisponibles = $variantesActivas
+            ->filter(fn($v) => $stockDisponible($v) > 0);
+
+        $colors = $variantesDisponibles
+            ->filter(fn($v) => $v->color !== null)
+            ->map(fn($v) => [
+                'name' => $v->color->nom_col,
+                'hex' => $v->color->hex_col,
+            ])
+            ->unique(fn($color) => $color['name'].'|'.($color['hex'] ?? ''))
+            ->values()
+            ->toArray();
+
+        $locations = $variantesDisponibles
+            ->map(fn($v) => trim((string) ($v->inventario?->ubi_inv ?? '')))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $firstVariant = $variantesDisponibles->first() ?? $variantesActivas->first();
         $firstColor = $firstVariant?->color?->nom_col ?? '';
 
         $imagenesOrdenadas = $prenda->imagenes->sortBy([
@@ -83,6 +103,9 @@ class ProductMapper
             'category' => $categoryName,
             'style' => $seasonName,
             'color' => $firstColor,
+            'colors' => $colors,
+            'locations' => $locations,
+            'totalStock' => (int) $stockTotal,
             'availability' => $availability,
             'sizes' => $sizes,
             'isNew' => $isNew,
@@ -159,11 +182,24 @@ class ProductMapper
     {
         $categories = collect($products)->pluck('category')->unique()->filter()->sort()->values()->toArray();
         $sizes = collect($products)->flatMap(fn($p) => $p['sizes'])->unique()->sort()->values()->toArray();
-        $colors = collect($products)->pluck('color')->unique()->filter()->sort()->values()->toArray();
+        $colors = collect($products)
+            ->flatMap(function ($p) {
+                $mappedColors = collect($p['colors'] ?? [])->pluck('name')->filter();
+
+                return $mappedColors->isNotEmpty()
+                    ? $mappedColors
+                    : [($p['color'] ?? '')];
+            })
+            ->unique()
+            ->filter()
+            ->sort()
+            ->values()
+            ->toArray();
         $styles = collect($products)->pluck('style')->unique()->filter()->sort()->values()->toArray();
         $brands = collect($products)->pluck('brand')->unique()->filter()->sort()->values()->toArray();
+        $locations = collect($products)->flatMap(fn($p) => $p['locations'] ?? [])->unique()->filter()->sort()->values()->toArray();
 
-        return compact('categories', 'sizes', 'colors', 'styles', 'brands');
+        return compact('categories', 'sizes', 'colors', 'styles', 'brands', 'locations');
     }
 
     private static function resolveDescription(Prenda $prenda): string

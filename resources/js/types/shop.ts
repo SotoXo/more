@@ -32,6 +32,12 @@ export type ShopProduct = {
     color: string;
     availability: ShopAvailability;
     sizes: string[];
+    colors?: Array<{
+        name: string;
+        hex: string | null;
+    }>;
+    locations?: string[];
+    totalStock?: number;
     isNew: boolean;
     isFavorite?: boolean;
     rank: number;
@@ -56,6 +62,7 @@ export type ShopFilterState = {
     colors: string[];
     styles: string[];
     brands: string[];
+    locations: string[];
     price: PriceFilterKey;
     availability: 'all' | ShopAvailability;
 };
@@ -66,6 +73,7 @@ export type ShopFilterOptions = {
     colors: string[];
     styles: string[];
     brands: string[];
+    locations: string[];
 };
 
 export type HomeCategoryLink = {

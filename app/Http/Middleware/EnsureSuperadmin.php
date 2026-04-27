@@ -24,7 +24,17 @@ class EnsureSuperadmin
 
             return redirect()
                 ->route('login')
-                ->with('error', 'Tu cuenta esta inactiva. Solicita la reactivacion a un superadmin.');
+                ->with('error', 'Tu cuenta está inactiva. Solicita la reactivación a un superadmin.');
+        }
+
+        if (! method_exists($user, 'hasValidActiveRole') || ! $user->hasValidActiveRole()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->with('error', 'Tu usuario no tiene un rol activo o válido. Solicita revisión a un superadmin.');
         }
 
         if (! method_exists($user, 'isSuperadmin') || ! $user->isSuperadmin()) {

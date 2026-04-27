@@ -7,7 +7,13 @@ import type {
 } from '@/types/shop';
 import { RotateCcw, X } from 'lucide-react';
 
-type MultiFilterKey = 'categories' | 'sizes' | 'colors' | 'styles' | 'brands';
+type MultiFilterKey =
+    | 'categories'
+    | 'sizes'
+    | 'colors'
+    | 'styles'
+    | 'brands'
+    | 'locations';
 
 type ShopFiltersPanelProps = {
     filters: ShopFilterState;
@@ -27,6 +33,13 @@ const availabilityOptions: Array<'all' | ShopAvailability> = [
     'Agotado',
 ];
 
+const availabilityLabels: Record<'all' | ShopAvailability, string> = {
+    all: 'Todas',
+    Disponible: 'Disponible',
+    'Últimas piezas': 'Últimas unidades',
+    Agotado: 'Agotado',
+};
+
 function FilterGroup({
     title,
     items,
@@ -44,7 +57,7 @@ function FilterGroup({
 
     return (
         <div>
-            <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">
+            <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-300">
                 {title}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -60,7 +73,7 @@ function FilterGroup({
                                 'rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
                                 active
                                     ? 'more-pill-active'
-                                    : 'more-pill hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)] text-stone-300',
+                                    : 'more-pill text-stone-200 hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]',
                             ].join(' ')}
                         >
                             {item}
@@ -84,24 +97,24 @@ export default function ShopFiltersPanel({
 }: ShopFiltersPanelProps) {
     return (
         <div
-            className={`more-panel-soft rounded-[2rem] p-6 ${className}`.trim()}
+            className={`more-panel-soft rounded-[1.8rem] p-5 ${className}`.trim()}
         >
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-500">
-                        Edición personalizada
+                    <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-300">
+                        Filtros
                     </p>
                     <h3
-                        className="mt-3 text-3xl leading-none text-white"
+                        className="mt-3 text-2xl leading-none text-white"
                         style={{
                             fontFamily:
                                 '"Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif',
                         }}
                     >
-                        Afinar la selección
+                        Refinar catálogo
                     </h3>
-                    <p className="mt-3 max-w-xs text-sm leading-6 text-stone-400">
-                        Filtros discretos para recorrer la tienda con más intención.
+                    <p className="mt-3 max-w-xs text-sm leading-6 text-stone-300">
+                        Encuentra prendas por categoría, talla, color y temporada.
                     </p>
                 </div>
 
@@ -150,7 +163,7 @@ export default function ShopFiltersPanel({
                 />
                 <div className="more-divider" />
                 <FilterGroup
-                    title="Edición"
+                    title="Temporada"
                     items={options.styles}
                     selectedValues={filters.styles}
                     onToggle={(value) => onToggle('styles', value)}
@@ -163,9 +176,16 @@ export default function ShopFiltersPanel({
                     onToggle={(value) => onToggle('brands', value)}
                 />
                 <div className="more-divider" />
+                <FilterGroup
+                    title="Ubicación"
+                    items={options.locations}
+                    selectedValues={filters.locations}
+                    onToggle={(value) => onToggle('locations', value)}
+                />
+                <div className="more-divider" />
 
                 <div>
-                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">
+                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-300">
                         Precio
                     </p>
                     <div className="mt-4 space-y-2">
@@ -181,7 +201,7 @@ export default function ShopFiltersPanel({
                                         'flex w-full items-center justify-between rounded-[1.2rem] border px-4 py-3 text-left text-sm transition duration-300',
                                         active
                                             ? 'border-[rgba(181,122,109,0.28)] bg-[rgba(181,122,109,0.12)] text-white'
-                                            : 'border-white/10 bg-white/[0.02] text-stone-300 hover:border-[rgba(181,122,109,0.22)] hover:bg-[rgba(181,122,109,0.07)]',
+                                            : 'border-white/10 bg-black/20 text-stone-200 hover:border-[rgba(181,122,109,0.22)] hover:bg-[rgba(181,122,109,0.07)]',
                                     ].join(' ')}
                                 >
                                     <span>{option.label}</span>
@@ -198,12 +218,12 @@ export default function ShopFiltersPanel({
                 <div className="more-divider" />
 
                 <div>
-                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-500">
+                    <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-300">
                         Disponibilidad
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                         {availabilityOptions.map((option) => {
-                            const label = option === 'all' ? 'Todas' : option;
+                            const label = availabilityLabels[option];
                             const active = filters.availability === option;
 
                             return (
@@ -215,7 +235,7 @@ export default function ShopFiltersPanel({
                                         'rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
                                         active
                                             ? 'more-pill-active'
-                                            : 'more-pill hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)] text-stone-300',
+                                            : 'more-pill text-stone-200 hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]',
                                     ].join(' ')}
                                 >
                                     {label}

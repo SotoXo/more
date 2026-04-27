@@ -19,12 +19,12 @@ export const shopRoutes = {
 } as const;
 
 export const shopNavigationItems = [
+    { label: 'Inicio', href: shopRoutes.home },
+    { label: 'Novedades', href: shopRoutes.newIn },
     { label: 'Mujer', href: shopRoutes.women },
     { label: 'Hombre', href: shopRoutes.men },
-    { label: 'Novedades', href: shopRoutes.newIn },
+    { label: 'Categorías', href: shopRoutes.catalog },
     { label: 'Colecciones', href: shopRoutes.collections },
-    { label: 'Editorial', href: shopRoutes.editorial },
-    { label: 'Accesorios', href: shopRoutes.accessories },
 ] as const;
 
 export const sortOptions = [
@@ -39,7 +39,7 @@ export const priceFilterOptions = [
     { value: '0-350', label: 'Hasta Bs 350', min: 0, max: 350 },
     { value: '351-700', label: 'Bs 351 a Bs 700', min: 351, max: 700 },
     { value: '701-1100', label: 'Bs 701 a Bs 1,100', min: 701, max: 1100 },
-    { value: '1101+', label: 'Mas de Bs 1,100', min: 1101, max: Number.POSITIVE_INFINITY },
+    { value: '1101+', label: 'Más de Bs 1,100', min: 1101, max: Number.POSITIVE_INFINITY },
 ] as const satisfies ReadonlyArray<{
     value: PriceFilterKey;
     label: string;
@@ -54,6 +54,7 @@ export function createDefaultFilters(): ShopFilterState {
         colors: [],
         styles: [],
         brands: [],
+        locations: [],
         price: 'all',
         availability: 'all',
     };
@@ -65,6 +66,10 @@ export function formatPrice(price: number) {
 
 function includesFilter(selected: string[], current: string) {
     return selected.length === 0 || selected.includes(current);
+}
+
+function includesAnyFilter(selected: string[], current: string[]) {
+    return selected.length === 0 || current.some((item) => selected.includes(item));
 }
 
 export function filterProducts(
@@ -86,9 +91,15 @@ export function filterProducts(
 
         return (
             includesFilter(filters.categories, product.category) &&
-            includesFilter(filters.colors, product.color) &&
+            includesAnyFilter(
+                filters.colors,
+                product.colors?.map((color) => color.name).filter(Boolean) ?? [
+                    product.color,
+                ],
+            ) &&
             includesFilter(filters.styles, product.style) &&
             includesFilter(filters.brands, product.brand) &&
+            includesAnyFilter(filters.locations, product.locations ?? []) &&
             matchesAvailability &&
             matchesPrice &&
             (filters.sizes.length === 0 ||

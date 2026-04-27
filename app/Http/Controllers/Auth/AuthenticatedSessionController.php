@@ -54,7 +54,8 @@ class AuthenticatedSessionController extends Controller
         if ($intendedIsSuperadmin) {
             $request->session()->forget('url.intended');
 
-            return redirect()->route('dashboard');
+            return redirect('/')
+                ->with('error', 'No tienes permisos para acceder al panel superadmin.');
         }
 
         return redirect()->intended('/');

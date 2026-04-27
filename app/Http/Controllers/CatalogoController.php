@@ -166,6 +166,7 @@ class CatalogoController extends Controller
             'colors' => [],
             'styles' => $this->queryValues(['temporada', 'edicion']),
             'brands' => $this->queryValues('marca'),
+            'locations' => $this->queryValues(['ubicacion', 'sucursal']),
             'price' => 'all',
             'availability' => 'all',
         ];
