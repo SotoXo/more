@@ -118,6 +118,12 @@ export default function Product({
             : product.department === 'hombre'
               ? shopRoutes.men
               : shopRoutes.accessories;
+    const departmentLabel =
+        product.department === 'mujer'
+            ? 'Mujer'
+            : product.department === 'hombre'
+              ? 'Hombre'
+              : 'Accesorios';
 
     async function handleToggleFavorite() {
         if (!user) {
@@ -154,7 +160,7 @@ export default function Product({
             }
 
             console.error('No se pudo actualizar favoritos.', error);
-            setStatusMessage('No se pudo actualizar favoritos.');
+            setStatusMessage('No pudimos actualizar tus favoritos. Intenta de nuevo.');
         } finally {
             setFavoritePending(false);
         }
@@ -173,10 +179,10 @@ export default function Product({
                 variante_id: selectedVariant.id,
                 cantidad: 1,
             });
-            setStatusMessage('Variante agregada a la bolsa.');
+            setStatusMessage('Producto agregado a la bolsa.');
         } catch (error) {
             console.error('No se pudo agregar al carrito.', error);
-            setStatusMessage('No se pudo agregar la variante a la bolsa.');
+            setStatusMessage('No pudimos agregar este producto a la bolsa. Intenta de nuevo.');
         } finally {
             setAddToCartPending(false);
         }
@@ -192,7 +198,7 @@ export default function Product({
                         </Link>
                         <span>/</span>
                         <Link href={departmentHref} className="transition hover:text-white">
-                            {product.department}
+                            {departmentLabel}
                         </Link>
                         <span>/</span>
                         <span className="text-[rgb(223,184,166)]">{product.name}</span>
@@ -217,7 +223,7 @@ export default function Product({
                                             Selección Mati Boutique
                                         </p>
                                         <h1
-                                            className="mt-3 text-5xl leading-[0.92] text-white sm:text-6xl"
+                                            className="mt-3 break-words text-4xl leading-[0.96] text-white sm:text-5xl xl:text-6xl"
                                             style={serifStyle}
                                         >
                                             {product.name}
@@ -322,7 +328,7 @@ export default function Product({
                                 <div className="mt-8 grid gap-3 sm:grid-cols-2">
                                     <div className="more-panel-soft rounded-[1.5rem] p-5">
                                         <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-500">
-                                            Firma
+                                            Marca
                                         </p>
                                         <p className="mt-3 text-sm text-stone-100">
                                             {product.brand}
@@ -371,44 +377,48 @@ export default function Product({
                 </div>
             </section>
 
-            <section className="pt-16">
-                <div className={sectionShell}>
-                    <ProductRail
-                        eyebrow="Dentro del mismo tono"
-                        title="Productos relacionados"
-                        description="Una continuidad natural para seguir dentro del mismo tono."
-                        products={relatedProducts}
-                    />
-                </div>
-            </section>
-
-            <section className="pt-16">
-                <div className={sectionShell}>
-                    <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                        <SectionHeading
-                            eyebrow="Cierra el look"
-                            title="Completa el look"
-                            description="Piezas que acompañan el look con contraste, textura y ritmo."
+            {relatedProducts.length > 0 && (
+                <section className="pt-16">
+                    <div className={sectionShell}>
+                        <ProductRail
+                            eyebrow="También puede interesarte"
+                            title="Productos relacionados"
+                            description="Prendas similares que puedes revisar antes de decidir."
+                            products={relatedProducts}
                         />
-                        <Link
-                            href={shopRoutes.catalog}
-                            className={secondaryButtonClass}
-                        >
-                            Ver catálogo
-                        </Link>
                     </div>
+                </section>
+            )}
 
-                    <div className="mt-10 grid gap-6 lg:grid-cols-3">
-                        {completeLookProducts.map((lookProduct) => (
-                            <ProductCard
-                                key={lookProduct.slug}
-                                product={lookProduct}
-                                imageClassName="h-[340px]"
+            {completeLookProducts.length > 0 && (
+                <section className="pt-16">
+                    <div className={sectionShell}>
+                        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                            <SectionHeading
+                                eyebrow="Cierra el look"
+                                title="Completa el look"
+                                description="Prendas y accesorios que combinan con este producto."
                             />
-                        ))}
+                            <Link
+                                href={shopRoutes.catalog}
+                                className={secondaryButtonClass}
+                            >
+                                Ver catálogo
+                            </Link>
+                        </div>
+
+                        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+                            {completeLookProducts.map((lookProduct) => (
+                                <ProductCard
+                                    key={lookProduct.slug}
+                                    product={lookProduct}
+                                    imageClassName="h-[340px]"
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
         </StoreLayout>
     );
 }

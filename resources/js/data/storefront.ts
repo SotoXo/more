@@ -38,21 +38,21 @@ export type BrandEditorialCard = {
 
 export const homeHeroSlides: HomeHeroSlide[] = [
     {
-        title: 'Nuevas siluetas',
-        subtitle: 'Texturas limpias, capas suaves y piezas pensadas para una presencia serena.',
-        note: 'Una entrada editorial para recorrer MORE con intención.',
+        title: 'Novedades de temporada',
+        subtitle: 'Prendas seleccionadas para renovar tu guardarropa con elegancia y facilidad.',
+        note: 'Explora lo nuevo y encuentra piezas listas para comprar.',
         image: 'https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg?auto=compress&cs=tinysrgb&w=1600',
     },
     {
-        title: 'El ritmo del guardarropa',
-        subtitle: 'Marcas, categorías y prendas se entrelazan en una selección con pulso propio.',
-        note: 'Pensado para descubrir piezas, no solo para buscarlas.',
+        title: 'Selección Mati Boutique',
+        subtitle: 'Categorías, marcas y prendas reunidas para comprar de forma simple y cuidada.',
+        note: 'Recorre la tienda por novedades, categorías o catálogo completo.',
         image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1600',
     },
     {
-        title: 'Detalles que sostienen el look',
-        subtitle: 'Color, talla y acabado se leen con claridad para comprar con calma.',
-        note: 'MORE mezcla precisión boutique con una mirada contemporánea.',
+        title: 'Detalles para elegir mejor',
+        subtitle: 'Consulta color, talla, disponibilidad y precio antes de reservar tu prenda.',
+        note: 'Compra con información clara y atención boutique.',
         image: 'https://images.pexels.com/photos/6455010/pexels-photo-6455010.jpeg?auto=compress&cs=tinysrgb&w=1600',
     },
 ];
@@ -61,7 +61,7 @@ export const homeCollectionCards: HomeCollectionCard[] = [
     {
         title: 'Explorar catálogo',
         image: 'https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=1200',
-        label: 'Edición completa',
+        label: 'Todas las prendas',
         href: shopRoutes.catalog,
     },
     {
@@ -75,48 +75,48 @@ export const homeCollectionCards: HomeCollectionCard[] = [
 export const collectionPresentation: Record<ShopCollectionKey, CollectionPresentation> = {
     catalogo: {
         title: 'Catálogo',
-        eyebrow: 'Edición completa',
-        subtitle: 'Un recorrido amplio por prendas, firmas y acentos que conviven bajo una misma mirada.',
-        description: 'La forma más abierta de descubrir MORE: piezas para mezclar, guardar y volver a mirar.',
+        eyebrow: 'Todas las prendas',
+        subtitle: 'Explora prendas, marcas y categorías disponibles en MORE.',
+        description: 'Filtra por talla, color, precio o marca para encontrar la prenda que buscas.',
         heroImage:
             'https://images.pexels.com/photos/977585/pexels-photo-977585.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Edición completa', 'Firmas seleccionadas', 'Piezas para descubrir'],
+        highlights: ['Todas las prendas', 'Marcas disponibles', 'Filtros de compra'],
     },
     mujer: {
         title: 'Mujer',
-        eyebrow: 'Edición Mati Boutique',
-        subtitle: 'Sastrería fluida, textura suave y siluetas que se mueven con calma.',
-        description: 'Una edición femenina pensada para construir presencia sin exceso y con mucho detalle.',
+        eyebrow: 'Moda mujer',
+        subtitle: 'Prendas femeninas seleccionadas para looks elegantes y actuales.',
+        description: 'Encuentra opciones para vestir de día, de noche o para renovar básicos clave.',
         heroImage:
             'https://images.pexels.com/photos/4879302/pexels-photo-4879302.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Sastrería suave', 'Líneas largas', 'Capas ligeras'],
+        highlights: ['Prendas femeninas', 'Looks actuales', 'Tallas disponibles'],
     },
     hombre: {
         title: 'Hombre',
-        eyebrow: 'Edición Mati Boutique',
-        subtitle: 'Texturas sobrias, capas precisas y una edición masculina de ritmo contenido.',
-        description: 'Un guardarropa de contraste limpio, pensado para moverse entre lo clásico y lo actual.',
+        eyebrow: 'Moda hombre',
+        subtitle: 'Prendas masculinas con líneas limpias y estilo actual.',
+        description: 'Explora opciones para looks casuales, urbanos y de temporada.',
         heroImage:
             'https://images.pexels.com/photos/36207069/pexels-photo-36207069.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Líneas sobrias', 'Capas precisas', 'Tono urbano'],
+        highlights: ['Prendas masculinas', 'Estilo urbano', 'Disponibilidad actual'],
     },
     accesorios: {
         title: 'Accesorios',
-        eyebrow: 'Acentos precisos',
-        subtitle: 'Los detalles que cierran el look con una nota exacta de textura y carácter.',
-        description: 'Bolsos, cuero y pequeños acentos que completan la composición con elegancia.',
+        eyebrow: 'Complementos',
+        subtitle: 'Accesorios para completar tu look con detalle y estilo.',
+        description: 'Revisa bolsos, piezas de cuero y complementos disponibles en la tienda.',
         heroImage:
             'https://images.pexels.com/photos/5059874/pexels-photo-5059874.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Cuero suave', 'Acentos precisos', 'Ritmo final'],
+        highlights: ['Bolsos', 'Complementos', 'Piezas disponibles'],
     },
     novedades: {
         title: 'Novedades',
         eyebrow: 'Recién llegadas',
-        subtitle: 'Las últimas entradas de la temporada, listas para renovar el ritmo del guardarropa.',
-        description: 'Llegadas recientes entre sastrería suave, tejido pulido y accesorios con presencia.',
+        subtitle: 'Las prendas recién incorporadas al catálogo de MORE.',
+        description: 'Revisa las últimas llegadas y reserva tus favoritas antes de que se agoten.',
         heroImage:
             'https://images.pexels.com/photos/977585/pexels-photo-977585.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Llegadas recientes', 'Piezas clave', 'Selección viva'],
+        highlights: ['Llegadas recientes', 'Prendas nuevas', 'Reserva disponible'],
     },
 };
 
@@ -149,20 +149,20 @@ export const homeCategoryVisuals: CategoryVisual[] = [
 
 export const homeBrandEditorialCards: BrandEditorialCard[] = [
     {
-        title: 'Firmas en diálogo',
+        title: 'Comprar por marca',
         note: 'Selección por marca',
         image: 'https://images.pexels.com/photos/1066171/pexels-photo-1066171.jpeg?auto=compress&cs=tinysrgb&w=1400',
         href: shopRoutes.catalog,
     },
     {
-        title: 'Capítulos del guardarropa',
-        note: 'Rutas de compra',
+        title: 'Ver novedades',
+        note: 'Últimas llegadas',
         image: 'https://images.pexels.com/photos/6311387/pexels-photo-6311387.jpeg?auto=compress&cs=tinysrgb&w=1400',
         href: shopRoutes.newIn,
     },
     {
-        title: 'Detalle con intención',
-        note: 'Mirada de producto',
+        title: 'Explorar catálogo',
+        note: 'Todas las prendas',
         image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1400',
         href: shopRoutes.catalog,
     },

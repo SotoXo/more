@@ -70,17 +70,9 @@ export default function Collection({
     );
 
     const secondaryHref =
-        collection === 'catalogo'
-            ? shopRoutes.newIn
-            : collection === 'novedades'
-              ? shopRoutes.collections
-              : shopRoutes.catalog;
+        collection === 'catalogo' ? shopRoutes.newIn : shopRoutes.catalog;
     const secondaryLabel =
-        collection === 'catalogo'
-            ? 'Ver novedades'
-            : collection === 'novedades'
-              ? 'Ver colecciones'
-              : 'Ver catálogo';
+        collection === 'catalogo' ? 'Ver novedades' : 'Ver catálogo';
     const gridClass =
         viewMode === 'compacta'
             ? 'grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-4'
@@ -160,7 +152,7 @@ export default function Collection({
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/10 to-transparent" />
                                 <div className="absolute bottom-0 left-0 right-0 p-5">
                                     <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-200">
-                                        Sigue el recorrido
+                                        También puedes ver
                                     </p>
                                     <Link
                                         href={secondaryHref}
@@ -228,14 +220,14 @@ export default function Collection({
                                         No encontramos esa combinación.
                                     </p>
                                     <p className="mt-4 text-sm text-stone-300">
-                                        Limpia los filtros y vuelve a mirar la edición completa.
+                                        Limpia los filtros para ver más productos disponibles.
                                     </p>
                                     <button
                                         type="button"
                                         onClick={() => setFilters(createDefaultFilters())}
                                         className={`${secondaryButtonClass} mt-6`}
                                     >
-                                        Ver toda la categoría
+                                        Limpiar filtros
                                     </button>
                                 </div>
                             )}

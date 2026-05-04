@@ -179,8 +179,8 @@ export default function Register() {
             <Head title="Registrarse" />
 
             <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-[#f8fafc] mb-2" style={{ fontFamily: '"Playfair Display", serif', letterSpacing: '0.05em' }}>Crea tu cuenta</h2>
-                <p className="text-sm text-[#94a3b8]">Únete para disfrutar de la experiencia completa.</p>
+                <h2 className="mb-2 text-2xl font-bold text-[#f8fafc]" style={{ fontFamily: '"Playfair Display", serif', letterSpacing: '0.05em' }}>Crea tu cuenta MORE</h2>
+                <p className="text-sm text-[#94a3b8]">Guarda favoritos, revisa reservas y compra con más facilidad.</p>
             </div>
 
             <form onSubmit={submit} className="flex flex-col gap-5" noValidate>
@@ -238,7 +238,7 @@ export default function Register() {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="tel_usu" value="Teléfono Celular" />
+                    <InputLabel htmlFor="tel_usu" value="Teléfono celular" />
                     <TextInput
                         id="tel_usu"
                         name="tel_usu"
@@ -436,7 +436,7 @@ export default function Register() {
                     </Link>
 
                     <PrimaryButton className="w-full sm:w-auto" disabled={processing}>
-                        Registrarse
+                        Crear cuenta
                     </PrimaryButton>
                 </div>
             </form>

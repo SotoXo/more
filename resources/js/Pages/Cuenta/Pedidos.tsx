@@ -11,8 +11,8 @@ const serifStyle = {
 const estadoStyle: Record<string, string> = {
     completada: 'border-emerald-500/20 bg-emerald-500/8 text-emerald-300',
     registrada: 'border-white/10 bg-white/[0.04] text-stone-300',
-    cancelada:  'border-red-900/30 bg-red-900/10 text-red-300',
-    pendiente:  'border-amber-500/20 bg-amber-500/8 text-amber-200',
+    cancelada: 'border-red-900/30 bg-red-900/10 text-red-300',
+    pendiente: 'border-amber-500/20 bg-amber-500/8 text-amber-200',
 };
 
 function PedidoCard({ pedido }: { pedido: Pedido }) {
@@ -96,7 +96,7 @@ export default function Pedidos({ pedidos }: { pedidos: Pedido[] }) {
         <StoreLayout title="MORE | Mis Pedidos">
             <section className="px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-5xl">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <p className="text-[0.68rem] uppercase tracking-[0.28em] text-stone-400">
                                 Mi cuenta
@@ -112,7 +112,7 @@ export default function Pedidos({ pedidos }: { pedidos: Pedido[] }) {
                             href="/cuenta"
                             className="text-[0.7rem] uppercase tracking-[0.2em] text-stone-400 transition hover:text-white"
                         >
-                            ← Volver
+                            Volver a mi cuenta
                         </Link>
                     </div>
 
@@ -122,11 +122,14 @@ export default function Pedidos({ pedidos }: { pedidos: Pedido[] }) {
                             <p className="mt-6 text-3xl text-white" style={serifStyle}>
                                 Aún no tienes pedidos.
                             </p>
+                            <p className="mt-3 text-sm text-stone-400">
+                                Cuando finalices una compra, la verás en este espacio.
+                            </p>
                             <Link
-                                href={shopRoutes.newIn}
+                                href={shopRoutes.catalog}
                                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950"
                             >
-                                Explorar novedades
+                                Explorar catálogo
                             </Link>
                         </div>
                     ) : (

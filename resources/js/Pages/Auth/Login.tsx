@@ -116,10 +116,10 @@ export default function Login({
 
             <div className="mb-8 text-center">
                 <h2 className="mb-2 text-2xl font-bold text-[#f8fafc]">
-                    Bienvenido de vuelta
+                    Ingresa a tu cuenta MORE
                 </h2>
                 <p className="text-sm text-[#94a3b8]">
-                    Ingresa con tu correo y contraseña para continuar.
+                    Accede para revisar favoritos, reservas y tu bolsa.
                 </p>
             </div>
 

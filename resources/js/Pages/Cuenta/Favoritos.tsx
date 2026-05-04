@@ -17,7 +17,7 @@ export default function Favoritos({ products }: { products: ShopProduct[] }) {
         <StoreLayout title="MORE | Mis Favoritos">
             <section className="px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <p className="text-[0.68rem] uppercase tracking-[0.28em] text-stone-400">
                                 Mi cuenta
@@ -38,7 +38,7 @@ export default function Favoritos({ products }: { products: ShopProduct[] }) {
                             href="/cuenta"
                             className="text-[0.7rem] uppercase tracking-[0.2em] text-stone-400 transition hover:text-white"
                         >
-                            ← Volver
+                            Volver a mi cuenta
                         </Link>
                     </div>
 
@@ -49,13 +49,13 @@ export default function Favoritos({ products }: { products: ShopProduct[] }) {
                                 Tu lista está vacía.
                             </p>
                             <p className="mt-3 text-sm text-stone-400">
-                                Guarda piezas que te interesen mientras exploras.
+                                Guarda prendas que te interesen y vuelve a revisarlas cuando quieras.
                             </p>
                             <Link
-                                href={shopRoutes.newIn}
+                                href={shopRoutes.catalog}
                                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition hover:-translate-y-px hover:bg-stone-200"
                             >
-                                Explorar novedades
+                                Explorar catálogo
                             </Link>
                         </div>
                     ) : (

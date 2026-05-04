@@ -21,18 +21,18 @@ export default function ForgotPassword({ status }: { status?: string }) {
         <GuestLayout>
             <Head title="Recuperar contraseña" />
 
-            <div className="mb-4 text-sm text-gray-600">
+            <div className="mb-6 text-sm leading-6 text-stone-300">
                 Ingresa tu correo electrónico y te enviaremos un enlace para
                 restablecer tu contraseña.
             </div>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mb-4 rounded-md border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm font-medium text-emerald-300">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="space-y-5">
                 <InputLabel htmlFor="email" value="Correo electrónico" />
                 <TextInput
                     id="email"
@@ -45,10 +45,10 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     onChange={(e) => setData('email', e.target.value.trim().toLowerCase())}
                 />
 
-                <InputError message={errors.email} className="mt-2" />
+                <InputError message={errors.email} className="mt-2 text-[#ef4444]" />
 
-                <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                <div className="flex items-center justify-end">
+                    <PrimaryButton disabled={processing}>
                         Enviar enlace
                     </PrimaryButton>
                 </div>

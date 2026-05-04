@@ -16,7 +16,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 const iconButtonClass =
-    'more-icon-button inline-flex h-10 w-10 items-center justify-center text-stone-100';
+    'more-icon-button inline-flex h-9 w-9 items-center justify-center text-stone-100';
 
 const dropdownLinkClass =
     'flex items-center gap-3 rounded-[1rem] px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-200 transition hover:bg-[rgba(181,122,109,0.12)] hover:text-white';
@@ -127,13 +127,13 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
 
     return (
         <>
-            <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
+            <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: -12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                     className={[
-                        'mx-auto flex max-w-7xl items-center justify-between rounded-full border px-4 py-3 transition-all duration-500 sm:px-6',
+                        'mx-auto flex max-w-7xl items-center justify-between rounded-full border px-4 py-2 transition-all duration-500 sm:px-5',
                         isScrolled || isOpen
                             ? 'border-[rgba(181,122,109,0.28)] bg-[#05070a]/92 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl'
                             : 'border-white/10 bg-[#05070a]/68 backdrop-blur-xl',
@@ -141,10 +141,10 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                 >
                     <Link href="/" className="flex items-center gap-4">
                         <div className="leading-none">
-                            <span className="block text-sm font-semibold uppercase tracking-[0.42em] text-white">
+                            <span className="block text-[0.78rem] font-semibold uppercase tracking-[0.42em] text-white">
                                 MORE
                             </span>
-                            <div className="mt-1 hidden items-center gap-2 sm:flex">
+                            <div className="mt-0.5 hidden items-center gap-2 sm:flex">
                                 <span className="h-px w-6 bg-[linear-gradient(90deg,rgba(223,184,166,0.9),transparent)]" />
                                 <span className="text-[0.6rem] uppercase tracking-[0.28em] text-stone-400">
                                     Mati Boutique
@@ -153,7 +153,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                         </div>
                     </Link>
 
-                    <nav className="hidden items-center gap-7 lg:flex">
+                    <nav className="hidden items-center gap-6 lg:flex">
                         {shopNavigationItems.map((item) => {
                             const active = currentPath === item.href;
 
@@ -162,7 +162,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                     key={item.label}
                                     href={item.href}
                                     className={[
-                                        'relative text-[0.72rem] uppercase tracking-[0.24em] transition duration-300 after:absolute after:left-0 after:top-full after:mt-1 after:h-px after:w-full after:origin-left after:transition-all',
+                                        'relative text-[0.68rem] uppercase tracking-[0.22em] transition duration-300 after:absolute after:left-0 after:top-full after:mt-1 after:h-px after:w-full after:origin-left after:transition-all',
                                         active
                                             ? 'text-white after:scale-x-100 after:bg-[linear-gradient(90deg,rgba(223,184,166,0.96),rgba(181,122,109,0.28))]'
                                             : 'text-stone-200 after:scale-x-[0.25] after:bg-[linear-gradient(90deg,rgba(223,184,166,0.82),transparent)] hover:text-white hover:after:scale-x-100',
@@ -208,7 +208,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                 <button
                                     type="button"
                                     onClick={() => setAccountOpen((value) => !value)}
-                                    className="inline-flex items-center gap-2 rounded-full border border-[rgba(181,122,109,0.22)] bg-[rgba(181,122,109,0.1)] px-4 py-2 text-[0.7rem] uppercase tracking-[0.22em] text-stone-100"
+                                    className="inline-flex items-center gap-2 rounded-full border border-[rgba(181,122,109,0.22)] bg-[rgba(181,122,109,0.1)] px-3.5 py-1.5 text-[0.68rem] uppercase tracking-[0.2em] text-stone-100"
                                 >
                                     {user.nom_usu}
                                     <ChevronDown
@@ -229,13 +229,13 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             <>
                                 <Link
                                     href="/login"
-                                    className="ml-1 text-[0.72rem] uppercase tracking-[0.24em] text-stone-200 transition hover:text-white"
+                                    className="ml-1 text-[0.68rem] uppercase tracking-[0.22em] text-stone-200 transition hover:text-white"
                                 >
                                     Iniciar sesión
                                 </Link>
                                 <Link
                                     href="/register"
-                                    className="more-cta-secondary px-4 py-2 text-[0.72rem] uppercase tracking-[0.24em]"
+                                    className="more-cta-secondary px-3.5 py-1.5 text-[0.68rem] uppercase tracking-[0.22em]"
                                 >
                                     Crear cuenta
                                 </Link>
@@ -248,7 +248,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                         aria-label="Abrir menú"
                         aria-expanded={isOpen}
                         onClick={() => setIsOpen((value) => !value)}
-                        className="more-icon-button inline-flex h-10 w-10 items-center justify-center text-white lg:hidden"
+                        className="more-icon-button inline-flex h-9 w-9 items-center justify-center text-white lg:hidden"
                     >
                         {isOpen ? <X size={18} /> : <Menu size={18} />}
                     </button>

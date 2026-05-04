@@ -114,7 +114,7 @@ export default function ShopFiltersPanel({
                         Refinar catálogo
                     </h3>
                     <p className="mt-3 max-w-xs text-sm leading-6 text-stone-300">
-                        Encuentra prendas por categoría, talla, color y temporada.
+                        Encuentra prendas por categoría, talla, color, marca o estilo.
                     </p>
                 </div>
 
@@ -163,7 +163,7 @@ export default function ShopFiltersPanel({
                 />
                 <div className="more-divider" />
                 <FilterGroup
-                    title="Temporada"
+                    title="Estilo"
                     items={options.styles}
                     selectedValues={filters.styles}
                     onToggle={(value) => onToggle('styles', value)}

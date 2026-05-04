@@ -24,7 +24,7 @@ function CartItemRow({
     onRemove: (varianteId: number) => void;
 }) {
     return (
-        <div className="flex gap-5 rounded-[1.8rem] border border-white/8 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-4 rounded-[1.8rem] border border-white/8 bg-white/[0.03] p-5 sm:flex-row sm:gap-5">
             <Link href={shopRoutes.product(String(item.prenda_id))} className="shrink-0">
                 {item.imagen ? (
                     <img
@@ -139,18 +139,17 @@ export default function Carrito({ items, subtotal }: CarritoProps) {
                                 Tu bolsa está vacía.
                             </p>
                             <p className="mt-3 text-sm text-stone-400">
-                                Explora la selección y encuentra tu próxima pieza.
+                                Explora el catálogo y agrega tus prendas favoritas.
                             </p>
                             <Link
-                                href={shopRoutes.newIn}
+                                href={shopRoutes.catalog}
                                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition hover:-translate-y-px hover:bg-stone-200"
                             >
-                                Ver novedades
+                                Explorar catálogo
                             </Link>
                         </div>
                     ) : (
                         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_360px]">
-                            {/* Items */}
                             <div className="space-y-4">
                                 {cartItems.map((item) => (
                                     <CartItemRow
@@ -162,7 +161,6 @@ export default function Carrito({ items, subtotal }: CarritoProps) {
                                 ))}
                             </div>
 
-                            {/* Summary */}
                             <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-7 lg:self-start lg:sticky lg:top-28">
                                 <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-400">
                                     Resumen
@@ -175,7 +173,7 @@ export default function Carrito({ items, subtotal }: CarritoProps) {
                                     </div>
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-stone-300">Envío</span>
-                                        <span className="text-stone-400">Calculado al checkout</span>
+                                        <span className="text-stone-400">Se confirma al finalizar</span>
                                     </div>
                                 </div>
 
@@ -194,14 +192,14 @@ export default function Carrito({ items, subtotal }: CarritoProps) {
                                     type="button"
                                     className="mt-8 w-full rounded-full bg-white py-4 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition hover:-translate-y-px hover:bg-stone-200"
                                 >
-                                    Proceder al checkout
+                                    Finalizar compra
                                 </button>
 
                                 <Link
-                                    href={shopRoutes.newIn}
+                                    href={shopRoutes.catalog}
                                     className="mt-3 block text-center text-[0.7rem] uppercase tracking-[0.2em] text-stone-400 transition hover:text-white"
                                 >
-                                    Continuar explorando
+                                    Seguir comprando
                                 </Link>
                             </div>
                         </div>

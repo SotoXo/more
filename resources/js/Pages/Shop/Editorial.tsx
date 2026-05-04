@@ -50,30 +50,30 @@ export default function Editorial({
 
     const pageCopy = isCollections
         ? {
-            title: 'MORE | Colecciones',
-            heroEyebrow: 'Selección Mati Boutique',
-            heroTitle: 'Colecciones para recorrer la tienda con intención.',
+            title: 'MORE | Guía de compra',
+            heroEyebrow: 'Guía de compra',
+            heroTitle: 'Encuentra prendas por estilo y categoría.',
             heroDescription:
-                'Una navegación curada, construida a partir de categorías y prendas presentes en la boutique.',
-            summaryEyebrow: 'Ruta curada',
-            summaryTitle: 'Entradas claras para moverse entre producto, estilo y ocasión.',
-            featuresEyebrow: 'Recorrer la tienda',
-            featuresTitle: 'Capítulos abiertos',
+                'Accesos rápidos para explorar la tienda según lo que necesitas comprar.',
+            summaryEyebrow: 'Compra más fácil',
+            summaryTitle: 'Elige una ruta y entra directo al catálogo.',
+            featuresEyebrow: 'Comprar por categoría',
+            featuresTitle: 'Entradas al catálogo',
             featuresDescription:
-                'Categorías activas para entrar directo en la parte del catálogo que más te interesa.',
+                'Categorías activas para ver prendas disponibles sin perder tiempo.',
         }
         : {
             title: 'MORE | Editorial Mati Boutique',
-            heroEyebrow: 'Cuaderno MORE',
-            heroTitle: 'Editorial Mati Boutique.',
+            heroEyebrow: 'Inspiración MORE',
+            heroTitle: 'Ideas para elegir mejor.',
             heroDescription:
-                'Una lectura más narrativa de la boutique, apoyada por temporadas, firmas y prendas de la selección.',
-            summaryEyebrow: 'Notas editoriales',
-            summaryTitle: 'Piezas, firmas y temporadas que sostienen la atmósfera actual.',
-            featuresEyebrow: 'Escenas de temporada',
-            featuresTitle: 'Lecturas desde la colección',
+                'Una guía visual con prendas, marcas y categorías disponibles en la tienda.',
+            summaryEyebrow: 'Selección actual',
+            summaryTitle: 'Prendas y categorías para descubrir nuevas combinaciones.',
+            featuresEyebrow: 'Ideas de compra',
+            featuresTitle: 'Explora por estilo',
             featuresDescription:
-                'Una entrada visual hacia la tienda desde ediciones que hoy marcan el tono de la selección.',
+                'Accesos visuales para seguir comprando dentro del catálogo.',
         };
 
     return (
@@ -89,7 +89,7 @@ export default function Editorial({
                         <div className="relative overflow-hidden rounded-[2.2rem] border border-white/10">
                             <img
                                 src={heroImage}
-                                alt={isCollections ? 'Colecciones' : 'Editorial'}
+                                alt={isCollections ? 'Guía de compra' : 'Inspiración MORE'}
                                 className="h-[420px] w-full object-cover sm:h-[520px]"
                             />
                             <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/28 to-transparent" />
@@ -246,16 +246,18 @@ export default function Editorial({
                 </section>
             )}
 
-            <section className="pt-16">
-                <div className={sectionShell}>
-                    <ProductRail
-                        eyebrow={railContent.eyebrow}
-                        title={railContent.title}
-                        description={railContent.description}
-                        products={railProducts}
-                    />
-                </div>
-            </section>
+            {railProducts.length > 0 && (
+                <section className="pt-16">
+                    <div className={sectionShell}>
+                        <ProductRail
+                            eyebrow={railContent.eyebrow}
+                            title={railContent.title}
+                            description={railContent.description}
+                            products={railProducts}
+                        />
+                    </div>
+                </section>
+            )}
 
             <section className="pt-16">
                 <div className={sectionShell}>
@@ -270,8 +272,8 @@ export default function Editorial({
                                     style={serifStyle}
                                 >
                                     {isCollections
-                                        ? 'De la navegación al detalle.'
-                                        : 'De la atmósfera a la compra.'}
+                                        ? 'Del estilo al producto.'
+                                        : 'De la inspiración a la compra.'}
                                 </p>
                             </div>
                             <Link

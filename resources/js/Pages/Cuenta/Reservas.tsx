@@ -9,10 +9,10 @@ const serifStyle = {
 };
 
 const estadoStyle: Record<string, string> = {
-    activa:     'border-sky-400/20 bg-sky-400/8 text-sky-300',
+    activa: 'border-sky-400/20 bg-sky-400/8 text-sky-300',
     completada: 'border-emerald-500/20 bg-emerald-500/8 text-emerald-300',
-    cancelada:  'border-red-900/30 bg-red-900/10 text-red-300',
-    vencida:    'border-white/10 bg-white/[0.04] text-stone-400',
+    cancelada: 'border-red-900/30 bg-red-900/10 text-red-300',
+    vencida: 'border-white/10 bg-white/[0.04] text-stone-400',
 };
 
 function ReservaCard({ reserva }: { reserva: Reserva }) {
@@ -89,7 +89,7 @@ export default function Reservas({ reservas }: { reservas: Reserva[] }) {
         <StoreLayout title="MORE | Mis Reservas">
             <section className="px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-5xl">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <p className="text-[0.68rem] uppercase tracking-[0.28em] text-stone-400">
                                 Mi cuenta
@@ -105,7 +105,7 @@ export default function Reservas({ reservas }: { reservas: Reserva[] }) {
                             href="/cuenta"
                             className="text-[0.7rem] uppercase tracking-[0.2em] text-stone-400 transition hover:text-white"
                         >
-                            ← Volver
+                            Volver a mi cuenta
                         </Link>
                     </div>
 
@@ -115,11 +115,14 @@ export default function Reservas({ reservas }: { reservas: Reserva[] }) {
                             <p className="mt-6 text-3xl text-white" style={serifStyle}>
                                 No tienes reservas activas.
                             </p>
+                            <p className="mt-3 text-sm text-stone-400">
+                                Reserva una prenda desde su detalle para verla aquí.
+                            </p>
                             <Link
-                                href={shopRoutes.newIn}
+                                href={shopRoutes.catalog}
                                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950"
                             >
-                                Explorar novedades
+                                Explorar catálogo
                             </Link>
                         </div>
                     ) : (
