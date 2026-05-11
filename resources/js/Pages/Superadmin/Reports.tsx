@@ -39,15 +39,15 @@ export default function Reports({
     emptyState,
 }: ReportsProps) {
     return (
-        <SuperadminLayout title="MORE | Reportes">
+        <SuperadminLayout title="Mati Boutique | Reportes operativos">
             <div className="space-y-8">
                 <SuperadminPageHeader
                     eyebrow="Reportes"
-                    title="Reportes de consulta"
-                    description="Consulta variantes, precio y existencias con filtros operativos."
+                    title="Reportes operativos"
+                    description="Cruza variantes, precios y existencias con filtros para revisión administrativa."
                     breadcrumbs={[
-                        { label: 'Superadmin', href: '/superadmin' },
-                        { label: 'Reportes' },
+                        { label: 'Panel administrativo', href: '/superadmin' },
+                        { label: 'Reportes operativos' },
                     ]}
                     actions={[{ label: 'Volver al panel', href: '/superadmin', kind: 'ghost' }]}
                 />
@@ -56,7 +56,7 @@ export default function Reports({
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <SuperadminBadge tone="accent">Solo lectura</SuperadminBadge>
                         <p className="max-w-3xl text-sm leading-6 text-stone-300">
-                            Esta pantalla permite filtrar e inspeccionar resultados; no crea ni edita registros.
+                            Esta pantalla permite filtrar e inspeccionar resultados consolidados; no crea ni edita registros.
                         </p>
                     </div>
                 </section>

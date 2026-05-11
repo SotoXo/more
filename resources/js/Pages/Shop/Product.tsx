@@ -179,22 +179,22 @@ export default function Product({
                 variante_id: selectedVariant.id,
                 cantidad: 1,
             });
-            setStatusMessage('Producto agregado a la bolsa.');
+            setStatusMessage('Prenda agregada a tus reservas.');
         } catch (error) {
             console.error('No se pudo agregar al carrito.', error);
-            setStatusMessage('No pudimos agregar este producto a la bolsa. Intenta de nuevo.');
+            setStatusMessage('No pudimos reservar esta prenda. Intenta de nuevo.');
         } finally {
             setAddToCartPending(false);
         }
     }
 
     return (
-        <StoreLayout title={`MORE | ${product.name}`}>
-            <section className="px-4 sm:px-6 lg:px-8">
-                <div className={`${sectionShell} px-0`}>
-                    <div className="flex flex-wrap items-center gap-3 text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
+        <StoreLayout title={`Mati Boutique | ${product.name}`}>
+            <section className="px-3 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl">
+                    <div className="flex max-w-full flex-wrap items-center gap-3 break-words text-[0.66rem] uppercase tracking-[0.18em] text-stone-400 sm:text-[0.68rem] sm:tracking-[0.22em]">
                         <Link href={shopRoutes.home} className="transition hover:text-white">
-                            MORE
+                            Mati Boutique
                         </Link>
                         <span>/</span>
                         <Link href={departmentHref} className="transition hover:text-white">
@@ -213,12 +213,12 @@ export default function Product({
                         <ProductGallery product={product} />
 
                         <div className="lg:sticky lg:top-28">
-                            <div className="more-panel rounded-[2.2rem] p-6 sm:p-8">
+                            <div className="more-panel rounded-[1.45rem] p-5 sm:rounded-[2.2rem] sm:p-8">
                                 <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-500">
                                     {headingMeta}
                                 </p>
                                 <div className="mt-4 flex items-start justify-between gap-4">
-                                    <div>
+                                    <div className="min-w-0">
                                         <p className="text-[0.72rem] uppercase tracking-[0.24em] text-[rgb(223,184,166)]">
                                             Selección Mati Boutique
                                         </p>
@@ -228,7 +228,7 @@ export default function Product({
                                         >
                                             {product.name}
                                         </h1>
-                                        <p className="mt-4 max-w-lg text-sm leading-7 text-stone-300">
+                                        <p className="mt-4 max-w-[22rem] text-sm leading-7 text-stone-300 sm:max-w-lg">
                                             {product.description}
                                         </p>
                                     </div>
@@ -359,16 +359,16 @@ export default function Product({
                                             selectedVariant.stock <= 0 ||
                                             addToCartPending
                                         }
-                                        className={primaryButtonClass}
+                                        className={`${primaryButtonClass} w-full sm:w-auto`}
                                     >
                                         <ShoppingBag size={15} />
-                                        Agregar a la bolsa
+                                        Reservar prenda
                                     </button>
                                     <Link
                                         href="/bolsa"
-                                        className={secondaryButtonClass}
+                                        className={`${secondaryButtonClass} w-full sm:w-auto`}
                                     >
-                                        Ver bolsa
+                                        Ver reservas
                                     </Link>
                                 </div>
                             </div>

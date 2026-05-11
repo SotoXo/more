@@ -138,7 +138,7 @@ class CatalogoController extends Controller
             ? [
                 'eyebrow' => 'Ahora en tienda',
                 'title' => 'Piezas para empezar el recorrido',
-                'description' => 'Una selección de la boutique para pasar de la exploración a la compra.',
+                'description' => 'Una selección de Mati Boutique para revisar disponibilidad y reservar.',
             ]
             : [
                 'eyebrow' => 'Selección Mati Boutique',

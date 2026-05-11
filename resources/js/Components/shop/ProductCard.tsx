@@ -1,9 +1,10 @@
 import { formatPrice, shopRoutes } from '@/lib/shop';
+import StorefrontImage from '@/Components/shop/StorefrontImage';
 import type { ShopProduct } from '@/types/shop';
 import type { LandingPageProps } from '@/types/landing';
 import axios from 'axios';
 import { Link, router, usePage } from '@inertiajs/react';
-import { CalendarCheck, Eye, Heart, ShoppingBag } from 'lucide-react';
+import { CalendarCheck, Eye, Heart } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type ProductCardProps = {
@@ -80,26 +81,20 @@ export default function ProductCard({
         <article className="group relative">
             <div className="relative overflow-hidden rounded-[1.65rem] border border-white/10 bg-[#070a0f] shadow-[0_24px_70px_rgba(0,0,0,0.32)]">
                 <Link href={shopRoutes.product(product.slug)} className="block">
-                    {product.image ? (
-                        <div className={`${imageClassName} relative w-full overflow-hidden bg-[#0b0f14]`}>
-                            <img
-                                src={product.image}
+                    <div className={`${imageClassName} relative w-full overflow-hidden bg-[#0b0f14]`}>
+                        <StorefrontImage
+                            src={product.image}
+                            alt={product.name}
+                            className="h-full w-full object-cover transition duration-[900ms] group-hover:scale-[1.035]"
+                        />
+                        {hoverImage && (
+                            <StorefrontImage
+                                src={hoverImage}
                                 alt={product.name}
-                                className="h-full w-full object-cover transition duration-[900ms] group-hover:scale-[1.035]"
+                                className="absolute inset-0 h-full w-full object-cover opacity-0 transition duration-[900ms] group-hover:scale-[1.035] group-hover:opacity-100"
                             />
-                            {hoverImage && (
-                                <img
-                                    src={hoverImage}
-                                    alt={product.name}
-                                    className="absolute inset-0 h-full w-full object-cover opacity-0 transition duration-[900ms] group-hover:scale-[1.035] group-hover:opacity-100"
-                                />
-                            )}
-                        </div>
-                    ) : (
-                        <div className={`${imageClassName} flex w-full items-center justify-center bg-[#0b0f14]`}>
-                            <ShoppingBag size={26} className="text-stone-600" />
-                        </div>
-                    )}
+                        )}
+                    </div>
                     <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/58 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/72 via-black/18 to-transparent opacity-80 transition group-hover:opacity-100" />
                 </Link>
@@ -130,9 +125,9 @@ export default function ProductCard({
                     aria-label={
                         isFavorite
                             ? `Quitar ${product.name} de favoritos`
-                            : `Añadir ${product.name} a favoritos`
+                            : `Agregar ${product.name} a favoritos`
                     }
-                    title={isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                    title={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                     disabled={isUpdatingFavorite}
                     className="more-icon-button absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center backdrop-blur"
                 >
@@ -156,7 +151,7 @@ export default function ProductCard({
                             className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[rgba(223,184,166,0.34)] bg-[rgba(223,184,166,0.92)] px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.18em] text-[#170f11] backdrop-blur transition hover:bg-white"
                         >
                             <CalendarCheck size={14} />
-                            Reservar
+                            Reservar prenda
                         </Link>
                     )}
                 </div>
@@ -170,7 +165,7 @@ export default function ProductCard({
                         </p>
                         <Link
                             href={shopRoutes.product(product.slug)}
-                            className="mt-1.5 block text-2xl leading-none text-white transition hover:text-stone-200"
+                            className="mt-1.5 block break-words text-2xl leading-none text-white transition hover:text-stone-200"
                             style={{
                                 fontFamily:
                                     '"Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif',

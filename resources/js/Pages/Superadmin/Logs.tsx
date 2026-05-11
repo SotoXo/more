@@ -15,15 +15,15 @@ export default function Logs({
     entries,
 }: LogsProps) {
     return (
-        <SuperadminLayout title="MORE | Bitácora">
+        <SuperadminLayout title="Mati Boutique | Registro de actividad">
             <div className="space-y-8">
                 <SuperadminPageHeader
-                    eyebrow="Bitácora"
-                    title="Bitácora"
-                    description="Consulta de movimientos recientes del sistema."
+                    eyebrow="Actividad"
+                    title="Registro de actividad"
+                    description="Movimientos recientes de usuarios, prendas, ventas y reservas."
                     breadcrumbs={[
-                        { label: 'Superadmin', href: '/superadmin' },
-                        { label: 'Bitácora' },
+                        { label: 'Panel administrativo', href: '/superadmin' },
+                        { label: 'Registro de actividad' },
                     ]}
                     actions={[
                         { label: 'Volver al panel', href: '/superadmin', kind: 'ghost' },
@@ -34,7 +34,7 @@ export default function Logs({
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <SuperadminBadge tone="accent">Solo lectura</SuperadminBadge>
                         <p className="max-w-3xl text-sm leading-6 text-stone-300">
-                            Esta vista reúne eventos recientes; no es todavía una auditoría transaccional completa.
+                            Esta vista reúne actividad reciente para seguimiento administrativo; no reemplaza una auditoría transaccional completa.
                         </p>
                     </div>
                 </section>
@@ -47,7 +47,7 @@ export default function Logs({
 
                 <section className="sa-panel rounded-[1.6rem] p-5">
                     <p className="text-[0.72rem] uppercase tracking-[0.18em] text-stone-300">
-                        Secuencia reciente
+                        Actividad reciente
                     </p>
 
                     <div className="mt-5 space-y-3">

@@ -1,6 +1,7 @@
 import SectionHeading from '@/Components/landing/SectionHeading';
 import ProductRail from '@/Components/shop/ProductRail';
 import StoreLayout from '@/Components/shop/StoreLayout';
+import StorefrontImage from '@/Components/shop/StorefrontImage';
 import { shopRoutes } from '@/lib/shop';
 import type {
     ShopCuratedFeature,
@@ -50,36 +51,36 @@ export default function Editorial({
 
     const pageCopy = isCollections
         ? {
-            title: 'MORE | Guía de compra',
-            heroEyebrow: 'Guía de compra',
+            title: 'Mati Boutique | Colecciones',
+            heroEyebrow: 'Colecciones',
             heroTitle: 'Encuentra prendas por estilo y categoría.',
             heroDescription:
-                'Accesos rápidos para explorar la tienda según lo que necesitas comprar.',
-            summaryEyebrow: 'Compra más fácil',
+                'Accesos rápidos para revisar disponibilidad y reservar por categoría.',
+            summaryEyebrow: 'Reserva más fácil',
             summaryTitle: 'Elige una ruta y entra directo al catálogo.',
-            featuresEyebrow: 'Comprar por categoría',
+            featuresEyebrow: 'Colecciones por categoría',
             featuresTitle: 'Entradas al catálogo',
             featuresDescription:
                 'Categorías activas para ver prendas disponibles sin perder tiempo.',
         }
         : {
-            title: 'MORE | Editorial Mati Boutique',
-            heroEyebrow: 'Inspiración MORE',
-            heroTitle: 'Ideas para elegir mejor.',
+            title: 'Mati Boutique | Editorial',
+            heroEyebrow: 'Editorial',
+            heroTitle: 'Prendas seleccionadas por estilo.',
             heroDescription:
-                'Una guía visual con prendas, marcas y categorías disponibles en la tienda.',
+                'Una selección visual con prendas, marcas y categorías disponibles para reservar.',
             summaryEyebrow: 'Selección actual',
-            summaryTitle: 'Prendas y categorías para descubrir nuevas combinaciones.',
-            featuresEyebrow: 'Ideas de compra',
-            featuresTitle: 'Explora por estilo',
+            summaryTitle: 'Prendas y categorías para armar nuevos looks.',
+            featuresEyebrow: 'Rutas de reserva',
+            featuresTitle: 'Revisa por estilo',
             featuresDescription:
-                'Accesos visuales para seguir comprando dentro del catálogo.',
+                'Accesos visuales para seguir dentro del catálogo.',
         };
 
     return (
         <StoreLayout title={pageCopy.title}>
-            <section className="px-4 sm:px-6 lg:px-8">
-                <div className={`${sectionShell} px-0`}>
+            <section className="px-3 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl">
                     <motion.div
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -87,9 +88,9 @@ export default function Editorial({
                         className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]"
                     >
                         <div className="relative overflow-hidden rounded-[2.2rem] border border-white/10">
-                            <img
+                            <StorefrontImage
                                 src={heroImage}
-                                alt={isCollections ? 'Guía de compra' : 'Inspiración MORE'}
+                                alt={isCollections ? 'Colecciones' : 'Editorial Mati Boutique'}
                                 className="h-[420px] w-full object-cover sm:h-[520px]"
                             />
                             <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/28 to-transparent" />
@@ -100,7 +101,7 @@ export default function Editorial({
                                     {pageCopy.heroEyebrow}
                                 </p>
                                 <h1
-                                    className="mt-4 max-w-2xl text-5xl leading-[0.92] text-white sm:text-6xl"
+                                    className="mt-4 max-w-2xl break-words text-4xl leading-[0.96] text-white sm:text-6xl sm:leading-[0.92]"
                                     style={serifStyle}
                                 >
                                     {pageCopy.heroTitle}
@@ -186,7 +187,7 @@ export default function Editorial({
                                 href={feature.href}
                                 className="group relative overflow-hidden rounded-[2rem] border border-white/10"
                             >
-                                <img
+                                <StorefrontImage
                                     src={feature.image}
                                     alt={feature.title}
                                     className="h-[420px] w-full object-cover transition duration-[900ms] group-hover:scale-[1.03]"
@@ -223,9 +224,9 @@ export default function Editorial({
                                     href={moment.href}
                                     className="group more-panel-soft overflow-hidden rounded-[1.9rem]"
                                 >
-                                    <img
-                                        src={moment.image}
-                                        alt={moment.title}
+                                        <StorefrontImage
+                                            src={moment.image}
+                                            alt={moment.title}
                                         className="h-[300px] w-full object-cover transition duration-700 group-hover:scale-[1.03]"
                                     />
                                     <div className="p-5">
@@ -265,15 +266,15 @@ export default function Editorial({
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-400">
-                                    MORE por Mati Boutique
+                                    Mati Boutique
                                 </p>
                                 <p
                                     className="mt-3 text-3xl leading-none text-white"
                                     style={serifStyle}
                                 >
                                     {isCollections
-                                        ? 'Del estilo al producto.'
-                                        : 'De la inspiración a la compra.'}
+                                        ? 'Del estilo a la reserva.'
+                                        : 'De la inspiración al catálogo.'}
                                 </p>
                             </div>
                             <Link

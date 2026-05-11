@@ -19,12 +19,11 @@ export const shopRoutes = {
 } as const;
 
 export const shopNavigationItems = [
-    { label: 'Inicio', href: shopRoutes.home },
+    { label: 'Catálogo', href: shopRoutes.catalog },
     { label: 'Novedades', href: shopRoutes.newIn },
     { label: 'Mujer', href: shopRoutes.women },
     { label: 'Hombre', href: shopRoutes.men },
     { label: 'Accesorios', href: shopRoutes.accessories },
-    { label: 'Catálogo', href: shopRoutes.catalog },
 ] as const;
 
 export const sortOptions = [

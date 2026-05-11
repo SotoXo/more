@@ -2,9 +2,9 @@ import LandingFooter from '@/Components/landing/LandingFooter';
 import LandingHeader from '@/Components/landing/LandingHeader';
 import SectionHeading from '@/Components/landing/SectionHeading';
 import ProductCard from '@/Components/shop/ProductCard';
+import StorefrontImage from '@/Components/shop/StorefrontImage';
 import {
     homeCategoryVisuals,
-    homeCollectionCards,
     homeHeroSlides,
 } from '@/data/storefront';
 import { formatPrice, shopRoutes } from '@/lib/shop';
@@ -22,23 +22,14 @@ import {
     ArrowRight,
     ChevronLeft,
     ChevronRight,
-    Play,
-    ShoppingBag,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type HomeProps = {
     novedades: ShopProduct[];
     seleccion: ShopProduct[];
     categorias: HomeCategoryLink[];
     marcas: HomeBrandLink[];
-};
-
-type EditorialAccess = {
-    title: string;
-    label: string;
-    image: string;
-    href: string;
 };
 
 const reveal: Variants = {
@@ -103,17 +94,11 @@ function ProductSpotlight({ product }: { product: ShopProduct }) {
             className="group grid min-h-[480px] overflow-hidden rounded-[1.55rem] border border-white/10 bg-[#070a0f] shadow-[0_26px_82px_rgba(0,0,0,0.36)] lg:grid-cols-[0.96fr_1.04fr]"
         >
             <div className="relative min-h-[360px] overflow-hidden lg:min-h-full">
-                {product.image ? (
-                    <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-full w-full object-cover transition duration-[1000ms] group-hover:scale-[1.035]"
-                    />
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-[#0b0f14]">
-                        <ShoppingBag size={30} className="text-stone-600" />
-                    </div>
-                )}
+                <StorefrontImage
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-cover transition duration-[1000ms] group-hover:scale-[1.035]"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/8 to-transparent" />
                 <div className="absolute left-5 top-5 rounded-full border border-[rgba(223,184,166,0.28)] bg-black/40 px-4 py-2 text-[0.64rem] uppercase tracking-[0.22em] text-stone-100 backdrop-blur">
                     Nueva llegada
@@ -126,14 +111,14 @@ function ProductSpotlight({ product }: { product: ShopProduct }) {
                         {product.brand || product.category}
                     </p>
                     <h3
-                        className="mt-5 max-w-lg text-5xl leading-[0.92] text-white sm:text-6xl"
+                        className="mt-5 max-w-full break-words text-4xl leading-[0.96] text-white sm:max-w-lg sm:text-6xl sm:leading-[0.92]"
                         style={serifStyle}
                     >
                         {product.name}
                     </h3>
                     <p className="mt-5 max-w-md text-sm leading-7 text-stone-200/90">
                         {product.description ||
-                            'Prenda disponible en MORE. Revisa talla, color y precio antes de reservar.'}
+                            'Prenda disponible en Mati Boutique. Revisa talla, color y precio antes de reservar.'}
                     </p>
                 </div>
 
@@ -150,7 +135,7 @@ function ProductSpotlight({ product }: { product: ShopProduct }) {
                                 Estilo
                             </p>
                             <p className="mt-2 text-sm text-stone-100">
-                                {product.line || product.style || 'Selección MORE'}
+                                {product.line || product.style || 'Selección Mati Boutique'}
                             </p>
                         </div>
                         <div>
@@ -187,7 +172,7 @@ function EmptyCommercialState({
     return (
         <div className="more-panel-soft rounded-[1.65rem] px-6 py-12 text-center sm:px-10">
             <p className="text-[0.72rem] uppercase tracking-[0.28em] text-[rgb(236,205,191)]">
-                MORE
+                Mati Boutique
             </p>
             <h3
                 className="mx-auto mt-4 max-w-2xl text-4xl leading-none text-white sm:text-5xl"
@@ -216,14 +201,9 @@ export default function Home({
     const user = (page.props as unknown as LandingPageProps).auth?.user ?? null;
 
     const [coverIndex, setCoverIndex] = useState(0);
-    const [heroIndex, setHeroIndex] = useState(0);
     const [coverRef, coverApi] = useEmblaCarousel(
         { loop: true, align: 'start' },
         [Autoplay({ delay: 6100, stopOnInteraction: false })],
-    );
-    const [heroRef, heroApi] = useEmblaCarousel(
-        { loop: true, align: 'start' },
-        [Autoplay({ delay: 5200, stopOnInteraction: false })],
     );
 
     useEffect(() => {
@@ -243,38 +223,7 @@ export default function Home({
         };
     }, [coverApi]);
 
-    useEffect(() => {
-        if (!heroApi) {
-            return;
-        }
-
-        const syncIndex = () => setHeroIndex(heroApi.selectedScrollSnap());
-
-        syncIndex();
-        heroApi.on('select', syncIndex);
-        heroApi.on('reInit', syncIndex);
-
-        return () => {
-            heroApi.off('select', syncIndex);
-            heroApi.off('reInit', syncIndex);
-        };
-    }, [heroApi]);
-
-    const heroQuickLinks = useMemo<EditorialAccess[]>(
-        () => [
-            ...homeCollectionCards,
-            {
-                title: 'Guía de compra',
-                label: 'Compra por estilo',
-                href: shopRoutes.collections,
-                image: 'https://images.pexels.com/photos/6311387/pexels-photo-6311387.jpeg?auto=compress&cs=tinysrgb&w=1200',
-            },
-        ].slice(0, 3),
-        [],
-    );
-
     const activeCover = homeHeroSlides[coverIndex] ?? homeHeroSlides[0];
-    const activeHero = homeHeroSlides[heroIndex] ?? homeHeroSlides[0];
     const featuredArrival = novedades[0];
     const arrivalGrid = novedades.slice(1, 5);
     const featuredCategories = categorias.slice(0, 4);
@@ -300,7 +249,7 @@ export default function Home({
             className="more-store-bg relative min-h-screen overflow-x-hidden bg-[#030407] text-white"
             style={{ background: homeBackground }}
         >
-            <Head title="MORE | Mati Boutique" />
+            <Head title="Mati Boutique" />
 
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
                 <div className="absolute inset-x-0 top-0 h-[860px] bg-[linear-gradient(180deg,rgba(181,122,109,0.1),transparent_62%)]" />
@@ -310,7 +259,7 @@ export default function Home({
             <LandingHeader user={user} />
 
             <main className="pb-24" style={{ background: homeBackground }}>
-                <section className="relative min-h-[100svh] overflow-hidden">
+                <section className="relative min-h-[88svh] overflow-hidden lg:min-h-[100svh]">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -324,10 +273,10 @@ export default function Home({
                                         key={`cover-${slide.title}`}
                                         className="relative min-w-0 flex-[0_0_100%]"
                                     >
-                                        <img
+                                        <StorefrontImage
                                             src={slide.image}
                                             alt={slide.title}
-                                            className="h-[100svh] min-h-[620px] w-full object-cover"
+                                            className="h-[88svh] min-h-[560px] w-full object-cover lg:h-[100svh] lg:min-h-[620px]"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/56 to-black/16" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/84 via-black/18 to-black/18" />
@@ -338,39 +287,41 @@ export default function Home({
                         </div>
                     </motion.div>
 
-                    <div className="relative z-10 flex min-h-[100svh] items-center px-5 pb-24 pt-28 sm:px-8 sm:pt-32 lg:px-14">
+                    <div className="relative z-10 flex min-h-[88svh] items-center px-4 pb-20 pt-24 sm:px-8 sm:pt-32 lg:min-h-[100svh] lg:px-14">
                         <div className="mx-auto grid w-full max-w-[92rem] gap-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(280px,0.32fr)] lg:items-end">
                             <motion.div
                                 key={activeCover.title}
                                 initial={{ opacity: 0, y: 18 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.52, ease: [0.22, 1, 0.36, 1] }}
-                                className="max-w-[850px] py-10 sm:py-12"
+                                className="max-w-[850px] py-8 sm:py-12"
                             >
-                                <p className="text-[0.7rem] uppercase tracking-[0.32em] text-[rgb(236,205,191)] sm:text-[0.72rem]">
-                                    MORE / Mati Boutique
+                                <p className="max-w-full text-[0.66rem] uppercase tracking-[0.26em] text-[rgb(236,205,191)] sm:text-[0.72rem] sm:tracking-[0.32em]">
+                                    Mati Boutique
                                 </p>
                                 <h1
-                                    className="mt-5 max-w-[820px] text-[clamp(3.15rem,7.6vw,7.15rem)] leading-[0.94] text-white"
+                                    className="mt-5 max-w-[calc(100vw-2rem)] break-words text-[clamp(2.2rem,10.5vw,3.2rem)] leading-[1] text-white sm:max-w-[820px] sm:text-[clamp(3.2rem,7vw,7.15rem)] sm:leading-[0.94]"
                                     style={serifStyle}
                                 >
-                                    Moda seleccionada para vestir con estilo.
+                                    <span className="block">Prendas para</span>
+                                    <span className="block">reservar</span>
+                                    <span className="block">con estilo.</span>
                                 </h1>
-                                <p className="mt-6 max-w-[620px] text-base leading-8 text-stone-100 sm:text-lg">
+                                <p className="mt-6 max-w-[22rem] text-base leading-7 text-stone-100 sm:max-w-[620px] sm:text-lg sm:leading-8">
                                     {activeCover.subtitle}
                                 </p>
 
                                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                                     <Link
                                         href={shopRoutes.catalog}
-                                        className={primaryButtonClass}
+                                        className={`${primaryButtonClass} w-full sm:w-auto`}
                                     >
-                                        Explorar catálogo
+                                        Ver catálogo
                                         <ArrowRight size={16} />
                                     </Link>
                                     <Link
                                         href={shopRoutes.newIn}
-                                        className={secondaryButtonClass}
+                                        className={`${secondaryButtonClass} w-full sm:w-auto`}
                                     >
                                         Ver novedades
                                     </Link>
@@ -385,10 +336,10 @@ export default function Home({
                                     {activeCover.note}
                                 </p>
                                 <Link
-                                    href={shopRoutes.collections}
+                                    href={shopRoutes.catalog}
                                     className={`${editorialLinkClass} mt-7`}
                                 >
-                                    Ver guía de compra
+                                    Ver catálogo
                                     <ArrowRight size={14} />
                                 </Link>
                             </div>
@@ -470,9 +421,9 @@ export default function Home({
                             ) : (
                                 <EmptyCommercialState
                                     title="Próximamente nuevas prendas."
-                                    description="Cuando haya novedades activas, las verás aquí con la información necesaria para comprar."
+                                    description="Cuando haya novedades activas, las verás aquí con talla, color y disponibilidad."
                                     href={shopRoutes.catalog}
-                                    label="Explorar catálogo"
+                                    label="Ver catálogo"
                                 />
                             )}
                         </div>
@@ -484,7 +435,7 @@ export default function Home({
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                             <SectionHeading
                                 eyebrow="Categorías destacadas"
-                                title="Compra por categoría."
+                                title="Colecciones por categoría."
                                 description="Elige una categoría y entra directo a las prendas disponibles."
                             />
                             <Link href={shopRoutes.catalog} className={secondaryButtonClass}>
@@ -513,7 +464,7 @@ export default function Home({
                                                 href={categoria.href}
                                                 className="group relative block min-h-[300px] overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#070a0f] sm:min-h-[340px] lg:min-h-[360px]"
                                             >
-                                                <img
+                                                <StorefrontImage
                                                     src={visual.image}
                                                     alt={categoria.name}
                                                     className="h-full w-full object-cover transition duration-[900ms] group-hover:scale-[1.035]"
@@ -556,89 +507,12 @@ export default function Home({
 
                 <section className="pt-28">
                     <div className={sectionShell}>
-                        <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-                            <motion.div
-                                initial={{ opacity: 0, x: -22 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true, amount: 0.25 }}
-                                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                                className="relative min-h-[430px] overflow-hidden rounded-[1.55rem] border border-white/10 bg-[#070a0f]"
-                            >
-                                <img
-                                    src="https://images.pexels.com/photos/6311387/pexels-photo-6311387.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                    alt="Editorial Mati Boutique"
-                                    className="h-full w-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/84 via-black/14 to-transparent" />
-                                <div className="absolute bottom-0 left-0 right-0 p-7 sm:p-9">
-                                    <p className="text-[0.7rem] uppercase tracking-[0.28em] text-stone-200">
-                                        Selección MORE
-                                    </p>
-                                    <p
-                                        className="mt-4 max-w-lg text-4xl leading-none text-white sm:text-5xl"
-                                        style={serifStyle}
-                                    >
-                                        Prendas para armar looks completos.
-                                    </p>
-                                </div>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 24 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, amount: 0.3 }}
-                                transition={{ duration: 0.68, ease: [0.22, 1, 0.36, 1] }}
-                                className="lg:pl-8"
-                            >
-                                <SectionHeading
-                                    eyebrow="Guía de compra"
-                                    title="Encuentra piezas para cada ocasión."
-                                    description="Explora prendas y accesorios pensados para combinar entre sí y comprar con seguridad."
-                                />
-                                <div className="mt-9 grid gap-4 sm:grid-cols-3">
-                                    {['Para el día', 'Para la noche', 'Accesorios'].map((item) => (
-                                        <div
-                                            key={item}
-                                            className="border-t border-[rgba(223,184,166,0.24)] pt-4"
-                                        >
-                                            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-400">
-                                                {item}
-                                            </p>
-                                            <p className="mt-3 text-sm leading-7 text-stone-200">
-                                                Detalles que ayudan a elegir mejor cada prenda.
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                                    <Link
-                                        href={shopRoutes.collections}
-                                        className={primaryButtonClass}
-                                    >
-                                        Ver guía de compra
-                                        <ArrowRight size={15} />
-                                    </Link>
-                                    <Link
-                                        href={shopRoutes.editorial}
-                                        className={editorialLinkClass}
-                                    >
-                                        <Play size={14} />
-                                        Ver editorial
-                                    </Link>
-                                </div>
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="pt-28">
-                    <div className={sectionShell}>
                         <div className="grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
                             <div>
                                 <SectionHeading
                                     eyebrow="Marcas y destacados"
-                                    title="Explora la selección actual."
-                                    description="Accede a marcas disponibles y prendas destacadas para encontrar más rápido lo que buscas."
+                                    title="Prendas destacadas."
+                                    description="Accede a marcas disponibles y prendas recientes para encontrar más rápido lo que buscas."
                                 />
 
                                 {visibleBrands.length > 0 && (
@@ -659,7 +533,7 @@ export default function Home({
                                     href={shopRoutes.catalog}
                                     className={`${editorialLinkClass} mt-9`}
                                 >
-                                    Explorar selección completa
+                                    Ver selección completa
                                     <ArrowRight size={14} />
                                 </Link>
                             </div>
@@ -693,135 +567,12 @@ export default function Home({
                     </div>
                 </section>
 
-                <section className="pt-24">
-                    <div className={sectionShell}>
-                        <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                            <motion.div
-                                initial={{ opacity: 0, y: 18 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, amount: 0.35 }}
-                                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                className="max-w-xl"
-                            >
-                                <p className="text-[0.66rem] uppercase tracking-[0.3em] text-[rgb(236,205,191)]">
-                                    Recomendación MORE
-                                </p>
-                                <h2
-                                    className="mt-3 text-3xl leading-none text-white sm:text-4xl"
-                                    style={serifStyle}
-                                >
-                                    Ideas para seguir comprando.
-                                </h2>
-                                <p className="mt-3 max-w-lg text-sm leading-6 text-stone-300">
-                                    Accesos rápidos para volver al catálogo, novedades o guía de compra.
-                                </p>
-                            </motion.div>
-                            <CarouselButtons
-                                onPrev={() => heroApi?.scrollPrev()}
-                                onNext={() => heroApi?.scrollNext()}
-                            />
-                        </div>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 22 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.18 }}
-                            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-                            className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]"
-                        >
-                            <div
-                                ref={heroRef}
-                                className="relative min-h-[300px] overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#05070a] shadow-[0_22px_68px_rgba(0,0,0,0.34)] sm:min-h-[340px]"
-                            >
-                                <div className="flex h-full">
-                                    {homeHeroSlides.map((slide) => (
-                                        <div
-                                            key={slide.title}
-                                            className="relative min-w-0 flex-[0_0_100%]"
-                                        >
-                                            <img
-                                                src={slide.image}
-                                                alt={slide.title}
-                                                className="h-full min-h-[300px] w-full object-cover sm:min-h-[340px]"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-r from-black/84 via-black/46 to-black/12" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/12 to-transparent" />
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-6">
-                                    <motion.div
-                                        key={activeHero.title}
-                                        initial={{ opacity: 0, y: 12 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.38 }}
-                                        className="max-w-2xl"
-                                    >
-                                        <p className="text-[0.68rem] uppercase tracking-[0.3em] text-[rgb(236,205,191)]">
-                                            {activeHero.title}
-                                        </p>
-                                        <h2
-                                            className="mt-3 max-w-xl text-3xl leading-[0.98] text-white sm:text-4xl lg:text-5xl"
-                                            style={serifStyle}
-                                        >
-                                            MORE por Mati Boutique
-                                        </h2>
-                                        <p className="mt-3 max-w-lg text-sm leading-6 text-stone-100">
-                                            Sigue explorando novedades, categorías y prendas disponibles en MORE.
-                                        </p>
-                                    </motion.div>
-
-                                    <div className="mt-4 flex flex-wrap gap-2">
-                                        {heroStats.map((stat) => (
-                                            <span
-                                                key={stat}
-                                                className="more-chip px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-stone-200"
-                                            >
-                                                {stat}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <aside className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-                                {heroQuickLinks.map((card) => (
-                                    <Link
-                                        key={card.title}
-                                        href={card.href}
-                                        className="group relative min-h-[118px] overflow-hidden rounded-[1.1rem] border border-white/10 bg-[#070a0f] sm:min-h-[136px] lg:min-h-[104px]"
-                                    >
-                                        <img
-                                            src={card.image}
-                                            alt={card.title}
-                                            className="h-full w-full object-cover transition duration-[900ms] group-hover:scale-[1.04]"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/86 via-black/18 to-transparent" />
-                                        <div className="absolute inset-x-0 bottom-0 p-4">
-                                            <p className="text-[0.62rem] uppercase tracking-[0.24em] text-stone-200">
-                                                {card.label}
-                                            </p>
-                                            <h3
-                                                className="mt-1.5 text-xl leading-none text-white sm:text-2xl lg:text-xl"
-                                                style={serifStyle}
-                                            >
-                                                {card.title}
-                                            </h3>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </aside>
-                        </motion.div>
-                    </div>
-                </section>
-
                 <section className="pt-28">
                     <div className={sectionShell}>
                         <div className="relative overflow-hidden rounded-[1.8rem] border border-[rgba(223,184,166,0.18)] bg-[#070a0f]">
-                            <img
+                            <StorefrontImage
                                 src="https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                alt="Universo MORE"
+                                alt="Reserva de prendas en Mati Boutique"
                                 className="absolute inset-0 h-full w-full object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/54 to-black/20" />
@@ -829,32 +580,32 @@ export default function Home({
                             <div className="relative grid min-h-[380px] gap-8 p-7 sm:p-9 lg:grid-cols-[1fr_auto] lg:items-end lg:p-10">
                                 <div>
                                     <p className="text-[0.72rem] uppercase tracking-[0.3em] text-[rgb(236,205,191)]">
-                                        MORE por Mati Boutique
+                                        Mati Boutique
                                     </p>
                                     <h2
                                         className="mt-5 max-w-3xl text-4xl leading-[0.94] text-white sm:text-5xl lg:text-6xl"
                                         style={serifStyle}
                                     >
-                                        Descubre el universo MORE.
+                                        Reserva tus prendas favoritas.
                                     </h2>
                                     <p className="mt-5 max-w-xl text-sm leading-7 text-stone-100 sm:text-base">
-                                        Explora todas las prendas disponibles y encuentra tu próxima pieza favorita.
+                                        Consulta tallas, colores y disponibilidad antes de reservar.
                                     </p>
                                 </div>
 
                                 <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
                                     <Link
                                         href={shopRoutes.catalog}
-                                        className={primaryButtonClass}
+                                        className={`${primaryButtonClass} w-full sm:w-auto lg:w-full`}
                                     >
-                                        Navegar catálogo
+                                        Ver catálogo
                                         <ArrowRight size={15} />
                                     </Link>
                                     <Link
-                                        href={shopRoutes.collections}
-                                        className={secondaryButtonClass}
+                                        href={shopRoutes.newIn}
+                                        className={`${secondaryButtonClass} w-full sm:w-auto lg:w-full`}
                                     >
-                                        Ver guía de compra
+                                        Ver novedades
                                     </Link>
                                 </div>
                             </div>

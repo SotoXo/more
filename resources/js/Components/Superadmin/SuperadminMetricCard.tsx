@@ -14,6 +14,7 @@ function toneClass(tone?: SuperadminMetric['tone']) {
         success: 'border-t-[rgba(113,168,148,0.8)]',
         warning: 'border-t-[rgba(201,160,106,0.8)]',
         danger: 'border-t-[rgba(183,108,112,0.8)]',
+        info: 'border-t-[rgba(125,177,208,0.8)]',
         neutral: 'border-t-white/10',
     }[tone ?? 'neutral'];
 }

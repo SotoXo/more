@@ -140,7 +140,7 @@ export default function SuperadminFormSection({
         }
 
         if (field.type === 'tel' && !/^[67]\d{7}$/.test(stringValue)) {
-            return 'El teléfono debe tener 8 dígitos y comenzar con 6 o 7.';
+            return 'Ingresa un teléfono celular válido.';
         }
 
         if (field.type === 'number') {

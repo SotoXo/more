@@ -72,7 +72,7 @@ export default function ResourceForm({
 
     const isCreate = mode === 'create';
     const resolvedTitle = title ?? (isCreate ? `Nuevo ${meta.singular}` : recordLabel ?? `Editar ${meta.singular}`);
-    const resolvedDescription = description ?? (isCreate ? `Alta de ${meta.singular}.` : `Edición de ${meta.singular}.`);
+    const resolvedDescription = description ?? (isCreate ? `Registro de ${meta.singular}.` : `Edición de ${meta.singular}.`);
     const errorEntries = Object.entries(errors);
 
     useEffect(() => {
@@ -150,7 +150,7 @@ export default function ResourceForm({
     };
 
     return (
-        <SuperadminLayout title={`MORE | ${resolvedTitle}`}>
+        <SuperadminLayout title={`Mati Boutique | ${resolvedTitle}`}>
             <div className="space-y-8">
                 <SuperadminPageHeader
                     eyebrow={meta.sectionLabel}

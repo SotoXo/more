@@ -1,6 +1,7 @@
 import ShopFiltersPanel from '@/Components/shop/ShopFiltersPanel';
 import ProductCard from '@/Components/shop/ProductCard';
 import StoreLayout from '@/Components/shop/StoreLayout';
+import StorefrontImage from '@/Components/shop/StorefrontImage';
 import ShopToolbar, { type ShopViewMode } from '@/Components/shop/ShopToolbar';
 import { collectionPresentation } from '@/data/storefront';
 import {
@@ -90,17 +91,17 @@ export default function Collection({
     }
 
     return (
-        <StoreLayout title={`MORE | ${config.title}`}>
-            <section className="px-4 sm:px-6 lg:px-8">
-                <div className={`${sectionShell} px-0`}>
+        <StoreLayout title={`Mati Boutique | ${config.title}`}>
+            <section className="px-3 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl">
                     <motion.div
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="more-panel relative overflow-hidden rounded-[2rem] p-4 sm:p-5 lg:p-6"
+                        className="more-panel relative overflow-hidden rounded-[1.45rem] p-4 sm:rounded-[2rem] sm:p-5 lg:p-6"
                     >
                         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">
-                            <div className="flex min-h-[360px] flex-col justify-between p-3 sm:p-5 lg:p-6">
+                            <div className="flex min-h-[260px] min-w-0 flex-col justify-between p-3 sm:min-h-[320px] sm:p-5 lg:min-h-[360px] lg:p-6">
                                 <div>
                                     <div className="flex flex-wrap items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-stone-300">
                                         <Link href={shopRoutes.home} className="transition hover:text-white">
@@ -111,24 +112,24 @@ export default function Collection({
                                             {config.title}
                                         </span>
                                     </div>
-                                    <p className="mt-8 text-[0.7rem] uppercase tracking-[0.28em] text-stone-300">
+                                    <p className="mt-7 text-[0.68rem] uppercase tracking-[0.24em] text-stone-300 sm:mt-8 sm:text-[0.7rem] sm:tracking-[0.28em]">
                                         {config.eyebrow}
                                     </p>
                                     <h1
-                                        className="mt-4 max-w-3xl text-5xl leading-[0.9] text-white sm:text-6xl lg:text-[5.4rem]"
+                                        className="mt-4 max-w-full break-words text-4xl leading-[0.94] text-white sm:text-6xl lg:max-w-3xl lg:text-[5.4rem] lg:leading-[0.9]"
                                         style={serifStyle}
                                     >
                                         {config.title}
                                     </h1>
-                                    <p className="mt-5 max-w-2xl text-sm leading-7 text-stone-200 sm:text-base">
+                                    <p className="mt-5 max-w-[22rem] text-sm leading-7 text-stone-200 sm:max-w-2xl sm:text-base">
                                         {config.subtitle}
                                     </p>
-                                    <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-300">
+                                    <p className="mt-4 max-w-[22rem] text-sm leading-7 text-stone-300 sm:max-w-2xl">
                                         {config.description}
                                     </p>
                                 </div>
 
-                                <div className="mt-8 flex flex-wrap items-center gap-3">
+                                <div className="mt-8 flex max-w-full flex-wrap items-center gap-3">
                                     <span className="more-pill-active rounded-full px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em]">
                                         {products.length} {products.length === 1 ? 'producto' : 'productos'}
                                     </span>
@@ -144,7 +145,7 @@ export default function Collection({
                             </div>
 
                             <div className="relative hidden overflow-hidden rounded-[1.6rem] border border-white/10 lg:block">
-                                <img
+                                <StorefrontImage
                                     src={config.heroImage}
                                     alt={config.title}
                                     className="h-full min-h-[360px] w-full object-cover"

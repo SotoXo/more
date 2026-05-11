@@ -1,4 +1,5 @@
 import StoreLayout from '@/Components/shop/StoreLayout';
+import StorefrontImage from '@/Components/shop/StorefrontImage';
 import { formatPrice, shopRoutes } from '@/lib/shop';
 import type { CartItem } from '@/types';
 import { Link, router } from '@inertiajs/react';
@@ -26,28 +27,22 @@ function CartItemRow({
     return (
         <div className="flex flex-col gap-4 rounded-[1.8rem] border border-white/8 bg-white/[0.03] p-5 sm:flex-row sm:gap-5">
             <Link href={shopRoutes.product(String(item.prenda_id))} className="shrink-0">
-                {item.imagen ? (
-                    <img
-                        src={item.imagen}
-                        alt={item.nombre}
-                        className="h-24 w-20 rounded-[1.2rem] object-cover"
-                    />
-                ) : (
-                    <div className="flex h-24 w-20 items-center justify-center rounded-[1.2rem] bg-white/[0.04]">
-                        <ShoppingBag size={20} className="text-stone-600" />
-                    </div>
-                )}
+                <StorefrontImage
+                    src={item.imagen}
+                    alt={item.nombre}
+                    className="h-24 w-20 rounded-[1.2rem] object-cover"
+                />
             </Link>
 
             <div className="flex flex-1 flex-col justify-between">
                 <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                         <p className="text-[0.65rem] uppercase tracking-[0.22em] text-stone-400">
                             {item.marca}
                         </p>
                         <Link
                             href={shopRoutes.product(String(item.prenda_id))}
-                            className="mt-1 block text-xl leading-tight text-white hover:text-stone-200"
+                            className="mt-1 block break-words text-xl leading-tight text-white hover:text-stone-200"
                             style={serifStyle}
                         >
                             {item.nombre}
@@ -122,30 +117,30 @@ export default function Carrito({ items, subtotal }: CarritoProps) {
     }
 
     return (
-        <StoreLayout title="MORE | Bolsa">
-            <section className="px-4 sm:px-6 lg:px-8">
+        <StoreLayout title="Mati Boutique | Reservas">
+            <section className="px-3 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <p className="text-[0.68rem] uppercase tracking-[0.28em] text-stone-400">
                         Mati Boutique
                     </p>
                     <h1 className="mt-3 text-5xl leading-none text-white sm:text-6xl" style={serifStyle}>
-                        Tu bolsa
+                        Tus reservas
                     </h1>
 
                     {cartItems.length === 0 ? (
                         <div className="mt-14 rounded-[2.2rem] border border-white/10 bg-white/[0.03] px-6 py-16 text-center">
                             <ShoppingBag size={32} className="mx-auto text-stone-600" />
                             <p className="mt-6 text-3xl text-white" style={serifStyle}>
-                                Tu bolsa está vacía.
+                                Aún no agregaste prendas para reservar.
                             </p>
                             <p className="mt-3 text-sm text-stone-400">
-                                Explora el catálogo y agrega tus prendas favoritas.
+                                Revisa el catálogo y agrega tus prendas favoritas.
                             </p>
                             <Link
                                 href={shopRoutes.catalog}
                                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition hover:-translate-y-px hover:bg-stone-200"
                             >
-                                Explorar catálogo
+                                Ver catálogo
                             </Link>
                         </div>
                     ) : (
@@ -172,7 +167,7 @@ export default function Carrito({ items, subtotal }: CarritoProps) {
                                         <span className="text-white">{formatPrice(total)}</span>
                                     </div>
                                     <div className="flex items-center justify-between text-sm">
-                                        <span className="text-stone-300">Envío</span>
+                                        <span className="text-stone-300">Entrega</span>
                                         <span className="text-stone-400">Se confirma al finalizar</span>
                                     </div>
                                 </div>
@@ -192,14 +187,14 @@ export default function Carrito({ items, subtotal }: CarritoProps) {
                                     type="button"
                                     className="mt-8 w-full rounded-full bg-white py-4 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition hover:-translate-y-px hover:bg-stone-200"
                                 >
-                                    Finalizar compra
+                                    Confirmar reserva
                                 </button>
 
                                 <Link
                                     href={shopRoutes.catalog}
                                     className="mt-3 block text-center text-[0.7rem] uppercase tracking-[0.2em] text-stone-400 transition hover:text-white"
                                 >
-                                    Seguir comprando
+                                    Seguir viendo catálogo
                                 </Link>
                             </div>
                         </div>

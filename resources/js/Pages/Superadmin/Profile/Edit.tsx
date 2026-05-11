@@ -75,13 +75,13 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
                 },
                 {
                     name: 'tel_usu',
-                    label: 'Teléfono',
+                    label: 'Teléfono celular',
                     value: profile.tel_usu ?? '',
                     type: 'tel',
-                    placeholder: '70000000',
+                    placeholder: 'Ej.: 70000000',
                     transform: 'digits',
                     maxLength: 8,
-                    hint: 'Debe tener 8 dígitos y comenzar con 6 o 7.',
+                    hint: 'Debe contener un número celular válido.',
                 },
                 {
                     name: 'email',
@@ -172,14 +172,14 @@ export default function SuperadminProfileEdit({ profile }: ProfileProps) {
     };
 
     return (
-        <SuperadminLayout title="MORE | Mi perfil">
+        <SuperadminLayout title="Mati Boutique | Mi perfil">
             <div className="space-y-8">
                 <SuperadminPageHeader
                     eyebrow="Cuenta"
                     title="Mi perfil"
                     description="Gestiona tus datos de acceso dentro del panel."
                     breadcrumbs={[
-                        { label: 'Superadmin', href: '/superadmin' },
+                        { label: 'Panel administrativo', href: '/superadmin' },
                         { label: 'Mi perfil' },
                     ]}
                     actions={[{ label: 'Volver al panel', href: '/superadmin', kind: 'ghost' }]}

@@ -420,9 +420,9 @@ class ResourceController extends Controller
                 'sectionKey' => 'inventario',
                 'sectionLabel' => 'Inventario',
                 'resourceKey' => 'stock',
-                'title' => 'Consulta de existencias',
+                'title' => 'Existencias',
                 'singular' => 'registro de inventario',
-                'description' => 'Consulta de disponible, reservado y ubicación. Los movimientos de inventario no están habilitados en esta fase.',
+                'description' => 'Revisión de disponible, reservado y ubicación por variante.',
                 'kind' => 'inventory',
                 'modelClass' => Inventario::class,
                 'filters' => ['Crítico', 'Reservado', 'Disponible'],
@@ -431,9 +431,9 @@ class ResourceController extends Controller
                 'sectionKey' => 'inventario',
                 'sectionLabel' => 'Inventario',
                 'resourceKey' => 'ajustes',
-                'title' => 'Ajustes sugeridos',
+                'title' => 'Plan de ajustes',
                 'singular' => 'ajuste',
-                'description' => 'Vista secundaria de recomendaciones. No ejecuta cambios de inventario ni guarda ajustes.',
+                'description' => 'Vista informativa para revisar posibles ajustes de inventario.',
                 'kind' => 'adjustments',
                 'filters' => ['Prioritario', 'Inventario', 'Comercial'],
             ],
@@ -441,9 +441,9 @@ class ResourceController extends Controller
                 'sectionKey' => 'inventario',
                 'sectionLabel' => 'Inventario',
                 'resourceKey' => 'alertas',
-                'title' => 'Alertas de inventario',
+                'title' => 'Alertas de stock',
                 'singular' => 'alerta',
-                'description' => 'Consulta de alertas de inventario y existencias bajas.',
+                'description' => 'Seguimiento de existencias bajas, críticas o con reserva pendiente.',
                 'kind' => 'alerts',
                 'modelClass' => Inventario::class,
                 'filters' => ['Crítico', 'Seguimiento', 'Ubicación'],
@@ -452,9 +452,9 @@ class ResourceController extends Controller
                 'sectionKey' => 'comercial',
                 'sectionLabel' => 'Comercial',
                 'resourceKey' => 'ventas',
-                'title' => 'Consulta de ventas',
+                'title' => 'Ventas',
                 'singular' => 'venta',
-                'description' => 'Consulta de ventas registradas.',
+                'description' => 'Revisión de ventas registradas, estado comercial y cierre.',
                 'kind' => 'sales',
                 'modelClass' => Venta::class,
                 'dateField' => 'fec_ven',
@@ -464,9 +464,9 @@ class ResourceController extends Controller
                 'sectionKey' => 'comercial',
                 'sectionLabel' => 'Comercial',
                 'resourceKey' => 'reservas',
-                'title' => 'Consulta de reservas',
+                'title' => 'Reservas',
                 'singular' => 'reserva',
-                'description' => 'Consulta de reservas activas y vencimientos.',
+                'description' => 'Seguimiento de reservas activas, vencimientos y responsables.',
                 'kind' => 'reservations',
                 'modelClass' => Reserva::class,
                 'dateField' => 'fec_res',
@@ -476,9 +476,9 @@ class ResourceController extends Controller
                 'sectionKey' => 'comercial',
                 'sectionLabel' => 'Comercial',
                 'resourceKey' => 'favoritos',
-                'title' => 'Favoritos guardados',
+                'title' => 'Favoritos',
                 'singular' => 'favorito',
-                'description' => 'Consulta de favoritos guardados por clientes.',
+                'description' => 'Lectura de prendas guardadas por clientes.',
                 'kind' => 'favorites',
                 'modelClass' => Favorito::class,
                 'dateField' => 'fec_fav',
@@ -639,7 +639,7 @@ class ResourceController extends Controller
     private function breadcrumbs(array $definition, ?string $last = null, ?string $mode = null): array
     {
         $crumbs = [
-            ['label' => 'Superadmin', 'href' => '/superadmin'],
+            ['label' => 'Panel administrativo', 'href' => '/superadmin'],
             ['label' => $definition['sectionLabel']],
             ['label' => $definition['title'], 'href' => $this->indexHref($definition)],
         ];
@@ -696,8 +696,8 @@ class ResourceController extends Controller
         if (in_array($key, self::CRUD_RESOURCES, true)) {
             return [
                 'status' => 'crud',
-                'label' => 'CRUD real',
-                'description' => 'Este módulo permite crear, consultar, editar y guardar registros reales.',
+                'label' => 'Gestión completa',
+                'description' => 'Este módulo permite crear, consultar, editar y guardar registros.',
                 'secondary' => false,
             ];
         }
@@ -705,8 +705,8 @@ class ResourceController extends Controller
         if (in_array($key, self::SECONDARY_CRUD_RESOURCES, true)) {
             return [
                 'status' => 'crud',
-                'label' => 'CRUD real secundario',
-                'description' => 'Este módulo guarda registros reales, pero depende de prendas y debe tratarse como gestión subordinada.',
+                'label' => 'Gestión complementaria',
+                'description' => 'Este módulo guarda registros relacionados y depende de la ficha de prendas.',
                 'secondary' => true,
             ];
         }
@@ -714,8 +714,8 @@ class ResourceController extends Controller
         if (in_array($key, self::NOT_READY_RESOURCES, true)) {
             return [
                 'status' => 'not_ready',
-                'label' => 'No listo',
-                'description' => 'Esta vista es informativa y no ejecuta cambios operativos todavía.',
+                'label' => 'En preparación',
+                'description' => 'Esta vista es solo informativa y no ejecuta cambios operativos.',
                 'secondary' => true,
             ];
         }
@@ -947,10 +947,10 @@ class ResourceController extends Controller
                 ['label' => 'Alertas', 'value' => (string) Inventario::query()->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 2')->count(), 'note' => 'Registros con existencias bajas.', 'tone' => 'danger'],
                 ['label' => 'Sin existencias', 'value' => (string) Inventario::query()->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 0')->count(), 'note' => 'Registros sin disponible.', 'tone' => 'warning'],
                 ['label' => 'Reservado', 'value' => (string) Inventario::query()->where('cre_inv', '>', 0)->count(), 'note' => 'Líneas con reserva activa.', 'tone' => 'accent'],
-                ['label' => 'Ubicaciónes', 'value' => (string) Inventario::query()->whereNotNull('ubi_inv')->count(), 'note' => 'Ubicaciónes cargadas.', 'tone' => 'neutral'],
+                ['label' => 'Ubicaciones', 'value' => (string) Inventario::query()->whereNotNull('ubi_inv')->count(), 'note' => 'Ubicaciones cargadas.', 'tone' => 'neutral'],
             ],
             'sales' => [
-                ['label' => 'Ventas', 'value' => (string) Venta::query()->count(), 'note' => 'Operaciónes registradas.', 'tone' => 'accent'],
+                ['label' => 'Ventas', 'value' => (string) Venta::query()->count(), 'note' => 'Operaciones registradas.', 'tone' => 'accent'],
                 ['label' => 'Facturación', 'value' => $this->money((float) Venta::query()->sum('tot_ven')), 'note' => 'Total acumulado.', 'tone' => 'success'],
                 ['label' => 'Detalles', 'value' => (string) \App\Models\DetalleVenta::query()->count(), 'note' => 'Líneas de venta.', 'tone' => 'neutral'],
                 ['label' => 'Última venta', 'value' => $this->latestDate(Venta::query(), 'fec_ven'), 'note' => 'Último registro.', 'tone' => 'warning'],
@@ -1692,7 +1692,7 @@ class ResourceController extends Controller
             'cod_tem.regex' => 'El código de temporada solo puede contener letras, números y guiones.',
             'nom_pre.regex' => 'El nombre de la prenda solo puede contener letras, números, espacios, guiones, puntos o guion bajo.',
             'password.confirmed' => 'La confirmación de la contraseña no coincide.',
-            'tel_usu.regex' => 'El teléfono debe tener 8 dígitos y comenzar con 6 o 7.',
+            'tel_usu.regex' => 'Ingresa un teléfono celular válido.',
             'hex_col.regex' => 'El color debe usar formato HEX, por ejemplo #1A1A1A.',
             'hex_dom_col.regex' => 'La base dominante debe usar formato HEX, por ejemplo #1A1A1A.',
             'sku_prv.regex' => 'El código interno solo puede contener letras, números, guiones y guion bajo.',
@@ -3039,7 +3039,7 @@ class ResourceController extends Controller
         if ($slug === 'vendedor' || $slug === 'cliente') {
             return [
                 ['key' => 'email', 'label' => 'Correo'],
-                ['key' => 'phone', 'label' => 'Teléfono'],
+                ['key' => 'phone', 'label' => 'Celular'],
                 ['key' => 'status_label', 'label' => 'Estado'],
                 ['key' => 'date', 'label' => 'Alta', 'align' => 'right'],
             ];
@@ -3049,7 +3049,7 @@ class ResourceController extends Controller
         return [
             ['key' => 'role', 'label' => 'Rol'],
             ['key' => 'email', 'label' => 'Correo'],
-            ['key' => 'phone', 'label' => 'Teléfono'],
+            ['key' => 'phone', 'label' => 'Celular'],
             ['key' => 'status_label', 'label' => 'Estado'],
             ['key' => 'date', 'label' => 'Alta', 'align' => 'right'],
         ];
@@ -3439,12 +3439,12 @@ class ResourceController extends Controller
         $formSections = [
             [
                 'title' => 'Datos personales',
-                'description' => 'Nombre completo, teléfono y correo del usuario.',
+                'description' => 'Nombre completo, teléfono celular y correo del usuario.',
                 'fields' => [
                     ['name' => 'nom_usu', 'label' => 'Nombre', 'value' => $record?->nom_usu ?? '', 'required' => true, 'placeholder' => 'NOMBRE', 'transform' => 'uppercase', 'maxLength' => 100, 'hint' => 'Se guarda en MAYÚSCULAS. No admite números.'],
                     ['name' => 'app_usu', 'label' => 'Apellido paterno', 'value' => $record?->app_usu ?? '', 'required' => true, 'placeholder' => 'APELLIDO PATERNO', 'transform' => 'uppercase', 'maxLength' => 100, 'hint' => 'Se guarda en MAYÚSCULAS. No admite números.'],
                     ['name' => 'apm_usu', 'label' => 'Apellido materno', 'value' => $record?->apm_usu ?? '', 'required' => false, 'placeholder' => 'APELLIDO MATERNO (opcional)', 'transform' => 'uppercase', 'maxLength' => 100, 'hint' => 'Se guarda en MAYÚSCULAS. No admite números.'],
-                    ['name' => 'tel_usu', 'label' => 'Teléfono', 'value' => $record?->tel_usu ?? '', 'type' => 'tel', 'required' => true, 'placeholder' => '70000000', 'transform' => 'digits', 'maxLength' => 8],
+                    ['name' => 'tel_usu', 'label' => 'Teléfono celular', 'value' => $record?->tel_usu ?? '', 'type' => 'tel', 'required' => true, 'placeholder' => 'Ej.: 70000000', 'transform' => 'digits', 'maxLength' => 8, 'hint' => 'Debe contener un número celular válido.'],
                     ['name' => 'email', 'label' => 'Correo', 'value' => $record?->email ?? '', 'type' => 'email', 'required' => true, 'placeholder' => 'correo@dominio.com', 'transform' => 'lowercase', 'maxLength' => 255],
                 ],
             ],
@@ -3507,7 +3507,7 @@ class ResourceController extends Controller
                 ['label' => 'Rol', 'value' => $selectedRoleLabel, 'note' => 'Rol asignado.', 'tone' => 'accent'],
                 ['label' => 'Estado', 'value' => $stateLabel, 'note' => 'Estado del usuario.', 'tone' => $record && !$record->est_usu ? 'danger' : 'success'],
                 ['label' => 'Alta', 'value' => $this->formatDate($record?->fec_usu), 'note' => 'Fecha de alta.', 'tone' => 'neutral'],
-                ['label' => 'Teléfono', 'value' => $record?->tel_usu ?: 'Sin teléfono', 'note' => 'Teléfono registrado.', 'tone' => 'warning'],
+                ['label' => 'Celular', 'value' => $record?->tel_usu ?: 'Sin celular', 'note' => 'Teléfono celular registrado.', 'tone' => 'warning'],
             ],
             'detailSections' => [
                 [
@@ -3518,7 +3518,7 @@ class ResourceController extends Controller
                         ['label' => 'Correo', 'value' => $record?->email ?? 'Sin correo', 'tone' => 'neutral'],
                         ['label' => 'Rol', 'value' => $selectedRoleLabel, 'tone' => 'warning'],
                         ['label' => 'Estado', 'value' => $stateLabel, 'tone' => $record && !$record->est_usu ? 'danger' : 'success'],
-                        ['label' => 'Teléfono', 'value' => $record?->tel_usu ?: 'Sin teléfono', 'tone' => 'success'],
+                        ['label' => 'Celular', 'value' => $record?->tel_usu ?: 'Sin celular', 'tone' => 'success'],
                     ],
                 ],
             ],
@@ -4313,7 +4313,7 @@ class ResourceController extends Controller
                     'title' => 'Monto y cierre',
                     'fields' => [
                         ['name' => 'tipo', 'label' => 'Tipo', 'value' => $record?->tiv_ven ?? 'Sin tipo'],
-                        ['name' => 'metodo', 'label' => 'Metodo', 'value' => $record?->mpa_ven ?? 'Sin metodo'],
+                        ['name' => 'metodo', 'label' => 'Método', 'value' => $record?->mpa_ven ?? 'Sin método'],
                         ['name' => 'subtotal', 'label' => 'Subtotal', 'value' => $record ? $this->money((float) $record->sub_ven) : 'Bs 0.00'],
                         ['name' => 'total', 'label' => 'Total', 'value' => $record ? $this->money((float) $record->tot_ven) : 'Bs 0.00'],
                     ],
@@ -4322,7 +4322,7 @@ class ResourceController extends Controller
             'summaryMetrics' => [
                 ['label' => 'Total', 'value' => $record ? $this->money((float) $record->tot_ven) : 'Bs 0.00', 'note' => 'Monto final.', 'tone' => 'success'],
                 ['label' => 'Items', 'value' => (string) ($record?->detalles_count ?? $record?->detalles?->count() ?? 0), 'note' => 'Items registrados.', 'tone' => 'accent'],
-                ['label' => 'Metodo', 'value' => $record?->mpa_ven ?: 'Sin metodo', 'note' => 'Metodo de pago.', 'tone' => 'neutral'],
+                ['label' => 'Método', 'value' => $record?->mpa_ven ?: 'Sin método', 'note' => 'Método de pago.', 'tone' => 'neutral'],
                 ['label' => 'Estado', 'value' => $record?->est_ven ?: 'Activa', 'note' => 'Estado de la venta.', 'tone' => 'warning'],
             ],
             'detailSections' => [
@@ -4332,7 +4332,7 @@ class ResourceController extends Controller
                         ['label' => 'Código', 'value' => $record?->nve_ven ?: 'Sin código', 'tone' => 'accent'],
                         ['label' => 'Cliente', 'value' => $this->userName($record?->cliente) ?: 'Sin cliente', 'tone' => 'neutral'],
                         ['label' => 'Tipo', 'value' => $record?->tiv_ven ?: 'Sin tipo', 'tone' => 'warning'],
-                        ['label' => 'Metodo', 'value' => $record?->mpa_ven ?: 'Sin metodo', 'tone' => 'success'],
+                        ['label' => 'Método', 'value' => $record?->mpa_ven ?: 'Sin método', 'tone' => 'success'],
                     ],
                 ],
             ],
@@ -4382,7 +4382,7 @@ class ResourceController extends Controller
                     'title' => 'Seguimiento',
                     'fields' => [
                         ['name' => 'vence', 'label' => 'Vence', 'value' => $this->formatDate($record?->ven_res), 'type' => 'date'],
-                        ['name' => 'observacion', 'label' => 'Observacion', 'value' => $record?->obs_res ?? '', 'type' => 'textarea'],
+                        ['name' => 'observacion', 'label' => 'Observación', 'value' => $record?->obs_res ?? '', 'type' => 'textarea'],
                     ],
                 ],
             ],
@@ -4399,7 +4399,7 @@ class ResourceController extends Controller
                         ['label' => 'Código', 'value' => $record?->nre_res ?: 'Sin código', 'tone' => 'accent'],
                         ['label' => 'Cliente', 'value' => $this->userName($record?->cliente) ?: 'Sin cliente', 'tone' => 'neutral'],
                         ['label' => 'Responsable', 'value' => $this->userName($record?->responsable) ?: 'Sin responsable', 'tone' => 'warning'],
-                        ['label' => 'Observacion', 'value' => $record?->obs_res ?: 'Sin observacion', 'tone' => 'success'],
+                        ['label' => 'Observación', 'value' => $record?->obs_res ?: 'Sin observación', 'tone' => 'success'],
                     ],
                 ],
             ],
@@ -4515,7 +4515,7 @@ class ResourceController extends Controller
                 'status' => ['label' => 'Seguimiento', 'tone' => 'accent'],
                 'cells' => [
                     'area' => 'Comercial',
-                    'focus' => $reservas . ' reservas en observacion',
+                    'focus' => $reservas . ' reservas en observación',
                     'cut' => 'Semana actual',
                     'updated' => 'Ahora',
                 ],

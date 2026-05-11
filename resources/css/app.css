@@ -331,12 +331,97 @@ textarea:focus-visible {
     --sa-success-rgb: 113 168 148;
     --sa-warning-rgb: 201 160 106;
     --sa-danger-rgb: 183 108 112;
+    --admin-bg: #0b1118;
+    --admin-bg-end: #111827;
+    --admin-surface: #121a24;
+    --admin-surface-soft: #172230;
+    --admin-sidebar: color-mix(in srgb, var(--admin-bg) 86%, var(--admin-surface));
+    --admin-topbar: color-mix(in srgb, var(--admin-bg) 88%, transparent);
+    --admin-sheen: rgba(255, 255, 255, 0.03);
+    --admin-border: rgba(218, 228, 236, 0.12);
+    --admin-text: #f6f1ea;
+    --admin-muted: #cbd3dc;
+    --admin-accent: #d8bd8f;
+    --admin-accent-soft: rgba(216, 189, 143, 0.16);
+    --admin-success: #8fc8ad;
+    --admin-warning: #d6a85e;
+    --admin-danger: #d97f86;
+    --admin-info: #91c5df;
+    --admin-accent-rgb: 216 189 143;
+    --admin-success-rgb: 143 200 173;
+    --admin-warning-rgb: 214 168 94;
+    --admin-danger-rgb: 217 127 134;
+    --admin-info-rgb: 145 197 223;
+    --admin-muted-rgb: 203 211 220;
 }
 
 .sa-shell {
     position: relative;
     min-height: 100vh;
-    background: linear-gradient(180deg, #0b1118 0%, #0d141c 100%);
+    color: var(--admin-text);
+    background:
+        radial-gradient(circle at 8% 0%, var(--admin-accent-soft), transparent 28%),
+        linear-gradient(180deg, var(--admin-bg) 0%, color-mix(in srgb, var(--admin-bg) 88%, var(--admin-bg-end)) 100%);
+    transition:
+        background-color 220ms ease,
+        color 220ms ease;
+}
+
+.sa-shell[data-admin-theme="dark"] {
+    --admin-bg: #0a1119;
+    --admin-bg-end: #111827;
+    --admin-surface: #121b26;
+    --admin-surface-soft: #172432;
+    --admin-sidebar: color-mix(in srgb, var(--admin-bg) 86%, var(--admin-surface));
+    --admin-topbar: color-mix(in srgb, var(--admin-bg) 88%, transparent);
+    --admin-sheen: rgba(255, 255, 255, 0.03);
+    --admin-border: rgba(219, 229, 238, 0.12);
+    --admin-text: #f8f2ea;
+    --admin-muted: #c5ced8;
+    --admin-accent: #d8bd8f;
+    --admin-accent-soft: rgba(216, 189, 143, 0.16);
+    --admin-success: #8fc8ad;
+    --admin-warning: #d8aa62;
+    --admin-danger: #dc858b;
+    --admin-info: #95c8e2;
+    --admin-accent-rgb: 216 189 143;
+    --admin-success-rgb: 143 200 173;
+    --admin-warning-rgb: 216 170 98;
+    --admin-danger-rgb: 220 133 139;
+    --admin-info-rgb: 149 200 226;
+    --admin-muted-rgb: 197 206 216;
+}
+
+.sa-shell[data-admin-theme="light"] {
+    --admin-bg: #f1e7db;
+    --admin-bg-end: #eadcc9;
+    --admin-surface: #f8f1e7;
+    --admin-surface-soft: #efe3d4;
+    --admin-sidebar: #e8dccb;
+    --admin-topbar: rgba(245, 232, 216, 0.92);
+    --admin-sheen: rgba(255, 248, 237, 0.34);
+    --admin-border: rgba(122, 94, 66, 0.24);
+    --admin-text: #2b241f;
+    --admin-muted: #6f6256;
+    --admin-accent: #b8925a;
+    --admin-accent-soft: rgba(184, 146, 90, 0.18);
+    --admin-success: #5f856d;
+    --admin-warning: #a86f2e;
+    --admin-danger: #a85e5a;
+    --admin-info: #6d8488;
+    --admin-accent-rgb: 184 146 90;
+    --admin-success-rgb: 95 133 109;
+    --admin-warning-rgb: 168 111 46;
+    --admin-danger-rgb: 168 94 90;
+    --admin-info-rgb: 109 132 136;
+    --admin-muted-rgb: 111 98 86;
+}
+
+.sa-shell[data-admin-theme="light"] {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(184, 146, 90, 0.16), transparent 30%),
+        radial-gradient(circle at 92% 16%, rgba(185, 130, 107, 0.12), transparent 24%),
+        linear-gradient(180deg, var(--admin-bg) 0%, var(--admin-bg-end) 100%);
 }
 
 .sa-grid-pattern::before {
@@ -344,25 +429,26 @@ textarea:focus-visible {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 18%);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--admin-sheen) 70%, transparent), transparent 18%);
     opacity: 0.22;
 }
 
 .sa-panel {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: #101822;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.16);
 }
 
 .sa-panel-soft {
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    background: #0d151e;
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface-soft);
     box-shadow: none;
 }
 
 .sa-panel-muted {
-    border: 1px dashed rgba(255, 255, 255, 0.14);
-    background: #0d141c;
+    border: 1px dashed var(--admin-border);
+    background: color-mix(in srgb, var(--admin-surface-soft) 74%, transparent);
 }
 
 .sa-accent-line {
@@ -382,15 +468,15 @@ textarea:focus-visible {
     justify-content: center;
     gap: 0.55rem;
     border-radius: 9999px;
-    border: 1px solid rgba(var(--sa-accent-rgb), 0.28);
-    background: rgb(230, 239, 247);
-    color: #0d1722;
+    border: 1px solid color-mix(in srgb, var(--admin-accent) 45%, transparent);
+    background: var(--admin-accent);
+    color: #2b241f;
     box-shadow: none;
 }
 
 .sa-button-primary:hover {
     transform: translateY(-1px);
-    background: rgb(240, 246, 251);
+    filter: brightness(1.06);
 }
 
 .sa-button-secondary {
@@ -399,15 +485,15 @@ textarea:focus-visible {
     justify-content: center;
     gap: 0.55rem;
     border-radius: 9999px;
-    border: 1px solid rgba(var(--sa-accent-rgb), 0.22);
-    background: rgba(var(--sa-accent-rgb), 0.1);
-    color: #edf5fb;
+    border: 1px solid color-mix(in srgb, var(--admin-accent) 32%, transparent);
+    background: color-mix(in srgb, var(--admin-accent) 13%, var(--admin-surface));
+    color: var(--admin-text);
 }
 
 .sa-button-secondary:hover {
     transform: translateY(-1px);
-    border-color: rgba(var(--sa-accent-rgb), 0.36);
-    background: rgba(var(--sa-accent-rgb), 0.16);
+    border-color: color-mix(in srgb, var(--admin-accent) 46%, transparent);
+    background: color-mix(in srgb, var(--admin-accent) 18%, transparent);
 }
 
 .sa-button-ghost {
@@ -416,14 +502,14 @@ textarea:focus-visible {
     justify-content: center;
     gap: 0.5rem;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: #0e151e;
-    color: #dde6ef;
+    border: 1px solid var(--admin-border);
+    background: color-mix(in srgb, var(--admin-surface) 88%, transparent);
+    color: var(--admin-text);
 }
 
 .sa-button-ghost:hover {
-    border-color: rgba(var(--sa-accent-rgb), 0.24);
-    background: #13202d;
+    border-color: color-mix(in srgb, var(--admin-accent) 34%, transparent);
+    background: var(--admin-surface-soft);
 }
 
 .sa-badge {
@@ -431,61 +517,67 @@ textarea:focus-visible {
     align-items: center;
     gap: 0.4rem;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: #121b25;
-    color: #e3ebf2;
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface-soft);
+    color: var(--admin-text);
 }
 
 .sa-badge-accent {
-    border-color: rgba(var(--sa-accent-rgb), 0.42);
-    background: rgba(var(--sa-accent-rgb), 0.14);
-    color: rgb(var(--sa-accent-strong-rgb));
+    border-color: color-mix(in srgb, var(--admin-accent) 44%, transparent);
+    background: var(--admin-accent-soft);
+    color: color-mix(in srgb, var(--admin-accent) 82%, var(--admin-text));
 }
 
 .sa-badge-success {
-    border-color: rgba(var(--sa-success-rgb), 0.34);
-    background: rgba(var(--sa-success-rgb), 0.14);
-    color: rgb(205, 241, 226);
+    border-color: rgba(var(--admin-success-rgb), 0.34);
+    background: rgba(var(--admin-success-rgb), 0.14);
+    color: var(--admin-success);
 }
 
 .sa-badge-warning {
-    border-color: rgba(var(--sa-warning-rgb), 0.34);
-    background: rgba(var(--sa-warning-rgb), 0.14);
-    color: rgb(244, 224, 190);
+    border-color: rgba(var(--admin-warning-rgb), 0.34);
+    background: rgba(var(--admin-warning-rgb), 0.14);
+    color: var(--admin-warning);
 }
 
 .sa-badge-danger {
-    border-color: rgba(var(--sa-danger-rgb), 0.34);
-    background: rgba(var(--sa-danger-rgb), 0.14);
-    color: rgb(245, 208, 210);
+    border-color: rgba(var(--admin-danger-rgb), 0.34);
+    background: rgba(var(--admin-danger-rgb), 0.14);
+    color: var(--admin-danger);
+}
+
+.sa-badge-info {
+    border-color: rgba(var(--admin-info-rgb), 0.34);
+    background: rgba(var(--admin-info-rgb), 0.14);
+    color: var(--admin-info);
 }
 
 .sa-input {
     width: 100%;
     border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: #0b1219;
-    color: #edf2f7;
+    border: 1px solid var(--admin-border);
+    background: color-mix(in srgb, var(--admin-bg) 78%, var(--admin-surface));
+    color: var(--admin-text);
 }
 
 .sa-input::placeholder {
-    color: rgba(196, 206, 217, 0.62);
+    color: color-mix(in srgb, var(--admin-muted) 68%, transparent);
 }
 
 .sa-input:hover {
-    border-color: rgba(var(--sa-accent-rgb), 0.26);
+    border-color: color-mix(in srgb, var(--admin-accent) 35%, transparent);
 }
 
 .sa-input:focus-visible {
     box-shadow:
-        0 0 0 1px rgba(var(--sa-accent-rgb), 0.24),
-        0 0 0 4px rgba(var(--sa-accent-rgb), 0.12);
+        0 0 0 1px color-mix(in srgb, var(--admin-accent) 40%, transparent),
+        0 0 0 4px color-mix(in srgb, var(--admin-accent) 16%, transparent);
 }
 
 .sa-input:disabled {
     opacity: 1;
-    color: #dbe4ec;
-    background: #111a24;
+    color: var(--admin-muted);
+    background: var(--admin-surface-soft);
 }
 
 .sa-table-row {
@@ -495,5 +587,289 @@ textarea:focus-visible {
 }
 
 .sa-table-row:hover {
-    background: rgba(var(--sa-accent-rgb), 0.06);
+    background: color-mix(in srgb, var(--admin-accent) 8%, transparent);
+}
+
+.sa-sidebar-shell {
+    border-right: 1px solid var(--admin-border);
+    background: var(--admin-sidebar);
+}
+
+.sa-mobile-overlay {
+    background: color-mix(in srgb, var(--admin-bg) 84%, transparent);
+    backdrop-filter: blur(10px);
+}
+
+.sa-topbar {
+    border-bottom: 1px solid var(--admin-border);
+    background: var(--admin-topbar);
+    backdrop-filter: blur(18px);
+}
+
+.sa-topbar-card,
+.sa-user-card,
+.sa-theme-toggle {
+    border-radius: 1rem;
+    border: 1px solid var(--admin-border);
+    background: color-mix(in srgb, var(--admin-surface) 88%, transparent);
+}
+
+.sa-user-card:hover {
+    border-color: color-mix(in srgb, var(--admin-accent) 30%, transparent);
+    background: var(--admin-surface-soft);
+}
+
+.sa-theme-toggle {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding-inline: 0.85rem;
+    color: var(--admin-text);
+}
+
+.sa-theme-toggle:hover {
+    border-color: color-mix(in srgb, var(--admin-accent) 34%, transparent);
+    background: var(--admin-surface-soft);
+}
+
+.sa-theme-toggle__icon {
+    display: inline-flex;
+    height: 1.8rem;
+    width: 1.8rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--admin-accent-soft);
+    color: var(--admin-accent);
+}
+
+.sa-kicker {
+    color: var(--admin-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.sa-dashboard-stat,
+.sa-dashboard-card {
+    border: 1px solid var(--admin-border);
+    border-radius: 1rem;
+    background:
+        linear-gradient(180deg, var(--admin-sheen), transparent),
+        var(--admin-surface);
+    color: var(--admin-text);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.09);
+}
+
+.sa-dashboard-stat {
+    min-height: 8.7rem;
+    padding: 1rem;
+    border-top: 2px solid color-mix(in srgb, var(--tone-color, var(--admin-accent)) 70%, transparent);
+}
+
+.sa-dashboard-stat--high {
+    min-height: 9.4rem;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--tone-color, var(--admin-accent)) 10%, transparent), transparent 62%),
+        var(--admin-surface);
+}
+
+.sa-dashboard-stat__icon {
+    display: inline-flex;
+    height: 2.4rem;
+    width: 2.4rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.9rem;
+    background: color-mix(in srgb, var(--tone-color, var(--admin-accent)) 15%, var(--admin-surface));
+    color: var(--tone-color, var(--admin-accent));
+}
+
+.sa-dashboard-card {
+    padding: 1.1rem;
+}
+
+.sa-tone-accent {
+    --tone-color: var(--admin-accent);
+}
+
+.sa-tone-success {
+    --tone-color: var(--admin-success);
+}
+
+.sa-tone-warning {
+    --tone-color: var(--admin-warning);
+}
+
+.sa-tone-danger {
+    --tone-color: var(--admin-danger);
+}
+
+.sa-tone-info {
+    --tone-color: var(--admin-info);
+}
+
+.sa-tone-neutral {
+    --tone-color: var(--admin-muted);
+}
+
+.sa-empty-chart,
+.sa-list-empty {
+    display: flex;
+    min-height: 9.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    border-radius: 1rem;
+    border: 1px dashed var(--admin-border);
+    background: color-mix(in srgb, var(--admin-surface-soft) 76%, transparent);
+    color: var(--admin-muted);
+    text-align: center;
+    padding: 1.25rem;
+    font-size: 0.9rem;
+}
+
+.sa-empty-chart--compact {
+    min-height: 7.5rem;
+    padding: 1rem;
+}
+
+.sa-empty-chart__icon {
+    display: inline-flex;
+    height: 2.5rem;
+    width: 2.5rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--admin-accent-soft);
+    color: var(--admin-accent);
+}
+
+.sa-compact-donut {
+    display: grid;
+    grid-template-columns: 7.25rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+}
+
+.sa-compact-donut__chart {
+    position: relative;
+    height: 7.25rem;
+    width: 7.25rem;
+}
+
+.sa-mini-area {
+    min-height: 11.35rem;
+}
+
+.sa-mini-area svg {
+    display: block;
+    width: 100%;
+    height: 7.75rem;
+    overflow: visible;
+}
+
+.sa-ranked-list {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.sa-ranked-list__row {
+    border-radius: 0.85rem;
+    padding: 0.2rem 0;
+}
+
+.sa-ranked-list__rank {
+    display: inline-flex;
+    height: 1.7rem;
+    width: 1.7rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid var(--admin-border);
+    color: var(--admin-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.sa-ranked-list__track {
+    height: 0.22rem;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--admin-muted) 18%, transparent);
+}
+
+.sa-ranked-list__line {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--admin-accent), color-mix(in srgb, var(--admin-accent) 62%, var(--admin-danger)));
+}
+
+@media (max-width: 520px) {
+    .sa-compact-donut {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .sa-compact-donut__legend {
+        width: 100%;
+    }
+}
+
+.sa-summary-row,
+.sa-alert-tile {
+    border: 1px solid var(--admin-border);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--admin-surface-soft) 54%, transparent);
+}
+
+.sa-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem;
+}
+
+.sa-summary-row:hover,
+.sa-alert-tile:hover {
+    border-color: color-mix(in srgb, var(--admin-accent) 34%, transparent);
+    background: color-mix(in srgb, var(--admin-accent) 8%, var(--admin-surface));
+}
+
+.sa-alert-tile {
+    min-height: 9.5rem;
+    padding: 1rem;
+}
+
+.sa-shell[data-admin-theme="light"] .text-white {
+    color: var(--admin-text) !important;
+}
+
+.sa-shell[data-admin-theme="light"] .text-stone-200,
+.sa-shell[data-admin-theme="light"] .text-stone-300,
+.sa-shell[data-admin-theme="light"] .text-stone-400,
+.sa-shell[data-admin-theme="light"] .text-stone-500 {
+    color: var(--admin-muted) !important;
+}
+
+.sa-shell[data-admin-theme="light"] [class*="bg-[#0d141d]"],
+.sa-shell[data-admin-theme="light"] [class*="bg-[#101822]"],
+.sa-shell[data-admin-theme="light"] [class*="bg-[#111922]"],
+.sa-shell[data-admin-theme="light"] [class*="bg-[#121b25]"],
+.sa-shell[data-admin-theme="light"] [class*="bg-[#090d13]"],
+.sa-shell[data-admin-theme="light"] [class*="bg-[#070b10]"],
+.sa-shell[data-admin-theme="light"] [class*="bg-[#0a1016]"] {
+    background-color: var(--admin-surface-soft) !important;
+}
+
+.sa-shell[data-admin-theme="light"] [class*="border-white"] {
+    border-color: var(--admin-border) !important;
 }

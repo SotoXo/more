@@ -133,7 +133,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                     className={[
-                        'mx-auto flex max-w-7xl items-center justify-between rounded-full border px-4 py-2 transition-all duration-500 sm:px-5',
+                        'mx-auto flex w-full max-w-7xl items-center justify-between rounded-full border px-3 py-2 transition-all duration-500 sm:px-5',
                         isScrolled || isOpen
                             ? 'border-[rgba(181,122,109,0.28)] bg-[#05070a]/92 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl'
                             : 'border-white/10 bg-[#05070a]/68 backdrop-blur-xl',
@@ -141,19 +141,19 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                 >
                     <Link href="/" className="flex items-center gap-4">
                         <div className="leading-none">
-                            <span className="block text-[0.78rem] font-semibold uppercase tracking-[0.42em] text-white">
-                                MORE
+                            <span className="block max-w-[11rem] truncate text-[0.76rem] font-semibold uppercase tracking-[0.22em] text-white sm:max-w-none sm:tracking-[0.3em]">
+                                Mati Boutique
                             </span>
-                            <div className="mt-0.5 hidden items-center gap-2 sm:flex">
+                            <div className="mt-0.5 hidden items-center gap-2 md:flex">
                                 <span className="h-px w-6 bg-[linear-gradient(90deg,rgba(223,184,166,0.9),transparent)]" />
                                 <span className="text-[0.6rem] uppercase tracking-[0.28em] text-stone-400">
-                                    Mati Boutique
+                                    Catálogo y reservas
                                 </span>
                             </div>
                         </div>
                     </Link>
 
-                    <nav className="hidden items-center gap-6 lg:flex">
+                    <nav className="hidden items-center gap-5 lg:flex">
                         {shopNavigationItems.map((item) => {
                             const active = currentPath === item.href;
 
@@ -177,7 +177,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                     <div className="hidden items-center gap-2 lg:flex">
                         <Link
                             href={shopRoutes.catalog}
-                            aria-label="Explorar catálogo"
+                            aria-label="Ver catálogo"
                             className={iconButtonClass}
                         >
                             <Search size={16} />
@@ -191,16 +191,8 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             <Heart size={16} />
                         </Link>
 
-                        <Link href="/bolsa" aria-label="Bolsa" className={iconButtonClass}>
+                        <Link href="/bolsa" aria-label="Reservas" className={iconButtonClass}>
                             <ShoppingBag size={16} />
-                        </Link>
-
-                        <Link
-                            href={user ? '/cuenta/reservas' : '/login'}
-                            aria-label="Reservas"
-                            className={iconButtonClass}
-                        >
-                            <Package size={16} />
                         </Link>
 
                         {user ? (
@@ -274,11 +266,11 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             className="more-panel relative mx-auto max-w-xl rounded-[1.6rem] p-6"
                         >
                             <div className="border-b border-white/10 pb-5">
-                                <p className="text-sm font-semibold uppercase tracking-[0.38em] text-white">
-                                    MORE
-                                </p>
-                                <p className="mt-2 text-[0.68rem] uppercase tracking-[0.24em] text-stone-400">
+                                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white">
                                     Mati Boutique
+                                </p>
+                                <p className="mt-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-400">
+                                    Catálogo y reservas
                                 </p>
                             </div>
 
@@ -305,7 +297,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                 <Link
                                     href={shopRoutes.catalog}
                                     className={iconButtonClass}
-                                    aria-label="Explorar catálogo"
+                                    aria-label="Ver catálogo"
                                 >
                                     <Search size={16} />
                                 </Link>
@@ -320,18 +312,10 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                 <Link
                                     href="/bolsa"
                                     className={iconButtonClass}
-                                    aria-label="Bolsa"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    <ShoppingBag size={16} />
-                                </Link>
-                                <Link
-                                    href={user ? '/cuenta/reservas' : '/login'}
-                                    className={iconButtonClass}
                                     aria-label="Reservas"
                                     onClick={() => setIsOpen(false)}
                                 >
-                                    <Package size={16} />
+                                    <ShoppingBag size={16} />
                                 </Link>
                             </div>
 

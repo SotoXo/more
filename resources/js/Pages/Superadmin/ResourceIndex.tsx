@@ -66,7 +66,7 @@ export default function ResourceIndex({
             : 'accent';
 
     return (
-        <SuperadminLayout title={`MORE | ${meta.title}`}>
+        <SuperadminLayout title={`Mati Boutique | ${meta.title}`}>
             <div className="space-y-8">
                 <SuperadminPageHeader
                     eyebrow={meta.sectionLabel}

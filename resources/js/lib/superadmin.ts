@@ -4,7 +4,6 @@ import type {
 } from '@/types/superadmin';
 import {
     BadgeCheck,
-    Boxes,
     ClipboardList,
     FolderKanban,
     LayoutDashboard,
@@ -42,15 +41,10 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
         label: 'Panel',
         items: [
             {
-                label: 'Dashboard',
+                label: 'Resumen',
                 href: superadminRoutes.dashboard,
                 icon: LayoutDashboard,
                 exact: true,
-            },
-            {
-                label: 'Mi perfil',
-                href: superadminRoutes.profile,
-                icon: Users2,
             },
         ],
     },
@@ -111,21 +105,14 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
                 label: 'Existencias',
                 href: superadminRoutes.resource('inventario', 'stock'),
                 icon: Warehouse,
-                badge: 'Consulta',
+                badge: 'Lectura',
                 badgeTone: 'accent',
             },
             {
-                label: 'Ajustes sugeridos',
-                href: superadminRoutes.resource('inventario', 'ajustes'),
-                icon: Boxes,
-                badge: 'No listo',
-                badgeTone: 'warning',
-            },
-            {
-                label: 'Alertas de inventario',
+                label: 'Alertas de stock',
                 href: superadminRoutes.resource('inventario', 'alertas'),
                 icon: PackageSearch,
-                badge: 'Consulta',
+                badge: 'Lectura',
                 badgeTone: 'accent',
             },
         ],
@@ -134,17 +121,17 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
         label: 'Comercial',
         items: [
             {
-                label: 'Consulta de ventas',
+                label: 'Ventas',
                 href: superadminRoutes.resource('comercial', 'ventas'),
                 icon: Receipt,
             },
             {
-                label: 'Consulta de reservas',
+                label: 'Reservas',
                 href: superadminRoutes.resource('comercial', 'reservas'),
                 icon: ClipboardList,
             },
             {
-                label: 'Favoritos guardados',
+                label: 'Favoritos',
                 href: superadminRoutes.resource('comercial', 'favoritos'),
                 icon: Sparkles,
             },
@@ -154,12 +141,12 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
         label: 'Análisis',
         items: [
             {
-                label: 'Reportes de consulta',
+                label: 'Reportes operativos',
                 href: superadminRoutes.reports,
                 icon: BookOpenText,
             },
             {
-                label: 'Bitácora',
+                label: 'Registro de actividad',
                 href: superadminRoutes.logs,
                 icon: ScrollText,
             },
@@ -198,6 +185,7 @@ export function toneClasses(tone: SuperadminTone = 'neutral') {
         accent: 'sa-badge sa-badge-accent',
         success: 'sa-badge sa-badge-success',
         warning: 'sa-badge sa-badge-warning',
+        info: 'sa-badge sa-badge-info',
         danger: 'sa-badge sa-badge-danger',
     }[tone];
 }

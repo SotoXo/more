@@ -1,3 +1,4 @@
+import StorefrontImage from '@/Components/shop/StorefrontImage';
 import type { ShopProduct } from '@/types/shop';
 import { useState } from 'react';
 
@@ -9,7 +10,7 @@ export default function ProductGallery({ product }: { product: ShopProduct }) {
     return (
         <div className="space-y-4">
             <div className="more-panel relative overflow-hidden rounded-[2rem]">
-                <img
+                <StorefrontImage
                     src={selectedImage}
                     alt={product.name}
                     className="h-[520px] w-full object-cover transition duration-[900ms] lg:h-[700px]"
@@ -33,7 +34,7 @@ export default function ProductGallery({ product }: { product: ShopProduct }) {
                                     : 'border-white/8 hover:border-[rgba(181,122,109,0.22)]',
                             ].join(' ')}
                         >
-                            <img
+                            <StorefrontImage
                                 src={image}
                                 alt={product.name}
                                 className="h-28 w-full object-cover transition duration-500 hover:scale-[1.03] sm:h-36"

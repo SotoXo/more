@@ -52,7 +52,7 @@ export default function ResourceShow({
             : 'accent';
 
     return (
-        <SuperadminLayout title={`MORE | ${recordLabel}`}>
+        <SuperadminLayout title={`Mati Boutique | ${recordLabel}`}>
             <div className="space-y-8">
                 <SuperadminPageHeader
                     eyebrow={meta.sectionLabel}

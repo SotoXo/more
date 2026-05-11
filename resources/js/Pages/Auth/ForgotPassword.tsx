@@ -6,6 +6,11 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
+const authInputClass =
+    'bg-[#151820] text-[#f8fafc] placeholder:text-[#a8b3c7] ' +
+    'border-[rgba(255,255,255,0.22)] focus:border-[#e8c9b8] focus:ring-[#e8c9b8]';
+const authLabelClass = 'text-[#d5dde9]';
+
 export default function ForgotPassword({ status }: { status?: string }) {
     const { data, setData, post, processing, errors } = useForm({
         email: '',
@@ -21,7 +26,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
         <GuestLayout>
             <Head title="Recuperar contraseña" />
 
-            <div className="mb-6 text-sm leading-6 text-stone-300">
+            <div className="mb-6 text-sm leading-6 text-[#c5cfdd]">
                 Ingresa tu correo electrónico y te enviaremos un enlace para
                 restablecer tu contraseña.
             </div>
@@ -33,19 +38,23 @@ export default function ForgotPassword({ status }: { status?: string }) {
             )}
 
             <form onSubmit={submit} className="space-y-5">
-                <InputLabel htmlFor="email" value="Correo electrónico" />
+                <InputLabel
+                    htmlFor="email"
+                    value="Correo electrónico"
+                    className={authLabelClass}
+                />
                 <TextInput
                     id="email"
                     type="email"
                     name="email"
                     value={data.email}
-                    className="mt-1 block w-full"
+                    className={`mt-1 block w-full ${authInputClass}`}
                     placeholder="correo@dominio.com"
                     isFocused={true}
                     onChange={(e) => setData('email', e.target.value.trim().toLowerCase())}
                 />
 
-                <InputError message={errors.email} className="mt-2 text-[#ef4444]" />
+                <InputError message={errors.email} className="mt-2 text-[#ff6b6b]" />
 
                 <div className="flex items-center justify-end">
                     <PrimaryButton disabled={processing}>

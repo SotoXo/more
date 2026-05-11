@@ -26,12 +26,12 @@ export default function SuperadminSidebar({
         <div className="flex h-full flex-col">
             <div className="flex items-center justify-between border-b border-white/8 px-4 py-5">
                 <div className="min-w-0">
-                    <p className="text-sm font-semibold uppercase tracking-[0.32em] text-white">
-                        MORE
+                    <p className="text-sm font-semibold tracking-[0.08em] text-white">
+                        Mati Boutique
                     </p>
                     {!collapsed && (
                         <p className="mt-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-400">
-                            Superadmin
+                            Panel administrativo
                         </p>
                     )}
                 </div>
@@ -65,14 +65,14 @@ export default function SuperadminSidebar({
                                         href={item.href}
                                         onClick={onNavigate}
                                         className={[
-                                            'group flex items-center gap-3 rounded-2xl border px-3 py-3 transition duration-200',
+                                            'group flex items-center gap-3 rounded-xl border px-3 py-2.5 transition duration-200',
                                             active
                                                 ? 'border-[rgba(126,154,178,0.28)] bg-[rgba(126,154,178,0.12)] text-white'
                                                 : 'border-transparent text-stone-300 hover:border-white/8 hover:bg-[#121c27] hover:text-white',
                                             collapsed ? 'justify-center' : '',
                                         ].join(' ')}
                                     >
-                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/8 bg-[#111922]">
+                                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/8 bg-[#111922]">
                                             <Icon size={17} />
                                         </span>
                                         {!collapsed && (

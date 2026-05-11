@@ -39,27 +39,27 @@ export type BrandEditorialCard = {
 export const homeHeroSlides: HomeHeroSlide[] = [
     {
         title: 'Novedades de temporada',
-        subtitle: 'Prendas seleccionadas para renovar tu guardarropa con elegancia y facilidad.',
-        note: 'Explora lo nuevo y encuentra piezas listas para comprar.',
+        subtitle: 'Revisa tallas, colores y disponibilidad antes de reservar.',
+        note: 'Consulta disponibilidad y reserva tus prendas favoritas.',
         image: 'https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg?auto=compress&cs=tinysrgb&w=1600',
     },
     {
         title: 'Selección Mati Boutique',
-        subtitle: 'Categorías, marcas y prendas reunidas para comprar de forma simple y cuidada.',
-        note: 'Recorre la tienda por novedades, categorías o catálogo completo.',
+        subtitle: 'Prendas, marcas y categorías reunidas para elegir con información clara.',
+        note: 'Recorre novedades, categorías o el catálogo completo.',
         image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1600',
     },
     {
-        title: 'Detalles para elegir mejor',
+        title: 'Tallas y disponibilidad',
         subtitle: 'Consulta color, talla, disponibilidad y precio antes de reservar tu prenda.',
-        note: 'Compra con información clara y atención boutique.',
+        note: 'Reserva con información clara y atención boutique.',
         image: 'https://images.pexels.com/photos/6455010/pexels-photo-6455010.jpeg?auto=compress&cs=tinysrgb&w=1600',
     },
 ];
 
 export const homeCollectionCards: HomeCollectionCard[] = [
     {
-        title: 'Explorar catálogo',
+        title: 'Ver catálogo',
         image: 'https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=1200',
         label: 'Todas las prendas',
         href: shopRoutes.catalog,
@@ -76,17 +76,17 @@ export const collectionPresentation: Record<ShopCollectionKey, CollectionPresent
     catalogo: {
         title: 'Catálogo',
         eyebrow: 'Todas las prendas',
-        subtitle: 'Explora prendas, marcas y categorías disponibles en MORE.',
-        description: 'Filtra por talla, color, precio o marca para encontrar la prenda que buscas.',
+        subtitle: 'Encuentra prendas disponibles en Mati Boutique.',
+        description: 'Filtra por talla, color, precio o marca antes de reservar.',
         heroImage:
             'https://images.pexels.com/photos/977585/pexels-photo-977585.jpeg?auto=compress&cs=tinysrgb&w=1600',
-        highlights: ['Todas las prendas', 'Marcas disponibles', 'Filtros de compra'],
+        highlights: ['Todas las prendas', 'Marcas disponibles', 'Filtros'],
     },
     mujer: {
         title: 'Mujer',
         eyebrow: 'Moda mujer',
-        subtitle: 'Prendas femeninas seleccionadas para looks elegantes y actuales.',
-        description: 'Encuentra opciones para vestir de día, de noche o para renovar básicos clave.',
+        subtitle: 'Prendas seleccionadas para revisar y reservar.',
+        description: 'Encuentra opciones por talla, color y estilo, con disponibilidad visible.',
         heroImage:
             'https://images.pexels.com/photos/4879302/pexels-photo-4879302.jpeg?auto=compress&cs=tinysrgb&w=1600',
         highlights: ['Prendas femeninas', 'Looks actuales', 'Tallas disponibles'],
@@ -94,8 +94,8 @@ export const collectionPresentation: Record<ShopCollectionKey, CollectionPresent
     hombre: {
         title: 'Hombre',
         eyebrow: 'Moda hombre',
-        subtitle: 'Prendas masculinas con líneas limpias y estilo actual.',
-        description: 'Explora opciones para looks casuales, urbanos y de temporada.',
+        subtitle: 'Prendas masculinas disponibles para reserva.',
+        description: 'Revisa opciones casuales, urbanas y de temporada con stock visible.',
         heroImage:
             'https://images.pexels.com/photos/36207069/pexels-photo-36207069.jpeg?auto=compress&cs=tinysrgb&w=1600',
         highlights: ['Prendas masculinas', 'Estilo urbano', 'Disponibilidad actual'],
@@ -103,8 +103,8 @@ export const collectionPresentation: Record<ShopCollectionKey, CollectionPresent
     accesorios: {
         title: 'Accesorios',
         eyebrow: 'Complementos',
-        subtitle: 'Accesorios para completar tu look con detalle y estilo.',
-        description: 'Revisa bolsos, piezas de cuero y complementos disponibles en la tienda.',
+        subtitle: 'Accesorios para completar tu look.',
+        description: 'Revisa bolsos, piezas de cuero y complementos disponibles para reservar.',
         heroImage:
             'https://images.pexels.com/photos/5059874/pexels-photo-5059874.jpeg?auto=compress&cs=tinysrgb&w=1600',
         highlights: ['Bolsos', 'Complementos', 'Piezas disponibles'],
@@ -112,7 +112,7 @@ export const collectionPresentation: Record<ShopCollectionKey, CollectionPresent
     novedades: {
         title: 'Novedades',
         eyebrow: 'Recién llegadas',
-        subtitle: 'Las prendas recién incorporadas al catálogo de MORE.',
+        subtitle: 'Las prendas recién incorporadas a Mati Boutique.',
         description: 'Revisa las últimas llegadas y reserva tus favoritas antes de que se agoten.',
         heroImage:
             'https://images.pexels.com/photos/977585/pexels-photo-977585.jpeg?auto=compress&cs=tinysrgb&w=1600',
@@ -149,7 +149,7 @@ export const homeCategoryVisuals: CategoryVisual[] = [
 
 export const homeBrandEditorialCards: BrandEditorialCard[] = [
     {
-        title: 'Comprar por marca',
+        title: 'Ver por marca',
         note: 'Selección por marca',
         image: 'https://images.pexels.com/photos/1066171/pexels-photo-1066171.jpeg?auto=compress&cs=tinysrgb&w=1400',
         href: shopRoutes.catalog,
@@ -161,7 +161,7 @@ export const homeBrandEditorialCards: BrandEditorialCard[] = [
         href: shopRoutes.newIn,
     },
     {
-        title: 'Explorar catálogo',
+        title: 'Ver catálogo',
         note: 'Todas las prendas',
         image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1400',
         href: shopRoutes.catalog,

@@ -50,7 +50,7 @@ class ProfileController extends Controller
             ],
         ], [
             'regex' => 'Formato inválido.',
-            'tel_usu.regex' => 'El teléfono debe tener 8 dígitos y comenzar con 6 o 7.',
+            'tel_usu.regex' => 'Ingresa un teléfono celular válido.',
         ]);
 
         $payload = [

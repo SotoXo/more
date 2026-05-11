@@ -24,24 +24,24 @@ export default function ShopToolbar({
     onOpenFilters,
 }: ShopToolbarProps) {
     return (
-        <div className="more-panel-soft flex flex-col gap-5 rounded-[1.8rem] px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-stone-300">
+        <div className="more-panel-soft flex min-w-0 flex-col gap-5 rounded-[1.35rem] px-4 py-5 sm:rounded-[1.8rem] sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+                <p className="break-words text-[0.66rem] uppercase tracking-[0.2em] text-stone-300 sm:text-[0.68rem] sm:tracking-[0.24em]">
                     Catálogo / {title}
                 </p>
-                <div className="mt-2 flex items-center gap-3">
-                    <span className="h-px w-8 bg-[linear-gradient(90deg,rgba(223,184,166,0.92),transparent)]" />
+                <div className="mt-2 flex min-w-0 items-center gap-3">
+                    <span className="h-px w-8 shrink-0 bg-[linear-gradient(90deg,rgba(223,184,166,0.92),transparent)]" />
                     <p className="text-sm text-stone-200">
                         {resultCount} {resultCount === 1 ? 'producto encontrado' : 'productos encontrados'}
                     </p>
                 </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
                 <button
                     type="button"
                     onClick={onOpenFilters}
-                    className="more-cta-secondary inline-flex px-4 py-3 text-[0.7rem] uppercase tracking-[0.22em] lg:hidden"
+                    className="more-cta-secondary inline-flex w-full px-4 py-3 text-[0.7rem] uppercase tracking-[0.22em] sm:w-auto lg:hidden"
                 >
                     <SlidersHorizontal size={15} />
                     Filtros
@@ -75,14 +75,14 @@ export default function ShopToolbar({
                     })}
                 </div>
 
-                <label className="flex items-center gap-3 text-[0.68rem] uppercase tracking-[0.22em] text-stone-300">
+                <label className="flex min-w-0 flex-col gap-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-300 sm:flex-row sm:items-center sm:gap-3 sm:tracking-[0.22em]">
                     Ordenar por
                     <select
                         value={sort}
                         onChange={(event) =>
                             onSortChange(event.target.value as ShopSortKey)
                         }
-                        className="rounded-full border border-white/12 bg-[#070a0f] px-4 py-3 text-[0.72rem] uppercase tracking-[0.18em] text-white focus:border-[rgba(181,122,109,0.42)] focus:outline-none"
+                        className="w-full min-w-0 rounded-full border border-white/12 bg-[#070a0f] px-4 py-3 text-[0.72rem] uppercase tracking-[0.16em] text-white focus:border-[rgba(181,122,109,0.42)] focus:outline-none sm:w-auto sm:tracking-[0.18em]"
                     >
                         {sortOptions.map((option) => (
                             <option key={option.value} value={option.value}>

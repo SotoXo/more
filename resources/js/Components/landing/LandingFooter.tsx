@@ -13,9 +13,9 @@ const shopLinks = [
 ];
 
 const brandLinks = [
-    { label: 'Guía de compra', href: shopRoutes.collections },
-    { label: 'Editorial MORE', href: shopRoutes.editorial },
-    { label: 'Atención boutique', href: shopRoutes.catalog },
+    { label: 'Colecciones por categoría', href: shopRoutes.collections },
+    { label: 'Editorial', href: shopRoutes.editorial },
+    { label: 'Disponibilidad', href: shopRoutes.catalog },
 ];
 
 export default function LandingFooter({ user }: { user: LandingUser }) {
@@ -40,17 +40,17 @@ export default function LandingFooter({ user }: { user: LandingUser }) {
                 <div className="grid gap-10 lg:grid-cols-[1.12fr_0.62fr_0.62fr_0.84fr]">
                     <div className="max-w-md">
                         <Link href="/" className="inline-flex items-end gap-3">
-                            <span className="text-base font-semibold uppercase tracking-[0.46em] text-white">
-                                MORE
+                            <span className="text-base font-semibold uppercase tracking-[0.24em] text-white">
+                                Mati Boutique
                             </span>
                             <span className="mb-1 h-px w-12 bg-[linear-gradient(90deg,rgba(223,184,166,0.92),transparent)]" />
                         </Link>
                         <p className="mt-3 text-[0.7rem] uppercase tracking-[0.26em] text-stone-400">
-                            Mati Boutique
+                            Catálogo y reservas
                         </p>
                         <p className="mt-6 max-w-sm text-sm leading-7 text-stone-300">
-                            Moda y accesorios seleccionados por Mati Boutique para comprar
-                            con estilo, claridad y atención personalizada.
+                            Moda y accesorios seleccionados para revisar disponibilidad,
+                            elegir talla y reservar con atención personalizada.
                         </p>
                     </div>
 
@@ -141,7 +141,7 @@ export default function LandingFooter({ user }: { user: LandingUser }) {
                 </div>
 
                 <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-stone-500 sm:flex-row sm:items-center sm:justify-between">
-                    <p>MORE por Mati Boutique</p>
+                    <p>Mati Boutique</p>
                     <div className="flex flex-wrap items-center gap-4">
                         <span>Atención boutique</span>
                         <span>La Paz</span>

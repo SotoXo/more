@@ -5,6 +5,7 @@ export type SuperadminTone =
     | 'accent'
     | 'success'
     | 'warning'
+    | 'info'
     | 'danger';
 
 export type SuperadminBreadcrumb = {
@@ -216,4 +217,61 @@ export type SuperadminLogEntry = {
     description: string;
     date: string;
     tone?: SuperadminTone;
+};
+
+export type SuperadminDashboardMetric = {
+    key: string;
+    label: string;
+    value: string;
+    note: string;
+    tone?: SuperadminTone;
+    priority?: 'high' | 'normal';
+    href?: string | null;
+    icon: string;
+};
+
+export type SuperadminChartPoint = {
+    label: string;
+    value: number;
+    amount?: number;
+    tone?: SuperadminTone;
+    href?: string | null;
+};
+
+export type SuperadminDashboardListItem = {
+    title: string;
+    meta?: string | null;
+    value: string;
+    label?: string | null;
+    tone?: SuperadminTone;
+    href?: string | null;
+};
+
+export type SuperadminDashboardAlert = {
+    title: string;
+    value: string;
+    description: string;
+    tone?: SuperadminTone;
+    href?: string | null;
+};
+
+export type SuperadminDashboardPayload = {
+    metrics: SuperadminDashboardMetric[];
+    charts: {
+        stockByCategory: SuperadminChartPoint[];
+        productsByCategory: SuperadminChartPoint[];
+        stockByState: SuperadminChartPoint[];
+        salesByPeriod: SuperadminChartPoint[];
+        reservationsByState: SuperadminChartPoint[];
+        topCategories: SuperadminChartPoint[];
+        topBrands: SuperadminChartPoint[];
+        topFavorites: SuperadminChartPoint[];
+    };
+    lists: {
+        lowStock: SuperadminDashboardListItem[];
+        recentProducts: SuperadminDashboardListItem[];
+        recentSales: SuperadminDashboardListItem[];
+        recentReservations: SuperadminDashboardListItem[];
+        alerts: SuperadminDashboardAlert[];
+    };
 };

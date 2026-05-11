@@ -25,6 +25,14 @@ type FlashMessages = {
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const authInputClass =
+    'bg-[#151820] text-[#f8fafc] placeholder:text-[#a8b3c7] ' +
+    'border-[rgba(255,255,255,0.22)] focus:border-[#e8c9b8] focus:ring-[#e8c9b8]';
+const authLabelClass = 'text-[#d5dde9]';
+const passwordToggleClass =
+    'absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-md ' +
+    'text-[#d5dde9] transition hover:bg-white/5 hover:text-white ' +
+    'focus:outline-none focus:ring-2 focus:ring-[#e8c9b8] focus:ring-offset-2 focus:ring-offset-[#12141a]';
 
 export default function Login({
     status,
@@ -116,9 +124,9 @@ export default function Login({
 
             <div className="mb-8 text-center">
                 <h2 className="mb-2 text-2xl font-bold text-[#f8fafc]">
-                    Ingresa a tu cuenta MORE
+                    Ingresa a tu cuenta Mati Boutique
                 </h2>
-                <p className="text-sm text-[#94a3b8]">
+                <p className="text-sm text-[#c5cfdd]">
                     Accede para revisar favoritos, reservas y tu bolsa.
                 </p>
             </div>
@@ -141,7 +149,11 @@ export default function Login({
 
             <form onSubmit={submit} className="space-y-5" noValidate>
                 <div>
-                    <InputLabel htmlFor="email" value="Correo electrónico" />
+                    <InputLabel
+                        htmlFor="email"
+                        value="Correo electrónico"
+                        className={authLabelClass}
+                    />
 
                     <TextInput
                         id="email"
@@ -149,7 +161,7 @@ export default function Login({
                         type="email"
                         name="email"
                         value={data.email}
-                        className="mt-1 block w-full"
+                        className={`mt-1 block w-full ${authInputClass}`}
                         autoComplete="username"
                         placeholder="correo@dominio.com"
                         isFocused={true}
@@ -175,7 +187,11 @@ export default function Login({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password" value="Contraseña" />
+                    <InputLabel
+                        htmlFor="password"
+                        value="Contraseña"
+                        className={authLabelClass}
+                    />
 
                     <div className="relative mt-1">
                         <TextInput
@@ -184,7 +200,7 @@ export default function Login({
                             type={showPassword ? 'text' : 'password'}
                             name="password"
                             value={data.password}
-                            className="block w-full pr-12"
+                            className={`block w-full pr-12 ${authInputClass}`}
                             autoComplete="current-password"
                             placeholder="Ingresa tu contraseña"
                             required
@@ -204,7 +220,7 @@ export default function Login({
 
                         <button
                             type="button"
-                            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-md text-[#94a3b8] transition hover:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#818cf8] focus:ring-offset-2 focus:ring-offset-[#03040b]"
+                            className={passwordToggleClass}
                             aria-label={
                                 showPassword
                                     ? 'Ocultar contraseña'
@@ -214,9 +230,9 @@ export default function Login({
                             onClick={() => setShowPassword((show) => !show)}
                         >
                             {showPassword ? (
-                                <EyeOff aria-hidden="true" size={18} />
+                                <EyeOff aria-hidden="true" size={20} strokeWidth={2.25} />
                             ) : (
-                                <Eye aria-hidden="true" size={18} />
+                                <Eye aria-hidden="true" size={20} strokeWidth={2.25} />
                             )}
                         </button>
                     </div>
@@ -239,9 +255,9 @@ export default function Login({
                                     (e.target.checked || false) as false,
                                 )
                             }
-                            className="bg-[#0d0d12] border-[rgba(255,255,255,0.2)] text-[#818cf8] focus:ring-[#818cf8]"
+                            className="border-[rgba(255,255,255,0.35)] bg-[#151820] text-[#e8c9b8] focus:ring-[#e8c9b8]"
                         />
-                        <span className="ms-3 text-sm text-[#94a3b8]">
+                        <span className="ms-3 text-sm text-[#c5cfdd]">
                             Mantenme conectado
                         </span>
                     </label>
@@ -252,14 +268,14 @@ export default function Login({
                         {canResetPassword && (
                             <Link
                                 href={route('password.request')}
-                                className="text-sm text-[#94a3b8] underline transition duration-300 hover:text-[#f8fafc]"
+                                className="text-sm text-[#c5cfdd] underline transition duration-300 hover:text-[#f8fafc]"
                             >
                                 ¿Olvidaste tu contraseña?
                             </Link>
                         )}
                         <Link
                             href={route('register')}
-                            className="text-sm text-[#94a3b8] underline transition duration-300 hover:text-[#f8fafc]"
+                            className="text-sm text-[#c5cfdd] underline transition duration-300 hover:text-[#f8fafc]"
                         >
                             ¿No tienes una cuenta? Regístrate
                         </Link>
