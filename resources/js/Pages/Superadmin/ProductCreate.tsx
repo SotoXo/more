@@ -20,31 +20,48 @@ type InlineCatalogKey = 'categories' | 'brands' | 'colors' | 'sizes' | 'seasons'
 type ProductStepId = 'base' | 'image' | 'type' | 'commercial' | 'variants' | 'review';
 type InlineTarget = { type: 'product'; field: 'cod_categorias_pre' | 'cod_marcas_pre' | 'cod_temporadas_pre' } | { type: 'variant'; field: 'cod_colores_prv' | 'cod_tallas_prv'; rowIndex: number };
 type InlineDrawerState = { resource: InlineCatalogKey; target: InlineTarget; seed: string; };
-type InlineForm = { name: string; family: string; hex: string; order: string; };
-type SizeProfile = { key: 'alpha' | 'numeric' | 'unit'; label: string; values: string[]; };
+type InlineForm = { name: string; family: string; hex: string; order: string; code: string; startDate: string; endDate: string; };
+type CategorySizeProfile = { system?: string | null; group?: string | null; segment?: string | null };
+type SizeProfile = { key: 'alpha' | 'numeric' | 'unit'; label: string; values: string[]; segment: string; system: string; group: string; source: 'category' | 'fallback'; };
 type ProductStep = { id: ProductStepId; number: number; title: string; description: string; };
 type ColorInsight = { hex: string; family: SuperadminFormFieldOption | null; suggestedColor: SuperadminFormFieldOption | null; };
 type PickedColorSample = { hex: string; relativeX: number; relativeY: number; };
-type ProductCreateProps = { meta: SuperadminResourceMeta; breadcrumbs: SuperadminBreadcrumb[]; mode: 'create' | 'edit'; recordLabel?: string | null; submit: SuperadminFormSubmit; stateAction?: SuperadminFormStateAction | null; editor: { title: string; description: string; currentPrimaryUrl?: string | null; currentPrimaryLabel?: string | null; }; options: { categories: SuperadminFormFieldOption[]; brands: SuperadminFormFieldOption[]; seasons: SuperadminFormFieldOption[]; genders: SuperadminFormFieldOption[]; colors: SuperadminFormFieldOption[]; sizes: SuperadminFormFieldOption[]; locations: SuperadminFormFieldOption[]; colorFamilies: SuperadminFormFieldOption[]; categoryProfiles: Record<string, string>; }; initialData: ProductEditorForm; };
+type ProductCreateProps = { meta: SuperadminResourceMeta; breadcrumbs: SuperadminBreadcrumb[]; mode: 'create' | 'edit'; recordLabel?: string | null; submit: SuperadminFormSubmit; stateAction?: SuperadminFormStateAction | null; editor: { title: string; description: string; currentPrimaryUrl?: string | null; currentPrimaryLabel?: string | null; }; options: { categories: SuperadminFormFieldOption[]; brands: SuperadminFormFieldOption[]; seasons: SuperadminFormFieldOption[]; genders: SuperadminFormFieldOption[]; colors: SuperadminFormFieldOption[]; sizes: SuperadminFormFieldOption[]; sizeSegments?: SuperadminFormFieldOption[]; locations: SuperadminFormFieldOption[]; colorFamilies: SuperadminFormFieldOption[]; categoryProfiles: Record<string, CategorySizeProfile>; }; initialData: ProductEditorForm; };
 
 function createVariantRow(defaultPrice = '', defaultLocation = 'TIENDA'): ProductVariantRow { return { id: '', sku_prv: '', cod_colores_prv: '', cod_tallas_prv: '', cob_prv: '', pve_prv: defaultPrice, cos_prv: '', stock_inicial: '1', ubi_inv: defaultLocation, est_prv: true, remove: false }; }
 function createGalleryRow(order = '1', source = 'galeria'): NewGalleryImageRow { return { archivo: null, ord_igp: order, pri_igp: false, fue_igp: source }; }
 function normalizeText(value: string) { return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase(); }
-function inferCategoryProfile(name: string) { const haystack = normalizeText(name); if (haystack.includes('PANTAL')) return 'NUMERICA'; if (haystack.includes('ACCESOR')) return 'UNITALLA'; return 'ALFA'; }
-function inferSizeProfile(productName: string, categoryLabel: string, categoryProfile?: string): SizeProfile { const profile = normalizeText(categoryProfile ?? ''); if (profile === 'NUMERICA') return { key: 'numeric', label: 'Tallas numéricas sugeridas', values: ['32', '34', '36', '38', '40', '42', '44', '46', '48'] }; if (profile === 'UNITALLA') return { key: 'unit', label: 'Talla sugerida', values: ['UNITALLA'] }; const haystack = normalizeText(`${productName} ${categoryLabel}`); if (/(PANTAL|JEAN|DENIM|JOGGER|SHORT|BERMUDA|LEGGING)/.test(haystack)) return { key: 'numeric', label: 'Tallas numéricas sugeridas', values: ['32', '34', '36', '38', '40', '42', '44', '46', '48'] }; if (/(ACCESOR|BOLSO|CARTERA|CINTURON|BUFANDA|GORRO|JOY|COLLAR|PULSERA|ANILLO|ARETE|LENTE|SOMBRERO)/.test(haystack)) return { key: 'unit', label: 'Talla sugerida', values: ['UNITALLA'] }; return { key: 'alpha', label: 'Tallas sugeridas', values: ['XS', 'S', 'M', 'L', 'XL'] }; }
+function inferCategoryProfile(name: string): CategorySizeProfile { const haystack = normalizeText(name); if (haystack.includes('PANTAL')) return { segment: 'ADULTO', system: 'NUMERICA', group: 'INFERIOR' }; if (haystack.includes('ACCESOR')) return { segment: 'ADULTO', system: 'UNICA', group: 'GENERAL' }; return { segment: 'ADULTO', system: 'ALFA', group: 'SUPERIOR' }; }
+function normalizeCategorySystem(value?: string | null) { const system = normalizeText(value ?? ''); return system === 'UNITALLA' ? 'UNICA' : system; }
+function fallbackSizeValues(system: string) { if (system === 'NUMERICA') return ['32', '34', '36', '38', '40', '42', '44', '46', '48']; if (system === 'UNICA') return ['UNITALLA']; return ['XS', 'S', 'M', 'L', 'XL']; }
+function sizeProfileLabel(segment: string, system: string, group: string) { const prefix = segment ? `${segment} / ` : ''; if (system === 'NUMERICA') return `${prefix}Tallas numéricas sugeridas${group ? ` (${group})` : ''}`; if (system === 'UNICA') return `${prefix}Talla sugerida${group ? ` (${group})` : ''}`; return `${prefix}Tallas sugeridas${group ? ` (${group})` : ''}`; }
+function inferSizeProfile(productName: string, categoryLabel: string, categoryProfile?: CategorySizeProfile): SizeProfile { const fallback = inferCategoryProfile(`${productName} ${categoryLabel}`); const segment = normalizeText(categoryProfile?.segment ?? fallback.segment ?? 'ADULTO'); const system = normalizeCategorySystem(categoryProfile?.system) || normalizeCategorySystem(fallback.system) || 'ALFA'; const group = normalizeText(categoryProfile?.group ?? fallback.group ?? (system === 'NUMERICA' ? 'INFERIOR' : system === 'UNICA' ? 'GENERAL' : 'SUPERIOR')); const key = system === 'NUMERICA' ? 'numeric' : system === 'UNICA' ? 'unit' : 'alpha'; return { key, label: sizeProfileLabel(segment, system, group), values: fallbackSizeValues(system), segment, system, group, source: categoryProfile?.system || categoryProfile?.group ? 'category' : 'fallback' }; }
 function previewCodePrefix(source: string) { const letters = normalizeText(source).replace(/[^A-Z]/g, ''); const prefix = (letters || 'PRE').slice(0, 3).padEnd(3, 'X'); return `${prefix}-XXXXX`; }
 function previewVariantCode(baseCode: string, position: number, hasVariants: boolean, persistedCode = '') { if (persistedCode) return persistedCode; return hasVariants ? `${baseCode}-${String(position).padStart(2, '0')}` : baseCode; }
-function suggestSizeOrder(name: string) { const normalized = normalizeText(name); const alphaMap: Record<string, number> = { UNITALLA: 10, XXS: 20, XS: 30, S: 40, M: 50, L: 60, XL: 70, XXL: 80 }; if (alphaMap[normalized]) return alphaMap[normalized]; if (/^\d+$/.test(normalized)) return 100 + Number(normalized); return 999; }
+function suggestSizeOrder(name: string) { const normalized = normalizeText(name).replace('Ú', 'U'); const alphaMap: Record<string, number> = { XXXS: 5, XXS: 10, XS: 20, S: 30, M: 40, L: 50, XL: 60, XXL: 70, XXXL: 80, XXXXL: 90, '5XL': 100, UNITALLA: 10, UNICA: 10 }; if (alphaMap[normalized]) return alphaMap[normalized]; if (/^\d+$/.test(normalized)) return 1000 + Number(normalized) * 10; const us = normalized.replace(/\s*US$/, '').replace(' 1/2', '.5'); if (/^\d+(\.5)?$/.test(us)) return 3000 + Math.round(Number(us) * 10); const eu = normalized.match(/^(\d+)\s*EU$/); if (eu) return 4000 + Number(eu[1]); const age = normalized.match(/^(\d+)A$/); if (age) return 5000 + Number(age[1]) * 10; const height = normalized.match(/^(\d+)\s*CM$/); if (height) return 6000 + Number(height[1]); const months = normalized.match(/^\d+-(\d+)M$/); if (months) return 7000 + Number(months[1]); return 9999; }
 function sortOptions(resource: InlineCatalogKey, items: SuperadminFormFieldOption[]) { const unique = Array.from(new Map(items.map((item) => [item.value, item])).values()); if (resource === 'sizes') return unique.sort((left, right) => suggestSizeOrder(left.label) - suggestSizeOrder(right.label)); return unique.sort((left, right) => left.label.localeCompare(right.label, 'es', { sensitivity: 'base' })); }
 function prioritizeOptions(options: SuperadminFormFieldOption[], preferredValues: string[]) { const order = preferredValues.filter(Boolean); if (order.length === 0) return options; return [...options].sort((left, right) => { const leftRank = order.indexOf(left.value); const rightRank = order.indexOf(right.value); if (leftRank === -1 && rightRank === -1) return 0; if (leftRank === -1) return 1; if (rightRank === -1) return -1; return leftRank - rightRank; }); }
+function predominantSizeSegment(rows: ProductVariantRow[], sizes: SuperadminFormFieldOption[]) {
+    const sizeMap = new Map(sizes.map((option) => [option.value, normalizeText(option.segment ?? 'ADULTO')]));
+    const counts = rows.reduce<Record<string, number>>((carry, row) => {
+        if (row.remove || !row.cod_tallas_prv) return carry;
+        const segment = sizeMap.get(row.cod_tallas_prv);
+        if (!segment) return carry;
+        carry[segment] = (carry[segment] ?? 0) + 1;
+        return carry;
+    }, {});
+
+    return Object.entries(counts).sort((left, right) => right[1] - left[1])[0]?.[0] ?? 'ADULTO';
+}
 function defaultColorFamily(seed: string) { const normalized = normalizeText(seed); if (normalized.includes('ROSA')) return 'ROSA'; if (normalized.includes('AZUL')) return 'AZUL'; if (normalized.includes('VERDE')) return 'VERDE'; if (normalized.includes('BEIGE')) return 'BEIGE'; if (normalized.includes('CAMEL')) return 'CAMEL'; if (normalized.includes('CREMA') || normalized.includes('BLANCO')) return 'BLANCO'; if (normalized.includes('BORGONA') || normalized.includes('ROJO')) return 'ROJO'; if (normalized.includes('MARRON') || normalized.includes('CAFE')) return 'MARRON'; if (normalized.includes('NEGRO')) return 'NEGRO'; if (normalized.includes('GRIS')) return 'GRIS'; return normalized.split(' ')[0] || 'NEUTRO'; }
-function inlineDefaults(resource: InlineCatalogKey, seed: string): InlineForm { return { name: seed.trim().toUpperCase(), family: resource === 'colors' ? defaultColorFamily(seed) : '', hex: '#D8C3A5', order: resource === 'sizes' && seed ? String(suggestSizeOrder(seed)) : '' }; }
+function defaultSeasonCode(seed: string) { const words = normalizeText(seed).replace(/[^A-Z\s-]/g, '').split(/[\s-]+/).filter(Boolean); return (words.map((word) => word[0]).join('') || normalizeText(seed).slice(0, 3) || 'TMP').slice(0, 10); }
+function inlineDefaults(resource: InlineCatalogKey, seed: string): InlineForm { return { name: seed.trim().toUpperCase(), family: resource === 'colors' ? defaultColorFamily(seed) : '', hex: '#D8C3A5', order: resource === 'sizes' && seed ? String(suggestSizeOrder(seed)) : '', code: resource === 'seasons' ? defaultSeasonCode(seed) : '', startDate: '', endDate: '' }; }
 function valuesHasFiles(values: ProductEditorForm) { return values.imagen_principal instanceof File || values.gallery_images.some((image) => image.archivo instanceof File); }
 function normalizeHex(value: string) { const hex = value.trim().replace('#', '').toUpperCase(); return /^([A-F0-9]{6})$/.test(hex) ? `#${hex}` : null; }
 function hexToRgb(value: string) { const hex = normalizeHex(value); if (!hex) return null; return { r: Number.parseInt(hex.slice(1, 3), 16), g: Number.parseInt(hex.slice(3, 5), 16), b: Number.parseInt(hex.slice(5, 7), 16) }; }
 function rgbToHex(r: number, g: number, b: number) { return `#${[r, g, b].map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0')).join('').toUpperCase()}`; }
 function colorDistance(left: string, right: string) { const a = hexToRgb(left); const b = hexToRgb(right); if (!a || !b) return Number.MAX_SAFE_INTEGER; return Math.sqrt(((a.r - b.r) ** 2) + ((a.g - b.g) ** 2) + ((a.b - b.b) ** 2)); }
-const familyPalette: Record<string, string> = { NEGRO: '#1A1A1A', BLANCO: '#F4F1EC', CREMA: '#EEE0CF', BEIGE: '#D7C1A3', CAMEL: '#C69C6D', GRIS: '#8C8A8A', AZUL: '#2E4A6B', VERDE: '#576B4D', MARRON: '#6B4A35', ROJO: '#6E1E2A', ROSA: '#C894A2' };
+const familyPalette: Record<string, string> = { NEGRO: '#111111', BLANCO: '#F7F6F2', GRIS: '#8A8F98', BEIGE: '#D8C3A5', CAMEL: '#B88956', MARRON: '#6F4E37', AZUL: '#1D4ED8', CELESTE: '#6F9FD8', VERDE: '#16A34A', ROJO: '#B91C1C', BORGONA: '#8A2332', ROSA: '#D28FA0', AMARILLO: '#EAB308', NARANJA: '#EA580C', MORADO: '#7E22CE', DORADO: '#C8A96A', PLATEADO: '#C0C0C0' };
 function inferColorFamily(hex: string, families: SuperadminFormFieldOption[]) { const bestFamily = Object.entries(familyPalette).map(([label, swatch]) => ({ label, distance: colorDistance(hex, swatch) })).sort((left, right) => left.distance - right.distance)[0]?.label; if (!bestFamily) return null; return families.find((option) => normalizeText(option.label) === bestFamily || normalizeText(option.value) === bestFamily) ?? families.find((option) => normalizeText(option.label).includes(bestFamily)) ?? { label: bestFamily, value: bestFamily }; }
 function closestColorOption(colors: SuperadminFormFieldOption[], hex: string, familyLabel?: string) { const family = normalizeText(familyLabel ?? ''); return [...colors].filter((option) => Boolean(option.swatch)).map((option) => ({ option, familyBoost: family && normalizeText(option.label).includes(family) ? -120 : 0, distance: colorDistance(option.swatch ?? '#000000', hex) })).sort((left, right) => (left.distance + left.familyBoost) - (right.distance + right.familyBoost))[0]?.option ?? null; }
 function variantIssue(row?: ProductVariantRow | null) {
@@ -72,6 +89,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const displayTitle = isEdit ? recordLabel ?? editor.title : editor.title;
     const [optionSets, setOptionSets] = useState({ categories: options.categories, brands: options.brands, seasons: options.seasons, genders: options.genders, colors: options.colors, sizes: options.sizes, locations: options.locations });
     const [categoryProfiles, setCategoryProfiles] = useState(options.categoryProfiles);
+    const [selectedSizeSegment, setSelectedSizeSegment] = useState(() => predominantSizeSegment(initialData.variant_rows, options.sizes));
     const [colorFamilyOptions, setColorFamilyOptions] = useState(options.colorFamilies);
     const [primaryPreview, setPrimaryPreview] = useState<string | null>(editor.currentPrimaryUrl ?? null);
     const [currentStep, setCurrentStep] = useState<ProductStepId>('base');
@@ -104,15 +122,31 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     }, [data.usa_variantes]);
     const selectedCategory = useMemo(() => optionSets.categories.find((option) => option.value === data.cod_categorias_pre)?.label ?? '', [data.cod_categorias_pre, optionSets.categories]);
     const selectedSeason = useMemo(() => optionSets.seasons.find((option) => option.value === data.cod_temporadas_pre)?.label ?? '', [data.cod_temporadas_pre, optionSets.seasons]);
-    const selectedCategoryProfile = useMemo(() => categoryProfiles[data.cod_categorias_pre] ?? inferCategoryProfile(selectedCategory), [categoryProfiles, data.cod_categorias_pre, selectedCategory]);
+    const sizeSegmentOptions = useMemo(() => (options.sizeSegments ?? []).length > 0 ? options.sizeSegments ?? [] : [{ label: 'ADULTO', value: 'ADULTO' }, { label: 'INFANTIL', value: 'INFANTIL' }, { label: 'BEBE', value: 'BEBE' }], [options.sizeSegments]);
+    const selectedCategoryProfile = useMemo(() => ({ ...(categoryProfiles[data.cod_categorias_pre] ?? inferCategoryProfile(selectedCategory)), segment: selectedSizeSegment }), [categoryProfiles, data.cod_categorias_pre, selectedCategory, selectedSizeSegment]);
     const sizeProfile = useMemo(() => inferSizeProfile(data.nom_pre, selectedCategory, selectedCategoryProfile), [data.nom_pre, selectedCategory, selectedCategoryProfile]);
     const previewBaseCode = useMemo(() => previewCodePrefix(selectedCategory || data.nom_pre || 'PRENDA'), [data.nom_pre, selectedCategory]);
     const activeVariantRows = useMemo(() => data.variant_rows.filter((row) => !row.remove), [data.variant_rows]);
     const firstActiveVariantIndex = useMemo(() => data.variant_rows.findIndex((row) => !row.remove), [data.variant_rows]);
     const resolvedBasePrice = useMemo(() => { const prices = activeVariantRows.map((row) => Number(row.pve_prv || 0)).filter((value) => Number.isFinite(value) && value > 0); if (prices.length > 0) return String(prices[0]); return data.prb_pre || '0'; }, [activeVariantRows, data.prb_pre]);
-    const availableSuggestedSizes = useMemo(() => sizeProfile.values.map((sizeName) => optionSets.sizes.find((option) => normalizeText(option.label) === normalizeText(sizeName))).filter((option): option is SuperadminFormFieldOption => Boolean(option)), [optionSets.sizes, sizeProfile.values]);
-    const missingSuggestedSizes = useMemo(() => sizeProfile.values.filter((sizeName) => !optionSets.sizes.some((option) => normalizeText(option.label) === normalizeText(sizeName))), [optionSets.sizes, sizeProfile.values]);
-    const orderedSizeOptions = useMemo(() => prioritizeOptions(sortOptions('sizes', optionSets.sizes), availableSuggestedSizes.map((option) => option.value)), [availableSuggestedSizes, optionSets.sizes]);
+    const activeSizeOptions = useMemo(() => optionSets.sizes.filter((option) => option.active !== false), [optionSets.sizes]);
+    const selectedSizeValues = useMemo(() => activeVariantRows.map((row) => row.cod_tallas_prv).filter(Boolean), [activeVariantRows]);
+    const sizeOptionsForSelector = useMemo(() => {
+        const activeValues = new Set(activeSizeOptions.map((option) => option.value));
+        return sortOptions('sizes', [...activeSizeOptions, ...optionSets.sizes.filter((option) => selectedSizeValues.includes(option.value) && !activeValues.has(option.value))]);
+    }, [activeSizeOptions, optionSets.sizes, selectedSizeValues]);
+    const exactProfileSizes = useMemo(() => sortOptions('sizes', activeSizeOptions.filter((option) => normalizeText(option.segment ?? 'ADULTO') === sizeProfile.segment && normalizeCategorySystem(option.system) === sizeProfile.system && normalizeText(option.group ?? '') === sizeProfile.group)), [activeSizeOptions, sizeProfile.group, sizeProfile.segment, sizeProfile.system]);
+    const segmentSizeOptions = useMemo(() => sortOptions('sizes', activeSizeOptions.filter((option) => normalizeText(option.segment ?? 'ADULTO') === sizeProfile.segment)), [activeSizeOptions, sizeProfile.segment]);
+    const availableSuggestedSizes = exactProfileSizes;
+    const missingSuggestedSizes = useMemo(() => exactProfileSizes.length > 0 ? [] : sizeProfile.values.filter((sizeName) => !activeSizeOptions.some((option) => normalizeText(option.label) === normalizeText(sizeName) && normalizeText(option.segment ?? 'ADULTO') === sizeProfile.segment)), [activeSizeOptions, exactProfileSizes.length, sizeProfile.segment, sizeProfile.values]);
+    const fallbackSizeValues = useMemo(() => (exactProfileSizes.length > 0 ? [] : (segmentSizeOptions.length > 0 ? segmentSizeOptions : activeSizeOptions).map((option) => option.value)), [activeSizeOptions, exactProfileSizes.length, segmentSizeOptions]);
+    const orderedSizeOptions = useMemo(() => {
+        const recommendedValues = exactProfileSizes.map((option) => option.value);
+        const orderedValues = [...recommendedValues, ...fallbackSizeValues];
+        return prioritizeOptions(sizeOptionsForSelector, orderedValues).map((option) => ({ ...option, recommended: recommendedValues.includes(option.value) }));
+    }, [exactProfileSizes, fallbackSizeValues, sizeOptionsForSelector]);
+    const suggestedSizeLabels = useMemo(() => (exactProfileSizes.length > 0 ? exactProfileSizes.map((option) => option.label) : sizeProfile.values), [exactProfileSizes, sizeProfile.values]);
+    const sizeFallbackMessage = exactProfileSizes.length === 0 ? 'No hay tallas recomendadas exactas para esta categoría. Puedes elegir una talla disponible.' : null;
     const orderedColorOptions = useMemo(() => prioritizeOptions(sortOptions('colors', optionSets.colors), colorInsight?.suggestedColor ? [colorInsight.suggestedColor.value] : []), [colorInsight, optionSets.colors]);
     const hasPrimaryImage = useMemo(() => Boolean(data.imagen_principal || data.existing_images.some((image) => !image.remove && image.pri_igp) || primaryPreview), [data.existing_images, data.imagen_principal, primaryPreview]);
     const currentPrimaryLabel = useMemo(() => { if (data.imagen_principal) return data.imagen_principal.name; const existingPrimary = data.existing_images.find((image) => !image.remove && image.pri_igp); if (existingPrimary) return filenameLabel(existingPrimary.rut_igp); return editor.currentPrimaryLabel ?? null; }, [data.existing_images, data.imagen_principal, editor.currentPrimaryLabel]);
@@ -124,11 +158,11 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const inlineTitle = inlineDrawer ? { categories: 'Otra categoría', brands: 'Otra marca', colors: 'Otro color', sizes: 'Otra talla', seasons: 'Otra temporada' }[inlineDrawer.resource] : '';
     const inlineDescription = inlineDrawer ? { categories: 'Registra la categoría y vuelve al formulario con esa opción seleccionada.', brands: 'Registra la marca y vuelve a la ficha de la prenda.', colors: 'Define el tono real y la familia dominante para usarlo de inmediato.', sizes: 'Agrega la talla sin salir del registro de la prenda.', seasons: 'Registra una temporada nueva solo si la prenda no corresponde a las ya disponibles.' }[inlineDrawer.resource] : '';
 
-    useEffect(() => { setData(initialData); setPrimaryPreview(editor.currentPrimaryUrl ?? null); }, [editor.currentPrimaryUrl, initialData, setData]);
+    useEffect(() => { setData(initialData); setSelectedSizeSegment(predominantSizeSegment(initialData.variant_rows, options.sizes)); setPrimaryPreview(editor.currentPrimaryUrl ?? null); }, [editor.currentPrimaryUrl, initialData, options.sizes, setData]);
     useEffect(() => () => { Object.values(galleryPreviewUrls.current).forEach((url) => URL.revokeObjectURL(url)); }, []);
     useEffect(() => { if (!data.imagen_principal) { const currentPrimary = data.existing_images.find((image) => !image.remove && image.pri_igp); setPrimaryPreview(currentPrimary?.url_igp ?? editor.currentPrimaryUrl ?? null); return; } const objectUrl = URL.createObjectURL(data.imagen_principal); setPrimaryPreview(objectUrl); return () => URL.revokeObjectURL(objectUrl); }, [data.existing_images, data.imagen_principal, editor.currentPrimaryUrl]);
-    useEffect(() => { if (mode !== 'create' || data.cod_temporadas_pre) return; const permanentSeason = optionSets.seasons.find((option) => normalizeText(option.label) === 'PERMANENTE'); if (permanentSeason) setData('cod_temporadas_pre', permanentSeason.value); }, [data.cod_temporadas_pre, mode, optionSets.seasons, setData]);
-    useEffect(() => { if (sizeProfile.values.length !== 1) return; const firstIndex = data.variant_rows.findIndex((row) => !row.remove); if (firstIndex === -1 || data.variant_rows[firstIndex].cod_tallas_prv) return; const existingOption = optionSets.sizes.find((option) => normalizeText(option.label) === normalizeText(sizeProfile.values[0])); if (!existingOption) return; setData('variant_rows', data.variant_rows.map((row, rowIndex) => rowIndex === firstIndex ? { ...row, cod_tallas_prv: existingOption.value } : row)); }, [data.variant_rows, optionSets.sizes, setData, sizeProfile.values]);
+    useEffect(() => { if (mode !== 'create' || data.cod_temporadas_pre) return; const permanentSeason = optionSets.seasons.find((option) => normalizeText(option.label).startsWith('PERMANENTE')); if (permanentSeason) setData('cod_temporadas_pre', permanentSeason.value); }, [data.cod_temporadas_pre, mode, optionSets.seasons, setData]);
+    useEffect(() => { if (availableSuggestedSizes.length !== 1) return; const firstIndex = data.variant_rows.findIndex((row) => !row.remove); if (firstIndex === -1 || data.variant_rows[firstIndex].cod_tallas_prv) return; setData('variant_rows', data.variant_rows.map((row, rowIndex) => rowIndex === firstIndex ? { ...row, cod_tallas_prv: availableSuggestedSizes[0].value } : row)); }, [availableSuggestedSizes, data.variant_rows, setData]);
     useEffect(() => { setPickedColorSample(null); setColorInsight(null); }, [primaryPreview]);
     useEffect(() => { if (steps.some((step) => step.id === currentStep)) return; setCurrentStep(steps[steps.length - 1]?.id ?? 'base'); }, [currentStep, steps]);
     useEffect(() => { setStepError(null); }, [currentStep, data.cod_categorias_pre, data.cod_marcas_pre, data.cod_temporadas_pre, data.gen_pre, data.imagen_principal, data.nom_pre, data.usa_variantes, data.variant_rows]);
@@ -212,7 +246,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const handleStateAction = () => { if (!stateAction) return; if (stateAction.confirm && !window.confirm(stateAction.confirm)) return; submitForm({ est_pre: stateAction.value === '1' }); };
     const completedSteps: Record<ProductStepId, boolean> = { base: !issueForStep('base'), image: !issueForStep('image'), type: true, commercial: !issueForStep('commercial'), variants: !data.usa_variantes || !issueForStep('variants'), review: false };
     const serverErrorCount = Object.keys(errors).length;
-    const submitInlineCreate = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!inlineDrawer) return; const resourcePath = { categories: 'categorias', brands: 'marcas', colors: 'colores', sizes: 'tallas', seasons: 'temporadas' }[inlineDrawer.resource]; const payload = inlineDrawer.resource === 'categories' ? { nom_cat: inlineForm.name, est_cat: true } : inlineDrawer.resource === 'brands' ? { nom_mar: inlineForm.name, est_mar: true } : inlineDrawer.resource === 'colors' ? { nom_col: inlineForm.name, fam_col: inlineForm.family || defaultColorFamily(inlineForm.name), hex_col: inlineForm.hex, hex_dom_col: inlineForm.hex, est_col: true } : inlineDrawer.resource === 'sizes' ? { nom_tal: inlineForm.name, ord_tal: inlineForm.order || String(suggestSizeOrder(inlineForm.name)), est_tal: true } : { nom_tem: inlineForm.name, est_tem: true }; setInlineProcessing(true); setInlineErrors({}); setInlineMessage(null); try { const response = await axios.post(`/superadmin/catalogo/${resourcePath}/inline`, payload); const option = response.data.option as SuperadminFormFieldOption; if (inlineDrawer.resource === 'categories') { setOptionSets((current) => ({ ...current, categories: sortOptions('categories', [...current.categories, option]) })); setCategoryProfiles((current) => ({ ...current, [option.value]: inferCategoryProfile(option.label) })); } if (inlineDrawer.resource === 'brands') setOptionSets((current) => ({ ...current, brands: sortOptions('brands', [...current.brands, option]) })); if (inlineDrawer.resource === 'colors') { setOptionSets((current) => ({ ...current, colors: sortOptions('colors', [...current.colors, option]) })); const familyValue = inlineForm.family || defaultColorFamily(option.label); if (!colorFamilyOptions.some((family) => family.value === familyValue)) setColorFamilyOptions((current) => sortOptions('colors', [...current, { label: familyValue, value: familyValue }])); } if (inlineDrawer.resource === 'sizes') setOptionSets((current) => ({ ...current, sizes: sortOptions('sizes', [...current.sizes, option]) })); if (inlineDrawer.resource === 'seasons') setOptionSets((current) => ({ ...current, seasons: sortOptions('seasons', [...current.seasons, option]) })); if (inlineDrawer.target.type === 'product') setData(inlineDrawer.target.field, option.value); else updateVariantRow(inlineDrawer.target.rowIndex, inlineDrawer.target.field, option.value); setInlineMessage(response.data.message ?? 'Registro creado correctamente.'); closeInlineCreate(); } catch (error) { if (axios.isAxiosError(error) && error.response?.status === 422) { setInlineErrors((error.response.data.errors ?? {}) as Record<string, string>); return; } setInlineMessage('No se pudo crear el registro en este momento.'); } finally { setInlineProcessing(false); } };
+    const submitInlineCreate = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!inlineDrawer) return; const resourcePath = { categories: 'categorias', brands: 'marcas', colors: 'colores', sizes: 'tallas', seasons: 'temporadas' }[inlineDrawer.resource]; const selectedFamily = inlineForm.family || defaultColorFamily(inlineForm.name); const payload = inlineDrawer.resource === 'categories' ? { nom_cat: inlineForm.name, est_cat: true } : inlineDrawer.resource === 'brands' ? { nom_mar: inlineForm.name, est_mar: true } : inlineDrawer.resource === 'colors' ? { nom_col: inlineForm.name, fam_col: selectedFamily, hex_col: inlineForm.hex, hex_dom_col: familyPalette[normalizeText(selectedFamily)] ?? inlineForm.hex, est_col: true } : inlineDrawer.resource === 'sizes' ? { nom_tal: inlineForm.name, seg_tal: sizeProfile.segment, sis_tal: sizeProfile.system, gru_tal: sizeProfile.group, ord_tal: inlineForm.order || String(suggestSizeOrder(inlineForm.name)), est_tal: true } : { nom_tem: inlineForm.name, cod_tem: inlineForm.code || defaultSeasonCode(inlineForm.name), fec_ini_tem: inlineForm.startDate, fec_fin_tem: inlineForm.endDate, est_tem: true }; setInlineProcessing(true); setInlineErrors({}); setInlineMessage(null); try { const response = await axios.post(`/superadmin/catalogo/${resourcePath}/inline`, payload); const option = response.data.option as SuperadminFormFieldOption; if (inlineDrawer.resource === 'categories') { setOptionSets((current) => ({ ...current, categories: sortOptions('categories', [...current.categories, option]) })); setCategoryProfiles((current) => ({ ...current, [option.value]: { segment: option.segment ?? 'ADULTO', system: option.system, group: option.group } })); } if (inlineDrawer.resource === 'brands') setOptionSets((current) => ({ ...current, brands: sortOptions('brands', [...current.brands, option]) })); if (inlineDrawer.resource === 'colors') { setOptionSets((current) => ({ ...current, colors: sortOptions('colors', [...current.colors, option]) })); const familyValue = selectedFamily; if (!colorFamilyOptions.some((family) => family.value === familyValue)) setColorFamilyOptions((current) => sortOptions('colors', [...current, { label: familyValue, value: familyValue }])); } if (inlineDrawer.resource === 'sizes') setOptionSets((current) => ({ ...current, sizes: sortOptions('sizes', [...current.sizes, option]) })); if (inlineDrawer.resource === 'seasons') setOptionSets((current) => ({ ...current, seasons: sortOptions('seasons', [...current.seasons, option]) })); if (inlineDrawer.target.type === 'product') setData(inlineDrawer.target.field, option.value); else updateVariantRow(inlineDrawer.target.rowIndex, inlineDrawer.target.field, option.value); setInlineMessage(response.data.message ?? 'Registro creado correctamente.'); closeInlineCreate(); } catch (error) { if (axios.isAxiosError(error) && error.response?.status === 422) { setInlineErrors((error.response.data.errors ?? {}) as Record<string, string>); return; } setInlineMessage('No se pudo crear el registro en este momento.'); } finally { setInlineProcessing(false); } };
 
     return (
         <SuperadminLayout title={`Mati Boutique | ${displayTitle}`}>
@@ -285,6 +319,14 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                     onChange={(value) => setData('cod_categorias_pre', value)}
                                     onCreate={(seed) => openInlineCreate('categories', { type: 'product', field: 'cod_categorias_pre' }, seed)}
                                 />
+
+                                <label className="space-y-2">
+                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Segmento de talla</span>
+                                    <select value={selectedSizeSegment} onChange={(event) => setSelectedSizeSegment(normalizeText(event.target.value || 'ADULTO'))} className="sa-input w-full">
+                                        {sizeSegmentOptions.map((option) => <option key={`size-segment-${option.value}`} value={option.value}>{option.label}</option>)}
+                                    </select>
+                                    <p className="text-sm leading-6 text-stone-400">Define si la prenda usará tallas de adulto, infantil o bebé.</p>
+                                </label>
 
                                 <SuperadminComboboxField
                                     label="Marca"
@@ -466,7 +508,8 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                             <div className="mt-5 rounded-[1.4rem] border border-white/8 bg-[#0d141d] p-4">
                                 <div className="inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.18em] text-stone-400"><Sparkles size={13} />Perfil de tallas sugerido</div>
                                 <p className="mt-3 text-sm text-white">{sizeProfile.label}</p>
-                                <p className="mt-2 text-sm text-stone-400">{sizeProfile.values.join(', ')}</p>
+                                <p className="mt-2 text-sm text-stone-400">{suggestedSizeLabels.join(', ')}</p>
+                                {sizeFallbackMessage && <p className="mt-3 text-sm text-amber-200">{sizeFallbackMessage}</p>}
                                 {missingSuggestedSizes.length > 0 && <p className="mt-3 text-sm text-amber-200">Faltan tallas en catálogo: {missingSuggestedSizes.join(', ')}.</p>}
                             </div>
 
@@ -521,7 +564,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                             placeholder="Selecciona talla"
                                             searchPlaceholder="Buscar talla"
                                             error={errors['variant_rows.0.cod_tallas_prv']}
-                                            hint={`Sugerencia principal: ${sizeProfile.values.join(', ')}`}
+                                            hint={sizeFallbackMessage ?? `Sugerencia principal: ${suggestedSizeLabels.join(', ')}`}
                                             createLabel="OTRA TALLA"
                                             createMode="list"
                                             onChange={(value) => updateVariantRow(firstActiveVariantIndex, 'cod_tallas_prv', value)}
@@ -589,7 +632,8 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                             <div className="rounded-[1.2rem] border border-white/8 bg-[#0b1118] p-4">
                                                 <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Perfil de talla</p>
                                                 <p className="mt-2 text-sm text-white">{sizeProfile.label}</p>
-                                                <p className="mt-2 text-sm text-stone-400">{sizeProfile.values.join(', ')}</p>
+                                                <p className="mt-2 text-sm text-stone-400">{suggestedSizeLabels.join(', ')}</p>
+                                                {sizeFallbackMessage && <p className="mt-3 text-sm text-amber-200">{sizeFallbackMessage}</p>}
                                             </div>
                                         </div>
                                     </div>
@@ -667,7 +711,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                                         placeholder="Selecciona talla"
                                                         searchPlaceholder="Buscar talla"
                                                         error={errors[`variant_rows.${index}.cod_tallas_prv`]}
-                                                        hint={index === 0 ? `Sugerencia principal: ${sizeProfile.values.join(', ')}` : undefined}
+                                                        hint={index === 0 ? (sizeFallbackMessage ?? `Sugerencia principal: ${suggestedSizeLabels.join(', ')}`) : undefined}
                                                         createLabel="OTRA TALLA"
                                                         createMode="list"
                                                         onChange={(value) => updateVariantRow(index, 'cod_tallas_prv', value)}
@@ -870,13 +914,32 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                     <form onSubmit={submitInlineCreate} className="space-y-4">
                         <label className="space-y-2">
                             <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">{inlineDrawer.resource === 'colors' ? 'Tono real' : 'Nombre'}</span>
-                            <input value={inlineForm.name} onChange={(event) => setInlineForm((current) => ({ ...current, name: event.target.value.toUpperCase(), family: inlineDrawer.resource === 'colors' ? defaultColorFamily(event.target.value) : current.family, order: inlineDrawer.resource === 'sizes' ? String(suggestSizeOrder(event.target.value)) : current.order }))} className="sa-input w-full" />
+                            <input value={inlineForm.name} onChange={(event) => setInlineForm((current) => ({ ...current, name: event.target.value.toUpperCase(), family: inlineDrawer.resource === 'colors' ? defaultColorFamily(event.target.value) : current.family, order: inlineDrawer.resource === 'sizes' ? String(suggestSizeOrder(event.target.value)) : current.order, code: inlineDrawer.resource === 'seasons' && !current.code ? defaultSeasonCode(event.target.value) : current.code }))} className="sa-input w-full" />
                             {inlineErrors.nom_cat && <p className="text-sm text-rose-300">{inlineErrors.nom_cat}</p>}
                             {inlineErrors.nom_mar && <p className="text-sm text-rose-300">{inlineErrors.nom_mar}</p>}
                             {inlineErrors.nom_col && <p className="text-sm text-rose-300">{inlineErrors.nom_col}</p>}
                             {inlineErrors.nom_tal && <p className="text-sm text-rose-300">{inlineErrors.nom_tal}</p>}
                             {inlineErrors.nom_tem && <p className="text-sm text-rose-300">{inlineErrors.nom_tem}</p>}
                         </label>
+                        {inlineDrawer.resource === 'seasons' && (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <label className="space-y-2">
+                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Código corto</span>
+                                    <input value={inlineForm.code} onChange={(event) => setInlineForm((current) => ({ ...current, code: event.target.value.toUpperCase() }))} className="sa-input w-full" placeholder="Ej.: OI, PV, PER" />
+                                    {inlineErrors.cod_tem && <p className="text-sm text-rose-300">{inlineErrors.cod_tem}</p>}
+                                </label>
+                                <label className="space-y-2">
+                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Fecha de inicio</span>
+                                    <input type="date" value={inlineForm.startDate} onChange={(event) => setInlineForm((current) => ({ ...current, startDate: event.target.value }))} className="sa-input w-full" />
+                                    {inlineErrors.fec_ini_tem && <p className="text-sm text-rose-300">{inlineErrors.fec_ini_tem}</p>}
+                                </label>
+                                <label className="space-y-2 sm:col-span-2">
+                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Fecha de fin</span>
+                                    <input type="date" value={inlineForm.endDate} onChange={(event) => setInlineForm((current) => ({ ...current, endDate: event.target.value }))} className="sa-input w-full" />
+                                    {inlineErrors.fec_fin_tem && <p className="text-sm text-rose-300">{inlineErrors.fec_fin_tem}</p>}
+                                </label>
+                            </div>
+                        )}
                         {inlineDrawer.resource === 'colors' && (
                             <>
                                 <label className="space-y-2">
@@ -896,10 +959,11 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                             </>
                         )}
                         {inlineDrawer.resource === 'sizes' && (
-                            <label className="space-y-2">
-                                <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Orden</span>
-                                <input value={inlineForm.order} onChange={(event) => setInlineForm((current) => ({ ...current, order: event.target.value }))} className="sa-input w-full" />
-                            </label>
+                            <div className="rounded-[1.1rem] border border-white/8 bg-[#0d141d] p-4">
+                                <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Perfil de talla</p>
+                                <p className="mt-2 text-sm text-white">{sizeProfile.segment} / {sizeProfile.group} / {sizeProfile.system}</p>
+                                <p className="mt-2 text-sm leading-6 text-stone-400">El orden se genera automáticamente.</p>
+                            </div>
                         )}
                         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                             <button type="button" onClick={closeInlineCreate} className="sa-button-ghost px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em]">Cancelar</button>

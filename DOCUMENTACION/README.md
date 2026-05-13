@@ -15,6 +15,9 @@ La documentación está escrita con base en la estructura real del proyecto: rut
 7. [Catálogo y prendas](07_catalogo_y_prendas.md)
 8. [Validaciones y reglas de negocio](08_validaciones_y_reglas.md)
 9. [Estado actual y pendientes](09_estado_actual_y_pendientes.md)
+10. [Categorías y sugerencia de tallas en superadmin](10_categorias_tallas_superadmin.md)
+11. [Temporadas en superadmin](11_temporadas_superadmin.md)
+12. [Colores en superadmin](12_colores_superadmin.md)
 
 ## Alcance documentado
 
@@ -29,4 +32,3 @@ La documentación cubre:
 ## Criterio de lectura
 
 Cuando un módulo se describe como **CRUD real**, significa que permite crear, consultar, editar y guardar registros desde el panel. Cuando se describe como **solo lectura**, significa que consulta registros existentes pero no implementa creación o edición operativa desde esa pantalla. Cuando se describe como **no listo**, significa que la vista existe como referencia informativa, pero no ejecuta cambios de negocio.
-

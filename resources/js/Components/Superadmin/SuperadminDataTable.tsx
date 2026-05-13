@@ -1,10 +1,20 @@
-import type { SuperadminTableCell, SuperadminTableColumn, SuperadminTableRow } from '@/types/superadmin';
+import type { SuperadminTableCell, SuperadminTableColumn, SuperadminTableRow, SuperadminTableSwatchCell } from '@/types/superadmin';
 import { Link } from '@inertiajs/react';
 import { Eye, PenSquare } from 'lucide-react';
 import SuperadminBadge from './SuperadminBadge';
 
-function CellContent({ value }: { value: SuperadminTableCell }) {
+function CellContent({ value }: { value: SuperadminTableCell | SuperadminTableSwatchCell }) {
     if (typeof value === 'object' && value !== null) {
+        if ('swatch' in value) {
+            return (
+                <span className="inline-flex items-center gap-2">
+                    <span className="h-5 w-5 rounded-full border border-white/15" style={{ backgroundColor: value.swatch }} />
+                    <span>{value.label}</span>
+                    {value.value && <span className="text-stone-500">{value.value}</span>}
+                </span>
+            );
+        }
+
         return <SuperadminBadge tone={value.tone}>{value.label}</SuperadminBadge>;
     }
     return <>{value}</>;

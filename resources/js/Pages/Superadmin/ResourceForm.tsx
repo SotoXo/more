@@ -43,6 +43,16 @@ function buildInitialData(sections: SuperadminFormSectionData[]) {
     }, {});
 }
 
+function fieldLabels(sections: SuperadminFormSectionData[]) {
+    return sections.reduce<Record<string, string>>((labels, section) => {
+        section.fields.forEach((field) => {
+            labels[field.name] = field.label;
+        });
+
+        return labels;
+    }, {});
+}
+
 export default function ResourceForm({
     meta,
     breadcrumbs,
@@ -58,6 +68,7 @@ export default function ResourceForm({
     const flash = page.props.flash;
     const currentUrl = page.url;
     const initialData = useMemo(() => buildInitialData(sections), [sections]);
+    const labels = useMemo(() => fieldLabels(sections), [sections]);
     const {
         data,
         setData,
@@ -167,6 +178,13 @@ export default function ResourceForm({
                         <p className="text-sm font-medium text-[rgb(245,208,210)]">
                             Revisa {errorEntries.length === 1 ? 'el campo marcado' : 'los campos marcados'} antes de guardar.
                         </p>
+                        <ul className="mt-3 space-y-1 text-sm text-[rgb(245,208,210)]">
+                            {errorEntries.map(([name, message]) => (
+                                <li key={name}>
+                                    <span className="font-medium">{labels[name] ?? name}:</span> {message}
+                                </li>
+                            ))}
+                        </ul>
                     </section>
                 )}
 

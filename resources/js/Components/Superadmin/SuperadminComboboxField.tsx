@@ -60,8 +60,23 @@ export default function SuperadminComboboxField({
 
         const normalizedQuery = query.trim().toLowerCase();
 
-        return options.filter((option) => option.label.toLowerCase().includes(normalizedQuery));
+        return options.filter((option) => [option.label, option.segment, option.group, option.system].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
     }, [options, query]);
+
+    const groupedOptions = useMemo(() => {
+        if (!filteredOptions.some((option) => option.system || option.group)) {
+            return [{ label: '', options: filteredOptions }];
+        }
+
+        const groups = new Map<string, SuperadminFormFieldOption[]>();
+
+        filteredOptions.forEach((option) => {
+            const groupLabel = [option.segment, option.group, option.system].filter(Boolean).join(' / ') || 'Sin grupo';
+            groups.set(groupLabel, [...(groups.get(groupLabel) ?? []), option]);
+        });
+
+        return Array.from(groups.entries()).map(([label, groupOptions]) => ({ label, options: groupOptions }));
+    }, [filteredOptions]);
 
     return (
         <div ref={containerRef} className="relative space-y-2">
@@ -116,35 +131,53 @@ export default function SuperadminComboboxField({
                     <div className="mt-3 max-h-56 space-y-1 overflow-y-auto">
                         {filteredOptions.length > 0 ? (
                             <>
-                                {filteredOptions.map((option) => (
-                                    <button
-                                        key={`${label}-${option.value}`}
-                                        type="button"
-                                        onClick={() => {
-                                            onChange(option.value);
-                                            setOpen(false);
-                                        }}
-                                        className={`flex w-full items-center justify-between rounded-[1rem] px-3 py-2 text-left text-sm transition ${
-                                            option.value === value
-                                                ? 'bg-[rgba(124,140,255,0.18)] text-white'
-                                                : 'text-stone-300 hover:bg-white/6 hover:text-white'
-                                        }`}
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            {option.swatch && (
-                                                <span
-                                                    className="inline-flex h-3.5 w-3.5 rounded-full border border-white/15"
-                                                    style={{ backgroundColor: option.swatch }}
-                                                />
-                                            )}
-                                            <span>{option.label}</span>
-                                        </span>
-                                        {option.value === value && (
-                                            <span className="text-[0.64rem] uppercase tracking-[0.18em] text-stone-300">
-                                                Actual
-                                            </span>
+                                {groupedOptions.map((group) => (
+                                    <div key={`${label}-${group.label || 'plain'}`} className="space-y-1">
+                                        {group.label && (
+                                            <div className="px-3 pt-2 text-[0.62rem] uppercase tracking-[0.18em] text-stone-500">
+                                                {group.label}
+                                            </div>
                                         )}
-                                    </button>
+                                        {group.options.map((option) => (
+                                            <button
+                                                key={`${label}-${option.value}`}
+                                                type="button"
+                                                onClick={() => {
+                                                    onChange(option.value);
+                                                    setOpen(false);
+                                                }}
+                                                className={`flex w-full items-center justify-between gap-3 rounded-[1rem] px-3 py-2 text-left text-sm transition ${
+                                                    option.value === value
+                                                        ? 'bg-[rgba(124,140,255,0.18)] text-white'
+                                                        : option.recommended
+                                                        ? 'bg-[rgba(126,154,178,0.1)] text-white hover:bg-[rgba(126,154,178,0.16)]'
+                                                        : 'text-stone-300 hover:bg-white/6 hover:text-white'
+                                                }`}
+                                            >
+                                                <span className="flex min-w-0 items-center gap-3">
+                                                    {option.swatch && (
+                                                        <span
+                                                            className="inline-flex h-3.5 w-3.5 shrink-0 rounded-full border border-white/15"
+                                                            style={{ backgroundColor: option.swatch }}
+                                                        />
+                                                    )}
+                                                    <span className="truncate">{option.label}</span>
+                                                </span>
+                                                <span className="flex shrink-0 items-center gap-2">
+                                                    {option.recommended && (
+                                                        <span className="rounded-full border border-[rgba(126,154,178,0.32)] px-2 py-0.5 text-[0.58rem] uppercase tracking-[0.14em] text-stone-200">
+                                                            Recomendada
+                                                        </span>
+                                                    )}
+                                                    {option.value === value && (
+                                                        <span className="text-[0.64rem] uppercase tracking-[0.18em] text-stone-300">
+                                                            Actual
+                                                        </span>
+                                                    )}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
                                 ))}
 
                                 {onCreate && createMode === 'list' && (

@@ -97,13 +97,14 @@ export type SuperadminRowStatus = {
 };
 
 export type SuperadminTableCell = string | { label: string; tone?: SuperadminTone };
+export type SuperadminTableSwatchCell = { label: string; swatch: string; value?: string };
 
 export type SuperadminTableRow = {
     id: string | number;
     primary: string;
     secondary?: string;
     status?: SuperadminRowStatus;
-    cells: Record<string, SuperadminTableCell>;
+    cells: Record<string, SuperadminTableCell | SuperadminTableSwatchCell>;
     showHref?: string;
     editHref?: string;
 };
@@ -145,13 +146,25 @@ export type SuperadminFormFieldOption = {
     label: string;
     value: string;
     swatch?: string;
+    segment?: string | null;
+    system?: string | null;
+    group?: string | null;
+    active?: boolean;
+    recommended?: boolean;
+};
+
+export type SuperadminFormFieldSuggestionGroup = {
+    segment?: string;
+    group?: string;
+    system?: string;
+    values: string[];
 };
 
 export type SuperadminFormField = {
     name: string;
     label: string;
     value: string;
-    type?: 'text' | 'textarea' | 'select' | 'number' | 'date' | 'toggle' | 'color' | 'email' | 'password' | 'tel' | 'file';
+    type?: 'text' | 'textarea' | 'select' | 'number' | 'date' | 'toggle' | 'color' | 'color-family' | 'hidden' | 'email' | 'password' | 'tel' | 'file';
     placeholder?: string;
     hint?: string;
     required?: boolean;
@@ -165,6 +178,7 @@ export type SuperadminFormField = {
     invalidMessage?: string;
     disallowNumbers?: boolean;
     options?: SuperadminFormFieldOption[];
+    suggestions?: SuperadminFormFieldSuggestionGroup[];
 };
 
 export type SuperadminFormSection = {
