@@ -2,6 +2,10 @@
 
 namespace App\Services\Superadmin\Resources;
 
+use App\Models\Prenda;
+use App\Models\PrendaVariante;
+use App\Models\Venta;
+use App\Services\Superadmin\InventoryStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
@@ -13,6 +17,7 @@ class ResourceRowService
         private readonly ResourceDefinitionService $definitions,
         private readonly ResourceQueryService $queries,
         private readonly ResourceOptionsService $options,
+        private readonly InventoryStatusService $inventoryStatus,
     ) {
     }
 
@@ -26,7 +31,7 @@ class ResourceRowService
             'images' => $this->imageRows($definition, $this->queries->indexRecords($definition, $request)),
             'inventory' => $this->inventoryRows($definition, $this->queries->indexRecords($definition, $request)),
             'adjustments' => $this->adjustmentRows($definition, $this->queries->indexRecords($definition, $request)),
-            'alerts' => $this->alertRows($definition, $this->queries->indexRecords($definition, $request)),
+            'alerts' => $this->alertRows($definition, $this->queries->indexRecords($definition, $request), $request),
             'sales' => $this->saleRows($definition, $this->queries->indexRecords($definition, $request)),
             'reservations' => $this->reservationRows($definition, $this->queries->indexRecords($definition, $request)),
             'favorites' => $this->favoriteRows($definition, $this->queries->indexRecords($definition, $request)),
@@ -257,27 +262,30 @@ class ResourceRowService
     private function inventoryRows(array $definition, Collection $records): array
     {
         return $records->map(function ($record) use ($definition) {
-            $available = $this->formatting->available($record);
+            $available = $this->inventoryStatus->available($record);
+            $reserved = $this->inventoryStatus->reserved($record);
 
             return [
                 'id' => $record->id_inventario,
                 'primary' => $record->variante?->prenda?->nom_pre ?? 'Inventario #' . $record->id_inventario,
-                'secondary' => trim(implode(' · ', array_filter([$record->variante?->color?->nom_col, $record->variante?->talla?->nom_tal]))),
-                'status' => $available <= 0
-                    ? ['label' => 'Sin existencias', 'tone' => 'danger']
-                    : ($available <= 2 ? ['label' => 'Corto', 'tone' => 'warning'] : ['label' => 'Estable', 'tone' => 'success']),
+                'secondary' => trim(implode(' - ', array_filter([$record->variante?->color?->nom_col, $record->variante?->talla?->nom_tal]))),
+                'status' => $this->inventoryStatus->status($record),
                 'cells' => [
-                    'sku' => $record->variante?->sku_prv ?? 'Sin código interno',
+                    'product' => $record->variante?->prenda?->nom_pre ?? 'Sin prenda',
+                    'variant' => trim(implode(' / ', array_filter([$record->variante?->color?->nom_col, $record->variante?->talla?->nom_tal]))) ?: 'Sin variante',
+                    'color' => $record->variante?->color?->nom_col ?? 'Sin color',
+                    'size' => $record->variante?->talla?->nom_tal ?? 'Sin talla',
+                    'sku' => $record->variante?->sku_prv ?? 'Sin codigo interno',
                     'available' => (string) $available,
-                    'reserved' => (string) ($record->cre_inv ?? 0),
-                    'location' => $record->ubi_inv ?: 'Sin ubicación',
+                    'reserved' => (string) $reserved,
+                    'total' => (string) $this->inventoryStatus->total($record),
+                    'location' => $record->ubi_inv ?: 'Sin ubicacion',
                 ],
                 'showHref' => $this->definitions->showHref($definition, $record->id_inventario),
                 'editHref' => $this->definitions->rowEditHref($definition, $record->id_inventario),
             ];
         })->all();
     }
-
     private function adjustmentRows(array $definition, Collection $records): array
     {
         return $records->map(fn ($record) => [
@@ -291,64 +299,266 @@ class ResourceRowService
         ])->all();
     }
 
-    private function alertRows(array $definition, Collection $records): array
+    private function alertRows(array $definition, Collection $records, ?Request $request = null): array
     {
-        return $records->map(function ($record) use ($definition) {
-            $available = $this->formatting->available($record);
+        $inventoryRows = $records->map(function ($record) use ($definition) {
+            $available = $this->inventoryStatus->available($record);
+            $reserved = $this->inventoryStatus->reserved($record);
 
             return [
                 'id' => $record->id_inventario,
                 'primary' => $record->variante?->prenda?->nom_pre ?? 'Alerta #' . $record->id_inventario,
-                'secondary' => trim(implode(' · ', array_filter([$record->variante?->color?->nom_col, $record->variante?->talla?->nom_tal]))),
-                'status' => $available <= 0
-                    ? ['label' => 'Urgente', 'tone' => 'danger']
-                    : ['label' => 'Seguimiento', 'tone' => 'warning'],
+                'secondary' => trim(implode(' - ', array_filter([$record->variante?->color?->nom_col, $record->variante?->talla?->nom_tal]))),
+                'status' => $this->inventoryStatus->status($record),
                 'cells' => [
+                    'type' => $available === 0 ? 'Sin stock' : 'Bajo stock',
+                    'sku' => $record->variante?->sku_prv ?? 'Sin codigo interno',
                     'available' => (string) $available,
-                    'reserved' => (string) ($record->cre_inv ?? 0),
-                    'location' => $record->ubi_inv ?: 'Sin ubicación',
-                    'follow' => $available <= 0 ? 'Reposición' : 'Vigilar',
+                    'reserved' => (string) $reserved,
+                    'location' => $record->ubi_inv ?: 'Sin ubicacion',
+                    'follow' => $available === 0 ? 'Reposicion' : 'Vigilar',
                 ],
                 'showHref' => $this->definitions->showHref($definition, $record->id_inventario),
                 'editHref' => null,
             ];
-        })->all();
+        });
+
+        $variantsWithoutInventory = PrendaVariante::query()
+            ->with(['prenda', 'color', 'talla'])
+            ->doesntHave('inventario')
+            ->get()
+            ->filter(fn ($variant) => $this->variantMatchesAlertFilters($variant, $request))
+            ->map(fn ($variant) => [
+                'id' => 'variant-' . $variant->id_prenda_variante,
+                'primary' => $variant->prenda?->nom_pre ?? 'Variante sin inventario',
+                'secondary' => trim(implode(' - ', array_filter([$variant->color?->nom_col, $variant->talla?->nom_tal]))),
+                'status' => ['label' => 'Sin inventario', 'tone' => 'accent'],
+                'cells' => [
+                    'type' => 'Variante sin inventario',
+                    'sku' => $variant->sku_prv ?: 'Sin codigo interno',
+                    'available' => '0',
+                    'reserved' => '0',
+                    'location' => 'Sin ubicacion',
+                    'follow' => 'Crear linea',
+                ],
+                'showHref' => null,
+                'editHref' => null,
+            ]);
+
+        $productsWithoutImages = Prenda::query()
+            ->with(['marca', 'categoria'])
+            ->doesntHave('imagenes')
+            ->get()
+            ->filter(fn ($product) => $this->productMatchesAlertFilters($product, $request))
+            ->map(fn ($product) => [
+                'id' => 'product-image-' . $product->id_prenda,
+                'primary' => $product->nom_pre ?? 'Prenda sin imagen',
+                'secondary' => trim(implode(' - ', array_filter([$product->marca?->nom_mar, $product->categoria?->nom_cat]))),
+                'status' => ['label' => 'Sin imagen', 'tone' => 'neutral'],
+                'cells' => [
+                    'type' => 'Prenda sin imagen',
+                    'sku' => 'No aplica',
+                    'available' => '-',
+                    'reserved' => '-',
+                    'location' => 'No aplica',
+                    'follow' => 'Completar ficha',
+                ],
+                'showHref' => null,
+                'editHref' => null,
+            ]);
+
+        return $inventoryRows
+            ->merge($variantsWithoutInventory)
+            ->merge($productsWithoutImages)
+            ->values()
+            ->all();
     }
 
+    private function variantMatchesAlertFilters(PrendaVariante $variant, ?Request $request): bool
+    {
+        if (!$request) {
+            return true;
+        }
+
+        return (blank($request->input('category')) || (string) $variant->prenda?->cod_categorias_pre === (string) $request->input('category'))
+            && (blank($request->input('brand')) || (string) $variant->prenda?->cod_marcas_pre === (string) $request->input('brand'))
+            && (blank($request->input('season')) || (string) $variant->prenda?->cod_temporadas_pre === (string) $request->input('season'))
+            && (blank($request->input('gender')) || (string) $variant->prenda?->gen_pre === (string) $request->input('gender'))
+            && (blank($request->input('color')) || (string) $variant->cod_colores_prv === (string) $request->input('color'))
+            && (blank($request->input('size')) || (string) $variant->cod_tallas_prv === (string) $request->input('size'))
+            && blank($request->input('location'))
+            && (blank($request->input('stock')) || $request->input('stock') === 'agotado');
+    }
+
+    private function productMatchesAlertFilters(Prenda $product, ?Request $request): bool
+    {
+        if (!$request) {
+            return true;
+        }
+
+        return (blank($request->input('category')) || (string) $product->cod_categorias_pre === (string) $request->input('category'))
+            && (blank($request->input('brand')) || (string) $product->cod_marcas_pre === (string) $request->input('brand'))
+            && (blank($request->input('season')) || (string) $product->cod_temporadas_pre === (string) $request->input('season'))
+            && (blank($request->input('gender')) || (string) $product->gen_pre === (string) $request->input('gender'))
+            && blank($request->input('color'))
+            && blank($request->input('size'))
+            && blank($request->input('location'))
+            && blank($request->input('stock'));
+    }
     private function saleRows(array $definition, Collection $records): array
     {
         return $records->map(fn ($record) => [
             'id' => $record->id_venta,
             'primary' => $record->nve_ven ?: 'Venta #' . $record->id_venta,
-            'secondary' => $record->mpa_ven ?: 'Método sin definir',
-            'status' => $this->formatting->textStatus($record->est_ven, 'Activa'),
+            'secondary' => collect($record->detalles ?? [])->map(fn ($detail) => $detail->variante?->prenda?->nom_pre)->filter()->unique()->take(2)->implode(', ') ?: 'Sin prendas',
+            'status' => ['label' => $this->saleStatusLabel($record->est_ven), 'tone' => $this->saleStatusTone($record->est_ven)],
             'cells' => [
                 'client' => $this->formatting->userName($record->cliente) ?: 'Sin cliente',
-                'type' => $record->tiv_ven ?: 'Sin tipo',
                 'total' => $this->formatting->money((float) $record->tot_ven),
+                'state' => ['label' => $this->saleStatusLabel($record->est_ven), 'tone' => $this->saleStatusTone($record->est_ven)],
+                'pickup' => ['label' => $this->salePickupStatusLabel($record->est_logistico_ven), 'tone' => $this->salePickupStatusTone($record->est_logistico_ven)],
                 'date' => $this->formatting->formatDate($record->fec_ven),
             ],
             'showHref' => $this->definitions->showHref($definition, $record->id_venta),
             'editHref' => null,
+            'extraActions' => $record->est_ven === 'registrada'
+                ? [[
+                    'label' => 'Recibo',
+                    'href' => route('superadmin.receipts.sales.show', ['venta' => $record->id_venta]),
+                ]]
+                : [],
         ])->all();
+    }
+
+    private function saleStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'en_revision' => 'En revisión',
+            'registrada' => 'Venta confirmada',
+            'cancelada' => 'Venta cancelada',
+            'incompleta' => 'Venta incompleta',
+            default => 'En seguimiento',
+        };
+    }
+
+    private function saleStatusTone(?string $status): string
+    {
+        return match ($status) {
+            'en_revision' => 'warning',
+            'registrada' => 'success',
+            'cancelada' => 'danger',
+            'incompleta' => 'danger',
+            default => 'neutral',
+        };
+    }
+
+    private function salePickupStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'pendiente_revision' => 'Pendiente de revisión',
+            'pendiente_preparacion' => 'Pendiente de preparación',
+            'pendiente_traslado' => 'Pendiente de traslado',
+            'lista_recojo' => 'Lista para recojo',
+            'entregada' => 'Entregada',
+            'cancelada' => 'Cancelada',
+            default => 'Sin seguimiento',
+        };
+    }
+
+    private function salePickupStatusTone(?string $status): string
+    {
+        return match ($status) {
+            'lista_recojo' => 'success',
+            'entregada' => 'accent',
+            'pendiente_traslado', 'pendiente_preparacion' => 'warning',
+            'cancelada' => 'danger',
+            'pendiente_revision' => 'info',
+            default => 'neutral',
+        };
     }
 
     private function reservationRows(array $definition, Collection $records): array
     {
-        return $records->map(fn ($record) => [
-            'id' => $record->id_reserva,
-            'primary' => $record->nre_res ?: 'Reserva #' . $record->id_reserva,
-            'secondary' => $this->formatting->userName($record->responsable) ?: 'Sin responsable',
-            'status' => $this->formatting->textStatus($record->est_res, 'Seguimiento'),
-            'cells' => [
-                'client' => $this->formatting->userName($record->cliente) ?: 'Sin cliente',
-                'due' => $this->formatting->formatDate($record->ven_res),
-                'items' => (string) ($record->detalles_count ?? $record->detalles?->count() ?? 0),
-                'date' => $this->formatting->formatDate($record->fec_res),
-            ],
-            'showHref' => $this->definitions->showHref($definition, $record->id_reserva),
-            'editHref' => null,
-        ])->all();
+        return $records->map(function ($record) use ($definition) {
+            $isExpired = in_array($record->est_res, ['por_procesar', 'confirmada', 'lista_recojo'], true)
+                && $record->fec_limite_recojo_res
+                && $record->fec_limite_recojo_res->lt(Carbon::now());
+            $paymentTone = match ($record->est_pago_res) {
+                'pagado_total' => 'success',
+                'anticipo_confirmado' => 'accent',
+                'rechazado' => 'danger',
+                default => 'warning',
+            };
+            $generatedSale = $this->saleForReservation($record);
+            $isCompletedLike = in_array($record->est_res, ['completada', 'recogida'], true);
+            $hasCompletedInconsistency = $isCompletedLike
+                && ((float) ($record->saldo_res ?? 0) > 0 || ($record->est_pago_res ?? null) !== 'pagado_total' || !$generatedSale);
+            $statusLabel = $isExpired
+                ? 'Vencida'
+                : ($hasCompletedInconsistency ? 'Recogida con saldo pendiente' : $this->reservationStatusLabel($record->est_res));
+            $paymentLabel = $this->reservationPaymentLabel($record->est_pago_res);
+            $latestPayment = $record->pagos?->sortByDesc('id_reserva_pago')->first();
+
+            return [
+                'id' => $record->id_reserva,
+                'primary' => $record->nre_res ?: 'Reserva #' . $record->id_reserva,
+                'secondary' => $this->formatting->userName($record->cliente) ?: 'Sin cliente',
+                'status' => $isExpired
+                    ? ['label' => 'Vencida', 'tone' => 'danger']
+                    : ['label' => $statusLabel, 'tone' => $hasCompletedInconsistency || $record->est_res === 'rechazada' || $record->est_res === 'cancelada' ? 'danger' : 'success'],
+                'cells' => [
+                    'client' => $this->formatting->userName($record->cliente) ?: 'Sin cliente',
+                    'total' => $this->formatting->money((float) $record->tot_res),
+                    'declared' => $latestPayment ? $this->formatting->money((float) $latestPayment->monto_declarado_rpg) : 'Bs 0.00',
+                    'confirmed' => $this->formatting->money((float) $record->monto_pagado_res),
+                    'balance' => $this->formatting->money((float) $record->saldo_res),
+                    'payment' => ['label' => $paymentLabel, 'tone' => $paymentTone],
+                    'reservation' => ['label' => $statusLabel, 'tone' => ($isExpired || $hasCompletedInconsistency) ? 'danger' : ($record->est_res === 'rechazada' || $record->est_res === 'cancelada' ? 'danger' : 'accent')],
+                    'pickup' => $this->formatting->formatDate($record->fec_disponible_recojo_res),
+                    'pickup_limit' => $this->formatting->formatDate($record->fec_limite_recojo_res),
+                    'items' => (string) ($record->detalles_count ?? $record->detalles?->count() ?? 0),
+                ],
+                'showHref' => $this->definitions->showHref($definition, $record->id_reserva),
+                'editHref' => null,
+            ];
+        })->all();
+    }
+
+    private function reservationStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'por_procesar' => 'En revision',
+            'confirmada' => 'Confirmada',
+            'lista_recojo' => 'Lista para recojo',
+            'completada', 'recogida' => 'Reserva y compra completada',
+            'cancelada' => 'Cancelada',
+            'rechazada' => 'Rechazada',
+            'vencida' => 'Vencida',
+            default => 'En seguimiento',
+        };
+    }
+
+    private function saleForReservation($reservation): ?Venta
+    {
+        if (!$reservation?->nre_res) {
+            return null;
+        }
+
+        $reservationNumber = preg_replace('/[^A-Za-z0-9-]/', '', (string) $reservation->nre_res);
+        $saleNumber = $reservationNumber ? substr('VEN-RES-' . $reservationNumber, 0, 50) : null;
+
+        return $saleNumber ? Venta::query()->where('nve_ven', $saleNumber)->first() : null;
+    }
+
+    private function reservationPaymentLabel(?string $status): string
+    {
+        return match ($status) {
+            'pendiente_revision' => 'En revision',
+            'anticipo_confirmado' => 'Adelanto confirmado',
+            'pagado_total' => 'Pagado completamente',
+            'rechazado' => 'Rechazado',
+            default => 'En revision',
+        };
     }
 
     private function favoriteRows(array $definition, Collection $records): array

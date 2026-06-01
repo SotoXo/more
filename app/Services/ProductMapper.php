@@ -19,7 +19,7 @@ class ProductMapper
         $variantesActivas = $prenda->variantes
             ->filter(fn($v) => $v->est_prv);
 
-        $stockDisponible = fn($v) => max(0, ($v->inventario?->cdi_inv ?? 0) - ($v->inventario?->cre_inv ?? 0));
+        $stockDisponible = fn($v) => max(0, (int) ($v->inventario?->cdi_inv ?? 0));
 
         $precioMin = $variantesActivas->min('pve_prv') ?? (float) $prenda->prb_pre;
 
@@ -48,9 +48,10 @@ class ProductMapper
             ->filter(fn($v) => $v->color !== null)
             ->map(fn($v) => [
                 'name' => $v->color->nom_col,
+                'family' => $v->color->fam_col,
                 'hex' => $v->color->hex_col,
             ])
-            ->unique(fn($color) => $color['name'].'|'.($color['hex'] ?? ''))
+            ->unique(fn($color) => $color['name'].'|'.($color['family'] ?? '').'|'.($color['hex'] ?? ''))
             ->values()
             ->toArray();
 
@@ -81,6 +82,7 @@ class ProductMapper
             : match (strtolower($prenda->gen_pre ?? '')) {
                 'hombre' => 'hombre',
                 'mujer' => 'mujer',
+                'unisex' => 'unisex',
                 default => 'accesorios',
             };
 
@@ -90,6 +92,10 @@ class ProductMapper
 
         $brandName = trim((string) ($prenda->marca?->nom_mar ?? ''));
         $seasonName = trim((string) ($prenda->temporada?->nom_tem ?? ''));
+        $seasonCode = trim((string) ($prenda->temporada?->cod_tem ?? ''));
+        $gender = strtolower(trim((string) ($prenda->gen_pre ?? '')));
+        $isPermanent = self::isPermanentSeason($seasonCode, $seasonName);
+        $isCurrentSeason = self::isCurrentSeason($prenda);
         $line = collect([$brandName, $seasonName])->filter()->join(' / ');
 
         return [
@@ -100,8 +106,14 @@ class ProductMapper
             'line' => $line,
             'brand' => $brandName,
             'department' => $department,
+            'gender' => $gender,
+            'isUnisex' => $gender === 'unisex',
             'category' => $categoryName,
             'style' => $seasonName,
+            'seasonCode' => $seasonCode,
+            'seasonName' => $seasonName,
+            'isCurrentSeason' => $isCurrentSeason,
+            'isPermanent' => $isPermanent,
             'color' => $firstColor,
             'colors' => $colors,
             'locations' => $locations,
@@ -184,7 +196,9 @@ class ProductMapper
         $sizes = collect($products)->flatMap(fn($p) => $p['sizes'])->unique()->sort()->values()->toArray();
         $colors = collect($products)
             ->flatMap(function ($p) {
-                $mappedColors = collect($p['colors'] ?? [])->pluck('name')->filter();
+                $mappedColors = collect($p['colors'] ?? [])
+                    ->map(fn($color) => $color['family'] ?? $color['name'] ?? null)
+                    ->filter();
 
                 return $mappedColors->isNotEmpty()
                     ? $mappedColors
@@ -200,6 +214,26 @@ class ProductMapper
         $locations = collect($products)->flatMap(fn($p) => $p['locations'] ?? [])->unique()->filter()->sort()->values()->toArray();
 
         return compact('categories', 'sizes', 'colors', 'styles', 'brands', 'locations');
+    }
+
+    private static function isCurrentSeason(Prenda $prenda): bool
+    {
+        $season = $prenda->temporada;
+
+        if (! $season || ! $season->est_tem || ! $season->fec_ini_tem || ! $season->fec_fin_tem) {
+            return false;
+        }
+
+        $today = now()->toDateString();
+
+        return $season->fec_ini_tem->toDateString() <= $today
+            && $season->fec_fin_tem->toDateString() >= $today;
+    }
+
+    private static function isPermanentSeason(string $seasonCode, string $seasonName): bool
+    {
+        return strtolower($seasonCode) === 'per'
+            || str_contains(strtolower($seasonName), 'permanente');
     }
 
     private static function resolveDescription(Prenda $prenda): string

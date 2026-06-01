@@ -62,8 +62,12 @@ function hexToRgb(value: string) { const hex = normalizeHex(value); if (!hex) re
 function rgbToHex(r: number, g: number, b: number) { return `#${[r, g, b].map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0')).join('').toUpperCase()}`; }
 function colorDistance(left: string, right: string) { const a = hexToRgb(left); const b = hexToRgb(right); if (!a || !b) return Number.MAX_SAFE_INTEGER; return Math.sqrt(((a.r - b.r) ** 2) + ((a.g - b.g) ** 2) + ((a.b - b.b) ** 2)); }
 const familyPalette: Record<string, string> = { NEGRO: '#111111', BLANCO: '#F7F6F2', GRIS: '#8A8F98', BEIGE: '#D8C3A5', CAMEL: '#B88956', MARRON: '#6F4E37', AZUL: '#1D4ED8', CELESTE: '#6F9FD8', VERDE: '#16A34A', ROJO: '#B91C1C', BORGONA: '#8A2332', ROSA: '#D28FA0', AMARILLO: '#EAB308', NARANJA: '#EA580C', MORADO: '#7E22CE', DORADO: '#C8A96A', PLATEADO: '#C0C0C0' };
-function inferColorFamily(hex: string, families: SuperadminFormFieldOption[]) { const bestFamily = Object.entries(familyPalette).map(([label, swatch]) => ({ label, distance: colorDistance(hex, swatch) })).sort((left, right) => left.distance - right.distance)[0]?.label; if (!bestFamily) return null; return families.find((option) => normalizeText(option.label) === bestFamily || normalizeText(option.value) === bestFamily) ?? families.find((option) => normalizeText(option.label).includes(bestFamily)) ?? { label: bestFamily, value: bestFamily }; }
-function closestColorOption(colors: SuperadminFormFieldOption[], hex: string, familyLabel?: string) { const family = normalizeText(familyLabel ?? ''); return [...colors].filter((option) => Boolean(option.swatch)).map((option) => ({ option, familyBoost: family && normalizeText(option.label).includes(family) ? -120 : 0, distance: colorDistance(option.swatch ?? '#000000', hex) })).sort((left, right) => (left.distance + left.familyBoost) - (right.distance + right.familyBoost))[0]?.option ?? null; }
+function hexToHsl(hex: string) { const rgb = hexToRgb(hex) ?? { r: 0, g: 0, b: 0 }; const r = rgb.r / 255; const g = rgb.g / 255; const b = rgb.b / 255; const max = Math.max(r, g, b); const min = Math.min(r, g, b); const lightness = (max + min) / 2; const delta = max - min; const saturation = delta === 0 ? 0 : delta / (1 - Math.abs((2 * lightness) - 1)); let hue = 0; if (delta !== 0) { if (max === r) hue = 60 * (((g - b) / delta) % 6); else if (max === g) hue = 60 * (((b - r) / delta) + 2); else hue = 60 * (((r - g) / delta) + 4); } if (hue < 0) hue += 360; return { h: Math.round(hue), s: Math.round(saturation * 100), l: Math.round(lightness * 100) }; }
+function familyFromHex(hex: string) { const hsl = hexToHsl(hex); if (hsl.s >= 20) { if (hsl.h >= 15 && hsl.h < 35 && hsl.l < 38) return 'MARRON'; if (hsl.h >= 15 && hsl.h < 35 && hsl.s < 65) return 'CAMEL'; if (hsl.h >= 15 && hsl.h < 35) return 'NARANJA'; if (hsl.h >= 35 && hsl.h < 65 && hsl.l >= 75) return 'BEIGE'; if (hsl.h >= 35 && hsl.h < 75) return 'AMARILLO'; if (hsl.h >= 75 && hsl.h < 165) return 'VERDE'; if (hsl.h >= 165 && hsl.h < 195) return 'CELESTE'; if (hsl.h >= 195 && hsl.h < 255) return 'AZUL'; if (hsl.h >= 255 && hsl.h < 310) return 'MORADO'; if (hsl.h >= 310 && hsl.h < 345) return 'ROSA'; return 'ROJO'; } return Object.entries(familyPalette).map(([label, swatch]) => ({ label, distance: colorDistance(hex, swatch) })).sort((left, right) => left.distance - right.distance)[0]?.label ?? 'AZUL'; }
+const knownColorTones: Record<string, Record<string, string>> = { VERDE: { 'VERDE BOSQUE OSCURO': '#0D2608', 'VERDE BOTELLA': '#0B3D2E', 'VERDE PINO OSCURO': '#174A2A', 'VERDE OLIVA': '#66704A', 'VERDE ESMERALDA': '#047857', 'VERDE MENTA': '#98D8B7', 'VERDE SALVIA': '#9CAF88', 'VERDE LIMON': '#B7D93D' }, AZUL: { 'AZUL MARINO': '#1F2A44', 'AZUL PETROLEO': '#0F4C5C', 'AZUL NOCHE': '#0B1F3A', 'AZUL REY': '#1D4ED8', 'AZUL CIELO': '#7DB7E8', CELESTE: '#6F9FD8', TURQUESA: '#14B8A6' }, CELESTE: { CELESTE: '#6F9FD8', 'AZUL CIELO': '#7DB7E8', TURQUESA: '#14B8A6' }, ROJO: { 'ROJO VINO': '#6F1D2C', 'ROJO CEREZA': '#B91C1C', 'ROJO RUBI': '#9B111E', 'ROJO LADRILLO': '#8B3A2E', 'ROJO INTENSO': '#DC2626', BORGONA: '#8A2332' }, BORGONA: { BORGONA: '#8A2332', 'ROJO VINO': '#6F1D2C' }, ROSA: { 'ROSA PALO': '#D8A7B1', 'ROSA PASTEL': '#F4B6C2', 'ROSA FUCSIA': '#C026D3', 'ROSA EMPOLVADO': '#C894A2' }, BEIGE: { CREMA: '#F2E8D8', 'BEIGE ARENA': '#D8C3A5', 'BEIGE CLARO': '#E8D8C3', MARFIL: '#F7F0DF' }, CAMEL: { CAMEL: '#B88956', 'BEIGE CAMEL': '#D3A478' }, MARRON: { 'MARRON CHOCOLATE': '#4E2F1E', 'MARRON CAFE': '#6F4E37', 'MARRON TABACO': '#8B5A2B' }, GRIS: { 'GRIS PERLA': '#D1D5DB', 'GRIS CEMENTO': '#9CA3AF', 'GRIS ACERO': '#64748B', 'GRIS OSCURO': '#374151' }, MORADO: { LILA: '#C8A2C8', LAVANDA: '#BFA7E6', 'MORADO UVA': '#6D28D9', 'MORADO OSCURO': '#3B0764' }, NEGRO: { NEGRO: '#111111', 'NEGRO CARBON': '#1F1F1F' }, BLANCO: { BLANCO: '#F7F6F2', 'BLANCO HUESO': '#EDE6D6', MARFIL: '#F7F0DF' } };
+function suggestedColorName(hex: string, family: string) { const candidates = knownColorTones[family] ?? {}; const best = Object.entries(candidates).map(([name, toneHex]) => ({ name, distance: colorDistance(hex, toneHex) })).sort((left, right) => left.distance - right.distance)[0]; if (best && best.distance <= 95) return best.name; const hsl = hexToHsl(hex); const modifier = hsl.l <= 24 ? 'OSCURO' : hsl.l >= 78 ? 'CLARO' : hsl.s <= 18 ? 'SUAVE' : hsl.s >= 70 && hsl.l >= 35 && hsl.l <= 65 ? 'INTENSO' : ''; return `${family} ${modifier}`.trim(); }
+function inferColorFamily(hex: string, families: SuperadminFormFieldOption[]) { const bestFamily = familyFromHex(hex); return families.find((option) => normalizeText(option.label) === bestFamily || normalizeText(option.value) === bestFamily) ?? families.find((option) => normalizeText(option.label).includes(bestFamily)) ?? { label: bestFamily, value: bestFamily, swatch: familyPalette[bestFamily] }; }
+function closestColorOption(colors: SuperadminFormFieldOption[], hex: string, familyLabel?: string) { const normalizedHex = normalizeHex(hex); const family = normalizeText(familyLabel ?? ''); const exact = colors.find((option) => normalizeHex(option.hex ?? option.swatch ?? '') === normalizedHex); if (exact) return exact; const best = [...colors].filter((option) => Boolean(option.swatch) && (!family || normalizeText(option.group ?? '').includes(family))).map((option) => ({ option, distance: colorDistance(option.swatch ?? '#000000', hex) })).sort((left, right) => left.distance - right.distance)[0]; return best && best.distance <= 24 ? best.option : null; }
 function variantIssue(row?: ProductVariantRow | null) {
     if (!row || row.remove) return 'Completa la configuración de la variante.';
     if (!row.cod_colores_prv || !row.cod_tallas_prv || !row.ubi_inv) return 'Completa color, talla y ubicación.';
@@ -155,8 +159,12 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const colorHint = colorInsight ? `Dominante sugerido: ${colorInsight.family?.label ?? 'Sin familia'} · tono sugerido: ${colorInsight.suggestedColor?.label ?? 'Revisar manualmente'}` : undefined;
     const selectedCommercialColor = useMemo(() => optionSets.colors.find((option) => option.value === activeVariantRows[0]?.cod_colores_prv) ?? null, [activeVariantRows, optionSets.colors]);
     const isSuggestedColorApplied = Boolean(colorInsight?.suggestedColor && selectedCommercialColor?.value === colorInsight.suggestedColor.value);
-    const inlineTitle = inlineDrawer ? { categories: 'Otra categoría', brands: 'Otra marca', colors: 'Otro color', sizes: 'Otra talla', seasons: 'Otra temporada' }[inlineDrawer.resource] : '';
-    const inlineDescription = inlineDrawer ? { categories: 'Registra la categoría y vuelve al formulario con esa opción seleccionada.', brands: 'Registra la marca y vuelve a la ficha de la prenda.', colors: 'Define el tono real y la familia dominante para usarlo de inmediato.', sizes: 'Agrega la talla sin salir del registro de la prenda.', seasons: 'Registra una temporada nueva solo si la prenda no corresponde a las ya disponibles.' }[inlineDrawer.resource] : '';
+    const inlineColorHex = normalizeHex(inlineForm.hex) ?? '#D8C3A5';
+    const inlineColorFamily = normalizeText(inlineForm.family || inferColorFamily(inlineColorHex, colorFamilyOptions)?.value || familyFromHex(inlineColorHex));
+    const inlineColorName = suggestedColorName(inlineColorHex, inlineColorFamily);
+    const inlineExistingColor = inlineDrawer?.resource === 'colors' ? closestColorOption(optionSets.colors, inlineColorHex, inlineColorFamily) : null;
+    const inlineTitle = inlineDrawer ? { categories: 'Otra categoría', brands: 'Otra marca', colors: 'Seleccionar color', sizes: 'Otra talla', seasons: 'Otra temporada' }[inlineDrawer.resource] : '';
+    const inlineDescription = inlineDrawer ? { categories: 'Registra la categoría y vuelve al formulario con esa opción seleccionada.', brands: 'Registra la marca y vuelve a la ficha de la prenda.', colors: 'Captura o selecciona el color específico de la prenda. Si ya existe, se reutiliza; si no, se crea y queda seleccionado.', sizes: 'Agrega la talla sin salir del registro de la prenda.', seasons: 'Registra una temporada nueva solo si la prenda no corresponde a las ya disponibles.' }[inlineDrawer.resource] : '';
 
     useEffect(() => { setData(initialData); setSelectedSizeSegment(predominantSizeSegment(initialData.variant_rows, options.sizes)); setPrimaryPreview(editor.currentPrimaryUrl ?? null); }, [editor.currentPrimaryUrl, initialData, options.sizes, setData]);
     useEffect(() => () => { Object.values(galleryPreviewUrls.current).forEach((url) => URL.revokeObjectURL(url)); }, []);
@@ -190,11 +198,11 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const rebalancePrimary = (images: ExistingImageRow[]) => { const activeImages = images.filter((image) => !image.remove); if (activeImages.length === 0 || activeImages.some((image) => image.pri_igp)) return images; const nextPrimaryId = activeImages[0].id; return images.map((image) => ({ ...image, pri_igp: !image.remove && image.id === nextPrimaryId })); };
     const setExistingPrimary = (index: number) => { setData('imagen_principal', null); setData('existing_images', data.existing_images.map((image, imageIndex) => ({ ...image, pri_igp: imageIndex === index && !image.remove }))); };
     const toggleExistingImageRemoval = (index: number) => { const nextImages = data.existing_images.map((image, imageIndex) => imageIndex === index ? { ...image, remove: !image.remove } : image); setData('existing_images', rebalancePrimary(nextImages)); };
-    const openInlineCreate = (resource: InlineCatalogKey, target: InlineTarget, seed = '', overrides?: Partial<InlineForm>) => { setInlineDrawer({ resource, target, seed }); setInlineForm({ ...inlineDefaults(resource, seed), ...overrides }); setInlineErrors({}); setInlineMessage(null); };
+    const openInlineCreate = (resource: InlineCatalogKey, target: InlineTarget, seed = '', overrides?: Partial<InlineForm>) => { const defaults = inlineDefaults(resource, seed); const nextForm = { ...defaults, ...overrides }; if (resource === 'colors') { const hex = normalizeHex(nextForm.hex) ?? defaults.hex; const family = inferColorFamily(hex, colorFamilyOptions); nextForm.hex = hex; nextForm.family = nextForm.family || family?.value || familyFromHex(hex); nextForm.name = suggestedColorName(hex, normalizeText(nextForm.family)); } setInlineDrawer({ resource, target, seed }); setInlineForm(nextForm); setInlineErrors({}); setInlineMessage(null); };
     const closeInlineCreate = () => { setInlineDrawer(null); setInlineErrors({}); setInlineMessage(null); };
     const handleColorSamplePick = (sample: PickedColorSample) => { const family = inferColorFamily(sample.hex, colorFamilyOptions); const suggestedColor = closestColorOption(optionSets.colors, sample.hex, family?.label); setPickedColorSample(sample); setColorInsight({ hex: sample.hex, family, suggestedColor }); };
     const applySuggestedColor = () => { if (!colorInsight?.suggestedColor || firstActiveVariantIndex === -1) return; updateVariantRow(firstActiveVariantIndex, 'cod_colores_prv', colorInsight.suggestedColor.value); };
-    const createColorFromSample = () => { if (firstActiveVariantIndex === -1 || !colorInsight) return; openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: firstActiveVariantIndex }, colorInsight.suggestedColor?.label ?? colorInsight.family?.label ?? '', { name: colorInsight.suggestedColor?.label ?? '', family: colorInsight.family?.value ?? defaultColorFamily(colorInsight.suggestedColor?.label ?? colorInsight.hex), hex: colorInsight.hex }); };
+    const createColorFromSample = () => { if (firstActiveVariantIndex === -1 || !colorInsight) return; openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: firstActiveVariantIndex }, colorInsight.suggestedColor?.label ?? colorInsight.family?.label ?? '', { family: colorInsight.family?.value ?? familyFromHex(colorInsight.hex), hex: colorInsight.hex }); };
     const issueForStep = (stepId: ProductStepId) => {
         const firstRow = activeVariantRows[0] ?? null;
 
@@ -246,7 +254,57 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const handleStateAction = () => { if (!stateAction) return; if (stateAction.confirm && !window.confirm(stateAction.confirm)) return; submitForm({ est_pre: stateAction.value === '1' }); };
     const completedSteps: Record<ProductStepId, boolean> = { base: !issueForStep('base'), image: !issueForStep('image'), type: true, commercial: !issueForStep('commercial'), variants: !data.usa_variantes || !issueForStep('variants'), review: false };
     const serverErrorCount = Object.keys(errors).length;
-    const submitInlineCreate = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!inlineDrawer) return; const resourcePath = { categories: 'categorias', brands: 'marcas', colors: 'colores', sizes: 'tallas', seasons: 'temporadas' }[inlineDrawer.resource]; const selectedFamily = inlineForm.family || defaultColorFamily(inlineForm.name); const payload = inlineDrawer.resource === 'categories' ? { nom_cat: inlineForm.name, est_cat: true } : inlineDrawer.resource === 'brands' ? { nom_mar: inlineForm.name, est_mar: true } : inlineDrawer.resource === 'colors' ? { nom_col: inlineForm.name, fam_col: selectedFamily, hex_col: inlineForm.hex, hex_dom_col: familyPalette[normalizeText(selectedFamily)] ?? inlineForm.hex, est_col: true } : inlineDrawer.resource === 'sizes' ? { nom_tal: inlineForm.name, seg_tal: sizeProfile.segment, sis_tal: sizeProfile.system, gru_tal: sizeProfile.group, ord_tal: inlineForm.order || String(suggestSizeOrder(inlineForm.name)), est_tal: true } : { nom_tem: inlineForm.name, cod_tem: inlineForm.code || defaultSeasonCode(inlineForm.name), fec_ini_tem: inlineForm.startDate, fec_fin_tem: inlineForm.endDate, est_tem: true }; setInlineProcessing(true); setInlineErrors({}); setInlineMessage(null); try { const response = await axios.post(`/superadmin/catalogo/${resourcePath}/inline`, payload); const option = response.data.option as SuperadminFormFieldOption; if (inlineDrawer.resource === 'categories') { setOptionSets((current) => ({ ...current, categories: sortOptions('categories', [...current.categories, option]) })); setCategoryProfiles((current) => ({ ...current, [option.value]: { segment: option.segment ?? 'ADULTO', system: option.system, group: option.group } })); } if (inlineDrawer.resource === 'brands') setOptionSets((current) => ({ ...current, brands: sortOptions('brands', [...current.brands, option]) })); if (inlineDrawer.resource === 'colors') { setOptionSets((current) => ({ ...current, colors: sortOptions('colors', [...current.colors, option]) })); const familyValue = selectedFamily; if (!colorFamilyOptions.some((family) => family.value === familyValue)) setColorFamilyOptions((current) => sortOptions('colors', [...current, { label: familyValue, value: familyValue }])); } if (inlineDrawer.resource === 'sizes') setOptionSets((current) => ({ ...current, sizes: sortOptions('sizes', [...current.sizes, option]) })); if (inlineDrawer.resource === 'seasons') setOptionSets((current) => ({ ...current, seasons: sortOptions('seasons', [...current.seasons, option]) })); if (inlineDrawer.target.type === 'product') setData(inlineDrawer.target.field, option.value); else updateVariantRow(inlineDrawer.target.rowIndex, inlineDrawer.target.field, option.value); setInlineMessage(response.data.message ?? 'Registro creado correctamente.'); closeInlineCreate(); } catch (error) { if (axios.isAxiosError(error) && error.response?.status === 422) { setInlineErrors((error.response.data.errors ?? {}) as Record<string, string>); return; } setInlineMessage('No se pudo crear el registro en este momento.'); } finally { setInlineProcessing(false); } };
+    const submitInlineCreate = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!inlineDrawer) return;
+
+        const resourcePath = { categories: 'categorias', brands: 'marcas', colors: 'colores', sizes: 'tallas', seasons: 'temporadas' }[inlineDrawer.resource];
+        const selectedFamily = inlineDrawer.resource === 'colors' ? inlineColorFamily : inlineForm.family || defaultColorFamily(inlineForm.name);
+        const payload = inlineDrawer.resource === 'categories'
+            ? { nom_cat: inlineForm.name, est_cat: true }
+            : inlineDrawer.resource === 'brands'
+            ? { nom_mar: inlineForm.name, est_mar: true }
+            : inlineDrawer.resource === 'colors'
+            ? { hex_col: inlineColorHex, fam_col: selectedFamily, est_col: true }
+            : inlineDrawer.resource === 'sizes'
+            ? { nom_tal: inlineForm.name, seg_tal: sizeProfile.segment, sis_tal: sizeProfile.system, gru_tal: sizeProfile.group, ord_tal: inlineForm.order || String(suggestSizeOrder(inlineForm.name)), est_tal: true }
+            : { nom_tem: inlineForm.name, cod_tem: inlineForm.code || defaultSeasonCode(inlineForm.name), fec_ini_tem: inlineForm.startDate, fec_fin_tem: inlineForm.endDate, est_tem: true };
+
+        setInlineProcessing(true);
+        setInlineErrors({});
+        setInlineMessage(null);
+
+        try {
+            const response = await axios.post(`/superadmin/catalogo/${resourcePath}/inline`, payload);
+            const option = response.data.option as SuperadminFormFieldOption;
+
+            if (inlineDrawer.resource === 'categories') {
+                setOptionSets((current) => ({ ...current, categories: sortOptions('categories', [...current.categories, option]) }));
+                setCategoryProfiles((current) => ({ ...current, [option.value]: { segment: option.segment ?? 'ADULTO', system: option.system, group: option.group } }));
+            }
+            if (inlineDrawer.resource === 'brands') setOptionSets((current) => ({ ...current, brands: sortOptions('brands', [...current.brands, option]) }));
+            if (inlineDrawer.resource === 'colors') {
+                setOptionSets((current) => ({ ...current, colors: sortOptions('colors', [...current.colors.filter((item) => item.value !== option.value), option]) }));
+                const familyValue = option.group ?? selectedFamily;
+                if (!colorFamilyOptions.some((family) => family.value === familyValue)) setColorFamilyOptions((current) => sortOptions('colors', [...current, { label: familyValue, value: familyValue, swatch: familyPalette[normalizeText(familyValue)] }]));
+            }
+            if (inlineDrawer.resource === 'sizes') setOptionSets((current) => ({ ...current, sizes: sortOptions('sizes', [...current.sizes, option]) }));
+            if (inlineDrawer.resource === 'seasons') setOptionSets((current) => ({ ...current, seasons: sortOptions('seasons', [...current.seasons, option]) }));
+            if (inlineDrawer.target.type === 'product') setData(inlineDrawer.target.field, option.value);
+            else updateVariantRow(inlineDrawer.target.rowIndex, inlineDrawer.target.field, option.value);
+
+            setInlineMessage(response.data.message ?? (response.data.reused ? 'Color existente encontrado.' : 'Registro creado correctamente.'));
+            closeInlineCreate();
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 422) {
+                setInlineErrors((error.response.data.errors ?? {}) as Record<string, string>);
+                return;
+            }
+            setInlineMessage(inlineDrawer.resource === 'colors' ? 'No se pudo guardar el nuevo color.' : 'No se pudo crear el registro en este momento.');
+        } finally {
+            setInlineProcessing(false);
+        }
+    };
 
     return (
         <SuperadminLayout title={`Mati Boutique | ${displayTitle}`}>
@@ -551,7 +609,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                             searchPlaceholder="Buscar color"
                                             error={errors['variant_rows.0.cod_colores_prv']}
                                             hint={colorHint}
-                                            createLabel="OTRO COLOR"
+                                            createLabel="Crear color"
                                             createMode="list"
                                             onChange={(value) => updateVariantRow(firstActiveVariantIndex, 'cod_colores_prv', value)}
                                             onCreate={(seed) => openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: Math.max(firstActiveVariantIndex, 0) }, seed)}
@@ -698,7 +756,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                                         searchPlaceholder="Buscar color"
                                                         error={errors[`variant_rows.${index}.cod_colores_prv`]}
                                                         hint={index === 0 ? colorHint : undefined}
-                                                        createLabel="OTRO COLOR"
+                                                        createLabel="Crear color"
                                                         createMode="list"
                                                         onChange={(value) => updateVariantRow(index, 'cod_colores_prv', value)}
                                                         onCreate={(seed) => openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: index }, seed)}
@@ -912,15 +970,17 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
             <SuperadminDrawer open={Boolean(inlineDrawer)} title={inlineTitle} description={inlineDescription} onClose={closeInlineCreate}>
                 {inlineDrawer && (
                     <form onSubmit={submitInlineCreate} className="space-y-4">
+                        {inlineDrawer.resource !== 'colors' && (
                         <label className="space-y-2">
-                            <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">{inlineDrawer.resource === 'colors' ? 'Tono real' : 'Nombre'}</span>
-                            <input value={inlineForm.name} onChange={(event) => setInlineForm((current) => ({ ...current, name: event.target.value.toUpperCase(), family: inlineDrawer.resource === 'colors' ? defaultColorFamily(event.target.value) : current.family, order: inlineDrawer.resource === 'sizes' ? String(suggestSizeOrder(event.target.value)) : current.order, code: inlineDrawer.resource === 'seasons' && !current.code ? defaultSeasonCode(event.target.value) : current.code }))} className="sa-input w-full" />
+                            <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Nombre</span>
+                            <input value={inlineForm.name} onChange={(event) => setInlineForm((current) => ({ ...current, name: event.target.value.toUpperCase(), order: inlineDrawer.resource === 'sizes' ? String(suggestSizeOrder(event.target.value)) : current.order, code: inlineDrawer.resource === 'seasons' && !current.code ? defaultSeasonCode(event.target.value) : current.code }))} className="sa-input w-full" />
                             {inlineErrors.nom_cat && <p className="text-sm text-rose-300">{inlineErrors.nom_cat}</p>}
                             {inlineErrors.nom_mar && <p className="text-sm text-rose-300">{inlineErrors.nom_mar}</p>}
                             {inlineErrors.nom_col && <p className="text-sm text-rose-300">{inlineErrors.nom_col}</p>}
                             {inlineErrors.nom_tal && <p className="text-sm text-rose-300">{inlineErrors.nom_tal}</p>}
                             {inlineErrors.nom_tem && <p className="text-sm text-rose-300">{inlineErrors.nom_tem}</p>}
                         </label>
+                        )}
                         {inlineDrawer.resource === 'seasons' && (
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <label className="space-y-2">
@@ -942,19 +1002,65 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                         )}
                         {inlineDrawer.resource === 'colors' && (
                             <>
+                                {primaryPreview && (
+                                    <div className="rounded-[1.2rem] border border-white/8 bg-[#0d141d] p-3">
+                                        <ProductColorPicker
+                                            src={primaryPreview}
+                                            selectedSample={pickedColorSample}
+                                            onPick={(sample) => {
+                                                handleColorSamplePick(sample);
+                                                const family = inferColorFamily(sample.hex, colorFamilyOptions);
+                                                setInlineForm((current) => ({
+                                                    ...current,
+                                                    hex: sample.hex,
+                                                    family: family?.value ?? familyFromHex(sample.hex),
+                                                    name: suggestedColorName(sample.hex, normalizeText(family?.value ?? familyFromHex(sample.hex))),
+                                                }));
+                                            }}
+                                        />
+                                    </div>
+                                )}
                                 <label className="space-y-2">
-                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Familia dominante</span>
-                                    <select value={inlineForm.family} onChange={(event) => setInlineForm((current) => ({ ...current, family: event.target.value }))} className="sa-input w-full">
-                                        <option value="">Selecciona familia</option>
+                                    <span className="inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.18em] text-stone-400"><Palette size={12} />Color exacto</span>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="color"
+                                            value={inlineColorHex}
+                                            onChange={(event) => {
+                                                const hex = event.target.value.toUpperCase();
+                                                const family = inferColorFamily(hex, colorFamilyOptions);
+                                                setInlineForm((current) => ({
+                                                    ...current,
+                                                    hex,
+                                                    family: family?.value ?? familyFromHex(hex),
+                                                    name: suggestedColorName(hex, normalizeText(family?.value ?? familyFromHex(hex))),
+                                                }));
+                                            }}
+                                            className="h-11 w-16 rounded-xl border border-white/10 bg-[#0d141d]"
+                                        />
+                                        <div className="sa-input flex w-full items-center text-sm text-white">{inlineColorHex}</div>
+                                    </div>
+                                    {inlineErrors.hex_col && <p className="text-sm text-rose-300">{inlineErrors.hex_col}</p>}
+                                </label>
+                                <div className="rounded-[1.2rem] border border-white/8 bg-[#0d141d] p-4">
+                                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">
+                                        {inlineExistingColor ? 'Color existente encontrado' : 'Nuevo color detectado'}
+                                    </p>
+                                    <div className="mt-3 flex items-center gap-3">
+                                        <span className="inline-flex h-12 w-12 rounded-full border border-white/15" style={{ backgroundColor: inlineColorHex }} />
+                                        <div>
+                                            <p className="text-sm text-white">{inlineExistingColor?.label ?? inlineColorName}</p>
+                                            <p className="mt-1 text-sm text-stone-400">Familia: {inlineExistingColor?.group ?? inlineColorFamily}</p>
+                                            <p className="mt-1 text-xs uppercase tracking-[0.14em] text-stone-500">Dominante: {familyPalette[normalizeText(inlineExistingColor?.group ?? inlineColorFamily)] ?? inlineColorHex}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label className="space-y-2">
+                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Familia de color</span>
+                                    <select value={inlineColorFamily} onChange={(event) => setInlineForm((current) => ({ ...current, family: event.target.value, name: suggestedColorName(inlineColorHex, normalizeText(event.target.value)) }))} className="sa-input w-full">
                                         {colorFamilyOptions.map((option) => <option key={`${option.value}-family`} value={option.value}>{option.label}</option>)}
                                     </select>
-                                </label>
-                                <label className="space-y-2">
-                                    <span className="inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.18em] text-stone-400"><Palette size={12} />Muestra del tono</span>
-                                    <div className="flex items-center gap-3">
-                                        <input type="color" value={inlineForm.hex} onChange={(event) => setInlineForm((current) => ({ ...current, hex: event.target.value.toUpperCase() }))} className="h-11 w-16 rounded-xl border border-white/10 bg-[#0d141d]" />
-                                        <input value={inlineForm.hex} onChange={(event) => setInlineForm((current) => ({ ...current, hex: event.target.value.toUpperCase() }))} className="sa-input w-full" placeholder="#D8A7B1" />
-                                    </div>
+                                    {inlineErrors.fam_col && <p className="text-sm text-rose-300">{inlineErrors.fam_col}</p>}
                                 </label>
                             </>
                         )}
@@ -967,7 +1073,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                         )}
                         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                             <button type="button" onClick={closeInlineCreate} className="sa-button-ghost px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em]">Cancelar</button>
-                            <button type="submit" disabled={inlineProcessing} className="sa-button-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-70">{inlineProcessing ? 'Guardando' : 'Crear y seleccionar'}</button>
+                            <button type="submit" disabled={inlineProcessing} className="sa-button-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-70">{inlineProcessing ? 'Guardando' : inlineDrawer.resource === 'colors' ? (inlineExistingColor ? 'Usar color existente' : 'Crear y usar color') : 'Crear y seleccionar'}</button>
                         </div>
                     </form>
                 )}

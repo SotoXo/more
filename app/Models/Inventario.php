@@ -23,6 +23,6 @@ class Inventario extends Model
 
     public function stockDisponible(): int
     {
-        return max(0, $this->cdi_inv - $this->cre_inv);
+        return max(0, (int) $this->cdi_inv);
     }
 }

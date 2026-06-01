@@ -121,9 +121,38 @@ No se muestran como campos manuales `nom_col`, `hex_dom_col`, `ord_col`, variant
 - `ROSA PALO / ROSA / #D8A7B1 / #D28FA0`
 - `VERDE OLIVA / VERDE / #66704A / #16A34A`
 
-## Aclaración
+## Integración con registro de prendas
 
-La detección desde imagen en el registro de prendas se trabajará después. Este cambio solo corrige el CRUD de colores.
+El registro y edición de prendas reutiliza la misma lógica de colores para que el administrador no tenga que salir al CRUD de colores antes de crear una variante.
+
+Campos involucrados:
+
+- `colores.nom_col`
+- `colores.fam_col`
+- `colores.hex_col`
+- `colores.hex_dom_col`
+- `colores.ord_col`
+- `prenda_variantes.cod_colores_prv`
+
+Flujo:
+
+1. En una variante, el usuario puede seleccionar un color existente desde una paleta visual agrupada por familia.
+2. El selector permite buscar por nombre de color, familia o HEX.
+3. Si el color no existe, el usuario puede elegir `Crear color`.
+4. El sistema permite seleccionar el color exacto con picker o tomarlo desde la imagen principal de la prenda.
+5. A partir de `hex_col`, el sistema genera `nom_col`, detecta `fam_col`, asigna `hex_dom_col` y calcula `ord_col`.
+6. Antes de crear un registro nuevo, el backend busca si ya existe un color con el mismo `hex_col`.
+7. Si no hay coincidencia exacta, busca un color muy parecido dentro de la misma `fam_col` usando distancia RGB baja.
+8. Si existe, reutiliza ese color y asigna su id a `prenda_variantes.cod_colores_prv`.
+9. Si no existe, crea el color y asigna el nuevo id a `prenda_variantes.cod_colores_prv`.
+
+No se crea tabla `prenda_variante_colores` y no se manejan colores secundarios o terciarios. Cada variante mantiene un solo color principal mediante `cod_colores_prv`.
+
+Mensajes esperados:
+
+- `Color existente encontrado`: el color se reutiliza y no se duplica.
+- `Nuevo color detectado`: el color se creará al confirmar.
+- `No se pudo guardar el nuevo color`: error general si falla la creación inline.
 
 ## Pruebas recomendadas
 
@@ -138,4 +167,8 @@ La detección desde imagen en el registro de prendas se trabajará después. Est
 - Cambiar color exacto y verificar que se actualice la sugerencia.
 - Confirmar que variantes no aparece en crear/editar.
 - Revisar listado y detalle de color.
+- Crear prenda, agregar variante y seleccionar un color existente desde swatch.
+- Crear prenda, capturar `#0D2608` desde imagen y verificar que se crea o reutiliza como color verde específico.
+- Capturar un color igual a uno existente y verificar que no se duplica.
+- Confirmar que la variante guarda `cod_colores_prv`.
 - Confirmar que `ResourceController` sigue delgado.

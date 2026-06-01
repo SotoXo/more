@@ -19,9 +19,9 @@ class DashboardStatsService
 
     public function payload(): array
     {
-        $stockTotal = (int) Inventario::query()->sum('cdi_inv');
+        $stockDisponible = (int) Inventario::query()->sum('cdi_inv');
         $stockReservado = (int) Inventario::query()->sum('cre_inv');
-        $stockDisponible = max(0, $stockTotal - $stockReservado);
+        $stockTotalOperativo = $stockDisponible + $stockReservado;
         $lowStockCount = $this->lowStockQuery()->count();
         $withoutStockCount = $this->withoutStockQuery()->count();
         $activeReservations = $this->activeReservationsQuery()->count();
@@ -33,8 +33,8 @@ class DashboardStatsService
                     'label' => 'Stock disponible',
                     'value' => $this->number($stockDisponible),
                     'note' => $stockReservado > 0
-                        ? $this->number($stockReservado) . ' unidades reservadas.'
-                        : 'Sin unidades reservadas.',
+                        ? $this->number($stockReservado) . ' unidades comprometidas. Total operativo: ' . $this->number($stockTotalOperativo) . '.'
+                        : 'Sin unidades comprometidas.',
                     'tone' => 'success',
                     'priority' => 'high',
                     'href' => '/superadmin/inventario/stock',
@@ -168,13 +168,13 @@ class DashboardStatsService
     private function lowStockQuery()
     {
         return Inventario::query()
-            ->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= ?', [self::LOW_STOCK_LIMIT]);
+            ->where('cdi_inv', '<=', self::LOW_STOCK_LIMIT);
     }
 
     private function withoutStockQuery()
     {
         return Inventario::query()
-            ->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 0');
+            ->where('cdi_inv', '<=', 0);
     }
 
     private function activeReservationsQuery()
@@ -205,7 +205,7 @@ class DashboardStatsService
             ->join('prendas', 'prendas.id_prenda', '=', 'prenda_variantes.cod_prendas_prv')
             ->leftJoin('categorias', 'categorias.id_categoria', '=', 'prendas.cod_categorias_pre')
             ->selectRaw("COALESCE(categorias.nom_cat, 'Sin categoría') as label")
-            ->selectRaw('SUM(CASE WHEN (COALESCE(inventarios.cdi_inv, 0) - COALESCE(inventarios.cre_inv, 0)) > 0 THEN (COALESCE(inventarios.cdi_inv, 0) - COALESCE(inventarios.cre_inv, 0)) ELSE 0 END) as value')
+            ->selectRaw('SUM(CASE WHEN COALESCE(inventarios.cdi_inv, 0) > 0 THEN COALESCE(inventarios.cdi_inv, 0) ELSE 0 END) as value')
             ->groupBy('categorias.nom_cat')
             ->orderByDesc('value')
             ->limit(8)
@@ -319,14 +319,14 @@ class DashboardStatsService
     {
         return Inventario::query()
             ->with(['variante.prenda.categoria', 'variante.prenda.marca', 'variante.color', 'variante.talla'])
-            ->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= ?', [self::LOW_STOCK_LIMIT])
-            ->orderByRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) asc')
+            ->where('cdi_inv', '<=', self::LOW_STOCK_LIMIT)
+            ->orderBy('cdi_inv')
             ->limit(6)
             ->get()
             ->map(function (Inventario $inventory) {
                 $variant = $inventory->variante;
                 $product = $variant?->prenda;
-                $available = max(0, (int) $inventory->cdi_inv - (int) $inventory->cre_inv);
+                $available = max(0, (int) $inventory->cdi_inv);
 
                 return [
                     'title' => $product?->nom_pre ?? 'Prenda sin nombre',

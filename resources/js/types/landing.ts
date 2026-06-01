@@ -20,9 +20,12 @@ export type LandingPageProps = InertiaPageProps & {
         user: LandingUser;
         rol: LandingRole;
         is_superadmin: boolean;
+        is_vendedor: boolean;
+        can_manage_commercial: boolean;
     };
     flash: {
         success?: string | null;
         error?: string | null;
     };
+    reservation_bag_count?: number;
 };

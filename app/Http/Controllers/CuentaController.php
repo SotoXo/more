@@ -6,19 +6,26 @@ use App\Models\Favorito;
 use App\Models\Reserva;
 use App\Models\Venta;
 use App\Services\ProductMapper;
+use App\Services\ReceiptService;
 use Inertia\Inertia;
 
 class CuentaController extends Controller
 {
+    public function __construct(private readonly ReceiptService $receipts)
+    {
+    }
+
     public function index()
     {
         $user = auth()->user();
 
         $pedidosCount  = Venta::where('cod_usuario_cliente_ven', $user->id)->count();
-        $reservasCount = Reserva::where('cod_usuario_cliente_res', $user->id)->count();
+        $reservasCount = Reserva::where('cod_usuario_cliente_res', $user->id)
+            ->whereIn('est_res', ['por_procesar', 'confirmada', 'lista_recojo'])
+            ->count();
         $favoritosCount = Favorito::where('cod_usuarios_fav', $user->id)->count();
 
-        $ultimoPedido = Venta::with('detalles.variante.prenda.imagenes')
+        $ultimoPedido = Venta::with(['pagos', 'detalles.variante.prenda.imagenes'])
             ->where('cod_usuario_cliente_ven', $user->id)
             ->latest('fec_ven')
             ->first();
@@ -35,7 +42,7 @@ class CuentaController extends Controller
     {
         $user = auth()->user();
 
-        $ventas = Venta::with(['detalles' => fn($q) => $q->with([
+        $ventas = Venta::with(['pagos', 'detalles' => fn($q) => $q->with([
             'variante.prenda.imagenes',
             'variante.prenda.marca',
             'variante.color',
@@ -56,21 +63,59 @@ class CuentaController extends Controller
     {
         $user = auth()->user();
 
-        $reservas = Reserva::with(['detalles' => fn($q) => $q->with([
+        $activeReservationStates = ['por_procesar', 'confirmada', 'lista_recojo'];
+        $historicalReservationStates = ['completada', 'recogida', 'cancelada', 'vencida', 'rechazada'];
+
+        $reservasActuales = $this->reservationQueryForUser($user->id)
+            ->whereIn('est_res', $activeReservationStates)
+            ->orderByDesc('fec_res')
+            ->get()
+            ->map(fn($r) => $this->mapReserva($r))
+            ->values()
+            ->toArray();
+
+        $historialReservas = $this->reservationQueryForUser($user->id)
+            ->whereIn('est_res', $historicalReservationStates)
+            ->orderByDesc('fec_res')
+            ->get()
+            ->map(fn($r) => $this->mapReserva($r))
+            ->values()
+            ->toArray();
+
+        $compras = $this->saleQueryForUser($user->id)
+            ->orderByDesc('fec_ven')
+            ->get()
+            ->map(fn($v) => $this->mapVenta($v))
+            ->values()
+            ->toArray();
+
+        return Inertia::render('Cuenta/Reservas', [
+            'reservasActuales' => $reservasActuales,
+            'historialReservas' => $historialReservas,
+            'compras' => $compras,
+        ]);
+    }
+
+    private function reservationQueryForUser(int $userId)
+    {
+        return Reserva::with(['pagos', 'detalles' => fn($q) => $q->with([
             'variante.prenda.imagenes',
             'variante.prenda.marca',
             'variante.color',
             'variante.talla',
         ])])
-            ->where('cod_usuario_cliente_res', $user->id)
-            ->orderByDesc('fec_res')
-            ->get();
+            ->where('cod_usuario_cliente_res', $userId);
+    }
 
-        $reservasMapped = $reservas->map(fn($r) => $this->mapReserva($r))->values()->toArray();
-
-        return Inertia::render('Cuenta/Reservas', [
-            'reservas' => $reservasMapped,
-        ]);
+    private function saleQueryForUser(int $userId)
+    {
+        return Venta::with(['pagos', 'detalles' => fn($q) => $q->with([
+            'variante.prenda.imagenes',
+            'variante.prenda.marca',
+            'variante.color',
+            'variante.talla',
+        ])])
+            ->where('cod_usuario_cliente_ven', $userId);
     }
 
     private function mapVenta(Venta $venta): array
@@ -83,6 +128,11 @@ class CuentaController extends Controller
             'descuento' => (float) $venta->des_ven,
             'total'    => (float) $venta->tot_ven,
             'pago'     => $venta->mpa_ven,
+            'observacionPago' => $venta->pagos?->sortByDesc('id_venta_pago')->first()?->obs_vpg,
+            'comprobanteUrl' => $venta->pagos?->sortByDesc('id_venta_pago')->first()?->comprobante_url_vpg,
+            'reciboUrl' => $this->receipts->canIssueSaleReceipt($venta)
+                ? route('cuenta.pedidos.recibo', ['venta' => $venta->id_venta])
+                : null,
             'fecha'    => $venta->fec_ven?->toDateString(),
             'items'    => $venta->detalles?->map(fn($d) => [
                 'id'       => $d->id_detalle_venta,
@@ -101,16 +151,34 @@ class CuentaController extends Controller
 
     private function mapReserva(Reserva $reserva): array
     {
+        $sale = $this->receipts->saleForReservation($reserva);
+
         return [
             'id'       => $reserva->id_reserva,
             'numero'   => $reserva->nre_res,
             'estado'   => $reserva->est_res,
+            'estadoPago' => $reserva->est_pago_res,
+            'total' => (float) $reserva->tot_res,
+            'montoPagado' => (float) $reserva->monto_pagado_res,
+            'saldo' => max(0, (float) $reserva->tot_res - (float) $reserva->monto_pagado_res),
+            'fechaDisponibleRecojo' => $reserva->fec_disponible_recojo_res?->toDateString(),
+            'fechaLimiteRecojo' => $reserva->fec_limite_recojo_res?->toDateString(),
+            'puntoRecojo' => $reserva->punto_recojo_res,
+            'obsPago' => $reserva->obs_pago_res,
+            'reciboReservaUrl' => $this->receipts->canIssueReservationReceipt($reserva)
+                ? route('cuenta.reservas.recibo', ['reserva' => $reserva->id_reserva])
+                : null,
+            'reciboVentaUrl' => $sale && $this->receipts->canIssueSaleReceipt($sale)
+                ? route('cuenta.pedidos.recibo', ['venta' => $sale->id_venta])
+                : null,
             'vence'    => $reserva->ven_res?->toDateString(),
             'fecha'    => $reserva->fec_res?->toDateString(),
             'obs'      => $reserva->obs_res,
             'items'    => $reserva->detalles?->map(fn($d) => [
                 'id'       => $d->id_detalle_reserva,
                 'cantidad' => $d->can_dre,
+                'precio'   => (float) $d->pun_dre,
+                'subtotal' => (float) $d->sub_dre,
                 'nombre'   => $d->variante?->prenda?->nom_pre ?? '',
                 'marca'    => $d->variante?->prenda?->marca?->nom_mar ?? '',
                 'imagen'   => $d->variante?->prenda?->imagenes?->sortByDesc('pri_igp')->first()?->url_igp ?? '',

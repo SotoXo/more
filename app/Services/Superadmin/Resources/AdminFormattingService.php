@@ -85,6 +85,6 @@ class AdminFormattingService
             return $inventory->stockDisponible();
         }
 
-        return max(0, (int) ($inventory->cdi_inv ?? 0) - (int) ($inventory->cre_inv ?? 0));
+        return max(0, (int) ($inventory->cdi_inv ?? 0));
     }
 }

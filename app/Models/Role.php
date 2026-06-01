@@ -54,6 +54,11 @@ class Role extends Model
         return $this->normalizedName() === 'superadmin';
     }
 
+    public function isVendedorRole(): bool
+    {
+        return $this->normalizedName() === 'vendedor';
+    }
+
     public function isActive(): bool
     {
         return (bool) $this->est_rol;

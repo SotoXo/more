@@ -33,6 +33,7 @@ class ResourceDefinitionService
     private const SECONDARY_CRUD_RESOURCES = [
         'catalogo.variantes',
         'catalogo.imagenes',
+        'inventario.stock',
     ];
 
     private const NOT_READY_RESOURCES = [
@@ -283,7 +284,7 @@ class ResourceDefinitionService
             'singular' => $definition['singular'],
             'description' => $definition['description'],
             'indexHref' => $this->indexHref($definition),
-            'createHref' => $this->supportsCrud($definition) ? $this->createHref($definition) : null,
+            'createHref' => $this->supportsCreate($definition) ? $this->createHref($definition) : null,
             'moduleStatus' => $moduleStatus['status'],
             'moduleStatusLabel' => $moduleStatus['label'],
             'moduleStatusDescription' => $moduleStatus['description'],
@@ -344,6 +345,13 @@ class ResourceDefinitionService
             || in_array($key, self::SECONDARY_CRUD_RESOURCES, true);
     }
 
+    public function supportsCreate(array $definition): bool
+    {
+        return in_array($this->definitionKey($definition), ['comercial.ventas', 'comercial.reservas'], true)
+            || ($this->supportsCrud($definition)
+                && $this->definitionKey($definition) !== 'inventario.stock');
+    }
+
     public function moduleStatus(array $definition): array
     {
         $key = $this->definitionKey($definition);
@@ -371,6 +379,24 @@ class ResourceDefinitionService
                 'status' => 'not_ready',
                 'label' => 'En preparación',
                 'description' => 'Esta vista es solo informativa y no ejecuta cambios operativos.',
+                'secondary' => true,
+            ];
+        }
+
+        if ($key === 'comercial.ventas') {
+            return [
+                'status' => 'crud',
+                'label' => 'Registro operativo',
+                'description' => 'Este modulo permite consultar y registrar ventas con descuento de inventario.',
+                'secondary' => true,
+            ];
+        }
+
+        if ($key === 'comercial.reservas') {
+            return [
+                'status' => 'crud',
+                'label' => 'Registro operativo',
+                'description' => 'Este modulo permite consultar, registrar, cancelar y completar reservas con movimiento de inventario.',
                 'secondary' => true,
             ];
         }

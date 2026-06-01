@@ -31,6 +31,8 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $reservationBagItems = array_values($request->session()->get('carrito', []));
+        $reservationBagCount = collect($reservationBagItems)->sum(fn (array $item) => (int) ($item['cantidad'] ?? 0));
 
         if ($user instanceof User) {
             $user->loadMissing('rol');
@@ -53,11 +55,14 @@ class HandleInertiaRequests extends Middleware
                     'nombre' => $user->rol->nom_rol,
                 ] : null,
                 'is_superadmin' => $user?->isSuperadmin() ?? false,
+                'is_vendedor' => $user?->isVendedor() ?? false,
+                'can_manage_commercial' => $user?->canManageCommercialOperations() ?? false,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'reservation_bag_count' => $reservationBagCount,
         ];
     }
 }

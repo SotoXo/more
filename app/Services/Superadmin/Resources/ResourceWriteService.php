@@ -153,8 +153,8 @@ class ResourceWriteService
             'inventario.stock' => [
                 'cod_prenda_variantes_inv' => (int) $validated['cod_prenda_variantes_inv'],
                 'cdi_inv' => (int) $validated['cdi_inv'],
-                'cre_inv' => (int) $validated['cre_inv'],
-                'ubi_inv' => $this->formatting->normalizeNullableText($validated['ubi_inv'] ?? null),
+                'cre_inv' => $record ? (int) $record->cre_inv : (int) $validated['cre_inv'],
+                'ubi_inv' => $this->formatting->normalizeUpper($validated['ubi_inv'] ?? null),
             ],
             default => [],
         };
@@ -318,6 +318,37 @@ class ResourceWriteService
             'hex_dom_col' => $dominant,
             'ord_col' => $this->colorOrderFor($resolvedFamily, $record),
         ];
+    }
+
+    public function reusableColorFor(string $hex, ?string $family = null): ?Color
+    {
+        $normalizedHex = $this->normalizeHex($hex);
+
+        if (!$normalizedHex) {
+            return null;
+        }
+
+        $exact = Color::query()
+            ->whereRaw('UPPER(hex_col) = ?', [$normalizedHex])
+            ->first();
+
+        if ($exact) {
+            return $exact;
+        }
+
+        $resolvedFamily = $family ? mb_strtoupper(trim($family), 'UTF-8') : $this->closestColorFamily($normalizedHex);
+        $candidate = Color::query()
+            ->where('fam_col', $resolvedFamily)
+            ->whereNotNull('hex_col')
+            ->get()
+            ->map(fn (Color $color) => [
+                'record' => $color,
+                'distance' => $this->colorDistance($normalizedHex, (string) $color->hex_col),
+            ])
+            ->sortBy('distance')
+            ->first();
+
+        return ($candidate && $candidate['distance'] <= 24) ? $candidate['record'] : null;
     }
 
     public function calculateSizeOrder(string $name, ?string $system = null, ?string $segment = null): int

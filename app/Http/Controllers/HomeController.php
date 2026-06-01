@@ -6,11 +6,16 @@ use App\Models\Categoria;
 use App\Models\Marca;
 use App\Models\Prenda;
 use App\Services\ProductMapper;
+use App\Services\StorefrontCatalogService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
+    public function __construct(private StorefrontCatalogService $catalogService)
+    {
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -25,23 +30,18 @@ class HomeController extends Controller
 
         $novedadesPrendas = ProductMapper::withRelations(
             Prenda::where('est_pre', true)
-        )
-            ->orderByDesc('fec_pre')
-            ->orderByDesc('created_at')
-            ->limit(8)
-            ->get();
+        );
+        $this->catalogService->applySeasonOrdering($novedadesPrendas);
+        $novedadesPrendas = $novedadesPrendas->limit(8)->get();
 
         $novedades = ProductMapper::toShopProductArray($novedadesPrendas);
         $novedades = ProductMapper::attachFavoriteState($novedades, auth()->user());
 
         $seleccionPrendas = ProductMapper::withRelations(
             Prenda::where('est_pre', true)
-        )
-            ->orderByDesc('fec_pre')
-            ->orderByDesc('created_at')
-            ->skip(8)
-            ->limit(8)
-            ->get();
+        );
+        $this->catalogService->applySeasonOrdering($seleccionPrendas);
+        $seleccionPrendas = $seleccionPrendas->skip(8)->limit(8)->get();
 
         $seleccion = ProductMapper::toShopProductArray($seleccionPrendas);
         $seleccion = ProductMapper::attachFavoriteState($seleccion, auth()->user());

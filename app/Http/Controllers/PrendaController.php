@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Favorito;
 use App\Models\Prenda;
 use App\Services\ProductMapper;
+use App\Services\StorefrontCatalogService;
 use Inertia\Inertia;
 
 class PrendaController extends Controller
 {
+    public function __construct(private StorefrontCatalogService $catalogService)
+    {
+    }
+
     public function show(string $id)
     {
         $prenda = ProductMapper::withRelations(Prenda::where('est_pre', true))
@@ -26,7 +31,7 @@ class PrendaController extends Controller
                 'color_hex' => $v->color?->hex_col ?? null,
                 'talla'     => $v->talla?->nom_tal ?? '',
                 'precio'    => (float) $v->pve_prv,
-                'stock'     => max(0, ($v->inventario?->cdi_inv ?? 0) - ($v->inventario?->cre_inv ?? 0)),
+                'stock'     => max(0, (int) ($v->inventario?->cdi_inv ?? 0)),
             ])
             ->values()
             ->toArray();
@@ -36,10 +41,9 @@ class PrendaController extends Controller
             Prenda::where('est_pre', true)
                 ->where('cod_categorias_pre', $prenda->cod_categorias_pre)
                 ->where('id_prenda', '!=', $prenda->id_prenda)
-        )
-            ->orderByDesc('created_at')
-            ->limit(4)
-            ->get();
+        );
+        $this->catalogService->applySeasonOrdering($relacionadas);
+        $relacionadas = $relacionadas->limit(4)->get();
 
         $relatedProducts = ProductMapper::toShopProductArray($relacionadas);
 
@@ -62,11 +66,9 @@ class PrendaController extends Controller
                                 ->whereHas('categoria', fn($q) => $q->where('nom_cat', '!=', 'Accesorios'));
                         });
                 })
-        )
-            ->orderByDesc('fec_pre')
-            ->orderByDesc('created_at')
-            ->limit(3)
-            ->get();
+        );
+        $this->catalogService->applySeasonOrdering($completaTuLook);
+        $completaTuLook = $completaTuLook->limit(3)->get();
 
         $completeLookProducts = ProductMapper::toShopProductArray($completaTuLook);
 

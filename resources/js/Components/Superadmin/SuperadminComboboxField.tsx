@@ -60,7 +60,7 @@ export default function SuperadminComboboxField({
 
         const normalizedQuery = query.trim().toLowerCase();
 
-        return options.filter((option) => [option.label, option.segment, option.group, option.system].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
+        return options.filter((option) => [option.label, option.segment, option.group, option.system, option.hex, option.swatch].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery));
     }, [options, query]);
 
     const groupedOptions = useMemo(() => {
@@ -157,11 +157,18 @@ export default function SuperadminComboboxField({
                                                 <span className="flex min-w-0 items-center gap-3">
                                                     {option.swatch && (
                                                         <span
-                                                            className="inline-flex h-3.5 w-3.5 shrink-0 rounded-full border border-white/15"
+                                                            className="inline-flex h-5 w-5 shrink-0 rounded-full border border-white/15"
                                                             style={{ backgroundColor: option.swatch }}
                                                         />
                                                     )}
-                                                    <span className="truncate">{option.label}</span>
+                                                    <span className="min-w-0">
+                                                        <span className="block truncate">{option.label}</span>
+                                                        {(option.group || option.hex) && (
+                                                            <span className="mt-0.5 block truncate text-[0.68rem] uppercase tracking-[0.12em] text-stone-500">
+                                                                {[option.group ? `Familia: ${option.group}` : null, option.hex].filter(Boolean).join(' · ')}
+                                                            </span>
+                                                        )}
+                                                    </span>
                                                 </span>
                                                 <span className="flex shrink-0 items-center gap-2">
                                                     {option.recommended && (

@@ -3,7 +3,9 @@ import ProductGallery from '@/Components/shop/ProductGallery';
 import ProductCard from '@/Components/shop/ProductCard';
 import ProductRail from '@/Components/shop/ProductRail';
 import StoreLayout from '@/Components/shop/StoreLayout';
+import { addPurchaseCartItem } from '@/lib/purchaseCart';
 import {
+    formatAvailabilityLabel,
     formatPrice,
     getAvailabilityFromStock,
     shopRoutes,
@@ -13,7 +15,7 @@ import type { LandingPageProps } from '@/types/landing';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Heart, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 const sectionShell = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8';
@@ -48,6 +50,9 @@ export default function Product({
     const [favoritePending, setFavoritePending] = useState(false);
     const [addToCartPending, setAddToCartPending] = useState(false);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
+    const [selectedAction, setSelectedAction] = useState<'reservar' | 'comprar'>('reservar');
+    const [reservationQuantity, setReservationQuantity] = useState(1);
+    const [purchaseQuantity, setPurchaseQuantity] = useState(1);
     const headingMeta =
         product.line ||
         [product.brand, product.style].filter(Boolean).join(' / ') ||
@@ -90,6 +95,12 @@ export default function Product({
     }, [isFavorite, product.id]);
 
     useEffect(() => {
+        if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('accion') === 'comprar') {
+            setSelectedAction('comprar');
+        }
+    }, []);
+
+    useEffect(() => {
         const nextSize =
             availableVariants.find((variant) => variant.stock > 0)?.talla ??
             availableVariants[0]?.talla ??
@@ -109,21 +120,50 @@ export default function Product({
     );
 
     const displayPrice = selectedVariant?.precio ?? product.price;
+    const maxReservationQuantity = Math.max(0, selectedVariant?.stock ?? 0);
+    const maxPurchaseQuantity = Math.max(0, selectedVariant?.stock ?? 0);
+    const reservationUnitPrice = selectedVariant?.precio ?? product.price;
+    const reservationTotal = Number((reservationUnitPrice * reservationQuantity).toFixed(2));
+    const purchaseUnitPrice = selectedVariant?.precio ?? product.price;
+    const purchaseTotal = Number((purchaseUnitPrice * purchaseQuantity).toFixed(2));
     const displayAvailability = selectedVariant
         ? getAvailabilityFromStock(selectedVariant.stock)
         : product.availability;
+    const displayAvailabilityLabel = formatAvailabilityLabel(displayAvailability);
     const departmentHref =
         product.department === 'mujer'
             ? shopRoutes.women
             : product.department === 'hombre'
               ? shopRoutes.men
-              : shopRoutes.accessories;
+              : product.department === 'unisex'
+                ? `${shopRoutes.catalog}?genero=unisex`
+                : shopRoutes.accessories;
     const departmentLabel =
         product.department === 'mujer'
             ? 'Mujer'
             : product.department === 'hombre'
               ? 'Hombre'
-              : 'Accesorios';
+              : product.department === 'unisex'
+                ? 'Unisex'
+                : 'Accesorios';
+
+    useEffect(() => {
+        setReservationQuantity((current) => {
+            if (!selectedVariant || selectedVariant.stock <= 0) {
+                return 1;
+            }
+
+            return Math.min(Math.max(1, current), selectedVariant.stock);
+        });
+
+        setPurchaseQuantity((current) => {
+            if (!selectedVariant || selectedVariant.stock <= 0) {
+                return 1;
+            }
+
+            return Math.min(Math.max(1, current), selectedVariant.stock);
+        });
+    }, [selectedVariant]);
 
     async function handleToggleFavorite() {
         if (!user) {
@@ -171,21 +211,71 @@ export default function Product({
             return;
         }
 
+        if (reservationQuantity > maxReservationQuantity) {
+            setStatusMessage('No hay stock suficiente para reservar esa cantidad.');
+            return;
+        }
+
         setAddToCartPending(true);
         setStatusMessage(null);
 
         try {
-            await axios.post('/api/carrito/agregar', {
+            const response = await axios.post('/api/carrito/agregar', {
                 variante_id: selectedVariant.id,
-                cantidad: 1,
+                cantidad: reservationQuantity,
             });
-            setStatusMessage('Prenda agregada a tus reservas.');
+            window.dispatchEvent(
+                new CustomEvent('mati-boutique:reservation-bag-updated', {
+                    detail: { count: response.data?.cart_count },
+                }),
+            );
+            setStatusMessage('Prenda agregada a la bolsa de reservas.');
         } catch (error) {
+            if (
+                axios.isAxiosError(error) &&
+                [401, 403, 419].includes(error.response?.status ?? 0)
+            ) {
+                setStatusMessage('Debes iniciar sesion para realizar una reserva.');
+                router.visit('/login');
+                return;
+            }
+
             console.error('No se pudo agregar al carrito.', error);
-            setStatusMessage('No pudimos reservar esta prenda. Intenta de nuevo.');
+            setStatusMessage(
+                axios.isAxiosError(error)
+                    ? (error.response?.data?.message ?? 'No pudimos reservar esta prenda. Intenta de nuevo.')
+                    : 'No pudimos reservar esta prenda. Intenta de nuevo.',
+            );
         } finally {
             setAddToCartPending(false);
         }
+    }
+
+    function handleAddToPurchaseCart() {
+        setSelectedAction('comprar');
+        setStatusMessage(null);
+
+        if (!selectedVariant || selectedVariant.stock <= 0) {
+            setStatusMessage('No hay stock suficiente para comprar esta prenda.');
+            return;
+        }
+
+        addPurchaseCartItem({
+            variantId: selectedVariant.id,
+            productId: product.id,
+            slug: product.slug,
+            name: product.name,
+            brand: product.brand,
+            image: product.image,
+            color: selectedVariant.color,
+            size: selectedVariant.talla,
+            sku: selectedVariant.sku,
+            price: selectedVariant.precio,
+            quantity: purchaseQuantity,
+            stock: selectedVariant.stock,
+        });
+
+        setStatusMessage('Prenda agregada al carrito.');
     }
 
     return (
@@ -255,7 +345,7 @@ export default function Product({
                                         {selectedColor ?? product.color}
                                     </span>
                                     <span className="more-pill rounded-full px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em]">
-                                        {displayAvailability}
+                                        {displayAvailabilityLabel}
                                     </span>
                                 </div>
 
@@ -339,9 +429,7 @@ export default function Product({
                                             Disponibilidad
                                         </p>
                                         <p className="mt-3 text-sm text-stone-100">
-                                            {selectedVariant
-                                                ? `${selectedVariant.stock} unidades disponibles`
-                                                : displayAvailability}
+                                            {displayAvailabilityLabel}
                                         </p>
                                     </div>
                                 </div>
@@ -350,27 +438,203 @@ export default function Product({
                                     <p className="mt-6 text-sm text-stone-300">{statusMessage}</p>
                                 )}
 
-                                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                                    <button
-                                        type="button"
-                                        onClick={handleAddToCart}
-                                        disabled={
-                                            !selectedVariant ||
-                                            selectedVariant.stock <= 0 ||
-                                            addToCartPending
-                                        }
-                                        className={`${primaryButtonClass} w-full sm:w-auto`}
-                                    >
-                                        <ShoppingBag size={15} />
-                                        Reservar prenda
-                                    </button>
-                                    <Link
-                                        href="/bolsa"
-                                        className={`${secondaryButtonClass} w-full sm:w-auto`}
-                                    >
-                                        Ver reservas
-                                    </Link>
+                                <div className="mt-8 grid gap-2 rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-2 sm:grid-cols-2">
+                                    {[
+                                        ['reservar', 'Reservar'],
+                                        ['comprar', 'Comprar'],
+                                    ].map(([value, label]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedAction(value as 'reservar' | 'comprar');
+                                                setStatusMessage(null);
+                                            }}
+                                            className={
+                                                selectedAction === value
+                                                    ? 'rounded-[1rem] bg-white px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-slate-950 transition'
+                                                    : 'rounded-[1rem] px-4 py-3 text-[0.72rem] uppercase tracking-[0.2em] text-stone-300 transition hover:bg-white/[0.06] hover:text-white'
+                                            }
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
                                 </div>
+
+                                {selectedAction === 'comprar' && (
+                                    <div className="mt-5 space-y-5 rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-5">
+                                        <div>
+                                            <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[rgb(223,184,166)]">
+                                                Compra online
+                                            </p>
+                                            <p className="mt-2 text-sm leading-6 text-stone-300">
+                                                Agrega esta prenda al carrito. El pago y el comprobante se registran en el checkout.
+                                            </p>
+                                        </div>
+
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            <div className="rounded-[1rem] border border-white/8 bg-black/10 p-4">
+                                                <p className="text-[0.62rem] uppercase tracking-[0.16em] text-stone-500">
+                                                    Variante
+                                                </p>
+                                                <p className="mt-2 text-sm text-white">
+                                                    {selectedVariant
+                                                        ? `${selectedVariant.color} / ${selectedVariant.talla}`
+                                                        : 'Selecciona color y talla'}
+                                                </p>
+                                            </div>
+                                            <div className="rounded-[1rem] border border-white/8 bg-black/10 p-4">
+                                                <p className="text-[0.62rem] uppercase tracking-[0.16em] text-stone-500">
+                                                    Subtotal
+                                                </p>
+                                                <p className="mt-2 text-sm text-white">{formatPrice(purchaseTotal)}</p>
+                                            </div>
+                                        </div>
+
+                                        <label className="block space-y-2">
+                                            <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">
+                                                Cantidad
+                                            </span>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max={maxPurchaseQuantity || 1}
+                                                value={purchaseQuantity}
+                                                onChange={(event) => {
+                                                    const nextQuantity = Number(event.target.value || 1);
+                                                    setPurchaseQuantity(Math.max(1, Math.min(maxPurchaseQuantity || 1, nextQuantity)));
+                                                }}
+                                                disabled={maxPurchaseQuantity <= 0}
+                                                className="w-full rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition focus:border-[rgb(223,184,166)]"
+                                            />
+                                        </label>
+
+                                        <div className="flex flex-col gap-3 sm:flex-row">
+                                            <button
+                                                type="button"
+                                                onClick={handleAddToPurchaseCart}
+                                                disabled={!selectedVariant || maxPurchaseQuantity <= 0}
+                                                className={`${primaryButtonClass} w-full justify-center sm:w-auto`}
+                                            >
+                                                <ShoppingBag size={15} />
+                                                Agregar al carrito
+                                            </button>
+                                            <Link
+                                                href={shopRoutes.cart}
+                                                className={`${secondaryButtonClass} w-full justify-center sm:w-auto`}
+                                            >
+                                                Ver carrito
+                                            </Link>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedAction === 'reservar' && (
+                                    <div className="mt-5 space-y-5 rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-5">
+                                        <div>
+                                            <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[rgb(223,184,166)]">
+                                                Reserva online
+                                            </p>
+                                            <p className="mt-2 text-sm leading-6 text-stone-300">
+                                                Elige la cantidad y agrégala a tu bolsa. El stock se asegura al enviar la reserva con comprobante.
+                                            </p>
+                                        </div>
+
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            <div className="rounded-[1rem] border border-white/8 bg-black/10 p-4">
+                                                <p className="text-[0.62rem] uppercase tracking-[0.16em] text-stone-500">
+                                                    Variante
+                                                </p>
+                                                <p className="mt-2 text-sm text-white">
+                                                    {selectedVariant
+                                                        ? `${selectedVariant.color} / ${selectedVariant.talla}`
+                                                        : 'Selecciona color y talla'}
+                                                </p>
+                                            </div>
+                                            <div className="rounded-[1rem] border border-white/8 bg-black/10 p-4">
+                                                <p className="text-[0.62rem] uppercase tracking-[0.16em] text-stone-500">
+                                                    Subtotal reserva
+                                                </p>
+                                                <p className="mt-2 text-sm text-white">{formatPrice(reservationTotal)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div>
+                                                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">
+                                                        Cantidad a reservar
+                                                    </p>
+                                                    <p className="mt-1 text-xs text-stone-500">
+                                                        Disponible ahora: {maxReservationQuantity}
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-1 py-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setReservationQuantity((current) => Math.max(1, current - 1))}
+                                                        disabled={reservationQuantity <= 1 || maxReservationQuantity <= 0}
+                                                        className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
+                                                        aria-label="Disminuir cantidad a reservar"
+                                                    >
+                                                        <Minus size={12} />
+                                                    </button>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        max={maxReservationQuantity || 1}
+                                                        value={reservationQuantity}
+                                                        onChange={(event) => {
+                                                            const nextQuantity = Number(event.target.value || 1);
+                                                            setReservationQuantity(Math.max(1, Math.min(maxReservationQuantity || 1, nextQuantity)));
+                                                        }}
+                                                        disabled={maxReservationQuantity <= 0}
+                                                        className="w-14 border-0 bg-transparent text-center text-sm text-white outline-none"
+                                                        aria-label="Cantidad a reservar"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (reservationQuantity >= maxReservationQuantity) {
+                                                                setStatusMessage('No hay stock suficiente para reservar esa cantidad.');
+                                                                return;
+                                                            }
+
+                                                            setReservationQuantity((current) => Math.min(maxReservationQuantity, current + 1));
+                                                        }}
+                                                        disabled={maxReservationQuantity <= 0}
+                                                        className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
+                                                        aria-label="Aumentar cantidad a reservar"
+                                                    >
+                                                        <Plus size={12} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-3 sm:flex-row">
+                                            <button
+                                                type="button"
+                                                onClick={handleAddToCart}
+                                                disabled={
+                                                    !selectedVariant ||
+                                                    selectedVariant.stock <= 0 ||
+                                                    addToCartPending
+                                                }
+                                                className={`${primaryButtonClass} w-full sm:w-auto`}
+                                            >
+                                                <ShoppingBag size={15} />
+                                                Reservar prenda
+                                            </button>
+                                            <Link
+                                                href={shopRoutes.newReservation}
+                                                className={`${secondaryButtonClass} w-full sm:w-auto`}
+                                            >
+                                                Ver bolsa
+                                            </Link>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </motion.div>

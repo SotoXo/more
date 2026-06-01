@@ -14,6 +14,7 @@ use App\Models\Talla;
 use App\Models\Temporada;
 use App\Models\User;
 use App\Models\Venta;
+use App\Services\Superadmin\InventoryStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
@@ -28,6 +29,7 @@ class ResourceDetailViewService
         private readonly ResourceQueryService $queries,
         private readonly ResourceViewDataService $viewDataService,
         private readonly ResourceOptionsService $options,
+        private readonly InventoryStatusService $inventoryStatus,
     ) {
     }
 
@@ -776,7 +778,7 @@ class ResourceDetailViewService
 
     private function inventoryViewData($record = null): array
     {
-        $available = $this->formatting->available($record);
+        $available = $this->inventoryStatus->available($record);
 
         return [
             'recordLabel' => $record?->variante?->prenda?->nom_pre ?? 'Nuevo registro de stock',
@@ -786,7 +788,7 @@ class ResourceDetailViewService
                     'description' => 'Variante asociada y ubicación.',
                     'fields' => [
                         ['name' => 'cod_prenda_variantes_inv', 'label' => 'Variante', 'value' => (string) ($record?->cod_prenda_variantes_inv ?? ''), 'type' => 'select', 'options' => $this->options->inventoryVariantOptions($record), 'required' => true, 'disabled' => (bool) $record],
-                        ['name' => 'ubi_inv', 'label' => 'Ubicación', 'value' => (string) ($record?->ubi_inv ?? 'TIENDA'), 'type' => 'select', 'options' => $this->options->locationOptions(), 'required' => true],
+                        ['name' => 'ubi_inv', 'label' => 'Ubicacion', 'value' => (string) ($record?->ubi_inv ?? ''), 'placeholder' => 'Ej.: TIENDA, DEPOSITO o estante A1', 'hint' => 'Opcional. Se normaliza en mayusculas al guardar.'],
                         ['name' => 'sku_view', 'label' => 'Código interno', 'value' => $record?->variante?->sku_prv ?? 'Se mostrará al guardar', 'disabled' => true],
                         ['name' => 'prenda_view', 'label' => 'Prenda', 'value' => $record?->variante?->prenda?->nom_pre ?? 'Se mostrará al guardar', 'disabled' => true],
                     ],
@@ -794,9 +796,9 @@ class ResourceDetailViewService
                 [
                     'title' => 'Disponible y reserva',
                     'fields' => [
-                        ['name' => 'cdi_inv', 'label' => 'Disponible', 'value' => (string) ($record?->cdi_inv ?? 0), 'type' => 'number', 'required' => true, 'placeholder' => '0', 'min' => 0, 'hint' => 'Cantidad total registrada para esta variante.'],
-                        ['name' => 'cre_inv', 'label' => 'Reservado', 'value' => (string) ($record?->cre_inv ?? 0), 'type' => 'number', 'required' => true, 'placeholder' => '0', 'min' => 0, 'hint' => 'No puede ser mayor al disponible.'],
-                        ['name' => 'available_view', 'label' => 'Saldo actual', 'value' => (string) $available, 'disabled' => true],
+                        ['name' => 'cdi_inv', 'label' => 'Disponible', 'value' => (string) ($record?->cdi_inv ?? 0), 'type' => 'number', 'required' => true, 'placeholder' => '0', 'min' => 0, 'hint' => 'Stock disponible real para vender o reservar.'],
+                        ['name' => 'cre_inv', 'label' => 'Reservado', 'value' => (string) ($record?->cre_inv ?? 0), 'type' => 'number', 'required' => true, 'placeholder' => '0', 'min' => 0, 'disabled' => true, 'hint' => 'Solo lectura: las reservas actualizan esta cantidad automaticamente.'],
+                        ['name' => 'total_view', 'label' => 'Stock total calculado', 'value' => (string) $this->inventoryStatus->total($record), 'disabled' => true],
                     ],
                 ],
             ],
@@ -889,21 +891,42 @@ class ResourceDetailViewService
 
     private function saleViewData(array $definition, $record = null): array
     {
+        $saleStatusLabel = $this->saleStatusLabel($record?->est_ven);
+        $saleStatusTone = $this->saleStatusTone($record?->est_ven);
+        $pickupStatusLabel = $this->salePickupStatusLabel($record?->est_logistico_ven);
+        $pickupStatusTone = $this->salePickupStatusTone($record?->est_logistico_ven);
+        $saleTypeLabel = $record?->tiv_ven === 'reserva' ? 'Desde reserva' : ($record?->tiv_ven ? mb_convert_case(str_replace('_', ' ', (string) $record->tiv_ven), MB_CASE_TITLE, 'UTF-8') : 'Sin tipo');
+        $paymentMethodLabel = $record?->mpa_ven ? mb_convert_case(str_replace('_', ' ', (string) $record->mpa_ven), MB_CASE_TITLE, 'UTF-8') : 'Sin metodo';
+        $latestPayment = $record?->pagos?->sortByDesc('id_venta_pago')->first();
+        $paymentStatusLabel = match ($latestPayment?->est_vpg) {
+            'confirmado' => 'Confirmado',
+            'rechazado' => 'Rechazado',
+            default => 'Pendiente de revision',
+        };
+        $paymentStatusTone = match ($latestPayment?->est_vpg) {
+            'confirmado' => 'success',
+            'rechazado' => 'danger',
+            default => 'warning',
+        };
         $relatedRows = $record
             ? collect($record->detalles ?? [])->map(fn ($detail) => [
                 'id' => $detail->id_detalle_venta,
                 'primary' => $detail->variante?->prenda?->nom_pre ?? 'Detalle #' . $detail->id_detalle_venta,
-                'secondary' => trim(implode(' · ', array_filter([$detail->variante?->color?->nom_col, $detail->variante?->talla?->nom_tal]))),
+                'secondary' => trim(implode(' - ', array_filter([$detail->variante?->color?->nom_col, $detail->variante?->talla?->nom_tal]))),
+                'image' => $detail->variante?->prenda?->imagenes?->sortByDesc('pri_igp')->sortBy('ord_igp')->first()?->url_igp,
                 'status' => ['label' => $detail->can_dve . ' unidades', 'tone' => 'accent'],
                 'cells' => [
-                    'client' => $detail->variante?->sku_prv ?? 'Sin código interno',
-                    'type' => (string) $detail->can_dve,
-                    'total' => $this->formatting->money((float) $detail->sub_dve),
-                    'date' => $this->formatting->formatDate($detail->fec_dve),
+                    'product_code' => (string) ($detail->variante?->prenda?->id_prenda ?? 'Sin codigo'),
+                    'sku' => $detail->variante?->sku_prv ?? 'Sin codigo interno',
+                    'color' => $detail->variante?->color?->nom_col ?? 'Sin color',
+                    'size' => $detail->variante?->talla?->nom_tal ?? 'Sin talla',
+                    'quantity' => (string) $detail->can_dve,
+                    'unit' => $this->formatting->money((float) $detail->pun_dve),
+                    'subtotal' => $this->formatting->money((float) $detail->sub_dve),
                 ],
                 'showHref' => $this->definitions->showHref($definition, $record->id_venta),
                 'editHref' => null,
-            ])->take(6)->all()
+            ])->all()
             : [];
 
         return [
@@ -916,13 +939,13 @@ class ResourceDetailViewService
                         ['name' => 'codigo', 'label' => 'Código', 'value' => $record?->nve_ven ?? ''],
                         ['name' => 'cliente', 'label' => 'Cliente', 'value' => $this->formatting->userName($record?->cliente) ?: 'Sin cliente', 'type' => 'select', 'options' => [['label' => $this->formatting->userName($record?->cliente) ?: 'Sin cliente', 'value' => $this->formatting->userName($record?->cliente) ?: '']]],
                         ['name' => 'vendedor', 'label' => 'Responsable', 'value' => $this->formatting->userName($record?->vendedor) ?: 'Sin responsable', 'type' => 'select', 'options' => [['label' => $this->formatting->userName($record?->vendedor) ?: 'Sin responsable', 'value' => $this->formatting->userName($record?->vendedor) ?: '']]],
-                        ['name' => 'estado', 'label' => 'Estado', 'value' => $record && strtolower((string) $record->est_ven) !== 'cancelada' ? '1' : '0', 'type' => 'toggle'],
+                        ['name' => 'estado', 'label' => 'Estado', 'value' => $saleStatusLabel],
                     ],
                 ],
                 [
                     'title' => 'Monto y cierre',
                     'fields' => [
-                        ['name' => 'tipo', 'label' => 'Tipo', 'value' => $record?->tiv_ven ?? 'Sin tipo'],
+                        ['name' => 'tipo', 'label' => 'Tipo', 'value' => ($record?->tiv_ven === 'reserva' ? 'Desde reserva' : ($record?->tiv_ven ?? 'Sin tipo'))],
                         ['name' => 'metodo', 'label' => 'Método', 'value' => $record?->mpa_ven ?? 'Sin método'],
                         ['name' => 'subtotal', 'label' => 'Subtotal', 'value' => $record ? $this->formatting->money((float) $record->sub_ven) : 'Bs 0.00'],
                         ['name' => 'total', 'label' => 'Total', 'value' => $record ? $this->formatting->money((float) $record->tot_ven) : 'Bs 0.00'],
@@ -931,18 +954,47 @@ class ResourceDetailViewService
             ],
             'summaryMetrics' => [
                 ['label' => 'Total', 'value' => $record ? $this->formatting->money((float) $record->tot_ven) : 'Bs 0.00', 'note' => 'Monto final.', 'tone' => 'success'],
-                ['label' => 'Items', 'value' => (string) ($record?->detalles_count ?? $record?->detalles?->count() ?? 0), 'note' => 'Items registrados.', 'tone' => 'accent'],
-                ['label' => 'Método', 'value' => $record?->mpa_ven ?: 'Sin método', 'note' => 'Método de pago.', 'tone' => 'neutral'],
-                ['label' => 'Estado', 'value' => $record?->est_ven ?: 'Activa', 'note' => 'Estado de la venta.', 'tone' => 'warning'],
+                ['label' => 'Prendas', 'value' => (string) collect($record?->detalles ?? [])->sum(fn ($detail) => (int) $detail->can_dve), 'note' => 'Unidades vendidas.', 'tone' => 'accent'],
+                ['label' => 'Estado venta', 'value' => $saleStatusLabel, 'note' => 'Pago y confirmación.', 'tone' => $saleStatusTone],
+                ['label' => 'Estado recojo', 'value' => $pickupStatusLabel, 'note' => 'Seguimiento logistico.', 'tone' => $pickupStatusTone],
             ],
             'detailSections' => [
                 [
-                    'title' => 'Ficha comercial',
+                    'title' => 'Resumen de venta',
                     'fields' => [
-                        ['label' => 'Código', 'value' => $record?->nve_ven ?: 'Sin código', 'tone' => 'accent'],
+                        ['label' => 'Numero de venta', 'value' => $record?->nve_ven ?: 'Sin codigo', 'tone' => 'accent'],
                         ['label' => 'Cliente', 'value' => $this->formatting->userName($record?->cliente) ?: 'Sin cliente', 'tone' => 'neutral'],
-                        ['label' => 'Tipo', 'value' => $record?->tiv_ven ?: 'Sin tipo', 'tone' => 'warning'],
-                        ['label' => 'Método', 'value' => $record?->mpa_ven ?: 'Sin método', 'tone' => 'success'],
+                        ['label' => 'Vendedor / verificador', 'value' => $this->formatting->userName($record?->vendedor) ?: 'Sin vendedor', 'tone' => 'accent'],
+                        ['label' => 'Fecha', 'value' => $this->formatting->formatDate($record?->fec_ven), 'tone' => 'neutral'],
+                        ['label' => 'Tipo de venta', 'value' => $saleTypeLabel, 'tone' => $record?->tiv_ven === 'reserva' ? 'accent' : 'warning'],
+                        ['label' => 'Estado comercial', 'value' => $saleStatusLabel, 'tone' => $saleStatusTone],
+                        ['label' => 'Estado logistico', 'value' => $pickupStatusLabel, 'tone' => $pickupStatusTone],
+                        ['label' => 'Subtotal', 'value' => $record ? $this->formatting->money((float) $record->sub_ven) : 'Bs 0.00', 'tone' => 'neutral'],
+                        ['label' => 'Descuento', 'value' => $record ? $this->formatting->money((float) $record->des_ven) : 'Bs 0.00', 'tone' => 'warning'],
+                        ['label' => 'Total', 'value' => $record ? $this->formatting->money((float) $record->tot_ven) : 'Bs 0.00', 'tone' => 'success'],
+                    ],
+                ],
+                [
+                    'title' => 'Pago',
+                    'fields' => [
+                        ['label' => 'Metodo de pago', 'value' => $latestPayment?->metodo_pago_vpg ? mb_convert_case(str_replace('_', ' ', (string) $latestPayment->metodo_pago_vpg), MB_CASE_TITLE, 'UTF-8') : $paymentMethodLabel, 'tone' => 'neutral'],
+                        ['label' => 'Monto declarado', 'value' => $latestPayment ? $this->formatting->money((float) $latestPayment->monto_declarado_vpg) : 'Sin pago registrado', 'tone' => 'warning'],
+                        ['label' => 'Monto verificado', 'value' => $latestPayment ? $this->formatting->money((float) $latestPayment->monto_verificado_vpg) : 'Se ingresa al revisar la venta', 'tone' => 'accent'],
+                        ['label' => 'Total requerido', 'value' => $record ? $this->formatting->money((float) $record->tot_ven) : 'Bs 0.00', 'tone' => 'success'],
+                        ['label' => 'Estado del pago', 'value' => $paymentStatusLabel, 'tone' => $paymentStatusTone],
+                        ['label' => 'Comprobante subido por el cliente', 'value' => $latestPayment?->comprobante_url_vpg ?: 'Sin comprobante registrado', 'tone' => $latestPayment?->comprobante_url_vpg ? 'accent' : 'danger'],
+                        ['label' => 'Observacion de revision', 'value' => $latestPayment?->obs_vpg ?: 'Sin observacion', 'tone' => 'neutral'],
+                    ],
+                ],
+                [
+                    'title' => 'Recojo / entrega',
+                    'fields' => [
+                        ['label' => 'Origen de stock', 'value' => $record?->origen_stock_ven ?: 'Sin origen registrado', 'tone' => 'accent'],
+                        ['label' => 'Punto de recojo', 'value' => $record?->punto_recojo_ven ?: 'Sin punto registrado', 'tone' => 'neutral'],
+                        ['label' => 'Fecha disponible', 'value' => $this->formatting->formatDate($record?->fec_disponible_recojo_ven), 'tone' => 'warning'],
+                        ['label' => 'Fecha limite', 'value' => $this->formatting->formatDate($record?->fec_limite_recojo_ven), 'tone' => 'warning'],
+                        ['label' => 'Fecha de entrega', 'value' => $record?->fec_entrega_ven ? $this->formatting->formatDate($record->fec_entrega_ven) : 'Aun no entregada', 'tone' => $record?->fec_entrega_ven ? 'success' : 'neutral'],
+                        ['label' => 'Usuario que entrego', 'value' => $this->formatting->userName($record?->usuarioEntrega) ?: 'Sin entrega registrada', 'tone' => $record?->usuarioEntrega ? 'success' : 'neutral'],
                     ],
                 ],
             ],
@@ -951,28 +1003,125 @@ class ResourceDetailViewService
                 ['title' => 'Total', 'note' => 'Monto final.', 'date' => $record ? $this->formatting->money((float) $record->tot_ven) : 'Bs 0.00', 'tone' => 'success'],
                 ['title' => 'Items', 'note' => 'Detalle asociado.', 'date' => (string) ($record?->detalles_count ?? $record?->detalles?->count() ?? 0) . ' items', 'tone' => 'warning'],
             ],
-            'relatedColumns' => $relatedRows ? $this->viewDataService->columns(['kind' => 'sales']) : [],
+            'relatedColumns' => $relatedRows ? [
+                ['key' => 'product_code', 'label' => 'Codigo prenda'],
+                ['key' => 'sku', 'label' => 'Codigo interno'],
+                ['key' => 'color', 'label' => 'Color'],
+                ['key' => 'size', 'label' => 'Talla'],
+                ['key' => 'quantity', 'label' => 'Cantidad', 'align' => 'center'],
+                ['key' => 'unit', 'label' => 'Unitario', 'align' => 'right'],
+                ['key' => 'subtotal', 'label' => 'Subtotal', 'align' => 'right'],
+            ] : [],
             'relatedRows' => $relatedRows,
         ];
     }
 
+    private function saleStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'en_revision' => 'En revisión',
+            'registrada' => 'Venta confirmada',
+            'cancelada' => 'Venta cancelada',
+            'incompleta' => 'Venta incompleta',
+            default => 'En seguimiento',
+        };
+    }
+
+    private function saleStatusTone(?string $status): string
+    {
+        return match ($status) {
+            'en_revision' => 'warning',
+            'registrada' => 'success',
+            'cancelada' => 'danger',
+            'incompleta' => 'danger',
+            default => 'neutral',
+        };
+    }
+
+    private function salePickupStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'pendiente_revision' => 'Pendiente de revisión',
+            'pendiente_preparacion' => 'Pendiente de preparación',
+            'pendiente_traslado' => 'Pendiente de traslado',
+            'lista_recojo' => 'Lista para recojo',
+            'entregada' => 'Entregada',
+            'cancelada' => 'Cancelada',
+            default => 'Sin seguimiento',
+        };
+    }
+
+    private function salePickupStatusTone(?string $status): string
+    {
+        return match ($status) {
+            'lista_recojo' => 'success',
+            'entregada' => 'accent',
+            'pendiente_traslado', 'pendiente_preparacion' => 'warning',
+            'cancelada' => 'danger',
+            'pendiente_revision' => 'info',
+            default => 'neutral',
+        };
+    }
+
     private function reservationViewData(array $definition, $record = null): array
     {
+        $isExpired = $record
+            && in_array($record->est_res, ['por_procesar', 'confirmada', 'lista_recojo'], true)
+            && $record->fec_limite_recojo_res
+            && $record->fec_limite_recojo_res->lt(Carbon::now());
+        $latestPayment = $record?->pagos?->sortByDesc('id_reserva_pago')->first();
+        $generatedSale = $this->saleForReservation($record);
+        $isCompletedLike = in_array($record?->est_res, ['completada', 'recogida'], true);
+        $totalAmount = round((float) ($record?->tot_res ?? 0), 2);
+        $confirmedAmount = round((float) ($record?->monto_pagado_res ?? 0), 2);
+        $realBalance = max(0, round($totalAmount - $confirmedAmount, 2));
+        $hasCompletedInconsistency = $isCompletedLike
+            && ($realBalance > 0 || ($record?->est_pago_res ?? null) !== 'pagado_total' || !$generatedSale);
+        $visibleStatus = $isExpired
+            ? 'Vencida'
+            : ($hasCompletedInconsistency
+                ? 'Recogida con saldo pendiente o venta faltante'
+                : $this->reservationStatusLabel($record?->est_res));
+        $visiblePaymentStatus = $this->reservationPaymentLabel($record?->est_pago_res);
+        $minimumPayment = $record ? ((float) $record->tot_res) * 0.5 : 0;
         $relatedRows = $record
             ? collect($record->detalles ?? [])->map(fn ($detail) => [
                 'id' => $detail->id_detalle_reserva,
                 'primary' => $detail->variante?->prenda?->nom_pre ?? 'Detalle #' . $detail->id_detalle_reserva,
-                'secondary' => trim(implode(' · ', array_filter([$detail->variante?->color?->nom_col, $detail->variante?->talla?->nom_tal]))),
+                'secondary' => trim(implode(' - ', array_filter([$detail->variante?->color?->nom_col, $detail->variante?->talla?->nom_tal]))),
                 'status' => ['label' => $detail->can_dre . ' unidades', 'tone' => 'accent'],
                 'cells' => [
-                    'client' => $detail->variante?->sku_prv ?? 'Sin código interno',
-                    'due' => $this->formatting->formatDate($detail->fec_dre),
-                    'items' => (string) $detail->can_dre,
-                    'date' => $this->formatting->formatDate($detail->fec_dre),
+                    'sku' => $detail->variante?->sku_prv ?? 'Sin codigo interno',
+                    'quantity' => (string) $detail->can_dre,
+                    'unit' => $this->formatting->money((float) $detail->pun_dre),
+                    'subtotal' => $this->formatting->money((float) $detail->sub_dre),
                 ],
                 'showHref' => $this->definitions->showHref($definition, $record->id_reserva),
                 'editHref' => null,
-            ])->take(6)->all()
+            ])->all()
+            : [];
+        $paymentRows = $record
+            ? collect($record->pagos ?? [])->sortByDesc('id_reserva_pago')->map(fn ($payment) => [
+                'id' => 'pago-' . $payment->id_reserva_pago,
+                'primary' => 'Pago ' . ($payment->metodo_pago_rpg ?: 'sin metodo'),
+                'secondary' => $payment->comprobante_url_rpg ?: 'Sin comprobante',
+                'status' => [
+                    'label' => match ($payment->est_rpg) {
+                        'confirmado' => 'Confirmado',
+                        'rechazado' => 'Rechazado',
+                        default => 'En revision',
+                    },
+                    'tone' => $payment->est_rpg === 'confirmado' ? 'success' : ($payment->est_rpg === 'rechazado' ? 'danger' : 'warning'),
+                ],
+                'cells' => [
+                    'sku' => 'Comprobante',
+                    'quantity' => $this->formatting->money((float) $payment->monto_declarado_rpg),
+                    'unit' => $this->formatting->money((float) $payment->monto_confirmado_rpg),
+                    'subtotal' => number_format((float) $payment->porcentaje_rpg, 2) . '%',
+                ],
+                'showHref' => $payment->comprobante_url_rpg,
+                'editHref' => null,
+            ])->values()->all()
             : [];
 
         return [
@@ -980,47 +1129,111 @@ class ResourceDetailViewService
             'formSections' => [
                 [
                     'title' => 'Cabecera',
-                    'description' => 'Código, cliente, responsable y estado.',
+                    'description' => 'Codigo, cliente, responsable y estado.',
                     'fields' => [
-                        ['name' => 'codigo', 'label' => 'Código', 'value' => $record?->nre_res ?? ''],
+                        ['name' => 'codigo', 'label' => 'Codigo', 'value' => $record?->nre_res ?? ''],
                         ['name' => 'cliente', 'label' => 'Cliente', 'value' => $this->formatting->userName($record?->cliente) ?: 'Sin cliente', 'type' => 'select', 'options' => [['label' => $this->formatting->userName($record?->cliente) ?: 'Sin cliente', 'value' => $this->formatting->userName($record?->cliente) ?: '']]],
                         ['name' => 'responsable', 'label' => 'Responsable', 'value' => $this->formatting->userName($record?->responsable) ?: 'Sin responsable', 'type' => 'select', 'options' => [['label' => $this->formatting->userName($record?->responsable) ?: 'Sin responsable', 'value' => $this->formatting->userName($record?->responsable) ?: '']]],
-                        ['name' => 'estado', 'label' => 'Estado', 'value' => $record && strtolower((string) $record->est_res) !== 'cancelada' ? '1' : '0', 'type' => 'toggle'],
+                        ['name' => 'estado', 'label' => 'Estado de reserva', 'value' => $visibleStatus],
                     ],
                 ],
                 [
-                    'title' => 'Seguimiento',
+                    'title' => 'Pago y recojo',
                     'fields' => [
-                        ['name' => 'vence', 'label' => 'Vence', 'value' => $this->formatting->formatDate($record?->ven_res), 'type' => 'date'],
-                        ['name' => 'observacion', 'label' => 'Observación', 'value' => $record?->obs_res ?? '', 'type' => 'textarea'],
+                        ['name' => 'total', 'label' => 'Total', 'value' => $this->formatting->money($totalAmount)],
+                        ['name' => 'minimo', 'label' => 'Anticipo minimo requerido', 'value' => $this->formatting->money($minimumPayment)],
+                        ['name' => 'pagado', 'label' => 'Monto pagado confirmado', 'value' => $this->formatting->money($confirmedAmount)],
+                        ['name' => 'saldo', 'label' => 'Saldo pendiente', 'value' => $this->formatting->money($realBalance)],
+                        ['name' => 'estado_pago', 'label' => 'Estado de pago', 'value' => $visiblePaymentStatus],
+                        ['name' => 'disponible', 'label' => 'Fecha disponible de recojo', 'value' => $this->formatting->formatDate($record?->fec_disponible_recojo_res), 'type' => 'date'],
+                        ['name' => 'limite', 'label' => 'Fecha limite de recojo', 'value' => $this->formatting->formatDate($record?->fec_limite_recojo_res), 'type' => 'date'],
+                        ['name' => 'punto', 'label' => 'Punto de recojo', 'value' => $record?->punto_recojo_res ?? 'Recojo en tienda Mati Boutique'],
+                        ['name' => 'observacion', 'label' => 'Observacion', 'value' => $record?->obs_res ?? '', 'type' => 'textarea'],
                     ],
                 ],
             ],
             'summaryMetrics' => [
-                ['label' => 'Items', 'value' => (string) ($record?->detalles_count ?? $record?->detalles?->count() ?? 0), 'note' => 'Items reservados.', 'tone' => 'accent'],
-                ['label' => 'Vence', 'value' => $this->formatting->formatDate($record?->ven_res), 'note' => 'Fecha de vencimiento.', 'tone' => 'warning'],
-                ['label' => 'Responsable', 'value' => $this->formatting->userName($record?->responsable) ?: 'Sin responsable', 'note' => 'Usuario responsable.', 'tone' => 'neutral'],
-                ['label' => 'Estado', 'value' => $record?->est_res ?: 'Seguimiento', 'note' => 'Estado de la reserva.', 'tone' => 'success'],
+                ['label' => 'Total', 'value' => $this->formatting->money($totalAmount), 'note' => 'Monto congelado.', 'tone' => 'accent'],
+                ['label' => 'Saldo', 'value' => $this->formatting->money($realBalance), 'note' => 'Pendiente de pago.', 'tone' => $realBalance <= 0 ? 'success' : 'warning'],
+                ['label' => 'Pago', 'value' => $visiblePaymentStatus, 'note' => 'Estado de pago.', 'tone' => $record?->est_pago_res === 'rechazado' ? 'danger' : 'success'],
+                ['label' => 'Estado', 'value' => $visibleStatus, 'note' => 'Estado de la reserva.', 'tone' => ($isExpired || $hasCompletedInconsistency) ? 'danger' : 'success'],
             ],
             'detailSections' => [
                 [
                     'title' => 'Ficha de reserva',
-                    'fields' => [
-                        ['label' => 'Código', 'value' => $record?->nre_res ?: 'Sin código', 'tone' => 'accent'],
+                    'fields' => array_values(array_filter([
+                        ['label' => 'Codigo', 'value' => $record?->nre_res ?: 'Sin codigo', 'tone' => 'accent'],
                         ['label' => 'Cliente', 'value' => $this->formatting->userName($record?->cliente) ?: 'Sin cliente', 'tone' => 'neutral'],
                         ['label' => 'Responsable', 'value' => $this->formatting->userName($record?->responsable) ?: 'Sin responsable', 'tone' => 'warning'],
-                        ['label' => 'Observación', 'value' => $record?->obs_res ?: 'Sin observación', 'tone' => 'success'],
-                    ],
+                        $hasCompletedInconsistency ? ['label' => 'Alerta operativa', 'value' => 'Esta reserva figura como recogida, pero tiene saldo pendiente, pago incompleto o venta faltante.', 'tone' => 'danger'] : null,
+                        ['label' => 'Estado de reserva', 'value' => $visibleStatus, 'tone' => ($isExpired || $hasCompletedInconsistency) ? 'danger' : 'success'],
+                        ['label' => 'Estado de pago', 'value' => $visiblePaymentStatus, 'tone' => $record?->est_pago_res === 'rechazado' ? 'danger' : 'accent'],
+                        ['label' => 'Venta generada', 'value' => $generatedSale?->nve_ven ?: 'Sin venta registrada', 'tone' => $generatedSale ? 'success' : 'warning'],
+                        ['label' => 'Total de reserva', 'value' => $this->formatting->money($totalAmount), 'tone' => 'success'],
+                        ['label' => 'Anticipo minimo requerido', 'value' => $this->formatting->money($minimumPayment), 'tone' => 'warning'],
+                        ['label' => 'Monto declarado', 'value' => $latestPayment ? $this->formatting->money((float) $latestPayment->monto_declarado_rpg) : 'Bs 0.00', 'tone' => 'warning'],
+                        ['label' => 'Monto confirmado', 'value' => $this->formatting->money($confirmedAmount), 'tone' => 'success'],
+                        ['label' => 'Saldo pendiente', 'value' => $this->formatting->money($realBalance), 'tone' => $realBalance <= 0 ? 'success' : 'warning'],
+                        ['label' => 'Comprobante subido por el cliente', 'value' => $latestPayment?->comprobante_url_rpg ?: 'Sin comprobante', 'tone' => 'accent'],
+                        ['label' => 'Disponible desde', 'value' => $this->formatting->formatDate($record?->fec_disponible_recojo_res), 'tone' => 'neutral'],
+                        ['label' => 'Fecha limite de recojo', 'value' => $this->formatting->formatDate($record?->fec_limite_recojo_res), 'tone' => $isExpired ? 'danger' : 'warning'],
+                        ['label' => 'Punto de recojo', 'value' => $record?->punto_recojo_res ?: 'Recojo en tienda Mati Boutique', 'tone' => 'neutral'],
+                        ['label' => 'Origen de stock', 'value' => $record?->origen_stock_res ?: 'TIENDA', 'tone' => 'accent'],
+                        ['label' => 'Observacion de pago', 'value' => $record?->obs_pago_res ?: 'Sin observacion', 'tone' => 'neutral'],
+                        ['label' => 'Observacion', 'value' => $record?->obs_res ?: 'Sin observacion', 'tone' => 'success'],
+                    ])),
                 ],
             ],
             'timeline' => [
                 ['title' => 'Fecha de reserva', 'note' => 'Fecha de registro.', 'date' => $this->formatting->formatDate($record?->fec_res), 'tone' => 'accent'],
-                ['title' => 'Vencimiento', 'note' => 'Fecha limite.', 'date' => $this->formatting->formatDate($record?->ven_res), 'tone' => 'warning'],
-                ['title' => 'Items', 'note' => 'Detalle asociado.', 'date' => (string) ($record?->detalles_count ?? $record?->detalles?->count() ?? 0) . ' items', 'tone' => 'neutral'],
+                ['title' => 'Disponible', 'note' => 'Fecha disponible de recojo.', 'date' => $this->formatting->formatDate($record?->fec_disponible_recojo_res), 'tone' => 'success'],
+                ['title' => 'Limite', 'note' => 'Fecha limite de recojo.', 'date' => $this->formatting->formatDate($record?->fec_limite_recojo_res), 'tone' => $isExpired ? 'danger' : 'warning'],
             ],
-            'relatedColumns' => $relatedRows ? $this->viewDataService->columns(['kind' => 'reservations']) : [],
-            'relatedRows' => $relatedRows,
+            'relatedColumns' => ($relatedRows || $paymentRows) ? [
+                ['key' => 'sku', 'label' => 'Codigo / tipo'],
+                ['key' => 'quantity', 'label' => 'Cantidad / declarado', 'align' => 'center'],
+                ['key' => 'unit', 'label' => 'Unitario / confirmado', 'align' => 'right'],
+                ['key' => 'subtotal', 'label' => 'Subtotal / porcentaje', 'align' => 'right'],
+            ] : [],
+            'relatedRows' => array_merge($relatedRows, $paymentRows),
         ];
+    }
+
+    private function reservationStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'por_procesar' => 'En revision',
+            'confirmada' => 'Confirmada',
+            'lista_recojo' => 'Lista para recojo',
+            'completada', 'recogida' => 'Reserva y compra completada',
+            'cancelada' => 'Cancelada',
+            'rechazada' => 'Rechazada',
+            'vencida' => 'Vencida',
+            default => 'En seguimiento',
+        };
+    }
+
+    private function saleForReservation(?Reserva $reservation): ?Venta
+    {
+        if (!$reservation?->nre_res) {
+            return null;
+        }
+
+        $reservationNumber = preg_replace('/[^A-Za-z0-9-]/', '', (string) $reservation->nre_res);
+        $saleNumber = $reservationNumber ? substr('VEN-RES-' . $reservationNumber, 0, 50) : null;
+
+        return $saleNumber ? Venta::query()->where('nve_ven', $saleNumber)->first() : null;
+    }
+
+    private function reservationPaymentLabel(?string $status): string
+    {
+        return match ($status) {
+            'pendiente_revision' => 'En revision',
+            'anticipo_confirmado' => 'Adelanto confirmado',
+            'pagado_total' => 'Pagado completamente',
+            'rechazado' => 'Rechazado',
+            default => 'En revision',
+        };
     }
 
     private function favoriteViewData($record = null): array

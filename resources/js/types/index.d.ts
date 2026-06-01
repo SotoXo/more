@@ -54,6 +54,9 @@ export interface Pedido {
     descuento: number;
     total: number;
     pago: string | null;
+    observacionPago?: string | null;
+    comprobanteUrl?: string | null;
+    reciboUrl?: string | null;
     fecha: string | null;
     items: PedidoItem[];
 }
@@ -62,6 +65,8 @@ export interface Pedido {
 export interface ReservaItem {
     id: number;
     cantidad: number;
+    precio: number;
+    subtotal: number;
     nombre: string;
     marca: string;
     imagen: string;
@@ -74,6 +79,16 @@ export interface Reserva {
     id: number;
     numero: string;
     estado: string;
+    estadoPago: string;
+    total: number;
+    montoPagado: number;
+    saldo: number;
+    fechaDisponibleRecojo: string | null;
+    fechaLimiteRecojo: string | null;
+    puntoRecojo: string | null;
+    obsPago: string | null;
+    reciboReservaUrl?: string | null;
+    reciboVentaUrl?: string | null;
     vence: string | null;
     fecha: string | null;
     obs: string | null;

@@ -13,11 +13,15 @@ class DetalleReserva extends Model
         'cod_reservas_dre',
         'cod_prenda_variantes_dre',
         'can_dre',
+        'pun_dre',
+        'sub_dre',
         'fec_dre',
     ];
 
     protected $casts = [
         'can_dre' => 'integer',
+        'pun_dre' => 'decimal:2',
+        'sub_dre' => 'decimal:2',
         'fec_dre' => 'datetime',
     ];
 

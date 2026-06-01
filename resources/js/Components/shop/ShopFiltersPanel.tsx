@@ -1,4 +1,4 @@
-import { priceFilterOptions } from '@/lib/shop';
+import { formatAvailabilityLabel, priceFilterOptions } from '@/lib/shop';
 import type {
     PriceFilterKey,
     ShopAvailability,
@@ -35,9 +35,9 @@ const availabilityOptions: Array<'all' | ShopAvailability> = [
 
 const availabilityLabels: Record<'all' | ShopAvailability, string> = {
     all: 'Todas',
-    Disponible: 'Disponible',
-    'Últimas piezas': 'Últimas unidades',
-    Agotado: 'Agotado',
+    Disponible: formatAvailabilityLabel('Disponible'),
+    'Últimas piezas': formatAvailabilityLabel('Últimas piezas'),
+    Agotado: formatAvailabilityLabel('Agotado'),
 };
 
 function FilterGroup({

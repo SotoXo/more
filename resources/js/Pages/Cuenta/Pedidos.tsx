@@ -11,8 +11,17 @@ const serifStyle = {
 const estadoStyle: Record<string, string> = {
     completada: 'border-emerald-500/20 bg-emerald-500/8 text-emerald-300',
     registrada: 'border-white/10 bg-white/[0.04] text-stone-300',
+    en_revision: 'border-amber-500/20 bg-amber-500/8 text-amber-200',
+    incompleta: 'border-orange-500/20 bg-orange-500/8 text-orange-200',
     cancelada: 'border-red-900/30 bg-red-900/10 text-red-300',
     pendiente: 'border-amber-500/20 bg-amber-500/8 text-amber-200',
+};
+
+const estadoLabel: Record<string, string> = {
+    en_revision: 'Estamos revisando tu comprobante. Te notificaremos cuando tu compra sea confirmada.',
+    registrada: 'Tu compra fue confirmada correctamente.',
+    incompleta: 'El monto pagado no cubre el total de la compra. La venta no fue confirmada.',
+    cancelada: 'Tu compra fue cancelada. Revisa la observación o comunícate con la tienda.',
 };
 
 function PedidoCard({ pedido }: { pedido: Pedido }) {
@@ -21,7 +30,7 @@ function PedidoCard({ pedido }: { pedido: Pedido }) {
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
-                        Pedido #{pedido.numero}
+                        Compra #{pedido.numero}
                     </p>
                     <p className="mt-2 text-3xl text-white" style={serifStyle}>
                         {formatPrice(pedido.total)}
@@ -36,9 +45,27 @@ function PedidoCard({ pedido }: { pedido: Pedido }) {
                         estadoStyle[pedido.estado] ?? estadoStyle.registrada,
                     ].join(' ')}
                 >
-                    {pedido.estado}
+                    {pedido.estado === 'en_revision'
+                        ? 'En revisión'
+                        : pedido.estado === 'registrada'
+                        ? 'Confirmada'
+                        : pedido.estado === 'incompleta'
+                        ? 'Incompleta'
+                        : pedido.estado === 'cancelada'
+                        ? 'Cancelada'
+                        : pedido.estado}
                 </span>
             </div>
+            {estadoLabel[pedido.estado] && (
+                <p className="mt-4 rounded-[1rem] border border-white/8 bg-white/[0.03] p-4 text-sm leading-6 text-stone-300">
+                    {estadoLabel[pedido.estado]}
+                </p>
+            )}
+            {pedido.observacionPago && (
+                <p className="mt-3 rounded-[1rem] border border-white/8 bg-white/[0.03] p-4 text-sm leading-6 text-stone-400">
+                    {pedido.observacionPago}
+                </p>
+            )}
 
             {pedido.items.length > 0 && (
                 <div className="mt-6 space-y-3">
@@ -87,13 +114,24 @@ function PedidoCard({ pedido }: { pedido: Pedido }) {
                 <span className="text-stone-400">Total</span>
                 <span className="text-white">{formatPrice(pedido.total)}</span>
             </div>
+
+            {pedido.reciboUrl && (
+                <div className="mt-5 flex justify-end">
+                    <a
+                        href={pedido.reciboUrl}
+                        className="rounded-full bg-white px-5 py-3 text-[0.68rem] uppercase tracking-[0.2em] text-slate-950 transition hover:bg-stone-200"
+                    >
+                        Ver recibo de venta
+                    </a>
+                </div>
+            )}
         </div>
     );
 }
 
 export default function Pedidos({ pedidos }: { pedidos: Pedido[] }) {
     return (
-        <StoreLayout title="MORE | Mis Pedidos">
+        <StoreLayout title="Mati Boutique | Mis compras">
             <section className="px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-5xl">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -105,7 +143,7 @@ export default function Pedidos({ pedidos }: { pedidos: Pedido[] }) {
                                 className="mt-3 text-5xl leading-none text-white sm:text-6xl"
                                 style={serifStyle}
                             >
-                                Mis pedidos
+                                Mis compras
                             </h1>
                         </div>
                         <Link
@@ -120,7 +158,7 @@ export default function Pedidos({ pedidos }: { pedidos: Pedido[] }) {
                         <div className="mt-14 rounded-[2.2rem] border border-white/10 bg-white/[0.03] px-6 py-16 text-center">
                             <ShoppingBag size={32} className="mx-auto text-stone-600" />
                             <p className="mt-6 text-3xl text-white" style={serifStyle}>
-                                Aún no tienes pedidos.
+                                Aun no tienes compras registradas.
                             </p>
                             <p className="mt-3 text-sm text-stone-400">
                                 Cuando finalices una compra, la verás en este espacio.

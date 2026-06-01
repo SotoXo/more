@@ -103,10 +103,12 @@ export type SuperadminTableRow = {
     id: string | number;
     primary: string;
     secondary?: string;
+    image?: string | null;
     status?: SuperadminRowStatus;
     cells: Record<string, SuperadminTableCell | SuperadminTableSwatchCell>;
     showHref?: string;
     editHref?: string;
+    extraActions?: { label: string; href: string }[];
 };
 
 export type SuperadminFilterControl = {
@@ -146,6 +148,8 @@ export type SuperadminFormFieldOption = {
     label: string;
     value: string;
     swatch?: string;
+    dominantSwatch?: string | null;
+    hex?: string | null;
     segment?: string | null;
     system?: string | null;
     group?: string | null;
@@ -203,6 +207,7 @@ export type SuperadminDetailField = {
     label: string;
     value: string;
     tone?: SuperadminTone;
+    href?: string;
 };
 
 export type SuperadminDetailSection = {

@@ -124,7 +124,7 @@ class ResourceValidationService
                 'cod_prenda_variantes_inv' => ['required', 'integer', Rule::exists('prenda_variantes', 'id_prenda_variante'), Rule::unique('inventarios', 'cod_prenda_variantes_inv')->ignore($record?->id_inventario, 'id_inventario')],
                 'cdi_inv' => ['required', 'integer', 'min:0'],
                 'cre_inv' => ['required', 'integer', 'min:0'],
-                'ubi_inv' => ['required', 'string', Rule::in(['DEPOSITO', 'TIENDA'])],
+                'ubi_inv' => ['nullable', 'string', 'max:80'],
             ],
             default => [],
         };
@@ -226,7 +226,6 @@ class ResourceValidationService
         if (in_array($key, [
             'catalogo.categorias',
             'catalogo.marcas',
-            'catalogo.colores',
             'catalogo.tallas',
             'catalogo.temporadas',
         ], true)) {
@@ -464,9 +463,9 @@ class ResourceValidationService
         }
 
         if ($key === 'inventario.stock') {
-            $validator->after(function ($validator) use ($request) {
-                if ((int) $request->input('cre_inv', 0) > (int) $request->input('cdi_inv', 0)) {
-                    $validator->errors()->add('cre_inv', 'La cantidad reservada no puede ser mayor al disponible.');
+            $validator->after(function ($validator) use ($request, $record) {
+                if ($record && (int) $request->input('cre_inv', 0) !== (int) $record->cre_inv) {
+                    $validator->errors()->add('cre_inv', 'La cantidad reservada se actualiza desde la lógica de reservas.');
                 }
             });
         }

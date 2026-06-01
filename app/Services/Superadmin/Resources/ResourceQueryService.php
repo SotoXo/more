@@ -10,6 +10,7 @@ use App\Models\PrendaVariante;
 use App\Models\Reserva;
 use App\Models\User;
 use App\Models\Venta;
+use App\Services\Superadmin\InventoryStatusService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -20,6 +21,7 @@ class ResourceQueryService
     public function __construct(
         private readonly ResourceDefinitionService $definitions,
         private readonly AdminFormattingService $formatting,
+        private readonly InventoryStatusService $inventoryStatus,
     ) {}
 
     public function baseQuery(array $definition): ?Builder
@@ -40,10 +42,10 @@ class ResourceQueryService
             'images' => ImagenPrenda::query()->with(['prenda', 'variante.prenda']),
             'inventory', 'alerts' => Inventario::query()->with(['variante.prenda', 'variante.color', 'variante.talla']),
             'sales' => Venta::query()
-                ->with(['cliente', 'vendedor', 'detalles.variante.prenda', 'detalles.variante.color', 'detalles.variante.talla'])
+                ->with(['cliente', 'vendedor', 'usuarioEntrega', 'pagos.usuarioVerifica', 'detalles.variante.inventario', 'detalles.variante.prenda.imagenes', 'detalles.variante.color', 'detalles.variante.talla'])
                 ->withCount('detalles'),
             'reservations' => Reserva::query()
-                ->with(['cliente', 'responsable', 'detalles.variante.prenda', 'detalles.variante.color', 'detalles.variante.talla'])
+                ->with(['cliente', 'responsable', 'usuarioVerificaPago', 'pagos.usuarioVerifica', 'detalles.variante.prenda', 'detalles.variante.color', 'detalles.variante.talla'])
                 ->withCount('detalles'),
             'favorites' => Favorito::query()->with(['usuario', 'prenda.marca', 'prenda.categoria', 'prenda.temporada']),
             default => null,
@@ -72,7 +74,7 @@ class ResourceQueryService
             'variants' => $query->orderByDesc('fec_prv')->orderByDesc('id_prenda_variante')->get(),
             'images' => $query->orderBy('cod_prendas_igp')->orderBy('ord_igp')->orderByDesc('id_imagen_prenda')->get(),
             'inventory' => $query->orderByDesc('id_inventario')->get(),
-            'alerts' => $query->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 2')->get(),
+            'alerts' => $query->where('cdi_inv', '<=', 3)->get(),
             'sales' => $query->orderByDesc('fec_ven')->orderByDesc('id_venta')->get(),
             'reservations' => $query->orderByDesc('fec_res')->orderByDesc('id_reserva')->get(),
             'favorites' => $query->orderByDesc('fec_fav')->orderByDesc('id_favorito')->get(),
@@ -139,8 +141,9 @@ class ResourceQueryService
             },
             'inventario.stock', 'inventario.alertas' => fn ($record) => match ($sortBy) {
                 'name' => trim((string) ($record->variante?->prenda?->nom_pre . ' ' . ($record->variante?->sku_prv ?? ''))),
-                'stock' => $this->formatting->available($record),
-                'status' => $this->stockStateScore($this->formatting->available($record)),
+                'stock' => $this->inventoryStatus->available($record),
+                'location' => mb_strtolower((string) ($record->ubi_inv ?? ''), 'UTF-8'),
+                'status' => $this->inventoryStatus->score($record),
                 default => trim((string) ($record->variante?->prenda?->nom_pre . ' ' . ($record->variante?->sku_prv ?? ''))),
             },
             'comercial.ventas' => fn ($record) => match ($sortBy) {
@@ -295,7 +298,11 @@ class ResourceQueryService
             return false;
         }
 
-        return $this->matchesStockFilter($request->input('stock'), $this->formatting->available($record));
+        if (!$this->matchesText($request->input('location'), $record->ubi_inv)) {
+            return false;
+        }
+
+        return $this->matchesStockFilter($request->input('stock'), $record);
     }
 
     private function saleMatchesFilters($record, Request $request): bool
@@ -350,6 +357,10 @@ class ResourceQueryService
         }
 
         if (!$this->matchesText($request->input('status'), $record->est_res)) {
+            return false;
+        }
+
+        if (!$this->matchesText($request->input('payment_status'), $record->est_pago_res)) {
             return false;
         }
 
@@ -408,23 +419,26 @@ class ResourceQueryService
         return true;
     }
 
-    private function matchesStockFilter($selected, int $available): bool
+    private function matchesStockFilter($selected, mixed $inventoryOrAvailable): bool
     {
         if (blank($selected)) {
             return true;
         }
 
-        return $this->stockState($available) === $selected;
-    }
+        if ($selected === 'reservado' && $inventoryOrAvailable instanceof Inventario) {
+            return $this->inventoryStatus->reserved($inventoryOrAvailable) > 0;
+        }
 
-    private function stockState(int $available): string
-    {
-        return $available <= 0 ? 'agotado' : ($available <= 2 ? 'bajo' : 'disponible');
+        $available = $inventoryOrAvailable instanceof Inventario
+            ? $this->inventoryStatus->available($inventoryOrAvailable)
+            : (int) $inventoryOrAvailable;
+
+        return ($available === 0 ? 'agotado' : ($available <= 3 ? 'bajo' : 'disponible')) === $selected;
     }
 
     private function stockStateScore(int $available): int
     {
-        return match ($this->stockState($available)) {
+        return match ($available === 0 ? 'agotado' : ($available <= 3 ? 'bajo' : 'disponible')) {
             'agotado' => 0,
             'bajo' => 1,
             default => 2,
@@ -455,7 +469,7 @@ class ResourceQueryService
 
     public function adjustmentTemplates(): Collection
     {
-        $lowStock = Inventario::query()->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 2')->count();
+        $lowStock = Inventario::query()->where('cdi_inv', '>', 0)->where('cdi_inv', '<=', 3)->count();
         $ventas = Venta::query()->count();
         $reservas = Reserva::query()->count();
 

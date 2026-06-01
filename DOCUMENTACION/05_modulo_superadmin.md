@@ -157,11 +157,11 @@ CRUD real y módulo más importante del catálogo. El editor de prenda permite:
 
 ### Consulta de existencias
 
-Muestra disponibilidad, reservado y ubicación por variante. Es una consulta operativa, no un módulo de movimientos.
+Muestra prenda, variante, color, talla, SKU, disponible, reservado, total calculado y ubicacion por variante. Permite editar de forma controlada la cantidad disponible y la ubicacion. La cantidad reservada queda en solo lectura porque debe modificarse desde la logica de reservas.
 
 ### Alertas de inventario
 
-Lista registros con disponibilidad baja, calculada desde `cdi_inv - cre_inv`.
+Lista productos sin stock, productos con bajo stock, variantes sin inventario y prendas sin imagen. La referencia detallada del modulo esta en `DOCUMENTACION/13_inventario_superadmin.md`.
 
 ### Ajustes sugeridos
 
@@ -171,11 +171,11 @@ Vista no lista. No ejecuta cambios reales.
 
 ### Ventas
 
-Consulta ventas existentes, clientes, vendedores, totales, estados y detalles. No crea ventas desde el panel en esta fase.
+Consulta ventas existentes, clientes, vendedores, totales, estados y detalles. Tambien permite registrar ventas reales desde el panel, creando `detalle_ventas` y descontando `inventarios.cdi_inv` dentro de una transaccion. La anulacion con devolucion de stock queda documentada como pendiente en `DOCUMENTACION/14_ventas_superadmin.md`.
 
 ### Reservas
 
-Consulta reservas existentes, vencimientos, estados y detalles. No crea reservas desde el panel en esta fase.
+Consulta reservas existentes, vencimientos, estados y detalles. Tambien permite registrar reservas reales desde el panel, moviendo stock disponible a reservado. Las acciones de cancelar y completar actualizan inventario dentro de una transaccion. La conversion de reserva en venta y el comando para vencidas quedan pendientes en `DOCUMENTACION/15_reservas_superadmin.md`.
 
 ### Favoritos guardados
 
@@ -185,9 +185,15 @@ Consulta favoritos registrados por clientes.
 
 Controlador: `Superadmin\ReportsController`
 
-El reporte trabaja sobre variantes con relaciones de prenda, categoría, marca, temporada, color, talla e inventario. Permite filtrar por categoría, marca, temporada, género, color, talla, stock, precio y fecha.
+Servicio: `App\Services\Superadmin\ReportQueryService`
+
+Reportes operativos consolida informacion de inventario, ventas, reservas y catalogo. Muestra stock disponible y reservado, productos sin stock o con bajo stock, variantes sin inventario, ventas por rango de fechas, totales vendidos, productos mas vendidos, ventas por vendedor, ventas por metodo de pago, estados de reservas, prendas mas reservadas y favoritos por prenda.
+
+Los filtros disponibles son fecha inicio, fecha fin, vendedor, metodo de pago, estado de venta, estado de reserva, cliente y responsable. Los filtros se aplican a ventas y reservas; inventario y catalogo reflejan el estado actual.
 
 Es un reporte de consulta, no un generador de archivos ni un módulo BI completo.
+
+Pendiente: exportacion de reportes a PDF/Excel/CSV.
 
 ## Logs
 

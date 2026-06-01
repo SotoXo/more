@@ -50,8 +50,18 @@ export default function CuentaIndex({
     favoritosCount,
     ultimoPedido,
 }: CuentaIndexProps) {
+    const ultimoPedidoLabel = ultimoPedido?.estado === 'en_revision'
+        ? 'En revision'
+        : ultimoPedido?.estado === 'registrada'
+        ? 'Compra confirmada'
+        : ultimoPedido?.estado === 'incompleta'
+        ? 'Compra incompleta'
+        : ultimoPedido?.estado === 'cancelada'
+        ? 'Compra cancelada'
+        : 'En seguimiento';
+
     return (
-        <StoreLayout title="MORE | Mi Cuenta">
+        <StoreLayout title="Mati Boutique | Mi Cuenta">
             <section className="px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <p className="text-[0.68rem] uppercase tracking-[0.28em] text-stone-400">
@@ -66,7 +76,7 @@ export default function CuentaIndex({
                         <StatCard
                             icon={<ShoppingBag size={18} />}
                             count={pedidosCount}
-                            label="Pedidos"
+                            label="Compras"
                             href="/cuenta/pedidos"
                         />
                         <StatCard
@@ -87,7 +97,7 @@ export default function CuentaIndex({
                     {ultimoPedido && (
                         <div className="mt-10">
                             <p className="text-[0.68rem] uppercase tracking-[0.26em] text-stone-400">
-                                Último pedido
+                                Ultima compra
                             </p>
                             <div className="mt-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-7">
                                 <div className="flex flex-wrap items-center justify-between gap-4">
@@ -107,7 +117,7 @@ export default function CuentaIndex({
                                                 : 'border-white/10 bg-white/[0.04] text-stone-300',
                                         ].join(' ')}
                                     >
-                                        {ultimoPedido.estado}
+                                        {ultimoPedidoLabel}
                                     </span>
                                 </div>
 
@@ -144,7 +154,7 @@ export default function CuentaIndex({
                                     href="/cuenta/pedidos"
                                     className="mt-6 inline-flex text-[0.7rem] uppercase tracking-[0.22em] text-stone-400 transition hover:text-white"
                                 >
-                                    Ver todos los pedidos →
+                                    Ver mis compras
                                 </Link>
                             </div>
                         </div>

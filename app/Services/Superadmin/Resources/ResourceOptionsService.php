@@ -4,6 +4,7 @@ namespace App\Services\Superadmin\Resources;
 
 use App\Models\Categoria;
 use App\Models\Color;
+use App\Models\Inventario;
 use App\Models\Marca;
 use App\Models\Prenda;
 use App\Models\PrendaVariante;
@@ -331,7 +332,10 @@ class ResourceOptionsService
             'catalogo.colores' => [
                 'label' => $record->nom_col,
                 'value' => (string) $record->id_color,
-                'swatch' => $record->hex_dom_col ?: $record->hex_col,
+                'swatch' => $record->hex_col ?: $record->hex_dom_col,
+                'dominantSwatch' => $record->hex_dom_col ?: null,
+                'hex' => $record->hex_col ?: null,
+                'group' => $record->fam_col ?: null,
             ],
             'catalogo.tallas' => [
                 'label' => $record->nom_tal,
@@ -470,7 +474,10 @@ class ResourceOptionsService
             ->map(fn ($color) => [
                 'label' => $color->nom_col,
                 'value' => (string) $color->id_color,
-                'swatch' => $color->hex_dom_col ?: $color->hex_col,
+                'swatch' => $color->hex_col ?: $color->hex_dom_col,
+                'dominantSwatch' => $color->hex_dom_col ?: null,
+                'hex' => $color->hex_col ?: null,
+                'group' => $color->fam_col ?: null,
             ])
             ->values()
             ->all();
@@ -500,6 +507,23 @@ class ResourceOptionsService
             ['label' => 'DEPÓSITO', 'value' => 'DEPOSITO'],
             ['label' => 'TIENDA', 'value' => 'TIENDA'],
         ];
+    }
+
+    public function inventoryLocationOptions(): array
+    {
+        return Inventario::query()
+            ->whereNotNull('ubi_inv')
+            ->where('ubi_inv', '!=', '')
+            ->select('ubi_inv')
+            ->distinct()
+            ->orderBy('ubi_inv')
+            ->pluck('ubi_inv')
+            ->map(fn ($location) => [
+                'label' => (string) $location,
+                'value' => (string) $location,
+            ])
+            ->values()
+            ->all();
     }
 
     public function variantOptions(): array

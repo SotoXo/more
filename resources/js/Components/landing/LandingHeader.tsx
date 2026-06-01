@@ -1,5 +1,11 @@
 import { shopNavigationItems, shopRoutes } from '@/lib/shop';
-import type { LandingUser } from '@/types/landing';
+import {
+    PURCHASE_CART_EVENT,
+    purchaseCartCount,
+    readPurchaseCart,
+} from '@/lib/purchaseCart';
+import NotificationBell from '@/Components/Notifications/NotificationBell';
+import type { LandingPageProps, LandingUser } from '@/types/landing';
 import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -72,7 +78,7 @@ function AccountDropdown({
                     className={dropdownLinkClass}
                 >
                     <ShoppingBag size={14} />
-                    Pedidos
+                    Compras
                 </Link>
             </div>
 
@@ -93,11 +99,15 @@ function AccountDropdown({
 }
 
 export default function LandingHeader({ user }: { user: LandingUser }) {
-    const page = usePage();
+    const page = usePage<LandingPageProps>();
     const currentPath = page.url.split('?')[0];
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [accountOpen, setAccountOpen] = useState(false);
+    const [cartCount, setCartCount] = useState(0);
+    const [reservationBagCount, setReservationBagCount] = useState(
+        Number(page.props.reservation_bag_count ?? 0),
+    );
     const accountRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -125,6 +135,89 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
+    useEffect(() => {
+        const syncCart = () => setCartCount(purchaseCartCount(readPurchaseCart()));
+
+        syncCart();
+        window.addEventListener(PURCHASE_CART_EVENT, syncCart);
+        window.addEventListener('storage', syncCart);
+
+        return () => {
+            window.removeEventListener(PURCHASE_CART_EVENT, syncCart);
+            window.removeEventListener('storage', syncCart);
+        };
+    }, []);
+
+    useEffect(() => {
+        setReservationBagCount(Number(page.props.reservation_bag_count ?? 0));
+    }, [page.props.reservation_bag_count]);
+
+    useEffect(() => {
+        const syncReservationBag = (event: Event) => {
+            const detail = (event as CustomEvent<{ count?: number }>).detail;
+
+            if (typeof detail?.count === 'number') {
+                setReservationBagCount(detail.count);
+            }
+        };
+
+        window.addEventListener('mati-boutique:reservation-bag-updated', syncReservationBag);
+
+        return () => {
+            window.removeEventListener('mati-boutique:reservation-bag-updated', syncReservationBag);
+        };
+    }, []);
+
+    function CartIconLink({
+        mobile = false,
+        onClick,
+    }: {
+        mobile?: boolean;
+        onClick?: () => void;
+    }) {
+        return (
+            <Link
+                href={shopRoutes.cart}
+                aria-label="Carrito de compras"
+                className={`${iconButtonClass} relative`}
+                onClick={onClick}
+            >
+                <ShoppingBag size={16} />
+                {cartCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[0.58rem] font-semibold text-slate-950">
+                        {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                )}
+                {mobile && <span className="sr-only">Carrito</span>}
+            </Link>
+        );
+    }
+
+    function ReservationBagIconLink({
+        mobile = false,
+        onClick,
+    }: {
+        mobile?: boolean;
+        onClick?: () => void;
+    }) {
+        return (
+            <Link
+                href={shopRoutes.bag}
+                aria-label="Bolsa de reservas"
+                className={`${iconButtonClass} relative`}
+                onClick={onClick}
+            >
+                <Package size={16} />
+                {reservationBagCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[rgb(223,184,166)] px-1 text-[0.58rem] font-semibold text-slate-950">
+                        {reservationBagCount > 99 ? '99+' : reservationBagCount}
+                    </span>
+                )}
+                {mobile && <span className="sr-only">Bolsa</span>}
+            </Link>
+        );
+    }
+
     return (
         <>
             <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-6 lg:px-8">
@@ -147,7 +240,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             <div className="mt-0.5 hidden items-center gap-2 md:flex">
                                 <span className="h-px w-6 bg-[linear-gradient(90deg,rgba(223,184,166,0.9),transparent)]" />
                                 <span className="text-[0.6rem] uppercase tracking-[0.28em] text-stone-400">
-                                    Catálogo y reservas
+                                    Catalogo, compras y reservas
                                 </span>
                             </div>
                         </div>
@@ -191,9 +284,9 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             <Heart size={16} />
                         </Link>
 
-                        <Link href="/bolsa" aria-label="Reservas" className={iconButtonClass}>
-                            <ShoppingBag size={16} />
-                        </Link>
+                        <CartIconLink />
+                        <ReservationBagIconLink />
+                        {user && <NotificationBell variant="storefront" />}
 
                         {user ? (
                             <div ref={accountRef} className="relative ml-1">
@@ -270,7 +363,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                     Mati Boutique
                                 </p>
                                 <p className="mt-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-400">
-                                    Catálogo y reservas
+                                    Catalogo, compras y reservas
                                 </p>
                             </div>
 
@@ -309,14 +402,9 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                 >
                                     <Heart size={16} />
                                 </Link>
-                                <Link
-                                    href="/bolsa"
-                                    className={iconButtonClass}
-                                    aria-label="Reservas"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    <ShoppingBag size={16} />
-                                </Link>
+                                <CartIconLink mobile onClick={() => setIsOpen(false)} />
+                                <ReservationBagIconLink mobile onClick={() => setIsOpen(false)} />
+                                {user && <NotificationBell variant="storefront" />}
                             </div>
 
                             <div className="mt-6 border-t border-white/10 pt-6">
@@ -329,7 +417,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                             { href: '/cuenta', label: 'Mi cuenta' },
                                             { href: '/cuenta/favoritos', label: 'Favoritos' },
                                             { href: '/cuenta/reservas', label: 'Reservas' },
-                                            { href: '/cuenta/pedidos', label: 'Pedidos' },
+                                            { href: '/cuenta/pedidos', label: 'Compras' },
                                         ].map((link) => (
                                             <Link
                                                 key={link.href}

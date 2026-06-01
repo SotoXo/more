@@ -36,6 +36,21 @@ class User extends Authenticatable
             && $this->rol->isSuperadminRole();
     }
 
+    public function isVendedor(): bool
+    {
+        $this->loadMissing('rol');
+
+        return $this->isActive()
+            && $this->rol
+            && $this->rol->isActive()
+            && $this->rol->isVendedorRole();
+    }
+
+    public function canManageCommercialOperations(): bool
+    {
+        return $this->isSuperadmin() || $this->isVendedor();
+    }
+
     public function isActive(): bool
     {
         return (bool) $this->est_usu;

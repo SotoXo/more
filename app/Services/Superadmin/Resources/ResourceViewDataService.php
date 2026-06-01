@@ -49,13 +49,15 @@ class ResourceViewDataService
                 ->all();
         }
 
-        if (!$this->definitions->supportsCrud($definition)) {
+        if (!$this->definitions->supportsCreate($definition)) {
             return [];
         }
 
         $createLabel = match ($this->definitions->definitionKey($definition)) {
             'catalogo.tallas' => 'Nueva talla',
             'catalogo.temporadas' => 'Nueva temporada',
+            'comercial.ventas' => 'Nueva venta',
+            'comercial.reservas' => 'Nueva reserva',
             default => 'Nuevo ' . $definition['singular'],
         };
 
@@ -68,6 +70,59 @@ class ResourceViewDataService
 
     public function segmentedFilters(array $definition, Request $request): array
     {
+        if ($this->definitions->definitionKey($definition) === 'comercial.ventas') {
+            $activeStatus = $request->string('status')->toString();
+            $baseHref = $this->definitions->indexHref($definition);
+            $query = collect($request->query())->except(['status'])->all();
+            $allHref = $query ? $baseHref . '?' . http_build_query($query) : $baseHref;
+            $segments = [
+                ['label' => 'En revisión', 'value' => 'en_revision'],
+                ['label' => 'Confirmadas', 'value' => 'registrada'],
+                ['label' => 'Canceladas', 'value' => 'cancelada'],
+                ['label' => 'Incompletas', 'value' => 'incompleta'],
+            ];
+
+            return collect([[
+                'label' => 'Todas',
+                'href' => $allHref,
+                'active' => $activeStatus === '',
+                'count' => (string) Venta::query()->count(),
+            ]])->merge(collect($segments)->map(fn (array $segment) => [
+                'label' => $segment['label'],
+                'href' => $baseHref . '?' . http_build_query([...$query, 'status' => $segment['value']]),
+                'active' => $activeStatus === $segment['value'],
+                'count' => (string) Venta::query()->where('est_ven', $segment['value'])->count(),
+            ]))->values()->all();
+        }
+
+        if ($this->definitions->definitionKey($definition) === 'comercial.reservas') {
+            $activeStatus = $request->string('status')->toString();
+            $baseHref = $this->definitions->indexHref($definition);
+            $query = collect($request->query())->except(['status'])->all();
+            $allHref = $query ? $baseHref . '?' . http_build_query($query) : $baseHref;
+            $segments = [
+                ['label' => 'Por procesar', 'value' => 'por_procesar'],
+                ['label' => 'Confirmadas', 'value' => 'confirmada'],
+                ['label' => 'Listas para recojo', 'value' => 'lista_recojo'],
+                ['label' => 'Vencidas', 'value' => 'vencida'],
+                ['label' => 'Completadas', 'value' => 'completada'],
+                ['label' => 'Canceladas', 'value' => 'cancelada'],
+                ['label' => 'Rechazadas', 'value' => 'rechazada'],
+            ];
+
+            return collect([[
+                'label' => 'Todas',
+                'href' => $allHref,
+                'active' => $activeStatus === '',
+                'count' => (string) Reserva::query()->count(),
+            ]])->merge(collect($segments)->map(fn (array $segment) => [
+                'label' => $segment['label'],
+                'href' => $baseHref . '?' . http_build_query([...$query, 'status' => $segment['value']]),
+                'active' => $activeStatus === $segment['value'],
+                'count' => (string) Reserva::query()->where('est_res', $segment['value'])->count(),
+            ]))->values()->all();
+        }
+
         if ($this->definitions->definitionKey($definition) !== 'seguridad.usuarios') {
             return [];
         }
@@ -147,14 +202,16 @@ class ResourceViewDataService
         return [
             'title' => 'Sin registros',
             'description' => 'No hay registros disponibles en ' . mb_strtolower($definition['title']) . '.',
-            'actionLabel' => $this->definitions->supportsCrud($definition)
+            'actionLabel' => $this->definitions->supportsCreate($definition)
                 ? match ($this->definitions->definitionKey($definition)) {
                     'catalogo.tallas' => 'Nueva talla',
                     'catalogo.temporadas' => 'Nueva temporada',
+                    'comercial.ventas' => 'Nueva venta',
+                    'comercial.reservas' => 'Nueva reserva',
                     default => 'Nuevo ' . $definition['singular'],
                 }
                 : null,
-            'actionHref' => $this->definitions->supportsCrud($definition) ? $this->definitions->createHref($definition) : null,
+            'actionHref' => $this->definitions->supportsCreate($definition) ? $this->definitions->createHref($definition) : null,
         ];
     }
 
@@ -218,35 +275,31 @@ class ResourceViewDataService
                 ['key' => 'priority', 'label' => 'Prioridad', 'align' => 'center'],
                 ['key' => 'source', 'label' => 'Fuente', 'align' => 'right'],
             ],
-            'inventory' => [
-                ['key' => 'sku', 'label' => 'Código interno'],
-                ['key' => 'available', 'label' => 'Disponible', 'align' => 'right'],
-                ['key' => 'reserved', 'label' => 'Reservado', 'align' => 'right'],
-                ['key' => 'location', 'label' => 'Ubicación', 'align' => 'right'],
-            ],
+            'inventory' => $this->inventoryColumns(),
             'adjustments' => [
                 ['key' => 'area', 'label' => 'Área'],
                 ['key' => 'focus', 'label' => 'Enfoque'],
                 ['key' => 'cut', 'label' => 'Corte'],
                 ['key' => 'updated', 'label' => 'Actualizado', 'align' => 'right'],
             ],
-            'alerts' => [
-                ['key' => 'available', 'label' => 'Disponible', 'align' => 'right'],
-                ['key' => 'reserved', 'label' => 'Reservado', 'align' => 'right'],
-                ['key' => 'location', 'label' => 'Ubicación'],
-                ['key' => 'follow', 'label' => 'Seguimiento', 'align' => 'right'],
-            ],
+            'alerts' => $this->alertColumns(),
             'sales' => [
                 ['key' => 'client', 'label' => 'Cliente'],
-                ['key' => 'type', 'label' => 'Tipo'],
                 ['key' => 'total', 'label' => 'Total', 'align' => 'right'],
+                ['key' => 'state', 'label' => 'Estado venta'],
+                ['key' => 'pickup', 'label' => 'Estado recojo'],
                 ['key' => 'date', 'label' => 'Fecha', 'align' => 'right'],
             ],
             'reservations' => [
                 ['key' => 'client', 'label' => 'Cliente'],
-                ['key' => 'due', 'label' => 'Vence'],
+                ['key' => 'payment', 'label' => 'Pago'],
+                ['key' => 'total', 'label' => 'Total', 'align' => 'right'],
+                ['key' => 'declared', 'label' => 'Declarado', 'align' => 'right'],
+                ['key' => 'confirmed', 'label' => 'Confirmado', 'align' => 'right'],
+                ['key' => 'balance', 'label' => 'Saldo', 'align' => 'right'],
+                ['key' => 'reservation', 'label' => 'Reserva'],
+                ['key' => 'pickup', 'label' => 'Recojo'],
                 ['key' => 'items', 'label' => 'Artículos', 'align' => 'center'],
-                ['key' => 'date', 'label' => 'Fecha', 'align' => 'right'],
             ],
             'favorites' => [
                 ['key' => 'client', 'label' => 'Cliente'],
@@ -272,7 +325,7 @@ class ResourceViewDataService
                 ['label' => 'Prendas', 'value' => (string) Prenda::query()->count(), 'note' => 'Prendas registradas.', 'tone' => 'accent'],
                 ['label' => 'Activas', 'value' => (string) Prenda::query()->where('est_pre', true)->count(), 'note' => 'Prendas visibles.', 'tone' => 'success'],
                 ['label' => 'Variantes', 'value' => (string) PrendaVariante::query()->count(), 'note' => 'Cruces comerciales cargados.', 'tone' => 'neutral'],
-                ['label' => 'Disponible', 'value' => (string) max(0, (int) Inventario::query()->sum('cdi_inv') - (int) Inventario::query()->sum('cre_inv')), 'note' => 'Existencias disponibles.', 'tone' => 'warning'],
+                ['label' => 'Disponible', 'value' => (string) (int) Inventario::query()->sum('cdi_inv'), 'note' => 'Existencias disponibles reales.', 'tone' => 'warning'],
             ],
             'variants' => [
                 ['label' => 'Variantes', 'value' => (string) PrendaVariante::query()->count(), 'note' => 'Variantes registradas.', 'tone' => 'accent'],
@@ -288,33 +341,34 @@ class ResourceViewDataService
             ],
             'inventory' => [
                 ['label' => 'Líneas', 'value' => (string) Inventario::query()->count(), 'note' => 'Registros de inventario.', 'tone' => 'accent'],
-                ['label' => 'Disponible', 'value' => (string) (Inventario::query()->sum('cdi_inv') - Inventario::query()->sum('cre_inv')), 'note' => 'Existencias disponibles.', 'tone' => 'success'],
+                ['label' => 'Disponible', 'value' => (string) (Inventario::query()->sum('cdi_inv')), 'note' => 'Existencias disponibles.', 'tone' => 'success'],
                 ['label' => 'Reservado', 'value' => (string) Inventario::query()->sum('cre_inv'), 'note' => 'Existencias reservadas.', 'tone' => 'warning'],
-                ['label' => 'Existencias críticas', 'value' => (string) Inventario::query()->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 2')->count(), 'note' => 'Registros por revisar.', 'tone' => 'danger'],
+                ['label' => 'Existencias críticas', 'value' => (string) Inventario::query()->where('cdi_inv', '>', 0)->where('cdi_inv', '<=', 3)->count(), 'note' => 'Registros por revisar.', 'tone' => 'danger'],
             ],
             'adjustments' => [
                 ['label' => 'Ajustes', 'value' => (string) $this->queries->adjustmentTemplates()->count(), 'note' => 'Ajustes sugeridos.', 'tone' => 'accent'],
-                ['label' => 'Existencias críticas', 'value' => (string) Inventario::query()->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 2')->count(), 'note' => 'Registros por revisar.', 'tone' => 'warning'],
+                ['label' => 'Existencias críticas', 'value' => (string) Inventario::query()->where('cdi_inv', '>', 0)->where('cdi_inv', '<=', 3)->count(), 'note' => 'Registros por revisar.', 'tone' => 'warning'],
                 ['label' => 'Ventas', 'value' => (string) Venta::query()->count(), 'note' => 'Ventas registradas.', 'tone' => 'success'],
                 ['label' => 'Reservas', 'value' => (string) Reserva::query()->count(), 'note' => 'Reservas activas.', 'tone' => 'neutral'],
             ],
             'alerts' => [
-                ['label' => 'Alertas', 'value' => (string) Inventario::query()->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 2')->count(), 'note' => 'Registros con existencias bajas.', 'tone' => 'danger'],
-                ['label' => 'Sin existencias', 'value' => (string) Inventario::query()->whereRaw('(COALESCE(cdi_inv, 0) - COALESCE(cre_inv, 0)) <= 0')->count(), 'note' => 'Registros sin disponible.', 'tone' => 'warning'],
-                ['label' => 'Reservado', 'value' => (string) Inventario::query()->where('cre_inv', '>', 0)->count(), 'note' => 'Líneas con reserva activa.', 'tone' => 'accent'],
-                ['label' => 'Ubicaciones', 'value' => (string) Inventario::query()->whereNotNull('ubi_inv')->count(), 'note' => 'Ubicaciones cargadas.', 'tone' => 'neutral'],
+                ['label' => 'Sin stock', 'value' => (string) Inventario::query()->where('cdi_inv', 0)->count(), 'note' => 'Registros sin disponible.', 'tone' => 'danger'],
+                ['label' => 'Bajo stock', 'value' => (string) Inventario::query()->where('cdi_inv', '>', 0)->where('cdi_inv', '<=', 3)->count(), 'note' => 'Registros con margen corto.', 'tone' => 'warning'],
+                ['label' => 'Sin inventario', 'value' => (string) PrendaVariante::query()->doesntHave('inventario')->count(), 'note' => 'Variantes sin linea de inventario.', 'tone' => 'accent'],
+                ['label' => 'Sin imagen', 'value' => (string) Prenda::query()->doesntHave('imagenes')->count(), 'note' => 'Prendas sin soporte visual.', 'tone' => 'neutral'],
             ],
             'sales' => [
                 ['label' => 'Ventas', 'value' => (string) Venta::query()->count(), 'note' => 'Operaciones registradas.', 'tone' => 'accent'],
-                ['label' => 'Facturación', 'value' => $this->formatting->money((float) Venta::query()->sum('tot_ven')), 'note' => 'Total acumulado.', 'tone' => 'success'],
+                ['label' => 'En revisión', 'value' => (string) Venta::query()->where('est_ven', 'en_revision')->count(), 'note' => 'Comprobantes pendientes.', 'tone' => 'warning'],
+                ['label' => 'Facturación confirmada', 'value' => $this->formatting->money((float) Venta::query()->where('est_ven', 'registrada')->sum('tot_ven')), 'note' => 'Solo ventas confirmadas.', 'tone' => 'success'],
                 ['label' => 'Detalles', 'value' => (string) \App\Models\DetalleVenta::query()->count(), 'note' => 'Líneas de venta.', 'tone' => 'neutral'],
                 ['label' => 'Última venta', 'value' => $this->queries->latestDate(Venta::query(), 'fec_ven'), 'note' => 'Último registro.', 'tone' => 'warning'],
             ],
             'reservations' => [
                 ['label' => 'Reservas', 'value' => (string) Reserva::query()->count(), 'note' => 'Apartados registrados.', 'tone' => 'accent'],
-                ['label' => 'Detalles', 'value' => (string) \App\Models\DetalleReserva::query()->count(), 'note' => 'Líneas de reserva.', 'tone' => 'neutral'],
-                ['label' => 'Por vencer', 'value' => (string) Reserva::query()->whereNotNull('ven_res')->where('ven_res', '<=', now()->addDays(7))->count(), 'note' => 'Vencen en 7 días.', 'tone' => 'warning'],
-                ['label' => 'Última reserva', 'value' => $this->queries->latestDate(Reserva::query(), 'fec_res'), 'note' => 'Último registro.', 'tone' => 'success'],
+                ['label' => 'Por procesar', 'value' => (string) Reserva::query()->where('est_res', 'por_procesar')->count(), 'note' => 'Comprobantes pendientes.', 'tone' => 'warning'],
+                ['label' => 'Listas para recojo', 'value' => (string) Reserva::query()->where('est_res', 'lista_recojo')->count(), 'note' => 'Pendientes de entrega.', 'tone' => 'success'],
+                ['label' => 'Vencidas', 'value' => (string) Reserva::query()->whereIn('est_res', ['por_procesar', 'confirmada', 'lista_recojo'])->whereNotNull('fec_limite_recojo_res')->where('fec_limite_recojo_res', '<', now())->count(), 'note' => 'Requieren accion humana.', 'tone' => 'danger'],
             ],
             'favorites' => [
                 ['label' => 'Favoritos', 'value' => (string) Favorito::query()->count(), 'note' => 'Favoritos registrados.', 'tone' => 'accent'],
@@ -373,7 +427,8 @@ class ResourceViewDataService
                 $this->selectFilter('gender', 'Género', $request, $this->options->genderOptions()),
                 $this->selectFilter('color', 'Color', $request, $this->options->colorOptions()),
                 $this->selectFilter('size', 'Talla', $request, $this->options->sizeOptions()),
-                $this->selectFilter('stock', 'Disponibilidad', $request, $this->stockFilterOptions()),
+                $this->selectFilter('location', 'Ubicacion', $request, $this->options->inventoryLocationOptions()),
+                $this->selectFilter('stock', 'Estado de stock', $request, $this->stockFilterOptions()),
             ],
             'sales' => [
                 $this->selectFilter('category', 'Categoría', $request, $this->options->categoryOptions()),
@@ -392,6 +447,7 @@ class ResourceViewDataService
                 $this->selectFilter('color', 'Color', $request, $this->options->colorOptions()),
                 $this->selectFilter('size', 'Talla', $request, $this->options->sizeOptions()),
                 $this->selectFilter('status', 'Estado', $request, $this->distinctTextOptions('reservas', 'est_res')),
+                $this->selectFilter('payment_status', 'Estado de pago', $request, $this->distinctTextOptions('reservas', 'est_pago_res')),
                 $this->dateFilter('date_from', 'Fecha desde', $request),
                 $this->dateFilter('date_to', 'Fecha hasta', $request),
             ],
@@ -425,6 +481,7 @@ class ResourceViewDataService
             'inventory', 'alerts' => [
                 ['label' => 'Nombre', 'value' => 'name'],
                 ['label' => 'Existencias', 'value' => 'stock'],
+                ['label' => 'Ubicacion', 'value' => 'location'],
                 ['label' => 'Estado', 'value' => 'status'],
             ],
             'sales' => [
@@ -506,6 +563,33 @@ class ResourceViewDataService
         ];
     }
 
+    private function inventoryColumns(): array
+    {
+        return [
+            ['key' => 'product', 'label' => 'Prenda'],
+            ['key' => 'variant', 'label' => 'Variante'],
+            ['key' => 'color', 'label' => 'Color'],
+            ['key' => 'size', 'label' => 'Talla'],
+            ['key' => 'sku', 'label' => 'Codigo interno'],
+            ['key' => 'available', 'label' => 'Disponible', 'align' => 'right'],
+            ['key' => 'reserved', 'label' => 'Reservado', 'align' => 'right'],
+            ['key' => 'total', 'label' => 'Total', 'align' => 'right'],
+            ['key' => 'location', 'label' => 'Ubicacion', 'align' => 'right'],
+        ];
+    }
+
+    private function alertColumns(): array
+    {
+        return [
+            ['key' => 'type', 'label' => 'Tipo'],
+            ['key' => 'sku', 'label' => 'Codigo interno'],
+            ['key' => 'available', 'label' => 'Disponible', 'align' => 'right'],
+            ['key' => 'reserved', 'label' => 'Reservado', 'align' => 'right'],
+            ['key' => 'location', 'label' => 'Ubicacion'],
+            ['key' => 'follow', 'label' => 'Seguimiento', 'align' => 'right'],
+        ];
+    }
+
     private function numberFilter(string $key, string $label, Request $request): array
     {
         return [
@@ -533,6 +617,7 @@ class ResourceViewDataService
             ['label' => 'Disponible', 'value' => 'disponible'],
             ['label' => 'Bajo', 'value' => 'bajo'],
             ['label' => 'Agotado', 'value' => 'agotado'],
+            ['label' => 'Reservado', 'value' => 'reservado'],
         ];
     }
 

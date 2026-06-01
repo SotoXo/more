@@ -1,3 +1,4 @@
+import NotificationBell from '@/Components/Notifications/NotificationBell';
 import { superadminRoutes } from '@/lib/superadmin';
 import type { LandingPageProps } from '@/types/landing';
 import { Link, usePage } from '@inertiajs/react';
@@ -39,6 +40,7 @@ export default function SuperadminTopbar({
                 </div>
 
                 <div className="hidden items-center gap-2 lg:flex">
+                    {user && <NotificationBell variant="admin" />}
                     <ThemeToggle theme={theme} onToggle={onToggleTheme} />
                     <Link
                         href="/logout"
@@ -49,6 +51,11 @@ export default function SuperadminTopbar({
                         <LogOut size={15} />
                         Cerrar sesión
                     </Link>
+                </div>
+
+                <div className="hidden items-center gap-2 sm:flex lg:hidden">
+                    {user && <NotificationBell variant="admin" />}
+                    <ThemeToggle theme={theme} onToggle={onToggleTheme} />
                 </div>
 
                 <Link
@@ -68,7 +75,8 @@ export default function SuperadminTopbar({
                     </div>
                 </Link>
 
-                <div className="sm:hidden">
+                <div className="flex items-center gap-2 sm:hidden">
+                    {user && <NotificationBell variant="admin" />}
                     <ThemeToggle theme={theme} onToggle={onToggleTheme} />
                 </div>
             </div>

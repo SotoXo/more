@@ -1,10 +1,10 @@
-import { formatPrice, shopRoutes } from '@/lib/shop';
+import { formatAvailabilityLabel, formatPrice, shopRoutes } from '@/lib/shop';
 import StorefrontImage from '@/Components/shop/StorefrontImage';
 import type { ShopProduct } from '@/types/shop';
 import type { LandingPageProps } from '@/types/landing';
 import axios from 'axios';
 import { Link, router, usePage } from '@inertiajs/react';
-import { CalendarCheck, Eye, Heart } from 'lucide-react';
+import { CalendarCheck, Eye, Heart, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type ProductCardProps = {
@@ -29,10 +29,13 @@ export default function ProductCard({
     const meta = [product.brand, product.style].filter(Boolean).join(' / ');
     const hoverImage = product.gallery.find((image) => image !== product.image);
     const hasStock = (product.totalStock ?? 0) > 0 || product.availability !== 'Agotado';
-    const availabilityLabel =
-        product.availability === 'Últimas piezas'
-            ? 'Últimas unidades'
-            : product.availability;
+    const availabilityLabel = formatAvailabilityLabel(product.availability);
+    const productBadges = [
+        product.isNew ? 'Nuevo' : null,
+        product.isCurrentSeason ? 'Temporada vigente' : null,
+        !product.isCurrentSeason && product.isPermanent ? 'Permanente' : null,
+        product.isUnisex ? 'Unisex' : null,
+    ].filter((badge): badge is string => Boolean(badge)).slice(0, 3);
     const visibleColors = product.colors?.slice(0, 4) ?? [];
     const extraColors = Math.max(0, (product.colors?.length ?? 0) - visibleColors.length);
     const visibleSizes = product.sizes.slice(0, 4);
@@ -77,6 +80,10 @@ export default function ProductCard({
         }
     }
 
+    function handleBuyClick() {
+        router.visit(`${shopRoutes.product(product.slug)}?accion=comprar`);
+    }
+
     return (
         <article className="group relative">
             <div className="relative overflow-hidden rounded-[1.65rem] border border-white/10 bg-[#070a0f] shadow-[0_24px_70px_rgba(0,0,0,0.32)]">
@@ -100,11 +107,14 @@ export default function ProductCard({
                 </Link>
 
                 <div className="absolute left-3 top-3 flex flex-wrap items-center gap-2">
-                    {product.isNew && (
-                        <span className="rounded-full border border-[rgba(223,184,166,0.34)] bg-black/40 px-3 py-1 text-[0.62rem] uppercase tracking-[0.18em] text-stone-100 backdrop-blur">
-                            Nuevo
+                    {productBadges.map((badge) => (
+                        <span
+                            key={badge}
+                            className="rounded-full border border-[rgba(223,184,166,0.34)] bg-black/40 px-3 py-1 text-[0.62rem] uppercase tracking-[0.18em] text-stone-100 backdrop-blur"
+                        >
+                            {badge}
                         </span>
-                    )}
+                    ))}
                     <span
                         className={[
                             'rounded-full border px-3 py-1 text-[0.62rem] uppercase tracking-[0.18em] backdrop-blur',
@@ -137,22 +147,32 @@ export default function ProductCard({
                     />
                 </button>
 
-                <div className="absolute inset-x-0 bottom-0 flex translate-y-3 items-end justify-between gap-2 p-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <div className="absolute inset-x-0 bottom-0 grid translate-y-3 gap-2 p-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:grid-cols-3">
                     <Link
                         href={shopRoutes.product(product.slug)}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-white/14 bg-black/50 px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.18em] text-white backdrop-blur transition hover:border-[rgba(223,184,166,0.38)] hover:bg-black/70"
+                        className="inline-flex items-center justify-center gap-2 rounded-full border border-white/14 bg-black/50 px-3 py-2.5 text-[0.62rem] uppercase tracking-[0.16em] text-white backdrop-blur transition hover:border-[rgba(223,184,166,0.38)] hover:bg-black/70"
                     >
                         <Eye size={14} />
-                        Ver producto
+                        Ver
                     </Link>
                     {hasStock && (
-                        <Link
-                            href={shopRoutes.product(product.slug)}
-                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[rgba(223,184,166,0.34)] bg-[rgba(223,184,166,0.92)] px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.18em] text-[#170f11] backdrop-blur transition hover:bg-white"
-                        >
-                            <CalendarCheck size={14} />
-                            Reservar prenda
-                        </Link>
+                        <>
+                            <Link
+                                href={shopRoutes.product(product.slug)}
+                                className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(223,184,166,0.34)] bg-[rgba(223,184,166,0.92)] px-3 py-2.5 text-[0.62rem] uppercase tracking-[0.16em] text-[#170f11] backdrop-blur transition hover:bg-white"
+                            >
+                                <CalendarCheck size={14} />
+                                Reservar
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={handleBuyClick}
+                                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/14 bg-white px-3 py-2.5 text-[0.62rem] uppercase tracking-[0.16em] text-slate-950 backdrop-blur transition hover:bg-stone-200"
+                            >
+                                <ShoppingBag size={14} />
+                                Comprar
+                            </button>
+                        </>
                     )}
                 </div>
             </div>

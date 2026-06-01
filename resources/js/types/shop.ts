@@ -26,14 +26,21 @@ export type ShopProduct = {
     price: number;
     line: string;
     brand: string;
-    department: 'mujer' | 'hombre' | 'accesorios';
+    department: 'mujer' | 'hombre' | 'accesorios' | 'unisex';
+    gender?: string;
+    isUnisex?: boolean;
     category: string;
     style: string;
+    seasonCode?: string;
+    seasonName?: string;
+    isCurrentSeason?: boolean;
+    isPermanent?: boolean;
     color: string;
     availability: ShopAvailability;
     sizes: string[];
     colors?: Array<{
         name: string;
+        family?: string | null;
         hex: string | null;
     }>;
     locations?: string[];

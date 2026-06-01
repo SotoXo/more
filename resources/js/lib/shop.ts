@@ -16,6 +16,11 @@ export const shopRoutes = {
     collections: '/colecciones',
     editorial: '/editorial',
     product: (id: string | number) => `/producto/${id}`,
+    cart: '/carrito',
+    bag: '/bolsa',
+    checkout: '/checkout',
+    reservations: '/cuenta/reservas',
+    newReservation: '/bolsa',
 } as const;
 
 export const shopNavigationItems = [
@@ -71,6 +76,38 @@ function includesAnyFilter(selected: string[], current: string[]) {
     return selected.length === 0 || current.some((item) => selected.includes(item));
 }
 
+function isPermanentSelection(value: string) {
+    const normalized = value.trim().toLowerCase();
+
+    return normalized === 'per' || normalized.includes('permanente');
+}
+
+function matchesSeasonFilter(selected: string[], product: ShopProduct) {
+    if (selected.length === 0) {
+        return true;
+    }
+
+    const onlyPermanent = selected.every(isPermanentSelection);
+
+    if (onlyPermanent) {
+        return Boolean(product.isPermanent);
+    }
+
+    return selected.includes(product.style) || Boolean(product.isPermanent);
+}
+
+export function formatAvailabilityLabel(availability: ShopAvailability) {
+    if (availability === 'Últimas piezas') {
+        return 'Bajo stock';
+    }
+
+    if (availability === 'Agotado') {
+        return 'Sin stock';
+    }
+
+    return availability;
+}
+
 export function filterProducts(
     collectionProducts: ShopProduct[],
     filters: ShopFilterState,
@@ -92,11 +129,13 @@ export function filterProducts(
             includesFilter(filters.categories, product.category) &&
             includesAnyFilter(
                 filters.colors,
-                product.colors?.map((color) => color.name).filter(Boolean) ?? [
+                product.colors
+                    ?.flatMap((color) => [color.family, color.name])
+                    .filter((color): color is string => Boolean(color)) ?? [
                     product.color,
                 ],
             ) &&
-            includesFilter(filters.styles, product.style) &&
+            matchesSeasonFilter(filters.styles, product) &&
             includesFilter(filters.brands, product.brand) &&
             includesAnyFilter(filters.locations, product.locations ?? []) &&
             matchesAvailability &&

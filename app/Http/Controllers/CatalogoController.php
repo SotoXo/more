@@ -7,6 +7,8 @@ use App\Models\Marca;
 use App\Models\Prenda;
 use App\Models\Temporada;
 use App\Services\ProductMapper;
+use App\Services\StorefrontCatalogService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class CatalogoController extends Controller
@@ -18,50 +20,33 @@ class CatalogoController extends Controller
         'https://images.pexels.com/photos/5059874/pexels-photo-5059874.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ];
 
-    public function mujer()
+    public function __construct(private StorefrontCatalogService $catalogService)
     {
-        return $this->collection('mujer');
     }
 
-    public function hombre()
+    public function mujer(Request $request)
     {
-        return $this->collection('hombre');
+        return $this->renderCollection('mujer', $this->catalogService->women($request), $request);
     }
 
-    public function novedades()
+    public function hombre(Request $request)
     {
-        $prendas = ProductMapper::withRelations(
-            Prenda::where('est_pre', true)
-        )
-            ->orderByDesc('fec_pre')
-            ->orderByDesc('created_at')
-            ->get();
-
-        return $this->renderCollection('novedades', $prendas);
+        return $this->renderCollection('hombre', $this->catalogService->men($request), $request);
     }
 
-    public function accesorios()
+    public function novedades(Request $request)
     {
-        $prendas = ProductMapper::withRelations(
-            Prenda::where('est_pre', true)
-                ->whereHas('categoria', fn($q) => $q->where('nom_cat', 'Accesorios'))
-        )
-            ->orderByDesc('created_at')
-            ->get();
-
-        return $this->renderCollection('accesorios', $prendas);
+        return $this->renderCollection('novedades', $this->catalogService->newIn($request), $request);
     }
 
-    public function catalogo()
+    public function accesorios(Request $request)
     {
-        $prendas = ProductMapper::withRelations(
-            Prenda::where('est_pre', true)
-        )
-            ->orderByDesc('fec_pre')
-            ->orderByDesc('created_at')
-            ->get();
+        return $this->renderCollection('accesorios', $this->catalogService->accessories($request), $request);
+    }
 
-        return $this->renderCollection('catalogo', $prendas);
+    public function catalogo(Request $request)
+    {
+        return $this->renderCollection('catalogo', $this->catalogService->catalog($request), $request);
     }
 
     public function colecciones()
@@ -74,20 +59,7 @@ class CatalogoController extends Controller
         return $this->renderCuratedPage('editorial');
     }
 
-    private function collection(string $genero)
-    {
-        $prendas = ProductMapper::withRelations(
-            Prenda::where('est_pre', true)
-                ->where('gen_pre', $genero)
-                ->whereHas('categoria', fn($q) => $q->where('nom_cat', '!=', 'Accesorios'))
-        )
-            ->orderByDesc('created_at')
-            ->get();
-
-        return $this->renderCollection($genero, $prendas);
-    }
-
-    private function renderCollection(string $collectionKey, $prendas)
+    private function renderCollection(string $collectionKey, $prendas, Request $request)
     {
         $products = ProductMapper::toShopProductArray($prendas);
         $products = ProductMapper::attachFavoriteState($products, auth()->user());
@@ -97,7 +69,7 @@ class CatalogoController extends Controller
             'collection'    => $collectionKey,
             'products'      => $products,
             'filterOptions' => $filterOptions,
-            'initialFilters' => $this->resolveInitialFilters(),
+            'initialFilters' => $this->catalogService->initialFilters($request),
         ]);
     }
 
@@ -117,9 +89,8 @@ class CatalogoController extends Controller
 
         $railQuery = ProductMapper::withRelations(
             Prenda::where('est_pre', true)
-        )
-            ->orderByDesc('fec_pre')
-            ->orderByDesc('created_at');
+        );
+        $this->catalogService->applySeasonOrdering($railQuery);
 
         if ($mode === 'editorial') {
             $railQuery->skip(3);
@@ -158,42 +129,6 @@ class CatalogoController extends Controller
         ]);
     }
 
-    private function resolveInitialFilters(): array
-    {
-        return [
-            'categories' => $this->queryValues('categoria'),
-            'sizes' => [],
-            'colors' => [],
-            'styles' => $this->queryValues(['temporada', 'edicion']),
-            'brands' => $this->queryValues('marca'),
-            'locations' => $this->queryValues(['ubicacion', 'sucursal']),
-            'price' => 'all',
-            'availability' => 'all',
-        ];
-    }
-
-    private function queryValues(string|array $keys): array
-    {
-        $values = [];
-
-        foreach ((array) $keys as $key) {
-            $raw = request()->query($key);
-
-            if ($raw === null || $raw === '') {
-                continue;
-            }
-
-            $values = array_merge($values, is_array($raw) ? $raw : [$raw]);
-        }
-
-        return collect($values)
-            ->filter(fn($value) => filled($value))
-            ->map(fn($value) => trim((string) $value))
-            ->unique()
-            ->values()
-            ->all();
-    }
-
     private function buildCollectionNavigationLinks(): array
     {
         return [
@@ -202,7 +137,7 @@ class CatalogoController extends Controller
                 'href' => route('shop.women'),
                 'meta' => $this->activeProductsCount(
                     fn($query) => $query
-                        ->where('gen_pre', 'mujer')
+                        ->whereIn('gen_pre', ['mujer', 'unisex'])
                         ->whereHas('categoria', fn($category) => $category->where('nom_cat', '!=', 'Accesorios'))
                 ) . ' piezas',
             ],
@@ -211,7 +146,7 @@ class CatalogoController extends Controller
                 'href' => route('shop.men'),
                 'meta' => $this->activeProductsCount(
                     fn($query) => $query
-                        ->where('gen_pre', 'hombre')
+                        ->whereIn('gen_pre', ['hombre', 'unisex'])
                         ->whereHas('categoria', fn($category) => $category->where('nom_cat', '!=', 'Accesorios'))
                 ) . ' piezas',
             ],
@@ -334,11 +269,9 @@ class CatalogoController extends Controller
     {
         $products = ProductMapper::withRelations(
             Prenda::where('est_pre', true)
-        )
-            ->orderByDesc('fec_pre')
-            ->orderByDesc('created_at')
-            ->limit(3)
-            ->get();
+        );
+        $this->catalogService->applySeasonOrdering($products);
+        $products = $products->limit(3)->get();
 
         return $products->values()->map(function ($prenda, $index) {
             $meta = collect([
@@ -388,10 +321,9 @@ class CatalogoController extends Controller
 
     private function representativeImage($query, int $index): string
     {
-        $product = ProductMapper::withRelations($query)
-            ->orderByDesc('fec_pre')
-            ->orderByDesc('created_at')
-            ->first();
+        $productQuery = ProductMapper::withRelations($query);
+        $this->catalogService->applySeasonOrdering($productQuery);
+        $product = $productQuery->first();
 
         return $this->productImage($product) ?: $this->fallbackImage($index);
     }
