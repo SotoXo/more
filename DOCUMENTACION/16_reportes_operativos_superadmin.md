@@ -2,70 +2,24 @@
 
 ## Objetivo
 
-El modulo de reportes operativos permite revisar informacion administrativa de Mati Boutique sin convertir la pantalla en un BI avanzado. Es una vista de solo lectura para controlar inventario, ventas, reservas y catalogo desde datos reales de la base.
+El modulo de reportes operativos permite revisar informacion administrativa de Mati Boutique sin convertir la pantalla en BI ni inteligencia artificial. Es una vista de solo lectura para controlar ventas, reservas, pagos, inventario, clientes y catalogo desde datos reales.
 
-## Reportes disponibles
+Esta fase no crea migraciones, no instala paquetes, no exporta PDF/Excel, no implementa backups y no crea auditoria persistente.
 
-### Inventario
+## Ruta y servicio
 
-Muestra:
+- Ruta: `/superadmin/reportes`
+- Controlador: `App\Http\Controllers\Superadmin\ReportsController`
+- Servicio: `App\Services\Superadmin\ReportQueryService`
+- Vista: `resources/js/Pages/Superadmin/Reports.tsx`
 
-- Stock disponible total desde `inventarios.cdi_inv`.
-- Stock reservado total desde `inventarios.cre_inv`.
-- Productos sin stock.
-- Productos con bajo stock.
-- Stock por categoria.
-- Stock por marca.
-- Stock por ubicacion.
-- Variantes sin inventario.
-- Tabla de variantes con alerta de stock.
-
-La regla operativa de bajo stock es: `cdi_inv > 0` y `cdi_inv <= 3`.
-
-### Ventas
-
-Muestra:
-
-- Ventas por rango de fechas.
-- Total vendido desde `ventas.tot_ven`.
-- Cantidad de ventas.
-- Descuentos acumulados desde `ventas.des_ven`.
-- Productos mas vendidos desde `detalle_ventas.can_dve`.
-- Ventas por vendedor.
-- Ventas por metodo de pago.
-- Tabla de ultimas ventas del filtro.
-
-Los datos se consultan en `ventas` y `detalle_ventas`. No se modifica stock desde reportes.
-
-### Reservas
-
-Muestra:
-
-- Reservas activas.
-- Reservas vencidas visualmente.
-- Reservas canceladas.
-- Reservas completadas.
-- Prendas mas reservadas desde `detalle_reservas.can_dre`.
-- Tabla de reservas recientes.
-
-Una reserva se muestra como vencida cuando `est_res = activa` y `ven_res` es anterior a la fecha actual. La pantalla no cambia automaticamente el estado.
-
-### Catalogo
-
-Muestra:
-
-- Prendas por categoria.
-- Prendas por marca.
-- Prendas por temporada.
-- Favoritos por prenda.
-- Productos mas guardados.
-
-Los favoritos se leen desde la relacion de `prendas` con `favoritos`.
+El controlador se mantiene delgado y entrega a Inertia el payload construido por el servicio.
 
 ## Filtros disponibles
 
-Los filtros de la pantalla son:
+La pantalla incluye:
 
+- Periodo: hoy, ultimos 7 dias, mes actual, rango personalizado.
 - Fecha inicio.
 - Fecha fin.
 - Vendedor.
@@ -75,18 +29,136 @@ Los filtros de la pantalla son:
 - Cliente.
 - Responsable.
 
-Los filtros de fecha, vendedor, metodo de pago y estado de venta aplican al reporte de ventas. Los filtros de fecha, estado de reserva, cliente y responsable aplican al reporte de reservas. Inventario y catalogo muestran el estado actual porque no son reportes historicos.
+Cuando el periodo es `hoy`, `ultimos_7_dias` o `mes_actual`, el servicio calcula el rango automaticamente. Cuando se usa `personalizado`, se respetan `date_from` y `date_to`.
 
-## Servicio
+## Reportes disponibles
 
-Las consultas estan centralizadas en `App\Services\Superadmin\ReportQueryService`.
+### Ventas
 
-`Superadmin\ReportsController` queda como controlador delgado y solo entrega el payload del servicio a Inertia.
+Muestra:
 
-## Exportacion
+- Ventas confirmadas (`registrada`).
+- Ventas en revision (`en_revision`).
+- Ventas canceladas o incompletas (`cancelada`, `incompleta`).
+- Ventas online (`tiv_ven = online`).
+- Ventas desde reservas (`tiv_ven = reserva`).
+- Total vendido.
+- Productos mas vendidos.
+- Ventas por vendedor.
+- Ventas por metodo de pago.
+- Ultimas ventas del filtro.
 
-Pendiente:
+Graficos:
 
-- Exportacion de reportes a PDF/Excel/CSV.
+- Donut de estados de ventas.
+- Donut de origen de ventas.
+- Tendencia de ventas por fecha.
+- Barras de productos mas vendidos.
 
-No se implemento exportacion en esta fase porque no existia soporte previo consolidado y el objetivo actual es consulta operativa en pantalla.
+### Reservas
+
+Muestra estados actuales del flujo:
+
+- `por_procesar`
+- `confirmada`
+- `lista_recojo`
+- `completada`
+- `cancelada`
+- `vencida`
+- `rechazada`
+
+Tambien muestra prendas mas reservadas y reservas recientes. Una reserva vigente puede mostrarse como vencida visualmente si supera `fec_limite_recojo_res` o, como respaldo, `ven_res`.
+
+Se corrigio el uso anterior de `est_res = activa`; el reporte ya no depende de ese estado antiguo.
+
+Graficos:
+
+- Donut de reservas por estado.
+- Barras de productos mas reservados.
+
+### Pagos
+
+Combina pagos de:
+
+- `venta_pagos`
+- `reserva_pagos`
+
+Muestra:
+
+- Pagos pendientes de revision (`pendiente_revision`).
+- Pagos confirmados (`confirmado`).
+- Pagos rechazados (`rechazado`).
+- Montos declarados.
+- Montos verificados o confirmados.
+- Pagos por metodo.
+- Pagos recientes.
+
+Graficos:
+
+- Donut de pagos por estado.
+- Barras de pagos por metodo.
+
+### Inventario
+
+Muestra:
+
+- Stock disponible desde `inventarios.cdi_inv`.
+- Stock comprometido desde `inventarios.cre_inv`.
+- Productos sin stock.
+- Productos con bajo stock.
+- Variantes sin inventario.
+- Stock por categoria.
+- Stock por marca.
+- Stock por ubicacion.
+- Variantes con alerta de stock.
+
+La regla operativa de bajo stock es: `cdi_inv > 0` y `cdi_inv <= 3`.
+
+Graficos:
+
+- Donut de stock operativo.
+- Barras de stock por categoria.
+
+### Clientes
+
+Muestra clientes frecuentes combinando:
+
+- Compras asociadas al cliente.
+- Reservas asociadas al cliente.
+
+El ranking se calcula por cantidad total de movimientos: compras mas reservas.
+
+Graficos:
+
+- Barras de clientes frecuentes.
+
+### Catalogo
+
+Mantiene informacion de catalogo y favoritos:
+
+- Prendas por categoria.
+- Prendas por marca.
+- Prendas por temporada.
+- Favoritos por prenda.
+
+## Pendientes fuera de esta fase
+
+- Exportacion PDF.
+- Exportacion Excel.
+- CSV temporal.
+- Tabla `audit_logs`.
+- Observers/events de auditoria.
+- Triggers PostgreSQL.
+- Copias de seguridad.
+- Historial persistente de backups.
+- Logs transaccionales con valores anteriores y nuevos.
+
+## Verificacion de la fase
+
+Para esta fase se debe verificar:
+
+- `./vendor/bin/sail artisan route:list`
+- `npm run build`
+- `./vendor/bin/sail php -l app/Services/Superadmin/ReportQueryService.php`
+
+No se debe ejecutar `npm run dev` ni `sail npm run dev`.

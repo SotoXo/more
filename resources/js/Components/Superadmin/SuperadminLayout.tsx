@@ -16,7 +16,7 @@ export default function SuperadminLayout({
     children: ReactNode;
 }) {
     const page = usePage();
-    const pathname = page.url.split('?')[0];
+    const currentUrl = page.url;
     const [mobileOpen, setMobileOpen] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
     const [theme, setTheme] = useState<AdminTheme>('dark');
@@ -49,7 +49,7 @@ export default function SuperadminLayout({
                 >
                     <aside className="sa-sidebar-shell relative z-40 hidden xl:block">
                         <SuperadminSidebar
-                            currentPath={pathname}
+                            currentPath={currentUrl}
                             collapsed={collapsed}
                             onToggleCollapse={() => setCollapsed((value) => !value)}
                         />
@@ -72,7 +72,7 @@ export default function SuperadminLayout({
                                     className="sa-sidebar-shell absolute inset-y-0 left-0 w-full max-w-[280px]"
                                 >
                                     <SuperadminSidebar
-                                        currentPath={pathname}
+                                        currentPath={currentUrl}
                                         collapsed={false}
                                         onNavigate={() => setMobileOpen(false)}
                                     />

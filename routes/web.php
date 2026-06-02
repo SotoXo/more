@@ -13,6 +13,7 @@ use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
 use App\Http\Controllers\Superadmin\LogsController as SuperadminLogsController;
 use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
+use App\Http\Controllers\Superadmin\ReportExportController as SuperadminReportExportController;
 use App\Http\Controllers\Superadmin\ReportsController as SuperadminReportsController;
 use App\Http\Controllers\Superadmin\ResourceController as SuperadminResourceController;
 use App\Http\Controllers\Superadmin\SalePickupController as SuperadminSalePickupController;
@@ -82,6 +83,12 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::get('/perfil', [SuperadminProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/perfil', [SuperadminProfileController::class, 'update'])->name('profile.update');
     Route::put('/perfil/password', [SuperadminProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::get('/reportes/exportar/{type}.csv', [SuperadminReportExportController::class, 'csv'])
+        ->whereIn('type', ['ventas', 'reservas', 'pagos', 'inventario', 'clientes'])
+        ->name('reports.export.csv');
+    Route::get('/reportes/imprimir/{type}', [SuperadminReportExportController::class, 'print'])
+        ->whereIn('type', ['ventas', 'reservas', 'pagos', 'inventario', 'clientes'])
+        ->name('reports.print');
     Route::get('/reportes', [SuperadminReportsController::class, 'index'])->name('reports');
     Route::get('/logs', [SuperadminLogsController::class, 'index'])->name('logs');
     Route::get('/comercial/reservas/{reserva}/recibo', [ReceiptController::class, 'adminReservation'])->name('receipts.reservations.show');

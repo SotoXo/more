@@ -20,6 +20,13 @@ export type SuperadminNavItem = {
     badge?: string;
     badgeTone?: SuperadminTone;
     exact?: boolean;
+    children?: SuperadminNavChildItem[];
+};
+
+export type SuperadminNavChildItem = {
+    label: string;
+    href: string;
+    exact?: boolean;
 };
 
 export type SuperadminNavGroup = {

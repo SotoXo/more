@@ -4,6 +4,7 @@ import type {
 } from '@/types/superadmin';
 import {
     BadgeCheck,
+    BarChart3,
     ClipboardList,
     FolderKanban,
     LayoutDashboard,
@@ -16,7 +17,6 @@ import {
     Sparkles,
     Users2,
     Warehouse,
-    BookOpenText,
     ScrollText,
     SwatchBook,
 } from 'lucide-react';
@@ -25,6 +25,8 @@ export const superadminRoutes = {
     dashboard: '/superadmin',
     profile: '/superadmin/perfil',
     reports: '/superadmin/reportes',
+    reportSection: (section: string) =>
+        `/superadmin/reportes?section=${section}`,
     logs: '/superadmin/logs',
     resource: (section: string, resource: string) =>
         `/superadmin/${section}/${resource}`,
@@ -143,7 +145,16 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
             {
                 label: 'Reportes operativos',
                 href: superadminRoutes.reports,
-                icon: BookOpenText,
+                icon: BarChart3,
+                exact: false,
+                children: [
+                    { label: 'Resumen', href: superadminRoutes.reportSection('resumen') },
+                    { label: 'Ventas', href: superadminRoutes.reportSection('ventas') },
+                    { label: 'Reservas', href: superadminRoutes.reportSection('reservas') },
+                    { label: 'Pagos', href: superadminRoutes.reportSection('pagos') },
+                    { label: 'Inventario', href: superadminRoutes.reportSection('inventario') },
+                    { label: 'Clientes', href: superadminRoutes.reportSection('clientes') },
+                ],
             },
             {
                 label: 'Registro de actividad',
