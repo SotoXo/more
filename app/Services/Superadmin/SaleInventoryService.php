@@ -5,11 +5,24 @@ namespace App\Services\Superadmin;
 use App\Models\Inventario;
 use App\Models\PrendaVariante;
 use App\Models\Venta;
+use App\Services\InventoryMovementService;
 use Illuminate\Validation\ValidationException;
 
 class SaleInventoryService
 {
-    public function reserveForSale(PrendaVariante $variant, int $quantity): Inventario
+    public function __construct(
+        private readonly InventoryMovementService $movements,
+    ) {
+    }
+
+    public function reserveForSale(
+        PrendaVariante $variant,
+        int $quantity,
+        ?string $referenciaTipo = null,
+        ?int $referenciaId = null,
+        ?string $descripcion = null,
+        array $metadata = [],
+    ): Inventario
     {
         $inventory = Inventario::query()
             ->where('cod_prenda_variantes_inv', $variant->id_prenda_variante)
@@ -28,14 +41,43 @@ class SaleInventoryService
             ]);
         }
 
+        $cdiAntes = (int) $inventory->cdi_inv;
+        $creAntes = (int) $inventory->cre_inv;
+        $ubicacionAntes = $inventory->ubi_inv;
+
         $inventory->update([
-            'cdi_inv' => ((int) $inventory->cdi_inv) - $quantity,
+            'cdi_inv' => $cdiAntes - $quantity,
         ]);
+
+        $this->movements->venta(
+            $inventory,
+            $quantity,
+            $cdiAntes,
+            (int) $inventory->cdi_inv,
+            $creAntes,
+            (int) $inventory->cre_inv,
+            $referenciaTipo,
+            $referenciaId,
+            $descripcion ?? 'Venta registrada: stock disponible descontado.',
+            $metadata + [
+                'variante_id' => $variant->id_prenda_variante,
+                'sku' => $variant->sku_prv,
+                'ubicacion_antes' => $ubicacionAntes,
+                'ubicacion_despues' => $inventory->ubi_inv,
+            ],
+        );
 
         return $inventory;
     }
 
-    public function separateForOnlineReview(PrendaVariante $variant, int $quantity): Inventario
+    public function separateForOnlineReview(
+        PrendaVariante $variant,
+        int $quantity,
+        ?string $referenciaTipo = null,
+        ?int $referenciaId = null,
+        ?string $descripcion = null,
+        array $metadata = [],
+    ): Inventario
     {
         $inventory = Inventario::query()
             ->where('cod_prenda_variantes_inv', $variant->id_prenda_variante)
@@ -54,10 +96,32 @@ class SaleInventoryService
             ]);
         }
 
+        $cdiAntes = (int) $inventory->cdi_inv;
+        $creAntes = (int) $inventory->cre_inv;
+        $ubicacionAntes = $inventory->ubi_inv;
+
         $inventory->update([
-            'cdi_inv' => ((int) $inventory->cdi_inv) - $quantity,
-            'cre_inv' => ((int) $inventory->cre_inv) + $quantity,
+            'cdi_inv' => $cdiAntes - $quantity,
+            'cre_inv' => $creAntes + $quantity,
         ]);
+
+        $this->movements->ventaEnRevision(
+            $inventory,
+            $quantity,
+            $cdiAntes,
+            (int) $inventory->cdi_inv,
+            $creAntes,
+            (int) $inventory->cre_inv,
+            $referenciaTipo,
+            $referenciaId,
+            $descripcion ?? 'Venta online en revision: stock separado.',
+            $metadata + [
+                'variante_id' => $variant->id_prenda_variante,
+                'sku' => $variant->sku_prv,
+                'ubicacion_antes' => $ubicacionAntes,
+                'ubicacion_despues' => $inventory->ubi_inv,
+            ],
+        );
 
         return $inventory;
     }
@@ -79,7 +143,18 @@ class SaleInventoryService
                 ]);
             }
 
-            $this->reserveForSale($detail->variante, (int) $detail->can_dve);
+            $this->reserveForSale(
+                $detail->variante,
+                (int) $detail->can_dve,
+                'venta',
+                (int) $sale->id_venta,
+                'Venta confirmada: stock disponible descontado.',
+                [
+                    'venta_id' => $sale->id_venta,
+                    'numero_venta' => $sale->nve_ven,
+                    'tipo_venta' => $sale->tiv_ven,
+                ],
+            );
         }
     }
 
@@ -130,10 +205,55 @@ class SaleInventoryService
                 ]);
             }
 
+            $cdiAntes = (int) $inventory->cdi_inv;
+            $creAntes = (int) $inventory->cre_inv;
+            $ubicacionAntes = $inventory->ubi_inv;
+            $cdiDespues = $returnToAvailable ? $cdiAntes + $quantity : $cdiAntes;
+            $creDespues = $reserved - $quantity;
+
             $inventory->update([
-                'cdi_inv' => $returnToAvailable ? ((int) $inventory->cdi_inv) + $quantity : (int) $inventory->cdi_inv,
+                'cdi_inv' => $cdiDespues,
                 'cre_inv' => $reserved - $quantity,
             ]);
+
+            $metadata = [
+                'venta_id' => $sale->id_venta,
+                'numero_venta' => $sale->nve_ven,
+                'tipo_venta' => $sale->tiv_ven,
+                'estado_venta' => $sale->est_ven,
+                'variante_id' => $detail->variante->id_prenda_variante,
+                'sku' => $detail->variante->sku_prv,
+                'ubicacion_antes' => $ubicacionAntes,
+                'ubicacion_despues' => $inventory->ubi_inv,
+            ];
+
+            if ($returnToAvailable) {
+                $this->movements->cancelacionVenta(
+                    $inventory,
+                    $quantity,
+                    $cdiAntes,
+                    (int) $inventory->cdi_inv,
+                    $creAntes,
+                    (int) $inventory->cre_inv,
+                    'venta',
+                    (int) $sale->id_venta,
+                    'Venta online cancelada o incompleta: stock reservado liberado.',
+                    $metadata,
+                );
+            } else {
+                $this->movements->venta(
+                    $inventory,
+                    $quantity,
+                    $cdiAntes,
+                    (int) $inventory->cdi_inv,
+                    $creAntes,
+                    (int) $inventory->cre_inv,
+                    'venta',
+                    (int) $sale->id_venta,
+                    'Venta online confirmada: stock comprometido consumido.',
+                    $metadata,
+                );
+            }
         }
     }
 }

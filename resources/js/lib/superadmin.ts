@@ -21,6 +21,7 @@ import {
     Warehouse,
     ScrollText,
     SwatchBook,
+    History,
 } from 'lucide-react';
 
 export const superadminRoutes = {
@@ -32,6 +33,7 @@ export const superadminRoutes = {
     logs: '/superadmin/logs',
     audit: '/superadmin/auditoria',
     backups: '/superadmin/backups',
+    inventoryMovements: '/superadmin/inventario/movimientos',
     resource: (section: string, resource: string) =>
         `/superadmin/${section}/${resource}`,
     create: (section: string, resource: string) =>
@@ -118,6 +120,13 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
                 label: 'Alertas de stock',
                 href: superadminRoutes.resource('inventario', 'alertas'),
                 icon: PackageSearch,
+                badge: 'Lectura',
+                badgeTone: 'accent',
+            },
+            {
+                label: 'Kardex / Movimientos',
+                href: superadminRoutes.inventoryMovements,
+                icon: History,
                 badge: 'Lectura',
                 badgeTone: 'accent',
             },

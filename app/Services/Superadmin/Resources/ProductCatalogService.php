@@ -8,9 +8,11 @@ use App\Models\DetalleReserva;
 use App\Models\DetalleVenta;
 use App\Models\ImagenPrenda;
 use App\Models\Inventario;
+use App\Models\InventarioMovimiento;
 use App\Models\Prenda;
 use App\Models\PrendaVariante;
 use App\Models\Temporada;
+use App\Services\InventoryMovementService;
 use App\Services\SystemLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -27,6 +29,7 @@ class ProductCatalogService
         private readonly ResourceQueryService $queries,
         private readonly ProductImageService $images,
         private readonly SystemLogService $logs,
+        private readonly InventoryMovementService $movements,
     ) {
     }
 
@@ -243,6 +246,12 @@ class ProductCatalogService
             ]);
         }
 
+        if (InventarioMovimiento::query()->where('cod_prenda_variante_inm', $variant->id_prenda_variante)->exists()) {
+            throw ValidationException::withMessages([
+                'variant_rows' => 'No puedes quitar una variante que ya tiene movimientos Kardex asociados.',
+            ]);
+        }
+
         $variant->loadMissing('inventario', 'imagenes');
 
         if ($variant->imagenes->isNotEmpty()) {
@@ -281,6 +290,8 @@ class ProductCatalogService
             return;
         }
 
+        $this->recordInventoryMovement($inventory, $original, $description);
+
         $metadata = [
             'inventario_id' => $inventory->id_inventario,
             'variante_id' => $inventory->cod_prenda_variantes_inv,
@@ -304,6 +315,74 @@ class ProductCatalogService
             $inventory,
             $metadata,
         );
+    }
+
+    private function recordInventoryMovement(Inventario $inventory, ?array $original, string $description): void
+    {
+        $cdiAntes = (int) ($original['cdi_inv'] ?? 0);
+        $creAntes = (int) ($original['cre_inv'] ?? 0);
+        $cdiDespues = (int) $inventory->cdi_inv;
+        $creDespues = (int) $inventory->cre_inv;
+        $ubicacionAntes = $original['ubi_inv'] ?? null;
+        $ubicacionDespues = $inventory->ubi_inv;
+        $metadata = [
+            'inventario_id' => $inventory->id_inventario,
+            'variante_id' => $inventory->cod_prenda_variantes_inv,
+            'ubicacion_antes' => $ubicacionAntes,
+            'ubicacion_despues' => $ubicacionDespues,
+            'origen' => 'ficha_prenda',
+        ];
+
+        if ($original === null) {
+            if ($cdiDespues !== 0 || $creDespues !== 0) {
+                $this->movements->entrada(
+                    $inventory,
+                    $cdiDespues - $cdiAntes,
+                    $cdiAntes,
+                    $cdiDespues,
+                    $creAntes,
+                    $creDespues,
+                    'prenda_variante',
+                    (int) $inventory->cod_prenda_variantes_inv,
+                    $description,
+                    $metadata,
+                );
+            }
+
+            return;
+        }
+
+        $stockChanged = $cdiAntes !== $cdiDespues || $creAntes !== $creDespues;
+        $locationChanged = (string) ($ubicacionAntes ?? '') !== (string) ($ubicacionDespues ?? '');
+
+        if ($stockChanged) {
+            $this->movements->ajusteManual(
+                $inventory,
+                $cdiDespues - $cdiAntes,
+                $cdiAntes,
+                $cdiDespues,
+                $creAntes,
+                $creDespues,
+                'inventario',
+                (int) $inventory->id_inventario,
+                $description,
+                $metadata,
+            );
+        }
+
+        if ($locationChanged) {
+            $this->movements->cambioUbicacion(
+                $inventory,
+                $cdiAntes,
+                $cdiDespues,
+                $creAntes,
+                $creDespues,
+                'inventario',
+                (int) $inventory->id_inventario,
+                'Ubicacion actualizada desde ficha de prenda.',
+                $metadata,
+            );
+        }
     }
 
     private function variantLabel(PrendaVariante $variant): string

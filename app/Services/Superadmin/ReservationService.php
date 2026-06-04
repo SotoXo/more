@@ -202,7 +202,18 @@ class ReservationService
                     ]);
                 }
 
-                $this->inventory->reserve($variant, $item['quantity']);
+                $this->inventory->reserve(
+                    $variant,
+                    $item['quantity'],
+                    'reserva',
+                    (int) $reservation->id_reserva,
+                    'Reserva creada: stock disponible separado.',
+                    [
+                        'reserva_id' => $reservation->id_reserva,
+                        'numero_reserva' => $reservation->nre_res,
+                        'estado_reserva' => $reservation->est_res,
+                    ],
+                );
                 $price = (float) ($variant->pve_prv ?? 0);
 
                 DetalleReserva::query()->create([
@@ -280,7 +291,7 @@ class ReservationService
             $result = $this->payments->verifyPayment($reservation, $this->pendingPayment($reservation), $confirmedAmount, $observation, $userId);
 
             if (!$result['accepted']) {
-                $this->releaseStock($reservation);
+                    $this->releaseStock($reservation, 'Pago de reserva rechazado: stock reservado liberado.');
             } else {
                 $reservation->refresh();
                 $reservation->update($this->pickup->reservationModelPayload($reservation));
@@ -309,7 +320,7 @@ class ReservationService
         DB::transaction(function () use ($reservation, $observation, $userId) {
             $reservation = Reserva::query()->lockForUpdate()->findOrFail($reservation->id_reserva);
             $this->payments->rejectPayment($reservation, $this->pendingPayment($reservation), $observation, $userId);
-            $this->releaseStock($reservation);
+            $this->releaseStock($reservation, 'Reserva rechazada: stock reservado liberado.');
             $reservation->update(['est_logistico_res' => 'cancelada']);
 
             $this->logs->warning(
@@ -379,7 +390,7 @@ class ReservationService
         }
 
         DB::transaction(function () use ($reservation, $observation) {
-            $this->releaseStock($reservation);
+            $this->releaseStock($reservation, 'Reserva cancelada: stock reservado liberado.');
 
             $reservation->update([
                 'est_res' => 'cancelada',
@@ -477,6 +488,8 @@ class ReservationService
 
             $reservation->loadMissing('detalles.variante');
 
+            $sale = $this->toSale->convert($reservation, $userId);
+
             foreach ($reservation->detalles as $detail) {
                 if (!$detail->variante) {
                     throw ValidationException::withMessages([
@@ -484,10 +497,20 @@ class ReservationService
                     ]);
                 }
 
-                $this->inventory->complete($detail->variante, (int) $detail->can_dre);
+                $this->inventory->complete(
+                    $detail->variante,
+                    (int) $detail->can_dre,
+                    'reserva',
+                    (int) $reservation->id_reserva,
+                    'Reserva recogida y convertida en venta.',
+                    [
+                        'reserva_id' => $reservation->id_reserva,
+                        'numero_reserva' => $reservation->nre_res,
+                        'venta_id' => $sale->id_venta,
+                        'numero_venta' => $sale->nve_ven,
+                    ],
+                );
             }
-
-            $sale = $this->toSale->convert($reservation, $userId);
 
             $reservation->update([
                 'est_res' => 'completada',
@@ -684,7 +707,7 @@ class ReservationService
         }
 
         DB::transaction(function () use ($reservation, $observation) {
-            $this->releaseStock($reservation);
+            $this->releaseStock($reservation, 'Reserva vencida: stock reservado liberado.');
 
             $reservation->update([
                 'est_res' => 'vencida',
@@ -728,12 +751,23 @@ class ReservationService
         return $payment;
     }
 
-    private function releaseStock(Reserva $reservation): void
+    private function releaseStock(Reserva $reservation, string $description): void
     {
         $reservation->loadMissing('detalles.variante');
 
         foreach ($reservation->detalles as $detail) {
-            $this->inventory->release($detail->variante, (int) $detail->can_dre);
+            $this->inventory->release(
+                $detail->variante,
+                (int) $detail->can_dre,
+                'reserva',
+                (int) $reservation->id_reserva,
+                $description,
+                [
+                    'reserva_id' => $reservation->id_reserva,
+                    'numero_reserva' => $reservation->nre_res,
+                    'estado_reserva' => $reservation->est_res,
+                ],
+            );
         }
     }
 

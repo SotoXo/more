@@ -2,7 +2,9 @@
 
 namespace App\Services\Superadmin\Resources;
 
+use App\Models\Inventario;
 use App\Models\Role;
+use App\Services\InventoryMovementService;
 use App\Services\ReceiptService;
 use App\Services\SystemLogService;
 use App\Services\Superadmin\ReservationService;
@@ -10,6 +12,7 @@ use App\Services\Superadmin\SaleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ResourceControllerActions
@@ -29,6 +32,7 @@ class ResourceControllerActions
         private readonly SaleService $sales,
         private readonly ReceiptService $receipts,
         private readonly SystemLogService $logs,
+        private readonly InventoryMovementService $movements,
     ) {
     }
 
@@ -239,6 +243,26 @@ class ResourceControllerActions
         }
 
         $validated = $this->validation->validateWrite($request, $definition);
+
+        if ($this->definitions->definitionKey($definition) === 'inventario.stock') {
+            $record = DB::transaction(function () use ($request, $definition, $validated) {
+                $record = $this->writer->createRecord(
+                    $request,
+                    $definition,
+                    $validated,
+                    fn (Request $request, array $payload, array $validated) => $this->products->createProductRecord($request, $payload, $validated),
+                    fn (array $validated, array $payload) => $this->productImages->createImageRecord($validated, $payload),
+                );
+                $this->recordInventoryCreated($record);
+                $this->logResourceCreated($definition, $record);
+
+                return $record;
+            });
+
+            return redirect($this->definitions->editHref($definition, $this->definitions->recordKey($record)))
+                ->with('success', ucfirst($definition['singular']) . ' creado correctamente.');
+        }
+
         $record = $this->writer->createRecord(
             $request,
             $definition,
@@ -424,6 +448,26 @@ class ResourceControllerActions
         $this->prepareSizeRequest($request, $definition);
         $this->prepareColorRequest($request, $definition, $resolvedRecord);
         $validated = $this->validation->validateWrite($request, $definition, $resolvedRecord);
+
+        if ($definitionKey === 'inventario.stock') {
+            DB::transaction(function () use ($request, $definition, $validated, $resolvedRecord, $original) {
+                $this->writer->updateRecord(
+                    $request,
+                    $definition,
+                    $validated,
+                    $resolvedRecord,
+                    fn (Request $request, $record, array $payload, array $validated) => $this->products->updateProductRecord($request, $record, $payload, $validated),
+                    fn ($record, array $validated, array $payload) => $this->productImages->updateImageRecord($record, $validated, $payload),
+                );
+                $resolvedRecord->refresh();
+                $this->recordInventoryUpdated($resolvedRecord, $original);
+                $this->logResourceUpdated($definition, $resolvedRecord, $original);
+            });
+
+            return redirect($this->definitions->editHref($definition, $this->definitions->recordKey($resolvedRecord)))
+                ->with('success', ucfirst($definition['singular']) . ' actualizado correctamente.');
+        }
+
         $this->writer->updateRecord(
             $request,
             $definition,
@@ -635,6 +679,89 @@ class ResourceControllerActions
                     ],
                 );
             }
+        }
+    }
+
+    private function recordInventoryCreated(mixed $record): void
+    {
+        if (!$record instanceof Inventario) {
+            return;
+        }
+
+        $cdiDespues = (int) $record->cdi_inv;
+        $creDespues = (int) $record->cre_inv;
+
+        if ($cdiDespues === 0 && $creDespues === 0) {
+            return;
+        }
+
+        $this->movements->entrada(
+            $record,
+            $cdiDespues,
+            0,
+            $cdiDespues,
+            0,
+            $creDespues,
+            'inventario',
+            (int) $record->id_inventario,
+            'Stock inicial creado desde Existencias.',
+            [
+                'inventario_id' => $record->id_inventario,
+                'variante_id' => $record->cod_prenda_variantes_inv,
+                'ubicacion_antes' => null,
+                'ubicacion_despues' => $record->ubi_inv,
+                'origen' => 'inventario_stock',
+            ],
+        );
+    }
+
+    private function recordInventoryUpdated(mixed $record, array $original): void
+    {
+        if (!$record instanceof Inventario) {
+            return;
+        }
+
+        $cdiAntes = (int) ($original['cdi_inv'] ?? 0);
+        $creAntes = (int) ($original['cre_inv'] ?? 0);
+        $cdiDespues = (int) $record->cdi_inv;
+        $creDespues = (int) $record->cre_inv;
+        $ubicacionAntes = $original['ubi_inv'] ?? null;
+        $ubicacionDespues = $record->ubi_inv;
+        $metadata = [
+            'inventario_id' => $record->id_inventario,
+            'variante_id' => $record->cod_prenda_variantes_inv,
+            'ubicacion_antes' => $ubicacionAntes,
+            'ubicacion_despues' => $ubicacionDespues,
+            'origen' => 'inventario_stock',
+        ];
+
+        if ($cdiAntes !== $cdiDespues || $creAntes !== $creDespues) {
+            $this->movements->ajusteManual(
+                $record,
+                $cdiDespues - $cdiAntes,
+                $cdiAntes,
+                $cdiDespues,
+                $creAntes,
+                $creDespues,
+                'inventario',
+                (int) $record->id_inventario,
+                'Stock actualizado manualmente desde Existencias.',
+                $metadata,
+            );
+        }
+
+        if ((string) ($ubicacionAntes ?? '') !== (string) ($ubicacionDespues ?? '')) {
+            $this->movements->cambioUbicacion(
+                $record,
+                $cdiAntes,
+                $cdiDespues,
+                $creAntes,
+                $creDespues,
+                'inventario',
+                (int) $record->id_inventario,
+                'Ubicacion actualizada manualmente desde Existencias.',
+                $metadata,
+            );
         }
     }
 

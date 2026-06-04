@@ -48,6 +48,11 @@ class PrendaVariante extends Model
         return $this->hasOne(Inventario::class, 'cod_prenda_variantes_inv', 'id_prenda_variante');
     }
 
+    public function movimientosInventario()
+    {
+        return $this->hasMany(InventarioMovimiento::class, 'cod_prenda_variante_inm', 'id_prenda_variante');
+    }
+
     public function imagenes()
     {
         return $this->hasMany(ImagenPrenda::class, 'cod_prenda_variantes_igp', 'id_prenda_variante');

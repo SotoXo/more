@@ -13,6 +13,7 @@ use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\Superadmin\AuditController as SuperadminAuditController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
 use App\Http\Controllers\Superadmin\DatabaseBackupController as SuperadminDatabaseBackupController;
+use App\Http\Controllers\Superadmin\InventoryMovementController as SuperadminInventoryMovementController;
 use App\Http\Controllers\Superadmin\LogsController as SuperadminLogsController;
 use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
 use App\Http\Controllers\Superadmin\ReportExportController as SuperadminReportExportController;
@@ -99,6 +100,9 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::get('/backups', [SuperadminDatabaseBackupController::class, 'index'])->name('backups');
     Route::post('/backups/generar', [SuperadminDatabaseBackupController::class, 'store'])->name('backups.store');
     Route::get('/backups/{backup}/descargar', [SuperadminDatabaseBackupController::class, 'download'])->whereNumber('backup')->name('backups.download');
+    Route::get('/inventario/movimientos/exportar.csv', [SuperadminInventoryMovementController::class, 'exportCsv'])->name('inventory-movements.export.csv');
+    Route::get('/inventario/movimientos', [SuperadminInventoryMovementController::class, 'index'])->name('inventory-movements.index');
+    Route::get('/inventario/movimientos/{movement}', [SuperadminInventoryMovementController::class, 'show'])->whereNumber('movement')->name('inventory-movements.show');
     Route::get('/comercial/reservas/{reserva}/recibo', [ReceiptController::class, 'adminReservation'])->name('receipts.reservations.show');
     Route::get('/comercial/ventas/{venta}/recibo', [ReceiptController::class, 'adminSale'])->name('receipts.sales.show');
     Route::post('/comercial/ventas/{venta}/lista-recojo', [SuperadminSalePickupController::class, 'markReady'])->name('sales.pickup.ready');

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Venta;
 use App\Models\VentaPago;
 use App\Services\CommercialNotificationService;
+use App\Services\InventoryMovementService;
 use App\Services\SystemLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -24,6 +25,7 @@ class SaleCheckoutService
         private readonly SaleNumberService $numbers,
         private readonly CommercialNotificationService $notifications,
         private readonly SystemLogService $logs,
+        private readonly InventoryMovementService $movements,
     )
     {
     }
@@ -159,10 +161,35 @@ class SaleCheckoutService
                     ]);
                 }
 
+                $cdiAntes = (int) $inventory->cdi_inv;
+                $creAntes = (int) $inventory->cre_inv;
+                $ubicacionAntes = $inventory->ubi_inv;
+
                 $inventory->update([
-                    'cdi_inv' => ((int) $inventory->cdi_inv) - $item['quantity'],
-                    'cre_inv' => ((int) $inventory->cre_inv) + $item['quantity'],
+                    'cdi_inv' => $cdiAntes - $item['quantity'],
+                    'cre_inv' => $creAntes + $item['quantity'],
                 ]);
+
+                $this->movements->ventaEnRevision(
+                    $inventory,
+                    $item['quantity'],
+                    $cdiAntes,
+                    (int) $inventory->cdi_inv,
+                    $creAntes,
+                    (int) $inventory->cre_inv,
+                    'venta',
+                    (int) $sale->id_venta,
+                    'Venta online enviada a revision: stock separado.',
+                    [
+                        'venta_id' => $sale->id_venta,
+                        'numero_venta' => $sale->nve_ven,
+                        'estado' => $sale->est_ven,
+                        'variante_id' => $variant->id_prenda_variante,
+                        'sku' => $variant->sku_prv,
+                        'ubicacion_antes' => $ubicacionAntes,
+                        'ubicacion_despues' => $inventory->ubi_inv,
+                    ],
+                );
 
                 DetalleVenta::query()->create([
                     'cod_ventas_dve' => $sale->id_venta,

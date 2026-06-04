@@ -31,6 +31,12 @@ Alertas de stock ayuda a revisar:
 - variantes sin inventario;
 - prendas sin imagen.
 
+## Kardex de movimientos
+
+El historial operativo de stock se consulta en `/superadmin/inventario/movimientos`. El Kardex registra automaticamente entradas, reservas, ventas, liberaciones, ajustes manuales y cambios de ubicacion que nacen desde cambios reales de inventario.
+
+Ver `DOCUMENTACION/22_kardex_movimientos_inventario.md`.
+
 ## Pendiente
 
-- Historial de movimientos de inventario.
+- Reportes avanzados de rotacion y valorizacion de inventario.

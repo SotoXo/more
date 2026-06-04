@@ -6,6 +6,7 @@ use App\Models\DetalleReserva;
 use App\Models\DetalleVenta;
 use App\Models\Favorito;
 use App\Models\Inventario;
+use App\Models\InventarioMovimiento;
 use App\Models\Prenda;
 use App\Models\PrendaVariante;
 use App\Models\Reserva;
@@ -585,6 +586,9 @@ class ReportQueryService
         $withoutStock = $inventories->where('cdi_inv', 0)->count();
         $lowStock = $inventories->filter(fn (Inventario $inventory) => $inventory->cdi_inv > 0 && $inventory->cdi_inv <= self::LOW_STOCK_LIMIT)->count();
         $variantsWithoutInventory = PrendaVariante::query()->doesntHave('inventario')->count();
+        $recentMovements = InventarioMovimiento::query()
+            ->where('created_at', '>=', Carbon::now(config('app.timezone'))->subDays(7))
+            ->count();
 
         return [
             'key' => 'inventory',
@@ -596,6 +600,7 @@ class ReportQueryService
                 ['label' => 'Sin stock', 'value' => (string) $withoutStock, 'note' => 'Inventarios con disponible en cero.', 'tone' => $withoutStock > 0 ? 'danger' : 'success'],
                 ['label' => 'Bajo stock', 'value' => (string) $lowStock, 'note' => 'Disponible entre 1 y ' . self::LOW_STOCK_LIMIT . ' unidades.', 'tone' => $lowStock > 0 ? 'warning' : 'success'],
                 ['label' => 'Sin inventario', 'value' => (string) $variantsWithoutInventory, 'note' => 'Variantes creadas sin registro en inventarios.', 'tone' => $variantsWithoutInventory > 0 ? 'warning' : 'success'],
+                ['label' => 'Movimientos recientes', 'value' => (string) $recentMovements, 'note' => 'Kardex registrado en los ultimos 7 dias.', 'tone' => 'info', 'href' => '/superadmin/inventario/movimientos'],
             ],
             'charts' => [
                 [

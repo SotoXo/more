@@ -21,6 +21,11 @@ class Inventario extends Model
         return $this->belongsTo(PrendaVariante::class, 'cod_prenda_variantes_inv', 'id_prenda_variante');
     }
 
+    public function movimientos()
+    {
+        return $this->hasMany(InventarioMovimiento::class, 'cod_inventario_inm', 'id_inventario');
+    }
+
     public function stockDisponible(): int
     {
         return max(0, (int) $this->cdi_inv);

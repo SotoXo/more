@@ -184,7 +184,18 @@ class SaleService
                 }
                 $price = (float) ($variant?->pve_prv ?? 0);
 
-                $this->inventory->reserveForSale($variant, $item['quantity']);
+                $this->inventory->reserveForSale(
+                    $variant,
+                    $item['quantity'],
+                    'venta',
+                    (int) $sale->id_venta,
+                    'Venta directa registrada desde panel administrativo.',
+                    [
+                        'venta_id' => $sale->id_venta,
+                        'numero_venta' => $sale->nve_ven,
+                        'tipo_venta' => $sale->tiv_ven,
+                    ],
+                );
 
                 DetalleVenta::query()->create([
                     'cod_ventas_dve' => $sale->id_venta,
