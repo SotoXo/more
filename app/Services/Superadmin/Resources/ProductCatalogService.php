@@ -11,6 +11,7 @@ use App\Models\Inventario;
 use App\Models\Prenda;
 use App\Models\PrendaVariante;
 use App\Models\Temporada;
+use App\Services\SystemLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,7 @@ class ProductCatalogService
         private readonly ResourceDefinitionService $definitions,
         private readonly ResourceQueryService $queries,
         private readonly ProductImageService $images,
+        private readonly SystemLogService $logs,
     ) {
     }
 
@@ -111,7 +113,15 @@ class ProductCatalogService
 
             if ($remove) {
                 if ($variantId && $existingVariants->has($variantId)) {
-                    $this->removeProductVariant($existingVariants->get($variantId));
+                    $variant = $existingVariants->get($variantId);
+                    $this->removeProductVariant($variant);
+                    $this->logs->warning(
+                        'variantes',
+                        'variante_eliminada',
+                        'Variante eliminada desde ficha de prenda: ' . $this->variantLabel($variant) . '.',
+                        $variant,
+                        $this->variantMetadata($variant),
+                    );
                 }
 
                 continue;
@@ -127,6 +137,8 @@ class ProductCatalogService
             if ($variantId && $existingVariants->has($variantId)) {
                 /** @var PrendaVariante $variant */
                 $variant = $existingVariants->get($variantId);
+                $variantOriginal = $variant->getOriginal();
+                $inventoryOriginal = $variant->inventario?->getOriginal();
                 $code = $variant->sku_prv ?: $this->nextVariantInternalCode($baseCode, $usedCodes);
 
                 $variant->update([
@@ -144,11 +156,40 @@ class ProductCatalogService
                 if ($variant->inventario) {
                     $variant->inventario->update($inventoryPayload);
                 } else {
-                    Inventario::query()->create([
+                    $variant->setRelation('inventario', Inventario::query()->create([
                         'cod_prenda_variantes_inv' => $variant->id_prenda_variante,
                         ...$inventoryPayload,
-                    ]);
+                    ]));
                 }
+
+                $variant->refresh();
+                $variant->loadMissing('inventario');
+
+                if ($this->variantWasChanged($variantOriginal, $variant)) {
+                    $this->logs->info(
+                        'variantes',
+                        'variante_actualizada',
+                        'Variante actualizada desde ficha de prenda: ' . $this->variantLabel($variant) . '.',
+                        $variant,
+                        $this->variantMetadata($variant),
+                    );
+                }
+
+                if (array_key_exists('est_prv', $variantOriginal) && (bool) $variantOriginal['est_prv'] !== (bool) $variant->est_prv) {
+                    $active = (bool) $variant->est_prv;
+
+                    $this->logs->warning(
+                        'variantes',
+                        $active ? 'variante_activada' : 'variante_desactivada',
+                        'Variante ' . ($active ? 'activada' : 'desactivada') . ' desde ficha de prenda: ' . $this->variantLabel($variant) . '.',
+                        $variant,
+                        $this->variantMetadata($variant) + [
+                            'estado' => $active ? 'activa' : 'inactiva',
+                        ],
+                    );
+                }
+
+                $this->logInventoryChange($variant->inventario, $inventoryOriginal, 'Stock actualizado desde ficha de prenda.');
             } else {
                 $code = $this->nextVariantInternalCode($baseCode, $usedCodes);
 
@@ -166,10 +207,22 @@ class ProductCatalogService
                     'fec_prv' => Carbon::now(),
                 ]);
 
-                Inventario::query()->create([
+                $inventory = Inventario::query()->create([
                     'cod_prenda_variantes_inv' => $variant->id_prenda_variante,
                     ...$inventoryPayload,
                 ]);
+
+                $variant->setRelation('inventario', $inventory);
+
+                $this->logs->info(
+                    'variantes',
+                    'variante_creada',
+                    'Variante creada desde ficha de prenda: ' . $this->variantLabel($variant) . '.',
+                    $variant,
+                    $this->variantMetadata($variant),
+                );
+
+                $this->logInventoryChange($inventory, null, 'Stock inicial registrado para variante.');
             }
 
             $usedCodes[] = $code;
@@ -200,6 +253,74 @@ class ProductCatalogService
 
         $variant->inventario?->delete();
         $variant->delete();
+    }
+
+    private function variantWasChanged(array $original, PrendaVariante $variant): bool
+    {
+        foreach (['cod_colores_prv', 'cod_tallas_prv', 'sku_prv', 'cob_prv', 'pve_prv', 'cos_prv', 'est_prv'] as $field) {
+            if ((string) ($original[$field] ?? '') !== (string) ($variant->{$field} ?? '')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function logInventoryChange(?Inventario $inventory, ?array $original, string $description): void
+    {
+        if (!$inventory) {
+            return;
+        }
+
+        $changed = $original === null
+            || (int) ($original['cdi_inv'] ?? 0) !== (int) $inventory->cdi_inv
+            || (int) ($original['cre_inv'] ?? 0) !== (int) $inventory->cre_inv
+            || (string) ($original['ubi_inv'] ?? '') !== (string) ($inventory->ubi_inv ?? '');
+
+        if (!$changed) {
+            return;
+        }
+
+        $metadata = [
+            'inventario_id' => $inventory->id_inventario,
+            'variante_id' => $inventory->cod_prenda_variantes_inv,
+            'stock_disponible' => (int) $inventory->cdi_inv,
+            'stock_reservado' => (int) $inventory->cre_inv,
+            'ubicacion' => $inventory->ubi_inv,
+        ];
+
+        if ($original !== null) {
+            $metadata += [
+                'stock_disponible_anterior' => $original['cdi_inv'] ?? null,
+                'stock_reservado_anterior' => $original['cre_inv'] ?? null,
+                'ubicacion_anterior' => $original['ubi_inv'] ?? null,
+            ];
+        }
+
+        $this->logs->info(
+            'inventario',
+            'stock_actualizado_manual',
+            $description . ' Variante #' . $inventory->cod_prenda_variantes_inv . '.',
+            $inventory,
+            $metadata,
+        );
+    }
+
+    private function variantLabel(PrendaVariante $variant): string
+    {
+        return $variant->sku_prv ?: 'Variante #' . $variant->id_prenda_variante;
+    }
+
+    private function variantMetadata(PrendaVariante $variant): array
+    {
+        return [
+            'variante_id' => $variant->id_prenda_variante,
+            'prenda_id' => $variant->cod_prendas_prv,
+            'sku' => $variant->sku_prv,
+            'codigo_barra' => $variant->cob_prv,
+            'precio_venta' => $variant->pve_prv,
+            'activa' => (bool) $variant->est_prv,
+        ];
     }
 
     private function nextVariantInternalCode(string $baseCode, array $usedCodes): string

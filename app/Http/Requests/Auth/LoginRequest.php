@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Services\SystemLogService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -60,6 +61,17 @@ class LoginRequest extends FormRequest
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+
+            app(SystemLogService::class)->warning(
+                'autenticacion',
+                'inicio_sesion_fallido',
+                'Intento fallido de inicio de sesion.',
+                null,
+                [
+                    'email_intentado' => (string) $this->input('email'),
+                    'motivo' => 'credenciales_invalidas',
+                ],
+            );
 
             throw ValidationException::withMessages([
                 'login' => trans('auth.failed'),
@@ -123,6 +135,17 @@ class LoginRequest extends FormRequest
      */
     private function failLogin(string $message): never
     {
+        app(SystemLogService::class)->warning(
+            'autenticacion',
+            'inicio_sesion_fallido',
+            'Intento fallido de inicio de sesion.',
+            Auth::user(),
+            [
+                'email_intentado' => (string) $this->input('email'),
+                'motivo' => $message,
+            ],
+        );
+
         Auth::guard('web')->logout();
         RateLimiter::hit($this->throttleKey());
 

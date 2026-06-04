@@ -4,6 +4,7 @@ namespace App\Services\Superadmin;
 
 use App\Models\Reserva;
 use App\Models\ReservaPago;
+use App\Services\SystemLogService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +12,10 @@ use Illuminate\Validation\ValidationException;
 
 class ReservationPaymentService
 {
+    public function __construct(private readonly SystemLogService $logs)
+    {
+    }
+
     public function registerPayment(Reserva $reservation, UploadedFile $voucher, float $declaredAmount, ?string $method): ReservaPago
     {
         if ($declaredAmount <= 0) {
@@ -33,7 +38,7 @@ class ReservationPaymentService
             ]);
         }
 
-        return ReservaPago::query()->create([
+        $payment = ReservaPago::query()->create([
             'cod_reservas_rpg' => $reservation->id_reserva,
             'monto_declarado_rpg' => $declaredAmount,
             'monto_confirmado_rpg' => 0,
@@ -44,6 +49,22 @@ class ReservationPaymentService
             'est_rpg' => 'pendiente_revision',
             'fec_rpg' => Carbon::now(),
         ]);
+
+        $this->logs->info(
+            'pagos',
+            'comprobante_subido',
+            'Comprobante subido para reserva: ' . $reservation->nre_res . '.',
+            $payment,
+            [
+                'reserva_id' => $reservation->id_reserva,
+                'numero_reserva' => $reservation->nre_res,
+                'monto_declarado' => $declaredAmount,
+                'metodo_pago' => $method,
+                'estado' => $payment->est_rpg,
+            ],
+        );
+
+        return $payment;
     }
 
     public function verifyPayment(Reserva $reservation, ReservaPago $payment, float $confirmedAmount, ?string $observation, int $userId): array
@@ -99,6 +120,22 @@ class ReservationPaymentService
             'fec_verificacion_pago_res' => Carbon::now(),
             'obs_pago_res' => $observation,
         ]);
+
+        $this->logs->info(
+            'pagos',
+            'pago_confirmado',
+            'Pago confirmado para reserva: ' . $reservation->nre_res . '.',
+            $payment,
+            [
+                'reserva_id' => $reservation->id_reserva,
+                'numero_reserva' => $reservation->nre_res,
+                'monto_confirmado' => $confirmedAmount,
+                'monto_pagado' => $paid,
+                'saldo' => $balance,
+                'metodo_pago' => $payment->metodo_pago_rpg,
+                'estado' => 'confirmado',
+            ],
+        );
 
         return ['accepted' => true, 'message' => $balance <= 0 ? 'Pago total confirmado.' : 'Anticipo confirmado.'];
     }
@@ -158,6 +195,22 @@ class ReservationPaymentService
             'obs_pago_res' => $observation ?: $reservation->obs_pago_res,
         ]);
 
+        $this->logs->info(
+            'pagos',
+            'pago_confirmado',
+            'Pago final confirmado para reserva: ' . $reservation->nre_res . '.',
+            $payment,
+            [
+                'reserva_id' => $reservation->id_reserva,
+                'numero_reserva' => $reservation->nre_res,
+                'monto_confirmado' => $amount,
+                'monto_pagado' => $paid,
+                'saldo' => max(0, (float) $reservation->tot_res - $paid),
+                'metodo_pago' => $method,
+                'estado' => 'confirmado',
+            ],
+        );
+
         return $payment;
     }
 
@@ -183,6 +236,19 @@ class ReservationPaymentService
             'fec_verificacion_pago_res' => Carbon::now(),
             'obs_pago_res' => $observation,
         ]);
+
+        $this->logs->warning(
+            'pagos',
+            'pago_rechazado',
+            'Pago rechazado para reserva: ' . $reservation->nre_res . '.',
+            $payment,
+            [
+                'reserva_id' => $reservation->id_reserva,
+                'numero_reserva' => $reservation->nre_res,
+                'metodo_pago' => $payment->metodo_pago_rpg,
+                'estado' => 'rechazado',
+            ],
+        );
     }
 
     private function verificationPayload(Reserva $reservation, float $confirmedAmount, string $status, ?string $observation, int $userId): array

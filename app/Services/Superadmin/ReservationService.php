@@ -8,6 +8,7 @@ use App\Models\Reserva;
 use App\Models\ReservaPago;
 use App\Models\User;
 use App\Services\CommercialNotificationService;
+use App\Services\SystemLogService;
 use App\Services\Superadmin\Resources\AdminFormattingService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
@@ -27,6 +28,7 @@ class ReservationService
         private readonly ReservationToSaleService $toSale,
         private readonly AdminFormattingService $formatting,
         private readonly CommercialNotificationService $notifications,
+        private readonly SystemLogService $logs,
     ) {
     }
 
@@ -220,6 +222,17 @@ class ReservationService
                 $validated['metodo_pago_rpg'] ?? null,
             );
 
+            $this->logs->info(
+                'reservas',
+                'reserva_creada',
+                'Reserva creada y enviada a revision: ' . $reservation->nre_res . '.',
+                $reservation,
+                $this->reservationMetadata($reservation) + [
+                    'items' => $items->count(),
+                    'monto_declarado' => (float) $validated['monto_declarado_rpg'],
+                ],
+            );
+
             DB::afterCommit(function () use ($reservation) {
                 $reservation->loadMissing('cliente');
                 $this->notifications->notifyCustomerReservationCreated($reservation);
@@ -271,6 +284,15 @@ class ReservationService
             } else {
                 $reservation->refresh();
                 $reservation->update($this->pickup->reservationModelPayload($reservation));
+                $this->logs->info(
+                    'reservas',
+                    'reserva_aprobada',
+                    'Reserva aprobada: ' . $reservation->nre_res . '.',
+                    $reservation,
+                    $this->reservationMetadata($reservation) + [
+                        'monto_confirmado' => $confirmedAmount,
+                    ],
+                );
                 DB::afterCommit(function () use ($reservation) {
                     $reservation->refresh();
                     $reservation->loadMissing('cliente');
@@ -289,6 +311,14 @@ class ReservationService
             $this->payments->rejectPayment($reservation, $this->pendingPayment($reservation), $observation, $userId);
             $this->releaseStock($reservation);
             $reservation->update(['est_logistico_res' => 'cancelada']);
+
+            $this->logs->warning(
+                'reservas',
+                'reserva_rechazada',
+                'Reserva rechazada: ' . $reservation->nre_res . '.',
+                $reservation,
+                $this->reservationMetadata($reservation),
+            );
 
             DB::afterCommit(function () use ($reservation) {
                 $reservation->refresh();
@@ -312,6 +342,14 @@ class ReservationService
             'est_res' => 'lista_recojo',
             'est_logistico_res' => 'lista_recojo',
         ]);
+
+        $this->logs->info(
+            'reservas',
+            'reserva_lista_recojo',
+            'Reserva marcada lista para recojo: ' . $reservation->nre_res . '.',
+            $reservation,
+            $this->reservationMetadata($reservation),
+        );
 
         if (!$wasReadyForPickup) {
             $reservation->refresh();
@@ -348,6 +386,14 @@ class ReservationService
                 'est_logistico_res' => 'cancelada',
                 'obs_res' => filled($observation) ? $observation : $reservation->obs_res,
             ]);
+
+            $this->logs->warning(
+                'reservas',
+                'reserva_cancelada',
+                'Reserva cancelada: ' . $reservation->nre_res . '.',
+                $reservation,
+                $this->reservationMetadata($reservation),
+            );
 
             DB::afterCommit(function () use ($reservation) {
                 $reservation->refresh();
@@ -441,7 +487,7 @@ class ReservationService
                 $this->inventory->complete($detail->variante, (int) $detail->can_dre);
             }
 
-            $this->toSale->convert($reservation, $userId);
+            $sale = $this->toSale->convert($reservation, $userId);
 
             $reservation->update([
                 'est_res' => 'completada',
@@ -452,6 +498,31 @@ class ReservationService
                 'saldo_res' => 0,
                 'obs_res' => filled($observation) ? $observation : $reservation->obs_res,
             ]);
+
+            $this->logs->info(
+                'reservas',
+                'reserva_recogida',
+                'Reserva recogida: ' . $reservation->nre_res . '.',
+                $reservation,
+                $this->reservationMetadata($reservation) + [
+                    'venta_id' => $sale->id_venta,
+                    'numero_venta' => $sale->nve_ven,
+                ],
+            );
+
+            $this->logs->info(
+                'ventas',
+                'reserva_convertida_venta',
+                'Reserva convertida en venta: ' . $reservation->nre_res . '.',
+                $sale,
+                [
+                    'reserva_id' => $reservation->id_reserva,
+                    'numero_reserva' => $reservation->nre_res,
+                    'venta_id' => $sale->id_venta,
+                    'numero_venta' => $sale->nve_ven,
+                    'total' => (float) $sale->tot_ven,
+                ],
+            );
 
             DB::afterCommit(function () use ($reservation) {
                 $reservation->refresh();
@@ -511,8 +582,12 @@ class ReservationService
                 ]);
             }
 
-            if (!$this->toSale->saleForReservation($reservation)) {
-                $this->toSale->convert($reservation, $userId, true);
+            $sale = $this->toSale->saleForReservation($reservation);
+            $createdSale = false;
+
+            if (!$sale) {
+                $sale = $this->toSale->convert($reservation, $userId, true);
+                $createdSale = true;
             }
 
             $reservation->update([
@@ -525,6 +600,33 @@ class ReservationService
                 'saldo_res' => 0,
                 'obs_res' => filled($observation) ? $observation : $reservation->obs_res,
             ]);
+
+            $this->logs->info(
+                'reservas',
+                'reserva_recogida',
+                'Reserva corregida como recogida: ' . $reservation->nre_res . '.',
+                $reservation,
+                $this->reservationMetadata($reservation) + [
+                    'venta_id' => $sale?->id_venta,
+                    'numero_venta' => $sale?->nve_ven,
+                ],
+            );
+
+            if ($sale && $createdSale) {
+                $this->logs->info(
+                    'ventas',
+                    'reserva_convertida_venta',
+                    'Reserva vinculada a venta: ' . $reservation->nre_res . '.',
+                    $sale,
+                    [
+                        'reserva_id' => $reservation->id_reserva,
+                        'numero_reserva' => $reservation->nre_res,
+                        'venta_id' => $sale->id_venta,
+                        'numero_venta' => $sale->nve_ven,
+                        'total' => (float) $sale->tot_ven,
+                    ],
+                );
+            }
 
         });
     }
@@ -589,6 +691,14 @@ class ReservationService
                 'est_logistico_res' => 'vencida',
                 'obs_res' => filled($observation) ? $observation : $reservation->obs_res,
             ]);
+
+            $this->logs->warning(
+                'reservas',
+                'reserva_vencida',
+                'Reserva marcada como vencida: ' . $reservation->nre_res . '.',
+                $reservation,
+                $this->reservationMetadata($reservation),
+            );
         });
     }
 
@@ -636,6 +746,22 @@ class ReservationService
             && $user->rol !== null
             && $user->rol->isActive()
             && mb_strtolower((string) $user->rol->nom_rol, 'UTF-8') === 'cliente';
+    }
+
+    private function reservationMetadata(Reserva $reservation): array
+    {
+        return [
+            'reserva_id' => $reservation->id_reserva,
+            'numero_reserva' => $reservation->nre_res,
+            'cliente_id' => $reservation->cod_usuario_cliente_res,
+            'responsable_id' => $reservation->cod_usuario_responsable_res,
+            'estado' => $reservation->est_res,
+            'estado_pago' => $reservation->est_pago_res,
+            'estado_logistico' => $reservation->est_logistico_res,
+            'total' => (float) $reservation->tot_res,
+            'monto_pagado' => (float) $reservation->monto_pagado_res,
+            'saldo' => (float) $reservation->saldo_res,
+        ];
     }
 
     private function customerOptions(): array

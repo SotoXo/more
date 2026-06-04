@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Venta;
 use App\Models\VentaPago;
 use App\Services\CommercialNotificationService;
+use App\Services\SystemLogService;
 use App\Services\Superadmin\Resources\AdminFormattingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -24,6 +25,7 @@ class SaleService
         private readonly PickupLogisticsService $pickup,
         private readonly AdminFormattingService $formatting,
         private readonly CommercialNotificationService $notifications,
+        private readonly SystemLogService $logs,
     ) {
     }
 
@@ -194,6 +196,16 @@ class SaleService
                 ]);
             }
 
+            $this->logs->info(
+                'ventas',
+                'venta_creada',
+                'Venta registrada: ' . $sale->nve_ven . '.',
+                $sale,
+                $this->saleMetadata($sale) + [
+                    'items' => $items->count(),
+                ],
+            );
+
             return $sale->load(['cliente', 'vendedor', 'detalles.variante.prenda', 'detalles.variante.color', 'detalles.variante.talla']);
         });
     }
@@ -258,6 +270,32 @@ class SaleService
                 'obs_vpg' => $observation,
             ]);
 
+            $this->logs->info(
+                'ventas',
+                'venta_confirmada',
+                'Venta online confirmada: ' . $sale->nve_ven . '.',
+                $sale,
+                $this->saleMetadata($sale) + [
+                    'monto_verificado' => $amount,
+                ],
+            );
+
+            if ($payment) {
+                $this->logs->info(
+                    'pagos',
+                    'pago_confirmado',
+                    'Pago confirmado para venta: ' . $sale->nve_ven . '.',
+                    $payment,
+                    [
+                        'venta_id' => $sale->id_venta,
+                        'numero_venta' => $sale->nve_ven,
+                        'monto_verificado' => $amount,
+                        'metodo_pago' => $payment->metodo_pago_vpg,
+                        'estado' => 'confirmado',
+                    ],
+                );
+            }
+
             DB::afterCommit(function () use ($sale) {
                 $sale->refresh();
                 $sale->loadMissing('cliente');
@@ -307,6 +345,32 @@ class SaleService
                     'fec_verificacion_vpg' => Carbon::now(),
                     'obs_vpg' => $observation ?: 'Monto verificado menor al total de la compra.',
                 ]);
+            }
+
+            $this->logs->warning(
+                'ventas',
+                'venta_incompleta',
+                'Venta online marcada como incompleta: ' . $sale->nve_ven . '.',
+                $sale,
+                $this->saleMetadata($sale) + [
+                    'monto_verificado' => round($verifiedAmount, 2),
+                ],
+            );
+
+            if ($payment) {
+                $this->logs->warning(
+                    'pagos',
+                    'pago_rechazado',
+                    'Pago rechazado por venta incompleta: ' . $sale->nve_ven . '.',
+                    $payment,
+                    [
+                        'venta_id' => $sale->id_venta,
+                        'numero_venta' => $sale->nve_ven,
+                        'monto_verificado' => round($verifiedAmount, 2),
+                        'metodo_pago' => $payment->metodo_pago_vpg,
+                        'estado' => 'rechazado',
+                    ],
+                );
             }
 
             DB::afterCommit(function () use ($sale) {
@@ -371,6 +435,29 @@ class SaleService
                 ]);
             }
 
+            $this->logs->warning(
+                'ventas',
+                'venta_cancelada',
+                'Venta online cancelada: ' . $sale->nve_ven . '.',
+                $sale,
+                $this->saleMetadata($sale),
+            );
+
+            if ($payment) {
+                $this->logs->warning(
+                    'pagos',
+                    'pago_rechazado',
+                    'Pago rechazado por venta cancelada: ' . $sale->nve_ven . '.',
+                    $payment,
+                    [
+                        'venta_id' => $sale->id_venta,
+                        'numero_venta' => $sale->nve_ven,
+                        'metodo_pago' => $payment->metodo_pago_vpg,
+                        'estado' => 'rechazado',
+                    ],
+                );
+            }
+
             DB::afterCommit(function () use ($sale) {
                 $sale->refresh();
                 $sale->loadMissing('cliente');
@@ -384,6 +471,21 @@ class SaleService
         return $sale->pagos
             ? $sale->pagos->sortByDesc('id_venta_pago')->first()
             : $sale->pagos()->orderByDesc('id_venta_pago')->first();
+    }
+
+    private function saleMetadata(Venta $sale): array
+    {
+        return [
+            'venta_id' => $sale->id_venta,
+            'numero_venta' => $sale->nve_ven,
+            'cliente_id' => $sale->cod_usuario_cliente_ven,
+            'vendedor_id' => $sale->cod_usuario_vendedor_ven,
+            'tipo' => $sale->tiv_ven,
+            'estado' => $sale->est_ven,
+            'estado_logistico' => $sale->est_logistico_ven,
+            'total' => (float) $sale->tot_ven,
+            'metodo_pago' => $sale->mpa_ven,
+        ];
     }
 
     private function customerOptions(): array

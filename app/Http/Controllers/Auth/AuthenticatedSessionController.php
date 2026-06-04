@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\SystemLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,17 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
+
+        app(SystemLogService::class)->info(
+            'autenticacion',
+            'inicio_sesion',
+            'Inicio de sesion exitoso.',
+            $user,
+            [
+                'destino_intencionado' => $request->session()->get('url.intended'),
+            ],
+        );
+
         $intended = $request->session()->get('url.intended');
         $intendedIsSuperadmin = $this->isSuperadminPath($intended);
 
@@ -66,6 +78,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        app(SystemLogService::class)->info(
+            'autenticacion',
+            'cierre_sesion',
+            'Cierre de sesion.',
+            $request->user(),
+        );
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

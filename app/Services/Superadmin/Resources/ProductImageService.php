@@ -4,6 +4,7 @@ namespace App\Services\Superadmin\Resources;
 
 use App\Models\ImagenPrenda;
 use App\Models\Prenda;
+use App\Services\SystemLogService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,7 @@ class ProductImageService
 {
     public function __construct(
         private readonly AdminFormattingService $formatting,
+        private readonly SystemLogService $logs,
     ) {
     }
 
@@ -27,6 +29,14 @@ class ProductImageService
         if ($wasPrimary) {
             $this->ensurePrimaryImage((int) $productId);
         }
+
+        $this->logs->warning(
+            'imagenes',
+            'imagen_eliminada',
+            'Imagen de prenda eliminada.',
+            $record,
+            $this->imageMetadata($record),
+        );
     }
 
     public function createImageRecord(array $validated, array $payload): ImagenPrenda
@@ -38,7 +48,7 @@ class ProductImageService
         );
 
         try {
-            return DB::transaction(function () use ($payload, $storedPath) {
+            $image = DB::transaction(function () use ($payload, $storedPath) {
                 $image = ImagenPrenda::query()->create([
                     ...$payload,
                     'rut_igp' => $storedPath,
@@ -50,6 +60,16 @@ class ProductImageService
 
                 return $image;
             });
+
+            $this->logs->info(
+                'imagenes',
+                'imagen_agregada',
+                'Imagen agregada a prenda.',
+                $image,
+                $this->imageMetadata($image),
+            );
+
+            return $image;
         } catch (\Throwable $exception) {
             $this->deleteImageFile($storedPath);
 
@@ -78,9 +98,17 @@ class ProductImageService
                 }
 
                 $image->delete();
+                $this->logs->warning(
+                    'imagenes',
+                    'imagen_eliminada',
+                    'Imagen eliminada desde ficha de prenda.',
+                    $image,
+                    $this->imageMetadata($image),
+                );
                 continue;
             }
 
+            $original = $image->getOriginal();
             $image->update([
                 'pri_igp' => (bool) ($row['pri_igp'] ?? false),
                 'ord_igp' => (int) ($row['ord_igp'] ?? 0),
@@ -88,6 +116,16 @@ class ProductImageService
             ]);
 
             $this->syncPrimaryImage($image->fresh());
+
+            if ($this->imageWasChanged($original, $image->fresh())) {
+                $this->logs->info(
+                    'imagenes',
+                    'imagen_actualizada',
+                    'Imagen de prenda actualizada.',
+                    $image,
+                    $this->imageMetadata($image->fresh()),
+                );
+            }
         }
     }
 
@@ -118,6 +156,13 @@ class ProductImageService
             ]);
 
             $this->syncPrimaryImage($image);
+            $this->logs->info(
+                'imagenes',
+                'imagen_agregada',
+                'Imagen de galeria agregada a prenda.',
+                $image,
+                $this->imageMetadata($image),
+            );
         }
     }
 
@@ -144,6 +189,8 @@ class ProductImageService
             ->first();
 
         if ($currentPrimary) {
+            $original = $currentPrimary->getOriginal();
+
             if ($currentPrimary->rut_igp && $currentPrimary->rut_igp !== $storedPath) {
                 $deleteAfterSuccess[] = $currentPrimary->rut_igp;
             }
@@ -158,6 +205,16 @@ class ProductImageService
             ]);
 
             $this->syncPrimaryImage($currentPrimary->fresh());
+            $this->logs->info(
+                'imagenes',
+                'imagen_actualizada',
+                'Imagen principal de prenda actualizada.',
+                $currentPrimary,
+                $this->imageMetadata($currentPrimary->fresh()) + [
+                    'imagen_reemplazada' => true,
+                    'datos_actualizados' => $this->imageWasChanged($original, $currentPrimary->fresh()),
+                ],
+            );
 
             return;
         }
@@ -174,6 +231,13 @@ class ProductImageService
         ]);
 
         $this->syncPrimaryImage($image);
+        $this->logs->info(
+            'imagenes',
+            'imagen_agregada',
+            'Imagen principal agregada a prenda.',
+            $image,
+            $this->imageMetadata($image),
+        );
     }
 
     public function updateImageRecord(ImagenPrenda $record, array $validated, array $payload): void
@@ -206,6 +270,8 @@ class ProductImageService
         }
 
         try {
+            $original = $record->getOriginal();
+
             DB::transaction(function () use ($record, $payload, $oldProductId) {
                 $record->update($payload);
                 $freshRecord = $record->fresh();
@@ -224,6 +290,17 @@ class ProductImageService
         if ($newPath && $oldPath && $oldPath !== $newPath) {
             $this->deleteImageFile($oldPath);
         }
+
+        $this->logs->info(
+            'imagenes',
+            'imagen_actualizada',
+            'Imagen de prenda actualizada.',
+            $record,
+            $this->imageMetadata($record->fresh()) + [
+                'imagen_reemplazada' => $newPath !== null && $newPath !== $oldPath,
+                'datos_actualizados' => $this->imageWasChanged($original, $record->fresh()),
+            ],
+        );
     }
 
     private function syncPrimaryImage(?ImagenPrenda $image): void
@@ -301,5 +378,36 @@ class ProductImageService
         }
 
         Storage::disk('public')->delete($path);
+    }
+
+    private function imageMetadata(?ImagenPrenda $image): array
+    {
+        if (!$image) {
+            return [];
+        }
+
+        return [
+            'imagen_id' => $image->id_imagen_prenda,
+            'prenda_id' => $image->cod_prendas_igp,
+            'variante_id' => $image->cod_prenda_variantes_igp,
+            'principal' => (bool) $image->pri_igp,
+            'orden' => (int) $image->ord_igp,
+            'fuente' => $image->fue_igp,
+        ];
+    }
+
+    private function imageWasChanged(array $original, ?ImagenPrenda $image): bool
+    {
+        if (!$image) {
+            return false;
+        }
+
+        foreach (['cod_prendas_igp', 'cod_prenda_variantes_igp', 'pri_igp', 'ord_igp', 'fue_igp'] as $field) {
+            if ((string) ($original[$field] ?? '') !== (string) ($image->{$field} ?? '')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

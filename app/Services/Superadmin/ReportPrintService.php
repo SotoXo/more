@@ -3,18 +3,32 @@
 namespace App\Services\Superadmin;
 
 use App\Models\User;
+use App\Services\SystemLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class ReportPrintService
 {
-    public function __construct(private readonly ReportQueryService $reports)
-    {
+    public function __construct(
+        private readonly ReportQueryService $reports,
+        private readonly SystemLogService $logs,
+    ) {
     }
 
     public function payload(string $type, Request $request): array
     {
         $dataset = $this->reports->exportDataset($type, $request);
+
+        $this->logs->info(
+            'reportes',
+            'vista_imprimible_abierta',
+            'Vista imprimible abierta: ' . $dataset['title'] . '.',
+            null,
+            [
+                'tipo' => $type,
+                'filas' => count($dataset['rows']),
+            ],
+        );
 
         return [
             'report' => [

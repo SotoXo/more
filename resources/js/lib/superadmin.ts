@@ -14,6 +14,7 @@ import {
     Ruler,
     ShieldCheck,
     Shirt,
+    ShieldAlert,
     Sparkles,
     Users2,
     Warehouse,
@@ -28,6 +29,7 @@ export const superadminRoutes = {
     reportSection: (section: string) =>
         `/superadmin/reportes?section=${section}`,
     logs: '/superadmin/logs',
+    audit: '/superadmin/auditoria',
     resource: (section: string, resource: string) =>
         `/superadmin/${section}/${resource}`,
     create: (section: string, resource: string) =>
@@ -160,6 +162,11 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
                 label: 'Registro de actividad',
                 href: superadminRoutes.logs,
                 icon: ScrollText,
+            },
+            {
+                label: 'Auditoría crítica',
+                href: superadminRoutes.audit,
+                icon: ShieldAlert,
             },
         ],
     },

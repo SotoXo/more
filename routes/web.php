@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PrendaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\Superadmin\AuditController as SuperadminAuditController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
 use App\Http\Controllers\Superadmin\LogsController as SuperadminLogsController;
 use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
@@ -91,6 +92,9 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
         ->name('reports.print');
     Route::get('/reportes', [SuperadminReportsController::class, 'index'])->name('reports');
     Route::get('/logs', [SuperadminLogsController::class, 'index'])->name('logs');
+    Route::get('/logs/{log}', [SuperadminLogsController::class, 'show'])->whereNumber('log')->name('logs.show');
+    Route::get('/auditoria', [SuperadminAuditController::class, 'index'])->name('audit');
+    Route::get('/auditoria/{auditLog}', [SuperadminAuditController::class, 'show'])->whereNumber('auditLog')->name('audit.show');
     Route::get('/comercial/reservas/{reserva}/recibo', [ReceiptController::class, 'adminReservation'])->name('receipts.reservations.show');
     Route::get('/comercial/ventas/{venta}/recibo', [ReceiptController::class, 'adminSale'])->name('receipts.sales.show');
     Route::post('/comercial/ventas/{venta}/lista-recojo', [SuperadminSalePickupController::class, 'markReady'])->name('sales.pickup.ready');

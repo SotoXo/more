@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Venta;
 use App\Models\VentaPago;
 use App\Services\CommercialNotificationService;
+use App\Services\SystemLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,7 @@ class SaleCheckoutService
     public function __construct(
         private readonly SaleNumberService $numbers,
         private readonly CommercialNotificationService $notifications,
+        private readonly SystemLogService $logs,
     )
     {
     }
@@ -172,7 +174,7 @@ class SaleCheckoutService
                 ]);
             }
 
-            VentaPago::query()->create([
+            $payment = VentaPago::query()->create([
                 'cod_ventas_vpg' => $sale->id_venta,
                 'monto_declarado_vpg' => $declared,
                 'monto_verificado_vpg' => 0,
@@ -182,6 +184,35 @@ class SaleCheckoutService
                 'est_vpg' => 'pendiente_revision',
                 'fec_vpg' => Carbon::now(),
             ]);
+
+            $this->logs->info(
+                'ventas',
+                'compra_online_enviada_revision',
+                'Compra online enviada a revision: ' . $sale->nve_ven . '.',
+                $sale,
+                [
+                    'venta_id' => $sale->id_venta,
+                    'numero_venta' => $sale->nve_ven,
+                    'cliente_id' => $sale->cod_usuario_cliente_ven,
+                    'total' => (float) $sale->tot_ven,
+                    'estado' => $sale->est_ven,
+                    'items' => $items->count(),
+                ],
+            );
+
+            $this->logs->info(
+                'pagos',
+                'comprobante_subido',
+                'Comprobante subido para compra online: ' . $sale->nve_ven . '.',
+                $payment,
+                [
+                    'venta_id' => $sale->id_venta,
+                    'numero_venta' => $sale->nve_ven,
+                    'monto_declarado' => $declared,
+                    'metodo_pago' => $validated['metodo_pago'],
+                    'estado' => $payment->est_vpg,
+                ],
+            );
 
             DB::afterCommit(function () use ($sale) {
                 $sale->loadMissing('cliente');

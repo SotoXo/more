@@ -4,6 +4,7 @@ namespace App\Services\Superadmin\Resources;
 
 use App\Models\Role;
 use App\Services\ReceiptService;
+use App\Services\SystemLogService;
 use App\Services\Superadmin\ReservationService;
 use App\Services\Superadmin\SaleService;
 use Illuminate\Http\JsonResponse;
@@ -27,6 +28,7 @@ class ResourceControllerActions
         private readonly ReservationService $reservations,
         private readonly SaleService $sales,
         private readonly ReceiptService $receipts,
+        private readonly SystemLogService $logs,
     ) {
     }
 
@@ -244,6 +246,7 @@ class ResourceControllerActions
             fn (Request $request, array $payload, array $validated) => $this->products->createProductRecord($request, $payload, $validated),
             fn (array $validated, array $payload) => $this->productImages->createImageRecord($validated, $payload),
         );
+        $this->logResourceCreated($definition, $record);
 
         return redirect($this->definitions->editHref($definition, $this->definitions->recordKey($record)))
             ->with('success', ucfirst($definition['singular']) . ' creado correctamente.');
@@ -264,6 +267,7 @@ class ResourceControllerActions
             fn (Request $request, array $payload, array $validated) => $this->products->createProductRecord($request, $payload, $validated),
             fn (array $validated, array $payload) => $this->productImages->createImageRecord($validated, $payload),
         );
+        $this->logResourceCreated($definition, $record);
 
         return response()->json([
             'message' => ucfirst($definition['singular']) . ' creado correctamente.',
@@ -285,6 +289,7 @@ class ResourceControllerActions
         );
 
         $resolvedRecord = $this->queries->resolveRecord($definition, $record);
+        $original = method_exists($resolvedRecord, 'getOriginal') ? $resolvedRecord->getOriginal() : [];
 
         if ($definitionKey === 'comercial.reservas') {
             if ($request->input('reservation_action') === 'add_payment') {
@@ -427,6 +432,8 @@ class ResourceControllerActions
             fn (Request $request, $record, array $payload, array $validated) => $this->products->updateProductRecord($request, $record, $payload, $validated),
             fn ($record, array $validated, array $payload) => $this->productImages->updateImageRecord($record, $validated, $payload),
         );
+        $resolvedRecord->refresh();
+        $this->logResourceUpdated($definition, $resolvedRecord, $original);
 
         return redirect($this->definitions->editHref($definition, $this->definitions->recordKey($resolvedRecord)))
             ->with('success', ucfirst($definition['singular']) . ' actualizado correctamente.');
@@ -452,6 +459,8 @@ class ResourceControllerActions
                 ->with('error', 'No se pudo eliminar el registro porque tiene dependencias asociadas.');
         }
 
+        $this->logResourceDeleted($definition, $resolvedRecord);
+
         return redirect($this->definitions->indexHref($definition))
             ->with('success', ucfirst($definition['singular']) . ' eliminado correctamente.');
     }
@@ -465,6 +474,272 @@ class ResourceControllerActions
         }
 
         return null;
+    }
+
+    private function logResourceCreated(array $definition, mixed $record): void
+    {
+        if ($this->definitions->definitionKey($definition) === 'catalogo.imagenes') {
+            return;
+        }
+
+        [$module, $action] = $this->resourceLogAction($definition, 'created');
+
+        $this->logs->info(
+            $module,
+            $action,
+            ucfirst($definition['singular']) . ' creado: ' . $this->recordLabelForLog($definition, $record) . '.',
+            $record,
+            $this->resourceMetadata($definition, $record),
+        );
+    }
+
+    private function logResourceUpdated(array $definition, mixed $record, array $original): void
+    {
+        $key = $this->definitions->definitionKey($definition);
+
+        if ($key === 'catalogo.imagenes') {
+            return;
+        }
+
+        if ($key !== 'inventario.stock') {
+            [$module, $action] = $this->resourceLogAction($definition, 'updated');
+
+            $this->logs->info(
+                $module,
+                $action,
+                ucfirst($definition['singular']) . ' actualizado: ' . $this->recordLabelForLog($definition, $record) . '.',
+                $record,
+                $this->resourceMetadata($definition, $record),
+            );
+        }
+
+        $this->logSpecificResourceUpdates($definition, $record, $original);
+    }
+
+    private function logResourceDeleted(array $definition, mixed $record): void
+    {
+        if ($this->definitions->definitionKey($definition) === 'catalogo.imagenes') {
+            return;
+        }
+
+        [$module, $action] = $this->resourceLogAction($definition, 'deleted');
+
+        $this->logs->warning(
+            $module,
+            $action,
+            ucfirst($definition['singular']) . ' eliminado: ' . $this->recordLabelForLog($definition, $record) . '.',
+            $record,
+            $this->resourceMetadata($definition, $record),
+        );
+    }
+
+    private function logSpecificResourceUpdates(array $definition, mixed $record, array $original): void
+    {
+        $key = $this->definitions->definitionKey($definition);
+
+        if ($key === 'seguridad.usuarios') {
+            if (array_key_exists('est_usu', $original) && (bool) $original['est_usu'] !== (bool) $record->est_usu) {
+                $active = (bool) $record->est_usu;
+
+                $this->logs->warning(
+                    'usuarios',
+                    $active ? 'usuario_activado' : 'usuario_desactivado',
+                    'Usuario ' . ($active ? 'activado' : 'desactivado') . ': ' . $this->recordLabelForLog($definition, $record) . '.',
+                    $record,
+                    $this->resourceMetadata($definition, $record) + [
+                        'estado' => $active ? 'activo' : 'inactivo',
+                    ],
+                );
+            }
+
+            if (array_key_exists('cod_roles_usu', $original) && (int) ($original['cod_roles_usu'] ?? 0) !== (int) ($record->cod_roles_usu ?? 0)) {
+                $record->loadMissing('rol');
+
+                $this->logs->warning(
+                    'usuarios',
+                    'cambio_rol',
+                    'Cambio de rol para usuario: ' . $this->recordLabelForLog($definition, $record) . '.',
+                    $record,
+                    $this->resourceMetadata($definition, $record) + [
+                        'rol_anterior_id' => $original['cod_roles_usu'] ?? null,
+                        'rol_nuevo_id' => $record->cod_roles_usu,
+                        'rol_nuevo' => $record->rol?->nom_rol,
+                    ],
+                );
+            }
+
+            return;
+        }
+
+        if ($key === 'catalogo.prendas' && array_key_exists('est_pre', $original) && (bool) $original['est_pre'] !== (bool) $record->est_pre) {
+            $active = (bool) $record->est_pre;
+
+            $this->logs->warning(
+                'prendas',
+                $active ? 'prenda_activada' : 'prenda_desactivada',
+                'Prenda ' . ($active ? 'activada' : 'desactivada') . ': ' . $this->recordLabelForLog($definition, $record) . '.',
+                $record,
+                $this->resourceMetadata($definition, $record) + [
+                    'estado' => $active ? 'activa' : 'inactiva',
+                ],
+            );
+
+            return;
+        }
+
+        if ($key === 'catalogo.variantes' && array_key_exists('est_prv', $original) && (bool) $original['est_prv'] !== (bool) $record->est_prv) {
+            $active = (bool) $record->est_prv;
+
+            $this->logs->warning(
+                'variantes',
+                $active ? 'variante_activada' : 'variante_desactivada',
+                'Variante ' . ($active ? 'activada' : 'desactivada') . ': ' . $this->recordLabelForLog($definition, $record) . '.',
+                $record,
+                $this->resourceMetadata($definition, $record) + [
+                    'estado' => $active ? 'activa' : 'inactiva',
+                ],
+            );
+
+            return;
+        }
+
+        if ($key === 'inventario.stock') {
+            $stockChanged = array_key_exists('cdi_inv', $original) && (int) $original['cdi_inv'] !== (int) $record->cdi_inv;
+            $reservedChanged = array_key_exists('cre_inv', $original) && (int) $original['cre_inv'] !== (int) $record->cre_inv;
+            $locationChanged = array_key_exists('ubi_inv', $original) && (string) ($original['ubi_inv'] ?? '') !== (string) ($record->ubi_inv ?? '');
+
+            if ($stockChanged || $reservedChanged) {
+                $this->logs->warning(
+                    'inventario',
+                    'stock_actualizado_manual',
+                    'Stock actualizado manualmente: ' . $this->recordLabelForLog($definition, $record) . '.',
+                    $record,
+                    $this->resourceMetadata($definition, $record) + [
+                        'stock_disponible_anterior' => $original['cdi_inv'] ?? null,
+                        'stock_disponible_nuevo' => $record->cdi_inv,
+                        'stock_reservado_anterior' => $original['cre_inv'] ?? null,
+                        'stock_reservado_nuevo' => $record->cre_inv,
+                    ],
+                );
+            }
+
+            if ($locationChanged) {
+                $this->logs->info(
+                    'inventario',
+                    'ubicacion_actualizada',
+                    'Ubicacion fisica actualizada: ' . $this->recordLabelForLog($definition, $record) . '.',
+                    $record,
+                    $this->resourceMetadata($definition, $record) + [
+                        'ubicacion_anterior' => $original['ubi_inv'] ?? null,
+                        'ubicacion_nueva' => $record->ubi_inv,
+                    ],
+                );
+            }
+        }
+    }
+
+    private function resourceLogAction(array $definition, string $event): array
+    {
+        $key = $this->definitions->definitionKey($definition);
+
+        $modules = [
+            'seguridad.roles' => 'usuarios',
+            'seguridad.usuarios' => 'usuarios',
+            'catalogo.categorias' => 'catalogo',
+            'catalogo.marcas' => 'catalogo',
+            'catalogo.colores' => 'catalogo',
+            'catalogo.tallas' => 'catalogo',
+            'catalogo.temporadas' => 'catalogo',
+            'catalogo.prendas' => 'prendas',
+            'catalogo.variantes' => 'variantes',
+            'catalogo.imagenes' => 'imagenes',
+            'inventario.stock' => 'inventario',
+        ];
+
+        $actions = [
+            'created' => [
+                'seguridad.roles' => 'rol_creado',
+                'seguridad.usuarios' => 'usuario_creado',
+                'catalogo.categorias' => 'categoria_creada',
+                'catalogo.marcas' => 'marca_creada',
+                'catalogo.colores' => 'color_creado',
+                'catalogo.tallas' => 'talla_creada',
+                'catalogo.temporadas' => 'temporada_creada',
+                'catalogo.prendas' => 'prenda_creada',
+                'catalogo.variantes' => 'variante_creada',
+                'catalogo.imagenes' => 'imagen_agregada',
+                'inventario.stock' => 'stock_creado',
+            ],
+            'updated' => [
+                'seguridad.roles' => 'rol_actualizado',
+                'seguridad.usuarios' => 'usuario_actualizado',
+                'catalogo.categorias' => 'categoria_actualizada',
+                'catalogo.marcas' => 'marca_actualizada',
+                'catalogo.colores' => 'color_actualizado',
+                'catalogo.tallas' => 'talla_actualizada',
+                'catalogo.temporadas' => 'temporada_actualizada',
+                'catalogo.prendas' => 'prenda_actualizada',
+                'catalogo.variantes' => 'variante_actualizada',
+                'catalogo.imagenes' => 'imagen_actualizada',
+                'inventario.stock' => 'stock_actualizado_manual',
+            ],
+            'deleted' => [
+                'seguridad.roles' => 'rol_eliminado',
+                'seguridad.usuarios' => 'usuario_eliminado',
+                'catalogo.categorias' => 'categoria_eliminada',
+                'catalogo.marcas' => 'marca_eliminada',
+                'catalogo.colores' => 'color_eliminado',
+                'catalogo.tallas' => 'talla_eliminada',
+                'catalogo.temporadas' => 'temporada_eliminada',
+                'catalogo.prendas' => 'prenda_eliminada',
+                'catalogo.variantes' => 'variante_eliminada',
+                'catalogo.imagenes' => 'imagen_eliminada',
+                'inventario.stock' => 'stock_eliminado',
+            ],
+        ];
+
+        return [
+            $modules[$key] ?? $definition['sectionKey'],
+            $actions[$event][$key] ?? $definition['resourceKey'] . '_' . $event,
+        ];
+    }
+
+    private function resourceMetadata(array $definition, mixed $record): array
+    {
+        return [
+            'recurso' => $this->definitions->definitionKey($definition),
+            'registro_id' => $this->definitions->recordKey($record),
+            'registro' => $this->recordLabelForLog($definition, $record),
+        ];
+    }
+
+    private function recordLabelForLog(array $definition, mixed $record): string
+    {
+        $key = $this->definitions->definitionKey($definition);
+
+        if ($key === 'seguridad.usuarios' && method_exists($record, 'nombreCompleto')) {
+            return $record->nombreCompleto();
+        }
+
+        $fields = [
+            'seguridad.roles' => ['nom_rol'],
+            'catalogo.categorias' => ['nom_cat'],
+            'catalogo.marcas' => ['nom_mar'],
+            'catalogo.colores' => ['nom_col'],
+            'catalogo.tallas' => ['nom_tal'],
+            'catalogo.temporadas' => ['nom_tem'],
+            'catalogo.prendas' => ['nom_pre'],
+            'catalogo.variantes' => ['sku_prv', 'cob_prv'],
+            'inventario.stock' => ['ubi_inv'],
+        ][$key] ?? [];
+
+        foreach ($fields as $field) {
+            if (filled($record->{$field} ?? null)) {
+                return (string) $record->{$field};
+            }
+        }
+
+        return ucfirst($definition['singular']) . ' #' . $this->definitions->recordKey($record);
     }
 
     private function recordActions(array $definition, mixed $record): array

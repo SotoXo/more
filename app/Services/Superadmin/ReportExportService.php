@@ -2,18 +2,33 @@
 
 namespace App\Services\Superadmin;
 
+use App\Services\SystemLogService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportExportService
 {
-    public function __construct(private readonly ReportQueryService $reports)
-    {
+    public function __construct(
+        private readonly ReportQueryService $reports,
+        private readonly SystemLogService $logs,
+    ) {
     }
 
     public function csvResponse(string $type, Request $request): StreamedResponse
     {
         $dataset = $this->reports->exportDataset($type, $request);
+
+        $this->logs->info(
+            'exportaciones',
+            'csv_exportado',
+            'CSV exportado: ' . $dataset['title'] . '.',
+            null,
+            [
+                'tipo' => $type,
+                'filename' => $dataset['filename'],
+                'filas' => count($dataset['rows']),
+            ],
+        );
 
         return response()->streamDownload(function () use ($dataset) {
             $output = fopen('php://output', 'w');
