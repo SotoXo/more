@@ -6,6 +6,7 @@ import {
     BadgeCheck,
     BarChart3,
     ClipboardList,
+    DatabaseBackup,
     FolderKanban,
     LayoutDashboard,
     PackageSearch,
@@ -30,6 +31,7 @@ export const superadminRoutes = {
         `/superadmin/reportes?section=${section}`,
     logs: '/superadmin/logs',
     audit: '/superadmin/auditoria',
+    backups: '/superadmin/backups',
     resource: (section: string, resource: string) =>
         `/superadmin/${section}/${resource}`,
     create: (section: string, resource: string) =>
@@ -167,6 +169,11 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
                 label: 'Auditoría crítica',
                 href: superadminRoutes.audit,
                 icon: ShieldAlert,
+            },
+            {
+                label: 'Copias de seguridad',
+                href: superadminRoutes.backups,
+                icon: DatabaseBackup,
             },
         ],
     },
