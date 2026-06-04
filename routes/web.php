@@ -45,7 +45,7 @@ Route::get('/editorial',   [CatalogoController::class, 'editorial'])->name('shop
 // ─── Carrito (sin sesión requerida) ─────────────────────────
 Route::get('/bolsa', [CarritoController::class, 'index'])->name('carrito.index');
 Route::middleware('auth')->post('/bolsa/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
-Route::post('/compras/online', [CompraOnlineController::class, 'store'])->name('compras.online.store');
+Route::middleware('auth')->post('/compras/online', [CompraOnlineController::class, 'store'])->name('compras.online.store');
 Route::get('/carrito', fn () => Inertia::render('CarritoCompra'))->name('compras.carrito');
 Route::middleware('auth')->get('/checkout', fn () => Inertia::render('Checkout'))->name('compras.checkout');
 

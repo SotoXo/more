@@ -150,3 +150,25 @@ La metadata evita contrasenas y solo guarda datos operativos como ID, nombre de 
 - Definir politica de retencion.
 - Evaluar almacenamiento externo o nube.
 - Evaluar triggers PostgreSQL opcionales si se aprueba una fase futura.
+
+## 13. Politica futura de retencion y rotacion
+
+Estado actual:
+
+- Los backups son manuales.
+- Se almacenan en `storage/app/backups/database`.
+- No se guardan en `public/`.
+- La descarga esta protegida por controlador y middleware de superadmin.
+- Se registra `system_log` al generar, fallar o descargar un backup.
+
+Mejoras futuras propuestas:
+
+- Definir una cantidad maxima de backups conservados.
+- Eliminar backups antiguos automaticamente segun una politica de retencion aprobada.
+- Comprimir backups en `.gz` para reducir uso de almacenamiento.
+- Considerar cifrado de backups si se define una politica de custodia externa.
+- Impedir crecimiento excesivo de `storage/app/backups/database`.
+- Programar backups automaticos si se aprueba esa fase.
+- Registrar auditoria adicional si en el futuro se permite eliminar archivos de backup.
+
+Esta fase solo documenta la politica futura. No implementa rotacion, eliminacion automatica, compresion, cifrado ni backups programados.

@@ -27,6 +27,7 @@ class ReportPrintService
             [
                 'tipo' => $type,
                 'filas' => count($dataset['rows']),
+                'filtros' => $this->reports->filtersMetadata($request),
             ],
         );
 

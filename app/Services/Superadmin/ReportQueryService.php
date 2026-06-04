@@ -77,6 +77,27 @@ class ReportQueryService
         return ['ventas', 'reservas', 'pagos', 'inventario', 'clientes'];
     }
 
+    public function filtersMetadata(Request $request): array
+    {
+        $keys = [
+            'period',
+            'date_from',
+            'date_to',
+            'seller',
+            'payment_method',
+            'sale_status',
+            'reservation_status',
+            'customer',
+            'responsible',
+            'section',
+        ];
+
+        return collect($keys)
+            ->mapWithKeys(fn (string $key) => [$key => $this->filterMetadataValue($request->input($key))])
+            ->filter(fn ($value) => $value !== null)
+            ->all();
+    }
+
     private function normalizeExportType(string $type): string
     {
         $type = trim(mb_strtolower(str_replace('.csv', '', $type), 'UTF-8'));
@@ -89,6 +110,35 @@ class ReportQueryService
             'clientes', 'customers' => 'clientes',
             default => $type,
         };
+    }
+
+    private function filterMetadataValue(mixed $value): mixed
+    {
+        if (is_array($value)) {
+            $values = collect($value)
+                ->map(fn ($item) => $this->filterMetadataValue($item))
+                ->filter(fn ($item) => $item !== null)
+                ->values()
+                ->all();
+
+            return $values === [] ? null : $values;
+        }
+
+        if (is_bool($value) || is_int($value) || is_float($value)) {
+            return $value;
+        }
+
+        if ($value instanceof \Stringable) {
+            $value = (string) $value;
+        }
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
     }
 
     private function salesExportDataset(Request $request): array

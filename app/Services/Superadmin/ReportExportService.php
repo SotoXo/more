@@ -27,6 +27,7 @@ class ReportExportService
                 'tipo' => $type,
                 'filename' => $dataset['filename'],
                 'filas' => count($dataset['rows']),
+                'filtros' => $this->reports->filtersMetadata($request),
             ],
         );
 
