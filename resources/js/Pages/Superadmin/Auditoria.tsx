@@ -251,39 +251,39 @@ export default function Auditoria({
                         </div>
                     ) : (
                         <>
-                            <div className="hidden overflow-x-auto lg:block">
-                                <table className="min-w-full divide-y divide-white/8 text-left">
-                                    <thead className="bg-[#0d141d] text-xs uppercase text-stone-400">
+                            <div className="sa-table-scroll hidden sm:block">
+                                <table className="sa-table min-w-[1100px]">
+                                    <thead>
                                         <tr>
-                                            <th className="px-5 py-4 font-medium">Fecha</th>
-                                            <th className="px-5 py-4 font-medium">Usuario</th>
-                                            <th className="px-5 py-4 font-medium">Tabla</th>
-                                            <th className="px-5 py-4 font-medium">Acción</th>
-                                            <th className="px-5 py-4 font-medium">Campos</th>
-                                            <th className="px-5 py-4 font-medium">Nivel</th>
-                                            <th className="px-5 py-4 font-medium">Detalle</th>
+                                            <th>Fecha</th>
+                                            <th>Usuario</th>
+                                            <th>Tabla</th>
+                                            <th>Acción</th>
+                                            <th>Campos</th>
+                                            <th>Nivel</th>
+                                            <th className="text-right">Detalle</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/8">
+                                    <tbody>
                                         {auditLogs.data.map((entry) => (
                                             <tr key={entry.id} className="align-top text-sm text-stone-300">
-                                                <td className="whitespace-nowrap px-5 py-4 text-white">{entry.date}</td>
-                                                <td className="px-5 py-4">{entry.user}</td>
-                                                <td className="px-5 py-4">
+                                                <td className="whitespace-nowrap text-white">{entry.date}</td>
+                                                <td>{entry.user}</td>
+                                                <td>
                                                     <p className="font-medium text-white">{entry.tableLabel}</p>
                                                     <p className="mt-1 text-xs text-stone-400">{entry.record}</p>
                                                 </td>
-                                                <td className="px-5 py-4">
+                                                <td>
                                                     <div className="flex flex-col gap-2">
                                                         <SuperadminBadge tone="accent">{entry.moduleLabel}</SuperadminBadge>
                                                         <span className="text-xs text-stone-400">{entry.actionLabel}</span>
                                                     </div>
                                                 </td>
-                                                <td className="max-w-md px-5 py-4 leading-6">{entry.fieldsLabel}</td>
-                                                <td className="px-5 py-4">
+                                                <td className="max-w-md leading-6">{entry.fieldsLabel}</td>
+                                                <td>
                                                     <SuperadminBadge tone={entry.tone}>{entry.levelLabel}</SuperadminBadge>
                                                 </td>
-                                                <td className="px-5 py-4">
+                                                <td className="text-right">
                                                     <Link
                                                         href={entry.detailHref}
                                                         preserveScroll
@@ -299,9 +299,9 @@ export default function Auditoria({
                                 </table>
                             </div>
 
-                            <div className="divide-y divide-white/8 lg:hidden">
+                            <div className="sa-table-card-grid grid sm:hidden">
                                 {auditLogs.data.map((entry) => (
-                                    <article key={entry.id} className="space-y-4 px-5 py-5">
+                                    <article key={entry.id} className="sa-table-card space-y-4 p-4">
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
                                                 <p className="text-sm font-medium text-white">{entry.tableLabel} {entry.record}</p>

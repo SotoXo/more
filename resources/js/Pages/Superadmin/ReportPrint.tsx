@@ -44,6 +44,28 @@ export default function ReportPrint({ report }: ReportPrintProps) {
 
             <style>
                 {`
+                    .print-table {
+                        border: 1px solid #c7b8aa;
+                    }
+
+                    .print-table th {
+                        border: 1px solid #c7b8aa;
+                        background: #ede4da;
+                        color: #2f241f;
+                        font-size: 0.72rem;
+                        letter-spacing: 0.08em;
+                        text-transform: uppercase;
+                    }
+
+                    .print-table td {
+                        border: 1px solid #d9cec4;
+                        color: #3f3732;
+                    }
+
+                    .print-table tbody tr:nth-child(even) td {
+                        background: #fbf7f1;
+                    }
+
                     @media print {
                         body {
                             background: #ffffff !important;
@@ -69,6 +91,7 @@ export default function ReportPrint({ report }: ReportPrintProps) {
                             page-break-inside: avoid;
                             page-break-after: auto;
                         }
+
                     }
                 `}
             </style>
@@ -144,10 +167,7 @@ export default function ReportPrint({ report }: ReportPrintProps) {
                                 <thead>
                                     <tr>
                                         {report.columns.map((column) => (
-                                            <th
-                                                key={column.key}
-                                                className="border border-[#d8cec4] bg-[#f4f1ed] px-3 py-2 font-semibold text-[#3a2a24]"
-                                            >
+                                            <th key={column.key} className="px-3 py-2 font-semibold">
                                                 {column.label}
                                             </th>
                                         ))}
@@ -160,7 +180,7 @@ export default function ReportPrint({ report }: ReportPrintProps) {
                                                 {report.columns.map((column) => (
                                                     <td
                                                         key={`${index}-${column.key}`}
-                                                        className="border border-[#e7ddd4] px-3 py-2 align-top text-[#3f3732]"
+                                                        className="px-3 py-2 align-top"
                                                     >
                                                         {row[column.key] ?? ''}
                                                     </td>
@@ -171,7 +191,7 @@ export default function ReportPrint({ report }: ReportPrintProps) {
                                         <tr>
                                             <td
                                                 colSpan={report.columns.length}
-                                                className="border border-[#e7ddd4] px-3 py-8 text-center text-[#6f625a]"
+                                                className="px-3 py-8 text-center text-[#6f625a]"
                                             >
                                                 Sin datos para los filtros aplicados.
                                             </td>

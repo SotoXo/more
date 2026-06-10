@@ -27,6 +27,8 @@ class InventoryMovementController extends Controller
         'cambio_ubicacion',
         'correccion',
         'conversion_reserva_venta',
+        'dano_confirmado',
+        'reparacion_danio',
     ];
 
     public function __construct(
@@ -501,6 +503,8 @@ class InventoryMovementController extends Controller
             'ajuste_manual' => 'Ajuste manual',
             'cambio_ubicacion' => 'Cambio de ubicacion',
             'conversion_reserva_venta' => 'Conversion reserva/venta',
+            'dano_confirmado' => 'Daño confirmado',
+            'reparacion_danio' => 'Reparacion de daño',
             default => $this->humanize($type),
         };
     }
@@ -512,6 +516,8 @@ class InventoryMovementController extends Controller
             'reserva', 'venta_en_revision' => 'accent',
             'liberacion_reserva', 'cancelacion_venta' => 'info',
             'venta', 'conversion_reserva_venta' => 'warning',
+            'dano_confirmado' => 'danger',
+            'reparacion_danio' => 'success',
             'ajuste_manual', 'correccion' => 'danger',
             default => 'neutral',
         };

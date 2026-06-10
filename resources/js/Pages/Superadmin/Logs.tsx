@@ -321,50 +321,50 @@ export default function Logs({
                         </div>
                     ) : (
                         <>
-                            <div className="hidden overflow-x-auto lg:block">
-                                <table className="min-w-full divide-y divide-white/8 text-left">
-                                    <thead className="bg-[#0d141d] text-xs uppercase text-stone-400">
+                            <div className="sa-table-scroll hidden sm:block">
+                                <table className="sa-table min-w-[1180px]">
+                                    <thead>
                                         <tr>
-                                            <th className="px-5 py-4 font-medium">Fecha</th>
-                                            <th className="px-5 py-4 font-medium">Usuario</th>
-                                            <th className="px-5 py-4 font-medium">Modulo</th>
-                                            <th className="px-5 py-4 font-medium">Descripcion</th>
-                                            <th className="px-5 py-4 font-medium">Entidad</th>
-                                            <th className="px-5 py-4 font-medium">Nivel</th>
-                                            <th className="px-5 py-4 font-medium">IP / ruta</th>
-                                            <th className="px-5 py-4 font-medium">Detalle</th>
+                                            <th>Fecha</th>
+                                            <th>Usuario</th>
+                                            <th>Modulo</th>
+                                            <th>Descripcion</th>
+                                            <th>Entidad</th>
+                                            <th>Nivel</th>
+                                            <th>IP / ruta</th>
+                                            <th className="text-right">Detalle</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/8">
+                                    <tbody>
                                         {logs.data.map((entry) => (
                                             <tr key={entry.id} className="align-top text-sm text-stone-300">
-                                                <td className="whitespace-nowrap px-5 py-4 text-white">
+                                                <td className="whitespace-nowrap text-white">
                                                     {entry.date}
                                                 </td>
-                                                <td className="px-5 py-4">
+                                                <td>
                                                     <p className="font-medium text-white">{entry.user}</p>
                                                     <p className="mt-1 text-xs text-stone-400">{entry.role}</p>
                                                 </td>
-                                                <td className="px-5 py-4">
+                                                <td>
                                                     <div className="flex flex-col gap-2">
                                                         <SuperadminBadge tone="accent">{entry.moduleLabel}</SuperadminBadge>
                                                         <span className="text-xs text-stone-400">{entry.actionLabel}</span>
                                                     </div>
                                                 </td>
-                                                <td className="max-w-md px-5 py-4 leading-6">
+                                                <td className="max-w-md leading-6">
                                                     {entry.description}
                                                 </td>
-                                                <td className="px-5 py-4">{entry.entity}</td>
-                                                <td className="px-5 py-4">
+                                                <td>{entry.entity}</td>
+                                                <td>
                                                     <SuperadminBadge tone={entry.tone}>{entry.levelLabel}</SuperadminBadge>
                                                 </td>
-                                                <td className="px-5 py-4">
+                                                <td>
                                                     <p className="font-medium text-white">{entry.ip}</p>
                                                     <p className="mt-1 max-w-[15rem] truncate text-xs text-stone-400">
                                                         {entry.route}
                                                     </p>
                                                 </td>
-                                                <td className="px-5 py-4">
+                                                <td className="text-right">
                                                     <Link
                                                         href={entry.detailHref}
                                                         preserveScroll
@@ -380,9 +380,9 @@ export default function Logs({
                                 </table>
                             </div>
 
-                            <div className="divide-y divide-white/8 lg:hidden">
+                            <div className="sa-table-card-grid grid sm:hidden">
                                 {logs.data.map((entry) => (
-                                    <article key={entry.id} className="space-y-4 px-5 py-5">
+                                    <article key={entry.id} className="sa-table-card space-y-4 p-4">
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
                                                 <p className="text-sm font-medium text-white">{entry.user}</p>

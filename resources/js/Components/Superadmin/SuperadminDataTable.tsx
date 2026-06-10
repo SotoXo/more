@@ -33,13 +33,26 @@ export default function SuperadminDataTable({
     const hasActions = hasEditActions || hasShowActions || hasExtraActions;
 
     return (
-        <div className="sa-panel overflow-hidden rounded-[1.6rem]">
-            <div className="grid gap-3 p-3 xl:hidden">
+        <div className="sa-table-wrapper">
+            <div className="sa-table-card-grid grid sm:hidden">
                 {rows.map((row) => (
                     <article
                         key={row.id}
-                        className="rounded-[1.25rem] border border-white/8 bg-white/[0.03] p-4"
+                        className="sa-table-card p-4"
                     >
+                        {'image' in row && (
+                            row.image ? (
+                                <img
+                                    src={row.image}
+                                    alt={row.primary}
+                                    className="mb-4 h-36 w-full rounded-xl object-cover"
+                                />
+                            ) : (
+                                <div className="mb-4 flex h-36 w-full items-center justify-center rounded-xl border border-white/8 bg-[#090d13] text-xs uppercase tracking-[0.16em] text-stone-500">
+                                    Sin imagen
+                                </div>
+                            )
+                        )}
                         <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                                 <p className="truncate text-sm font-semibold text-white">
@@ -58,16 +71,16 @@ export default function SuperadminDataTable({
                             )}
                         </div>
 
-                        <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <dl className="mt-4">
                             {columns.map((column) => {
                                 const cellValue = row.cells[column.key] ?? '-';
 
                                 return (
-                                    <div key={`${row.id}-${column.key}`} className="rounded-2xl bg-black/15 p-3">
-                                        <dt className="text-[0.64rem] uppercase tracking-[0.18em] text-stone-500">
+                                    <div key={`${row.id}-${column.key}`} className="sa-table-card__field">
+                                        <dt className="shrink-0 text-[0.64rem] uppercase tracking-[0.18em] text-stone-500">
                                             {column.label}
                                         </dt>
-                                        <dd className="mt-1 text-sm text-stone-200">
+                                        <dd className="min-w-0 text-right text-sm text-stone-200">
                                             <CellContent value={cellValue} />
                                         </dd>
                                     </div>
@@ -123,39 +136,47 @@ export default function SuperadminDataTable({
                 ))}
             </div>
 
-            <div className="hidden overflow-x-auto xl:block">
-                <table className="min-w-full divide-y divide-white/8">
+            <div className="sa-table-scroll hidden sm:block">
+                <table className="sa-table min-w-[920px]">
                     <thead>
-                        <tr className="bg-[#0d141d]">
-                            <th className="px-6 py-4 text-left text-[0.72rem] uppercase tracking-[0.18em] text-stone-300">
+                        <tr>
+                            <th className="text-left">
                                 Registro
                             </th>
                             {columns.map((column) => (
                                 <th
                                     key={column.key}
-                                    className={`px-6 py-4 text-[0.72rem] uppercase tracking-[0.18em] text-stone-300 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'}`}
+                                    className={column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'}
                                 >
                                     {column.label}
                                 </th>
                             ))}
                             {hasActions && (
-                                <th className="px-6 py-4 text-right text-[0.72rem] uppercase tracking-[0.18em] text-stone-300">
+                                <th className="text-right">
                                     {hasEditActions ? 'Acciones' : 'Consulta'}
                                 </th>
                             )}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/6">
+                    <tbody>
                         {rows.map((row) => (
                             <tr key={row.id} className="sa-table-row">
-                                <td className="px-6 py-5">
+                                <td>
                                     <div className="flex items-center gap-3">
-                                        {row.image && (
+                                        {'image' in row && (
+                                            row.image ? (
                                             <img
                                                 src={row.image}
                                                 alt={row.primary}
                                                 className="h-12 w-10 shrink-0 rounded-xl object-cover"
                                             />
+                                            ) : (
+                                                <span className="flex h-12 w-10 shrink-0 items-center justify-center rounded-xl border border-white/8 bg-[#090d13] text-[0.55rem] uppercase leading-3 text-stone-500">
+                                                    Sin
+                                                    <br />
+                                                    img
+                                                </span>
+                                            )
                                         )}
                                         <div>
                                             <p className="text-sm font-medium text-white">{row.primary}</p>
@@ -173,14 +194,15 @@ export default function SuperadminDataTable({
                                     return (
                                         <td
                                             key={`${row.id}-${column.key}`}
-                                            className={`px-6 py-5 text-sm text-stone-300 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'}`}
+                                            className={column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'}
+                                            title={typeof cellValue === 'string' ? cellValue : undefined}
                                         >
                                             <CellContent value={cellValue} />
                                         </td>
                                     );
                                 })}
                                 {hasActions && (
-                                    <td className="px-6 py-5">
+                                    <td>
                                         <div className="flex items-center justify-end gap-2">
                                             {row.status && (
                                                 <SuperadminBadge

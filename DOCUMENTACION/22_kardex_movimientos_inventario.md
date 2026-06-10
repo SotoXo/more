@@ -62,6 +62,8 @@ Tambien se agregaron relaciones desde `Inventario` y `PrendaVariante` hacia sus 
 - `ajusteManual`
 - `cambioUbicacion`
 - `conversionReservaVenta`
+- `danoConfirmado`
+- `reparacionDanio`
 
 El servicio no modifica inventario. Solo registra el movimiento con usuario autenticado, ubicacion, referencia y metadata sanitizada.
 
@@ -78,8 +80,12 @@ Implementados:
 - `ajuste_manual`
 - `cambio_ubicacion`
 - `conversion_reserva_venta`
+- `dano_confirmado`
+- `reparacion_danio`
 
 `correccion` queda contemplado como tipo posible para una fase futura, pero no se crea desde UI en esta etapa.
+
+Los tipos `dano_confirmado` y `reparacion_danio` pertenecen al modulo independiente de prendas dañadas. Solo se registran cuando el reporte esta vinculado a inventario y la accion de revision modifica `cdi_inv`.
 
 ## 7. Flujo de entrada de stock
 
@@ -147,6 +153,26 @@ Cuando cambia `ubi_inv`, Kardex registra `cambio_ubicacion` con:
 - cantidad `0` si no hubo cambio de stock
 
 Si el administrador cambia stock y ubicacion a la vez, se registra el ajuste de stock y tambien el cambio de ubicacion.
+
+## 11.1 Prendas dañadas
+
+El modulo `/superadmin/prendas-daniadas` no registra Kardex al crear un reporte.
+
+Cuando se confirma un daño con inventario vinculado y `afecta_inventario_pdr = true`:
+
+- `cdi_inv` baja por la cantidad dañada.
+- `cre_inv` no cambia.
+- Kardex registra `dano_confirmado`.
+- La referencia es `prenda_danio` con el id del reporte.
+
+Cuando se repara un reporte confirmado que habia afectado inventario:
+
+- `cdi_inv` sube por la cantidad reparada.
+- `cre_inv` no cambia.
+- Kardex registra `reparacion_danio`.
+- La referencia es `prenda_danio` con el id del reporte.
+
+Baja definitiva no descuenta stock por segunda vez; solo cambia el estado del reporte.
 
 ## 12. Vista administrativa
 

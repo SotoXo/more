@@ -175,21 +175,55 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     useEffect(() => { if (steps.some((step) => step.id === currentStep)) return; setCurrentStep(steps[steps.length - 1]?.id ?? 'base'); }, [currentStep, steps]);
     useEffect(() => { setStepError(null); }, [currentStep, data.cod_categorias_pre, data.cod_marcas_pre, data.cod_temporadas_pre, data.gen_pre, data.imagen_principal, data.nom_pre, data.usa_variantes, data.variant_rows]);
 
+    const normalizeVariantValue = (field: keyof ProductVariantRow, value: string | boolean) =>
+        typeof value === 'string' && field === 'sku_prv'
+            ? normalizeText(value).replace(/[^A-Z0-9_-]/g, '')
+            : typeof value === 'string' && field === 'cob_prv'
+            ? normalizeText(value).replace(/[^A-Z0-9-]/g, '')
+            : value;
+    const commercialVariantSeed = () => activeVariantRows[0] ?? data.variant_rows.find((row) => row.cod_colores_prv) ?? createVariantRow(summary.price);
+    const createVariantRowFromSeed = (seed = commercialVariantSeed(), overrides: Partial<ProductVariantRow> = {}) => ({
+        ...createVariantRow(seed.pve_prv || summary.price, seed.ubi_inv || 'TIENDA'),
+        cod_colores_prv: seed.cod_colores_prv,
+        pve_prv: seed.pve_prv || summary.price,
+        cos_prv: seed.cos_prv,
+        stock_inicial: seed.stock_inicial || '1',
+        est_prv: seed.est_prv,
+        ...overrides,
+    });
     const updateVariantRow = (index: number, field: keyof ProductVariantRow, value: string | boolean) => {
-        const normalizedValue =
-            typeof value === 'string' && field === 'sku_prv'
-                ? normalizeText(value).replace(/[^A-Z0-9_-]/g, '')
-                : typeof value === 'string' && field === 'cob_prv'
-                ? normalizeText(value).replace(/[^A-Z0-9-]/g, '')
-                : value;
+        const normalizedValue = normalizeVariantValue(field, value);
+        if (index === -1) {
+            setData('variant_rows', [...data.variant_rows, { ...createVariantRowFromSeed(), [field]: normalizedValue }]);
+            return;
+        }
 
         setData('variant_rows', data.variant_rows.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: normalizedValue } : row));
     };
-    const addVariantRow = () => { const seed = activeVariantRows[0] ?? createVariantRow(summary.price); setData('variant_rows', [...data.variant_rows, createVariantRow(seed.pve_prv || summary.price, seed.ubi_inv || 'TIENDA')]); };
+    const updateInlineVariantTarget = (target: Extract<InlineTarget, { type: 'variant' }>, value: string) => {
+        const targetIndex = target.rowIndex >= 0 && !data.variant_rows[target.rowIndex]?.remove ? target.rowIndex : firstActiveVariantIndex;
+        updateVariantRow(targetIndex, target.field, value);
+    };
+    const addVariantRow = () => {
+        const seed = commercialVariantSeed();
+        setData('variant_rows', [...data.variant_rows, createVariantRowFromSeed(seed, { cod_tallas_prv: '', cob_prv: '', stock_inicial: '1' })]);
+    };
     const removeVariantRow = (index: number) => { const row = data.variant_rows[index]; if (!row) return; if (row.id) { updateVariantRow(index, 'remove', true); return; } if (activeVariantRows.length <= 1) return; setData('variant_rows', data.variant_rows.filter((_, rowIndex) => rowIndex !== index)); };
     const restoreVariantRow = (index: number) => updateVariantRow(index, 'remove', false);
-    const toggleVariants = (enabled: boolean) => { if (enabled) { setData('usa_variantes', true); return; } let keptOne = false; const nextRows = data.variant_rows.map((row) => { if (row.remove) return row; if (!keptOne) { keptOne = true; return row; } return row.id ? { ...row, remove: true } : null; }).filter((row): row is ProductVariantRow => Boolean(row)); setData((current) => ({ ...current, usa_variantes: false, variant_rows: nextRows.length > 0 ? nextRows : [createVariantRow(summary.price)] })); };
-    const applySuggestedSizes = () => { if (availableSuggestedSizes.length === 0) return; const seed = activeVariantRows[0] ?? createVariantRow(summary.price); const preservedRows = data.variant_rows.filter((row) => row.id && row.remove); const suggestedRows = availableSuggestedSizes.map((option, index) => ({ ...createVariantRow(seed.pve_prv || summary.price, seed.ubi_inv || 'TIENDA'), cod_colores_prv: seed.cod_colores_prv, cod_tallas_prv: option.value, cob_prv: index === 0 ? seed.cob_prv : '', pve_prv: seed.pve_prv || summary.price, cos_prv: seed.cos_prv, stock_inicial: index === 0 ? seed.stock_inicial || '1' : '1', est_prv: true, remove: false })); setData('variant_rows', [...suggestedRows, ...preservedRows]); };
+    const toggleVariants = (enabled: boolean) => {
+        const seed = commercialVariantSeed();
+        if (enabled) {
+            const nextRows = data.variant_rows.map((row) => (!row.remove && seed.cod_colores_prv && !row.cod_colores_prv ? { ...row, cod_colores_prv: seed.cod_colores_prv } : row));
+            const rowsWithActiveVariant = nextRows.some((row) => !row.remove) ? nextRows : [createVariantRowFromSeed(seed), ...nextRows];
+            setData((current) => ({ ...current, usa_variantes: true, variant_rows: rowsWithActiveVariant }));
+            return;
+        }
+        let keptOne = false;
+        const nextRows = data.variant_rows.map((row) => { if (row.remove) return row; if (!keptOne) { keptOne = true; return row; } return row.id ? { ...row, remove: true } : null; }).filter((row): row is ProductVariantRow => Boolean(row));
+        const rowsWithUniqueVariant = nextRows.some((row) => !row.remove) ? nextRows : [createVariantRowFromSeed(seed), ...nextRows];
+        setData((current) => ({ ...current, usa_variantes: false, variant_rows: rowsWithUniqueVariant }));
+    };
+    const applySuggestedSizes = () => { if (availableSuggestedSizes.length === 0) return; const seed = commercialVariantSeed(); const preservedRows = data.variant_rows.filter((row) => row.id && row.remove); const suggestedRows = availableSuggestedSizes.map((option, index) => createVariantRowFromSeed(seed, { cod_tallas_prv: option.value, cob_prv: index === 0 ? seed.cob_prv : '', stock_inicial: index === 0 ? seed.stock_inicial || '1' : '1', est_prv: true, remove: false })); setData('variant_rows', [...suggestedRows, ...preservedRows]); };
     const nextImageOrder = () => String(Math.max(1, ...data.existing_images.filter((image) => !image.remove).map((image) => Number(image.ord_igp || 0) + 1), ...data.gallery_images.map((image) => Number(image.ord_igp || 0) + 1)));
     const addGalleryRow = () => setData('gallery_images', [...data.gallery_images, createGalleryRow(nextImageOrder())]);
     const updateGalleryRow = (index: number, field: keyof NewGalleryImageRow, value: string | boolean | File | null) => setData('gallery_images', data.gallery_images.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: value } : row));
@@ -201,8 +235,8 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const openInlineCreate = (resource: InlineCatalogKey, target: InlineTarget, seed = '', overrides?: Partial<InlineForm>) => { const defaults = inlineDefaults(resource, seed); const nextForm = { ...defaults, ...overrides }; if (resource === 'colors') { const hex = normalizeHex(nextForm.hex) ?? defaults.hex; const family = inferColorFamily(hex, colorFamilyOptions); nextForm.hex = hex; nextForm.family = nextForm.family || family?.value || familyFromHex(hex); nextForm.name = suggestedColorName(hex, normalizeText(nextForm.family)); } setInlineDrawer({ resource, target, seed }); setInlineForm(nextForm); setInlineErrors({}); setInlineMessage(null); };
     const closeInlineCreate = () => { setInlineDrawer(null); setInlineErrors({}); setInlineMessage(null); };
     const handleColorSamplePick = (sample: PickedColorSample) => { const family = inferColorFamily(sample.hex, colorFamilyOptions); const suggestedColor = closestColorOption(optionSets.colors, sample.hex, family?.label); setPickedColorSample(sample); setColorInsight({ hex: sample.hex, family, suggestedColor }); };
-    const applySuggestedColor = () => { if (!colorInsight?.suggestedColor || firstActiveVariantIndex === -1) return; updateVariantRow(firstActiveVariantIndex, 'cod_colores_prv', colorInsight.suggestedColor.value); };
-    const createColorFromSample = () => { if (firstActiveVariantIndex === -1 || !colorInsight) return; openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: firstActiveVariantIndex }, colorInsight.suggestedColor?.label ?? colorInsight.family?.label ?? '', { family: colorInsight.family?.value ?? familyFromHex(colorInsight.hex), hex: colorInsight.hex }); };
+    const applySuggestedColor = () => { if (!colorInsight?.suggestedColor) return; updateVariantRow(firstActiveVariantIndex, 'cod_colores_prv', colorInsight.suggestedColor.value); };
+    const createColorFromSample = () => { if (!colorInsight) return; openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: Math.max(firstActiveVariantIndex, 0) }, colorInsight.suggestedColor?.label ?? colorInsight.family?.label ?? '', { family: colorInsight.family?.value ?? familyFromHex(colorInsight.hex), hex: colorInsight.hex }); };
     const issueForStep = (stepId: ProductStepId) => {
         const firstRow = activeVariantRows[0] ?? null;
 
@@ -291,7 +325,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
             if (inlineDrawer.resource === 'sizes') setOptionSets((current) => ({ ...current, sizes: sortOptions('sizes', [...current.sizes, option]) }));
             if (inlineDrawer.resource === 'seasons') setOptionSets((current) => ({ ...current, seasons: sortOptions('seasons', [...current.seasons, option]) }));
             if (inlineDrawer.target.type === 'product') setData(inlineDrawer.target.field, option.value);
-            else updateVariantRow(inlineDrawer.target.rowIndex, inlineDrawer.target.field, option.value);
+            else updateInlineVariantTarget(inlineDrawer.target, option.value);
 
             setInlineMessage(response.data.message ?? (response.data.reused ? 'Color existente encontrado.' : 'Registro creado correctamente.'));
             closeInlineCreate();
@@ -484,7 +518,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                     </label>
 
                                     <div className="rounded-[1.4rem] border border-white/8 bg-[#0d141d] p-4">
-                                        <div className="inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.18em] text-stone-400"><Palette size={12} />Lectura de color desde la imagen</div>
+                                        <div className="inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.18em] text-stone-400"><Palette size={12} />Color sugerido detectado</div>
                                         {colorInsight ? (
                                             <div className="mt-4 space-y-3">
                                                 <div className="flex items-center gap-3">
@@ -497,12 +531,12 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                                 <div className="rounded-[1.1rem] border border-white/8 bg-[#0a1016] p-3">
                                                     <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Hex detectado</p>
                                                     <p className="mt-2 text-sm text-white">{colorInsight.hex}</p>
-                                                    <p className="mt-2 text-sm leading-6 text-stone-400">Esta muestra no se guarda sola. Primero debes confirmarla o corregirla.</p>
+                                                    <p className="mt-2 text-sm leading-6 text-stone-400">Esta muestra se guarda al aplicarla o al crear un color desde la muestra.</p>
                                                 </div>
                                                 <div className="flex flex-col gap-3">
                                                     {colorInsight.suggestedColor && (
                                                         <button type="button" onClick={applySuggestedColor} className="sa-button-secondary px-4 py-3 text-[0.72rem] uppercase tracking-[0.18em]">
-                                                            {isSuggestedColorApplied ? 'Tono sugerido aplicado' : 'Usar tono sugerido en la prenda'}
+                                                            {isSuggestedColorApplied ? 'Color aplicado a la configuración comercial' : 'Aplicar color a la prenda'}
                                                         </button>
                                                     )}
                                                     <button type="button" onClick={createColorFromSample} className="sa-button-ghost px-4 py-3 text-[0.72rem] uppercase tracking-[0.18em]">
@@ -511,7 +545,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                                 </div>
                                                 {selectedCommercialColor && (
                                                     <div className="rounded-[1.1rem] border border-white/8 bg-[#0a1016] p-3">
-                                                        <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Color actual en la configuración</p>
+                                                        <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Color aplicado a la configuración comercial</p>
                                                         <div className="mt-2 flex items-center gap-3">
                                                             {selectedCommercialColor.swatch && (
                                                                 <span className="inline-flex h-5 w-5 rounded-full border border-white/12" style={{ backgroundColor: selectedCommercialColor.swatch }} />

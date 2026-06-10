@@ -203,6 +203,36 @@ class InventoryMovementService
         return $this->record($inventario, 'conversion_reserva_venta', $cantidad, $cdiAntes, $cdiDespues, $creAntes, $creDespues, $referenciaTipo, $referenciaId, $descripcion, $metadata);
     }
 
+    public function danoConfirmado(
+        Inventario $inventario,
+        int $cantidad,
+        int $cdiAntes,
+        int $cdiDespues,
+        int $creAntes,
+        int $creDespues,
+        ?string $referenciaTipo = null,
+        ?int $referenciaId = null,
+        ?string $descripcion = null,
+        array $metadata = [],
+    ): ?InventarioMovimiento {
+        return $this->record($inventario, 'dano_confirmado', $cantidad, $cdiAntes, $cdiDespues, $creAntes, $creDespues, $referenciaTipo, $referenciaId, $descripcion, $metadata);
+    }
+
+    public function reparacionDanio(
+        Inventario $inventario,
+        int $cantidad,
+        int $cdiAntes,
+        int $cdiDespues,
+        int $creAntes,
+        int $creDespues,
+        ?string $referenciaTipo = null,
+        ?int $referenciaId = null,
+        ?string $descripcion = null,
+        array $metadata = [],
+    ): ?InventarioMovimiento {
+        return $this->record($inventario, 'reparacion_danio', $cantidad, $cdiAntes, $cdiDespues, $creAntes, $creDespues, $referenciaTipo, $referenciaId, $descripcion, $metadata);
+    }
+
     private function logMovement(InventarioMovimiento $movement): void
     {
         $action = $movement->tipo_movimiento_inm === 'ajuste_manual'

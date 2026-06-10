@@ -34,6 +34,10 @@ export const superadminRoutes = {
     audit: '/superadmin/auditoria',
     backups: '/superadmin/backups',
     inventoryMovements: '/superadmin/inventario/movimientos',
+    damagedProducts: '/superadmin/prendas-daniadas',
+    damagedProductsCreate: '/superadmin/prendas-daniadas/crear',
+    damagedProductShow: (record: string | number) =>
+        `/superadmin/prendas-daniadas/${record}`,
     resource: (section: string, resource: string) =>
         `/superadmin/${section}/${resource}`,
     create: (section: string, resource: string) =>
@@ -129,6 +133,11 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
                 icon: History,
                 badge: 'Lectura',
                 badgeTone: 'accent',
+            },
+            {
+                label: 'Prendas dañadas',
+                href: superadminRoutes.damagedProducts,
+                icon: ShieldAlert,
             },
         ],
     },
