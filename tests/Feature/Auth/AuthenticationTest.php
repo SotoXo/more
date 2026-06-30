@@ -145,7 +145,7 @@ class AuthenticationTest extends TestCase
             'app_usu' => 'Demo',
             'apm_usu' => null,
             'tel_usu' => '70000000',
-            'email' => 'cliente'.uniqid().'@more.com',
+            'email' => 'cliente'.uniqid().'@matiboutique.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'cod_roles_usu' => $roleId,

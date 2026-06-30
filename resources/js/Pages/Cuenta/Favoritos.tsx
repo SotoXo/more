@@ -14,7 +14,7 @@ export default function Favoritos({ products }: { products: ShopProduct[] }) {
     const [favoriteProducts, setFavoriteProducts] = useState(products);
 
     return (
-        <StoreLayout title="MORE | Mis Favoritos">
+        <StoreLayout title="Mati Boutique | Mis Favoritos">
             <section className="px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

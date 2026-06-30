@@ -22,3 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Database backups (no versionar dumps con datos reales)
+*.sql
+/backups/

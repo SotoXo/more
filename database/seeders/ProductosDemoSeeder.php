@@ -24,7 +24,7 @@ class ProductosDemoSeeder extends Seeder
         $temporadas = DB::table('temporadas')->select('id_temporada', 'nom_tem')->get();
 
         $usuario = DB::table('users')
-            ->where('email', 'superadmin@more.com')
+            ->where('email', 'superadmin@matiboutique.com')
             ->value('id');
 
         if (!$usuario) {
