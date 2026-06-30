@@ -265,6 +265,81 @@ class DamagedProductService
         }
     }
 
+    public function createVendorReport(Request $request, User $reporter): PrendaDanioReporte
+    {
+        $request->merge(['afecta_inventario_pdr' => '0']);
+
+        $validated = $this->validateCreation($request);
+        $inventory = $this->inventoryFromPayload($validated);
+        $variant = $this->variantFromPayload($validated, $inventory);
+        $createdPaths = [];
+
+        try {
+            return DB::transaction(function () use ($request, $validated, $inventory, $variant, $reporter, &$createdPaths) {
+                $report = PrendaDanioReporte::query()->create([
+                    'codigo_pdr' => $this->nextCode(),
+                    'nombre_prenda_pdr' => trim((string) $validated['nombre_prenda_pdr']),
+                    'descripcion_prenda_pdr' => $this->nullableText($validated['descripcion_prenda_pdr'] ?? null),
+                    'cod_prenda_pdr' => $inventory?->variante?->prenda?->id_prenda
+                        ?? $variant?->prenda?->id_prenda
+                        ?? $this->nullableInt($validated['cod_prenda_pdr'] ?? null),
+                    'cod_prenda_variante_pdr' => $inventory?->cod_prenda_variantes_inv
+                        ?? $variant?->id_prenda_variante
+                        ?? null,
+                    'cod_inventario_pdr' => $inventory?->id_inventario,
+                    'cod_usuario_reporta_pdr' => $reporter->getKey(),
+                    'causa_pdr' => (string) $validated['causa_pdr'],
+                    'tipo_danio_pdr' => (string) $validated['tipo_danio_pdr'],
+                    'severidad_pdr' => (string) $validated['severidad_pdr'],
+                    'cantidad_pdr' => (int) $validated['cantidad_pdr'],
+                    'estado_pdr' => 'reportado',
+                    'observacion_pdr' => $this->nullableText($validated['observacion_pdr'] ?? null),
+                    'fecha_reporte_pdr' => Carbon::now(config('app.timezone')),
+                    'afecta_inventario_pdr' => false,
+                    'metadata_pdr' => [
+                        'origen' => 'panel_vendedor',
+                        'creado_desde' => 'vendedor_prendas_daniadas',
+                    ],
+                ]);
+
+                foreach ($request->file('imagenes', []) as $index => $file) {
+                    $path = $this->storeEvidence($file, $report, $index + 1);
+                    $createdPaths[] = $path;
+
+                    PrendaDanioImagen::query()->create([
+                        'cod_prenda_danio_reporte_pdi' => $report->id,
+                        'ruta_pdi' => $path,
+                        'url_pdi' => Storage::url($path),
+                        'descripcion_pdi' => 'Evidencia ' . ($index + 1),
+                        'orden_pdi' => $index + 1,
+                    ]);
+                }
+
+                $report->loadMissing(['inventario', 'variante.prenda']);
+
+                $this->logs->info(
+                    'prendas_daniadas',
+                    'reporte_danio_creado_por_vendedor',
+                    'Reporte de prenda daniada creado por vendedor: ' . $report->codigo_pdr . '.',
+                    $report,
+                    $this->reportMetadata($report) + [
+                        'vendedor_id' => $reporter->getKey(),
+                        'vendedor' => $reporter->nombreCompleto(),
+                        'tiene_prenda_vinculada' => (bool) $report->cod_inventario_pdr,
+                    ],
+                );
+
+                return $report;
+            });
+        } catch (\Throwable $exception) {
+            foreach ($createdPaths as $path) {
+                Storage::disk('public')->delete($path);
+            }
+
+            throw $exception;
+        }
+    }
+
     public function markInReview(Request $request, PrendaDanioReporte $report): PrendaDanioReporte
     {
         $payload = $this->validateReviewPayload($request);

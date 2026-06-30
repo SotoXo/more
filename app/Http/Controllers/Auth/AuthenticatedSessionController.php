@@ -48,18 +48,30 @@ class AuthenticatedSessionController extends Controller
 
         $intended = $request->session()->get('url.intended');
         $intendedIsSuperadmin = $this->isSuperadminPath($intended);
+        $intendedIsVendedor = $this->isVendedorPath($intended);
 
         if ($user && method_exists($user, 'isSuperadmin')) {
             $user->loadMissing('rol');
 
             if ($user->isSuperadmin()) {
-                if ($intendedIsSuperadmin) {
+                if ($intendedIsSuperadmin || $intendedIsVendedor) {
                     return redirect()->intended('/superadmin');
                 }
 
                 $request->session()->forget('url.intended');
 
                 return redirect('/superadmin');
+            }
+
+            if (method_exists($user, 'isVendedor') && $user->isVendedor()) {
+                if ($intendedIsSuperadmin) {
+                    $request->session()->forget('url.intended');
+
+                    return redirect('/vendedor')
+                        ->with('error', 'Tu rol vendedor usa el panel vendedor.');
+                }
+
+                return redirect()->intended('/vendedor');
             }
         }
 
@@ -68,6 +80,13 @@ class AuthenticatedSessionController extends Controller
 
             return redirect('/')
                 ->with('error', 'No tienes permisos para acceder al panel superadmin.');
+        }
+
+        if ($intendedIsVendedor) {
+            $request->session()->forget('url.intended');
+
+            return redirect('/')
+                ->with('error', 'No tienes permisos para acceder al panel vendedor.');
         }
 
         return redirect()->intended('/');
@@ -103,5 +122,16 @@ class AuthenticatedSessionController extends Controller
         $path = parse_url($url, PHP_URL_PATH);
 
         return $path === '/superadmin' || str_starts_with((string) $path, '/superadmin/');
+    }
+
+    private function isVendedorPath(mixed $url): bool
+    {
+        if (! is_string($url) || $url === '') {
+            return false;
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+
+        return $path === '/vendedor' || str_starts_with((string) $path, '/vendedor/');
     }
 }

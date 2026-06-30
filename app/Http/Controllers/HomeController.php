@@ -26,6 +26,10 @@ class HomeController extends Controller
             if ($user->isSuperadmin()) {
                 return redirect()->route('superadmin.dashboard');
             }
+
+            if (method_exists($user, 'isVendedor') && $user->isVendedor()) {
+                return redirect()->route('vendedor.dashboard');
+            }
         }
 
         $novedadesPrendas = ProductMapper::withRelations(

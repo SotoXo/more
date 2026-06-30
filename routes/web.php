@@ -21,6 +21,14 @@ use App\Http\Controllers\Superadmin\ReportExportController as SuperadminReportEx
 use App\Http\Controllers\Superadmin\ReportsController as SuperadminReportsController;
 use App\Http\Controllers\Superadmin\ResourceController as SuperadminResourceController;
 use App\Http\Controllers\Superadmin\SalePickupController as SuperadminSalePickupController;
+use App\Http\Controllers\Vendedor\VendedorDamagedProductController;
+use App\Http\Controllers\Vendedor\VendedorDashboardController;
+use App\Http\Controllers\Vendedor\VendedorPageController;
+use App\Http\Controllers\Vendedor\VendedorPaymentReviewController;
+use App\Http\Controllers\Vendedor\VendedorPickupController;
+use App\Http\Controllers\Vendedor\VendedorReportController;
+use App\Http\Controllers\Vendedor\VendedorReservationController;
+use App\Http\Controllers\Vendedor\VendedorSalesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -80,6 +88,40 @@ Route::middleware('auth')->prefix('notificaciones')->name('notifications.')->gro
     Route::get('/resumen', [NotificationController::class, 'summary'])->name('summary');
     Route::post('/{id}/leer', [NotificationController::class, 'markAsRead'])->name('mark-read');
     Route::post('/leer-todas', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+});
+
+Route::middleware(['auth', 'vendedor'])->prefix('vendedor')->name('vendedor.')->group(function () {
+    Route::get('/', [VendedorDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/prendas', [VendedorPageController::class, 'prendas'])->name('prendas.index');
+    Route::get('/prendas/{prenda}', [VendedorPageController::class, 'prendaShow'])->whereNumber('prenda')->name('prendas.show');
+    Route::get('/existencias', [VendedorPageController::class, 'existencias'])->name('existencias.index');
+    Route::get('/alertas-stock', [VendedorPageController::class, 'alertasStock'])->name('alertas-stock.index');
+    Route::get('/ventas', [VendedorSalesController::class, 'index'])->name('ventas.index');
+    Route::get('/ventas/crear', [VendedorSalesController::class, 'create'])->name('ventas.create');
+    Route::post('/ventas', [VendedorSalesController::class, 'store'])->name('ventas.store');
+    Route::get('/ventas/{venta}', [VendedorSalesController::class, 'show'])->whereNumber('venta')->name('ventas.show');
+    Route::get('/reservas', [VendedorReservationController::class, 'index'])->name('reservas.index');
+    Route::get('/reservas/crear', [VendedorReservationController::class, 'create'])->name('reservas.create');
+    Route::post('/reservas', [VendedorReservationController::class, 'store'])->name('reservas.store');
+    Route::get('/reservas/{reserva}', [VendedorReservationController::class, 'show'])->whereNumber('reserva')->name('reservas.show');
+    Route::post('/reservas/{reserva}/pagos', [VendedorReservationController::class, 'storePayment'])->whereNumber('reserva')->name('reservas.payments.store');
+    Route::post('/reservas/{reserva}/cancelar', [VendedorReservationController::class, 'cancel'])->whereNumber('reserva')->name('reservas.cancel');
+    Route::get('/pagos', [VendedorPaymentReviewController::class, 'index'])->name('pagos.index');
+    Route::get('/pagos/{pago}', [VendedorPaymentReviewController::class, 'show'])->where('pago', '(venta|reserva)-[0-9]+')->name('pagos.show');
+    Route::post('/pagos/{pago}/aprobar', [VendedorPaymentReviewController::class, 'approve'])->where('pago', '(venta|reserva)-[0-9]+')->name('pagos.approve');
+    Route::post('/pagos/{pago}/rechazar', [VendedorPaymentReviewController::class, 'reject'])->where('pago', '(venta|reserva)-[0-9]+')->name('pagos.reject');
+    Route::get('/recojos', [VendedorPickupController::class, 'index'])->name('recojos.index');
+    Route::get('/recojos/ventas/{venta}', [VendedorPickupController::class, 'sale'])->whereNumber('venta')->name('recojos.ventas.show');
+    Route::post('/recojos/ventas/{venta}/entregar', [VendedorPickupController::class, 'deliverSale'])->whereNumber('venta')->name('recojos.ventas.deliver');
+    Route::get('/recojos/reservas/{reserva}', [VendedorPickupController::class, 'reservation'])->whereNumber('reserva')->name('recojos.reservas.show');
+    Route::post('/recojos/reservas/{reserva}/entregar', [VendedorPickupController::class, 'deliverReservation'])->whereNumber('reserva')->name('recojos.reservas.deliver');
+    Route::get('/prendas-daniadas', [VendedorDamagedProductController::class, 'index'])->name('prendas-daniadas.index');
+    Route::get('/prendas-daniadas/crear', [VendedorDamagedProductController::class, 'create'])->name('prendas-daniadas.create');
+    Route::post('/prendas-daniadas', [VendedorDamagedProductController::class, 'store'])->name('prendas-daniadas.store');
+    Route::get('/prendas-daniadas/{reporte}', [VendedorDamagedProductController::class, 'show'])->whereNumber('reporte')->name('prendas-daniadas.show');
+    Route::get('/reportes', [VendedorReportController::class, 'index'])->name('reportes.index');
+    Route::get('/reportes/exportar', [VendedorReportController::class, 'export'])->name('reportes.export');
+    Route::get('/reportes/imprimir', [VendedorReportController::class, 'print'])->name('reportes.print');
 });
 
 Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
@@ -142,8 +184,12 @@ Route::get('/dashboard', function (Request $request) {
     if ($user && method_exists($user, 'isSuperadmin')) {
         $user->loadMissing('rol');
 
-        if ($user->isSuperadmin() || (method_exists($user, 'isVendedor') && $user->isVendedor())) {
+        if ($user->isSuperadmin()) {
             return redirect()->route('superadmin.dashboard');
+        }
+
+        if (method_exists($user, 'isVendedor') && $user->isVendedor()) {
+            return redirect()->route('vendedor.dashboard');
         }
     }
 
