@@ -27,7 +27,7 @@ class VendedorDamagedProductController extends Controller
 
         return redirect()
             ->route('vendedor.prendas-daniadas.show', $report)
-            ->with('success', 'Reporte de prenda danada creado. Queda pendiente de revision administrativa.');
+            ->with('success', 'Reporte de prenda dañada creado. Queda pendiente de revisión administrativa.');
     }
 
     public function show(Request $request, PrendaDanioReporte $reporte, VendedorDamagedProductService $damagedProducts)

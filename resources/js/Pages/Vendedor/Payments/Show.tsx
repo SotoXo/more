@@ -183,7 +183,7 @@ export default function Show({ payment, operation, history }: PaymentShowProps) 
                     <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                         <Detail label="Tipo" value={payment.typeLabel} />
                         <Detail label="Cliente" value={payment.customer} />
-                        <Detail label="Metodo" value={payment.method} />
+                        <Detail label="Método" value={payment.method} />
                         <Detail label="Origen" value={payment.origin} />
                         <Detail label="Monto declarado" value={payment.declaredAmount} />
                         <Detail label="Monto esperado" value={payment.expectedAmount} />
@@ -212,7 +212,7 @@ export default function Show({ payment, operation, history }: PaymentShowProps) 
                                 Operacion
                             </p>
                             <div className="mt-4 grid gap-3">
-                                <Detail label="Numero" value={operation.number} />
+                                <Detail label="Número" value={operation.number} />
                                 <Detail label="Total" value={operation.total} />
                                 <Detail label="Pagado" value={operation.paid} />
                                 <Detail label="Saldo" value={operation.balance} />
@@ -223,7 +223,7 @@ export default function Show({ payment, operation, history }: PaymentShowProps) 
                         {payment.canReview ? (
                             <section className="sa-panel rounded-2xl p-5">
                                 <p className="text-sm font-semibold text-[color:var(--admin-text)]">
-                                    Acciones de revision
+                                    Acciones de revisión
                                 </p>
                                 <p className="mt-1 text-sm leading-6 text-[color:var(--admin-muted)]">
                                     Revisa el comprobante contra el monto declarado antes de aprobarlo o rechazarlo.
@@ -290,7 +290,7 @@ export default function Show({ payment, operation, history }: PaymentShowProps) 
                         {history.map((item) => (
                             <div key={item.id} className="grid gap-3 rounded-2xl border border-[color:var(--admin-border)] bg-[color:var(--admin-surface-soft)] p-4 md:grid-cols-3 xl:grid-cols-6">
                                 <Detail label="Fecha" value={item.date} />
-                                <Detail label="Metodo" value={item.method} />
+                                <Detail label="Método" value={item.method} />
                                 <Detail label="Declarado" value={item.declared} />
                                 <Detail label="Confirmado" value={item.confirmed} />
                                 <div className="sa-panel-soft rounded-2xl p-4">

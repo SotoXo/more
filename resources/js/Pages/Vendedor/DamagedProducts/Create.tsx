@@ -54,7 +54,7 @@ type DamagedProductForm = {
 };
 
 function suggestedDescription(inventory: InventoryOption) {
-    return `Variante ${inventory.sku} - ${inventory.color} - ${inventory.size} - cdi_inv ${inventory.availableStock} - cre_inv ${inventory.committedStock} - Ubicacion ${inventory.location}`;
+    return `Variante ${inventory.sku} - ${inventory.color} - ${inventory.size} - Stock disponible ${inventory.availableStock} - Stock comprometido ${inventory.committedStock} - Ubicación ${inventory.location}`;
 }
 
 export default function Create({
@@ -127,7 +127,7 @@ export default function Create({
     };
 
     return (
-        <VendedorLayout title="Mati Boutique | Nuevo reporte de dano">
+        <VendedorLayout title="Mati Boutique | Nuevo reporte de daño">
             <div className="space-y-6">
                 <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div className="max-w-4xl">
@@ -135,10 +135,10 @@ export default function Create({
                             Inventario
                         </p>
                         <h1 className="mt-2 text-2xl font-semibold text-[color:var(--admin-text)] sm:text-3xl">
-                            Nuevo reporte de prenda danada
+                            Nuevo reporte de prenda dañada
                         </h1>
                         <p className="mt-3 text-sm leading-6 text-[color:var(--admin-muted)]">
-                            El reporte queda pendiente para revision administrativa. No descuenta cdi_inv, no modifica cre_inv y no registra Kardex.
+                            El reporte queda pendiente para revisión administrativa. No descuenta el stock disponible, no modifica el stock comprometido y no registra Kardex.
                         </p>
                     </div>
                     <Link href={indexHref} className="sa-button-ghost inline-flex min-h-11 items-center justify-center px-4 text-xs font-semibold">
@@ -199,7 +199,7 @@ export default function Create({
                             </label>
 
                             <label className="space-y-2 md:col-span-2">
-                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Descripcion de la prenda danada</span>
+                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Descripción de la prenda dañada</span>
                                 <textarea
                                     value={data.descripcion_prenda_pdr}
                                     onChange={(event) => setData('descripcion_prenda_pdr', event.target.value)}
@@ -213,7 +213,7 @@ export default function Create({
                     <section className="sa-panel rounded-2xl p-5">
                         <div className="border-b border-[color:var(--admin-border)] pb-4">
                             <p className="text-xs font-semibold uppercase text-[color:var(--admin-muted)]">
-                                Clasificacion del dano
+                                Clasificación del daño
                             </p>
                         </div>
 
@@ -234,7 +234,7 @@ export default function Create({
                             </label>
 
                             <label className="space-y-2">
-                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Tipo de dano</span>
+                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Tipo de daño</span>
                                 <select
                                     value={data.tipo_danio_pdr}
                                     onChange={(event) => setData('tipo_danio_pdr', event.target.value)}
@@ -272,7 +272,7 @@ export default function Create({
                                     Vinculacion opcional con inventario
                                 </p>
                                 <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--admin-muted)]">
-                                    Vincular una prenda ayuda a identificar el dano, pero no modifica el stock. La revision final la realiza el administrador.
+                                    Vincular una prenda ayuda a identificar el daño, pero no modifica el stock. La revisión final la realiza el administrador.
                                 </p>
                             </div>
                             <SuperadminBadge tone="success">No mueve stock</SuperadminBadge>
@@ -303,8 +303,8 @@ export default function Create({
                                         <Detail label="Color" value={selectedInventory.color} />
                                         <Detail label="Talla" value={selectedInventory.size} />
                                         <Detail label="Ubicacion" value={selectedInventory.location} />
-                                        <Detail label="Disponible cdi_inv" value={String(selectedInventory.availableStock)} />
-                                        <Detail label="Comprometido cre_inv" value={String(selectedInventory.committedStock)} />
+                                        <Detail label="Stock disponible" value={String(selectedInventory.availableStock)} />
+                                        <Detail label="Stock comprometido" value={String(selectedInventory.committedStock)} />
                                     </div>
                                 )}
                             </div>

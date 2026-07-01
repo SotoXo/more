@@ -144,7 +144,7 @@ export default function Show({ product, variants }: ProductShowProps) {
                             Variantes e inventario
                         </p>
                         <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
-                            Disponible corresponde a cdi_inv y comprometido corresponde a cre_inv.
+                            Disponible corresponde al stock disponible y comprometido corresponde al stock comprometido.
                         </p>
                     </div>
                     <VendedorReadOnlyTable

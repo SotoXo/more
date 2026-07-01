@@ -67,7 +67,7 @@ const itemColumns: VendedorReadOnlyColumn<ReservationItem>[] = [
     { key: 'color', label: 'Color', render: (row) => row.color },
     { key: 'size', label: 'Talla', render: (row) => row.size },
     { key: 'quantity', label: 'Cantidad', align: 'right', render: (row) => row.quantity },
-    { key: 'committed', label: 'cre_inv', align: 'right', render: (row) => row.committed },
+    { key: 'committed', label: 'Comprometido', align: 'right', render: (row) => row.committed },
     {
         key: 'committedStatus',
         label: 'Comprometido',
@@ -191,7 +191,7 @@ export default function ReservationShow({ reservation, items, payments, rules }:
                         <section className="space-y-3">
                             <div>
                                 <p className="text-sm font-semibold text-[color:var(--admin-text)]">Productos reservados</p>
-                                <p className="mt-1 text-sm text-[color:var(--admin-muted)]">Al recoger, el flujo central consume cre_inv y no descuenta cdi_inv otra vez.</p>
+                                <p className="mt-1 text-sm text-[color:var(--admin-muted)]">Al recoger, el flujo central consume el stock comprometido y no descuenta el stock disponible otra vez.</p>
                             </div>
                             <VendedorReadOnlyTable
                                 rows={items}
@@ -212,7 +212,7 @@ export default function ReservationShow({ reservation, items, payments, rules }:
                                 {payments.map((payment) => (
                                     <div key={payment.id} className="grid gap-3 rounded-2xl border border-[color:var(--admin-border)] bg-[color:var(--admin-surface-soft)] p-4 md:grid-cols-5">
                                         <Detail label="Fecha" value={payment.date} />
-                                        <Detail label="Metodo" value={payment.method} />
+                                        <Detail label="Método" value={payment.method} />
                                         <Detail label="Confirmado" value={payment.confirmed} />
                                         <div className="sa-panel-soft rounded-2xl p-4">
                                             <p className="text-xs font-semibold text-[color:var(--admin-muted)]">Estado</p>
@@ -235,7 +235,7 @@ export default function ReservationShow({ reservation, items, payments, rules }:
                     <form onSubmit={submitDelivery} className="sa-panel h-fit rounded-2xl p-5">
                         <p className="text-sm font-semibold text-[color:var(--admin-text)]">Confirmar recojo</p>
                         <p className="mt-2 text-sm leading-6 text-[color:var(--admin-muted)]">
-                            {reservation.canDeliver ? 'La reserva esta pagada al 100%, lista para recojo y con cre_inv suficiente.' : (reservation.blockReason ?? rules.paymentBlockMessage)}
+                            {reservation.canDeliver ? 'La reserva está pagada al 100%, lista para recojo y con stock comprometido suficiente.' : (reservation.blockReason ?? rules.paymentBlockMessage)}
                         </p>
                         <FormErrors errors={form.errors} />
                         <button

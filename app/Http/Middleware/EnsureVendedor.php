@@ -24,7 +24,7 @@ class EnsureVendedor
 
             return redirect()
                 ->route('login')
-                ->with('error', 'Tu cuenta esta inactiva. Solicita la reactivacion a un superadmin.');
+                ->with('error', 'Tu cuenta está inactiva. Solicita la reactivación a un superadmin.');
         }
 
         if (! method_exists($user, 'hasValidActiveRole') || ! $user->hasValidActiveRole()) {
@@ -34,7 +34,7 @@ class EnsureVendedor
 
             return redirect()
                 ->route('login')
-                ->with('error', 'Tu usuario no tiene un rol activo o valido. Solicita revision a un superadmin.');
+                ->with('error', 'Tu usuario no tiene un rol activo o válido. Solicita revisión a un superadmin.');
         }
 
         if (

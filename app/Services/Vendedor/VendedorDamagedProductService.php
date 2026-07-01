@@ -21,7 +21,7 @@ class VendedorDamagedProductService
 {
     private const ESTADOS = [
         'reportado' => 'Reportado',
-        'en_revision' => 'En revision',
+        'en_revision' => 'En revisión',
         'confirmado' => 'Confirmado',
         'descartado' => 'Descartado',
         'reparado' => 'Reparado',
@@ -30,25 +30,25 @@ class VendedorDamagedProductService
     ];
 
     private const CAUSAS = [
-        'dano_en_tienda' => 'Dano en tienda',
-        'dano_en_transporte' => 'Dano en transporte',
-        'dano_por_manipulacion' => 'Dano por manipulacion',
-        'defecto_de_fabrica' => 'Defecto de fabrica',
-        'devolucion_danada' => 'Devolucion danada',
+        'dano_en_tienda' => 'Daño en tienda',
+        'dano_en_transporte' => 'Daño en transporte',
+        'dano_por_manipulacion' => 'Daño por manipulación',
+        'defecto_de_fabrica' => 'Defecto de fábrica',
+        'devolucion_danada' => 'Devolución dañada',
         'desgaste' => 'Desgaste',
-        'mala_conservacion' => 'Mala conservacion',
+        'mala_conservacion' => 'Mala conservación',
         'otro' => 'Otro',
     ];
 
     private const TIPOS_DANIO = [
         'mancha' => 'Mancha',
         'roto' => 'Roto',
-        'cierre_danado' => 'Cierre danado',
-        'boton_faltante' => 'Boton faltante',
+        'cierre_danado' => 'Cierre dañado',
+        'boton_faltante' => 'Botón faltante',
         'costura_abierta' => 'Costura abierta',
-        'decoloracion' => 'Decoloracion',
+        'decoloracion' => 'Decoloración',
         'talla_mal_etiquetada' => 'Talla mal etiquetada',
-        'defecto_fabrica' => 'Defecto de fabrica',
+        'defecto_fabrica' => 'Defecto de fábrica',
         'otro' => 'Otro',
     ];
 
@@ -115,8 +115,8 @@ class VendedorDamagedProductService
             ],
             'createHref' => '/vendedor/prendas-daniadas/crear',
             'scopeLabel' => $this->isSupervisor($request)
-                ? 'Supervision de reportes creados desde el panel vendedor. Sin acciones administrativas en esta vista.'
-                : 'Tus reportes de prendas danadas. Crear un reporte no confirma dano, no mueve stock y no registra Kardex.',
+                ? 'Supervisión de reportes creados desde el panel vendedor. Sin acciones administrativas en esta vista.'
+                : 'Tus reportes de prendas dañadas. Crear un reporte no confirma daño, no mueve stock y no registra Kardex.',
         ];
     }
 
@@ -168,7 +168,7 @@ class VendedorDamagedProductService
         return [
             'report' => $this->serializeDetail($report),
             'indexHref' => '/vendedor/prendas-daniadas',
-            'scopeLabel' => 'Este reporte esta pendiente de revision administrativa. El panel vendedor no confirma danos ni modifica inventario.',
+            'scopeLabel' => 'Este reporte está pendiente de revisión administrativa. El panel vendedor no confirma daños ni modifica inventario.',
         ];
     }
 
@@ -182,8 +182,8 @@ class VendedorDamagedProductService
             'damaged_reports_pending' => [
                 'value' => $this->number($pending),
                 'note' => $pending > 0
-                    ? 'Reportes de dano pendientes de revision administrativa.'
-                    : 'Sin reportes de dano pendientes.',
+                    ? 'Reportes de daño pendientes de revisión administrativa.'
+                    : 'Sin reportes de daño pendientes.',
                 'tone' => $pending > 0 ? 'warning' : 'success',
             ],
         ];
@@ -318,7 +318,7 @@ class VendedorDamagedProductService
             'id' => $report->id,
             'code' => (string) $report->codigo_pdr,
             'name' => (string) $report->nombre_prenda_pdr,
-            'description' => $this->display($report->descripcion_prenda_pdr, 'Sin descripcion registrada.'),
+            'description' => $this->display($report->descripcion_prenda_pdr, 'Sin descripción registrada.'),
             'causeLabel' => $this->causeLabel((string) $report->causa_pdr),
             'damageTypeLabel' => $this->damageTypeLabel((string) $report->tipo_danio_pdr),
             'severityLabel' => $this->severityLabel((string) $report->severidad_pdr),
@@ -326,8 +326,8 @@ class VendedorDamagedProductService
             'quantity' => (int) $report->cantidad_pdr,
             'statusLabel' => $this->stateLabel((string) $report->estado_pdr),
             'statusTone' => $this->stateTone((string) $report->estado_pdr),
-            'observation' => $this->display($report->observacion_pdr, 'Sin observacion.'),
-            'reviewObservation' => $this->display($report->observacion_revision_pdr, 'Sin observacion administrativa.'),
+            'observation' => $this->display($report->observacion_pdr, 'Sin observación.'),
+            'reviewObservation' => $this->display($report->observacion_revision_pdr, 'Sin observación administrativa.'),
             'reportedAt' => $this->dateTime($report->fecha_reporte_pdr),
             'reviewedAt' => $this->dateTime($report->fecha_revision_pdr),
             'reportedBy' => $this->userName($report->usuarioReporta),
@@ -360,7 +360,7 @@ class VendedorDamagedProductService
                 ]))) ?: 'Inventario #' . $inventory->id_inventario;
 
                 return [
-                    'label' => $label . ' - cdi_inv ' . (int) $inventory->cdi_inv,
+                    'label' => $label . ' - stock disponible ' . (int) $inventory->cdi_inv,
                     'value' => (string) $inventory->id_inventario,
                     'inventoryId' => (int) $inventory->id_inventario,
                     'variantId' => $variant?->id_prenda_variante,
@@ -372,7 +372,7 @@ class VendedorDamagedProductService
                     'imageUrl' => $this->inventoryImageUrl($variant, $product),
                     'availableStock' => (int) $inventory->cdi_inv,
                     'committedStock' => (int) $inventory->cre_inv,
-                    'location' => $inventory->ubi_inv ?: 'Sin ubicacion',
+                    'location' => $inventory->ubi_inv ?: 'Sin ubicación',
                     'active' => (bool) ($variant?->est_prv ?? false),
                     'statusLabel' => (bool) ($variant?->est_prv ?? false) ? 'Activa' : 'Inactiva',
                 ];
@@ -399,7 +399,7 @@ class VendedorDamagedProductService
             'imageUrl' => $this->inventoryImageUrl($variant, $product),
             'availableStock' => $inventory ? (int) $inventory->cdi_inv : null,
             'committedStock' => $inventory ? (int) $inventory->cre_inv : null,
-            'location' => $inventory?->ubi_inv ?: 'Sin ubicacion',
+            'location' => $inventory?->ubi_inv ?: 'Sin ubicación',
             'variantStatusLabel' => (bool) ($variant?->est_prv ?? false) ? 'Activa' : ($variant ? 'Inactiva' : 'Sin variante'),
         ];
     }

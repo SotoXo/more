@@ -76,11 +76,11 @@ class VendedorReportService
             $this->csvRow($handle, ['Desde', $filters['date_from'], 'Hasta', $filters['date_to']]);
             $this->csvRow($handle, []);
 
-            $this->writeCsvSection($handle, 'Ventas', ['Fecha', 'Venta', 'Cliente', 'Total', 'Metodo', 'Estado', 'Entrega'], $data['sales']);
+            $this->writeCsvSection($handle, 'Ventas', ['Fecha', 'Venta', 'Cliente', 'Total', 'Método', 'Estado', 'Entrega'], $data['sales']);
             $this->writeCsvSection($handle, 'Reservas', ['Fecha', 'Reserva', 'Cliente', 'Total', 'Pagado', 'Saldo', 'Estado'], $data['reservations']);
-            $this->writeCsvSection($handle, 'Pagos gestionados', ['Fecha', 'Tipo', 'Operacion', 'Metodo', 'Monto', 'Estado', 'Accion'], $data['payments']);
-            $this->writeCsvSection($handle, 'Recojos y entregas', ['Fecha', 'Tipo', 'Numero', 'Cliente', 'Estado'], $data['pickups']);
-            $this->writeCsvSection($handle, 'Prendas danadas', ['Fecha', 'Codigo', 'Prenda', 'Causa', 'Tipo', 'Estado'], $data['damagedProducts']);
+            $this->writeCsvSection($handle, 'Pagos gestionados', ['Fecha', 'Tipo', 'Operación', 'Método', 'Monto', 'Estado', 'Acción'], $data['payments']);
+            $this->writeCsvSection($handle, 'Recojos y entregas', ['Fecha', 'Tipo', 'Número', 'Cliente', 'Estado'], $data['pickups']);
+            $this->writeCsvSection($handle, 'Prendas dañadas', ['Fecha', 'Código', 'Prenda', 'Causa', 'Tipo', 'Estado'], $data['damagedProducts']);
 
             fclose($handle);
         }, $filename, [
@@ -351,8 +351,8 @@ class VendedorReportService
             ['label' => 'Pagos confirmados', 'value' => $this->number($confirmedPayments->count()), 'note' => 'Pagos gestionados con resultado confirmado.', 'tone' => 'success'],
             ['label' => 'Comprobantes rechazados', 'value' => $this->number($rejectedPayments->count()), 'note' => 'Pagos gestionados con rechazo.', 'tone' => $rejectedPayments->count() > 0 ? 'danger' : 'neutral'],
             ['label' => 'Recojos realizados', 'value' => $this->number(count($data['pickups'])), 'note' => 'Entregas o recojos cerrados en el periodo.', 'tone' => 'warning'],
-            ['label' => 'Reportes de dano', 'value' => $this->number(count($data['damagedProducts'])), 'note' => 'Reportes creados en el periodo.', 'tone' => 'accent'],
-            ['label' => 'Alertas de stock', 'value' => $this->number($data['stockAlerts']['count']), 'note' => 'Alertas consultables por cdi_inv bajo.', 'tone' => $data['stockAlerts']['count'] > 0 ? 'warning' : 'success', 'href' => $data['stockAlerts']['href']],
+            ['label' => 'Reportes de daño', 'value' => $this->number(count($data['damagedProducts'])), 'note' => 'Reportes creados en el período.', 'tone' => 'accent'],
+            ['label' => 'Alertas de stock', 'value' => $this->number($data['stockAlerts']['count']), 'note' => 'Alertas consultables por stock disponible bajo.', 'tone' => $data['stockAlerts']['count'] > 0 ? 'warning' : 'success', 'href' => $data['stockAlerts']['href']],
         ];
     }
 
@@ -559,7 +559,7 @@ class VendedorReportService
             'qr' => 'QR',
             'transferencia', 'transferencia_bancaria' => 'Transferencia bancaria',
             'reserva' => 'Reserva',
-            default => $this->display($method, 'Sin metodo'),
+            default => $this->display($method, 'Sin método'),
         };
     }
 
@@ -567,7 +567,7 @@ class VendedorReportService
     {
         return match ($status) {
             'registrada' => ['label' => 'Registrada', 'tone' => 'success'],
-            'en_revision' => ['label' => 'En revision', 'tone' => 'warning'],
+            'en_revision' => ['label' => 'En revisión', 'tone' => 'warning'],
             'cancelada', 'incompleta' => ['label' => ucfirst((string) $status), 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin estado'), 'tone' => 'neutral'],
         };
@@ -578,7 +578,7 @@ class VendedorReportService
         return [
             'key' => $status,
             'label' => match ($status) {
-                'por_procesar' => 'En revision',
+                'por_procesar' => 'En revisión',
                 'confirmada' => 'Confirmada',
                 'lista_recojo' => 'Lista para recojo',
                 'completada', 'recogida' => 'Completada',
@@ -598,7 +598,7 @@ class VendedorReportService
     {
         return match ($status) {
             'confirmado' => ['label' => 'Confirmado', 'tone' => 'success'],
-            'pendiente_revision' => ['label' => 'Pendiente revision', 'tone' => 'warning'],
+            'pendiente_revision' => ['label' => 'Pendiente revisión', 'tone' => 'warning'],
             'rechazado' => ['label' => 'Rechazado', 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin estado'), 'tone' => 'neutral'],
         };
@@ -622,7 +622,7 @@ class VendedorReportService
         return [
             'label' => match ($status) {
                 'reportado' => 'Reportado',
-                'en_revision' => 'En revision',
+                'en_revision' => 'En revisión',
                 'confirmado' => 'Confirmado',
                 'descartado' => 'Descartado',
                 'reparado' => 'Reparado',
@@ -644,8 +644,8 @@ class VendedorReportService
     private function logisticsLabel(?string $status): string
     {
         return match ($status) {
-            'pendiente_revision' => 'Pendiente revision',
-            'pendiente_preparacion' => 'Pendiente preparacion',
+            'pendiente_revision' => 'Pendiente revisión',
+            'pendiente_preparacion' => 'Pendiente preparación',
             'pendiente_traslado' => 'Pendiente traslado',
             'lista_recojo' => 'Lista para recojo',
             'entregada' => 'Entregada',
@@ -669,13 +669,13 @@ class VendedorReportService
     private function damageCauseLabel(?string $cause): string
     {
         return match ($cause) {
-            'dano_en_tienda' => 'Dano en tienda',
-            'dano_en_transporte' => 'Dano en transporte',
-            'dano_por_manipulacion' => 'Dano por manipulacion',
-            'defecto_de_fabrica' => 'Defecto de fabrica',
-            'devolucion_danada' => 'Devolucion danada',
+            'dano_en_tienda' => 'Daño en tienda',
+            'dano_en_transporte' => 'Daño en transporte',
+            'dano_por_manipulacion' => 'Daño por manipulación',
+            'defecto_de_fabrica' => 'Defecto de fábrica',
+            'devolucion_danada' => 'Devolución dañada',
             'desgaste' => 'Desgaste',
-            'mala_conservacion' => 'Mala conservacion',
+            'mala_conservacion' => 'Mala conservación',
             'otro' => 'Otro',
             default => $this->display($cause, 'Sin causa'),
         };
@@ -686,12 +686,12 @@ class VendedorReportService
         return match ($type) {
             'mancha' => 'Mancha',
             'roto' => 'Roto',
-            'cierre_danado' => 'Cierre danado',
-            'boton_faltante' => 'Boton faltante',
+            'cierre_danado' => 'Cierre dañado',
+            'boton_faltante' => 'Botón faltante',
             'costura_abierta' => 'Costura abierta',
-            'decoloracion' => 'Decoloracion',
+            'decoloracion' => 'Decoloración',
             'talla_mal_etiquetada' => 'Talla mal etiquetada',
-            'defecto_fabrica' => 'Defecto de fabrica',
+            'defecto_fabrica' => 'Defecto de fábrica',
             'otro' => 'Otro',
             default => $this->display($type, 'Sin tipo'),
         };

@@ -264,7 +264,7 @@ class VendedorReservationService
                 'limitAt' => $this->date($reservation->fec_limite_recojo_res),
                 'pickupPoint' => $this->display($reservation->punto_recojo_res, 'Recojo en tienda Mati Boutique'),
                 'stockOrigin' => $this->display($reservation->origen_stock_res, 'TIENDA'),
-                'note' => $this->display($reservation->obs_res, 'Sin observacion'),
+                'note' => $this->display($reservation->obs_res, 'Sin observación'),
                 'subtotal' => $this->money((float) $reservation->sub_res),
                 'total' => $this->money((float) $reservation->tot_res),
                 'paid' => $this->money((float) $reservation->monto_pagado_res),
@@ -324,7 +324,7 @@ class VendedorReservationService
 
             if ($balance <= 0) {
                 throw ValidationException::withMessages([
-                    'payment_action' => 'La reserva ya esta pagada completamente.',
+                    'payment_action' => 'La reserva ya está pagada completamente.',
                 ]);
             }
 
@@ -356,8 +356,8 @@ class VendedorReservationService
         $validated = Validator::make($request->all(), [
             'cancellation_reason' => ['required', 'string', 'min:5', 'max:1000'],
         ], [
-            'cancellation_reason.required' => 'Ingresa el motivo de cancelacion.',
-            'cancellation_reason.min' => 'El motivo de cancelacion debe tener al menos 5 caracteres.',
+            'cancellation_reason.required' => 'Ingresa el motivo de cancelación.',
+            'cancellation_reason.min' => 'El motivo de cancelación debe tener al menos 5 caracteres.',
         ])->validate();
 
         DB::transaction(function () use ($request, $reservation, $validated) {
@@ -509,7 +509,7 @@ class VendedorReservationService
                 }
 
                 if (! $variant->est_prv || ! $variant->prenda?->est_pre) {
-                    $validator->errors()->add('reservation_items', 'La variante seleccionada no esta activa para reserva.');
+                    $validator->errors()->add('reservation_items', 'La variante seleccionada no está activa para reserva.');
                     continue;
                 }
 
@@ -696,7 +696,7 @@ class VendedorReservationService
             'verifiedBy' => $payment->usuarioVerifica ? $this->userName($payment->usuarioVerifica) : 'Sin verificador',
             'verifiedAt' => $this->dateTime($payment->fec_verificacion_rpg),
             'voucherUrl' => $payment->comprobante_url_rpg,
-            'note' => $this->display($payment->obs_rpg, 'Sin observacion'),
+            'note' => $this->display($payment->obs_rpg, 'Sin observación'),
         ];
     }
 
@@ -796,7 +796,7 @@ class VendedorReservationService
                 'price' => (float) $variant->pve_prv,
                 'stock' => (int) ($variant->inventario?->cdi_inv ?? 0),
                 'committed' => (int) ($variant->inventario?->cre_inv ?? 0),
-                'location' => $variant->inventario?->ubi_inv ?: 'Sin ubicacion',
+                'location' => $variant->inventario?->ubi_inv ?: 'Sin ubicación',
                 'image' => $variant->prenda ? $this->primaryImage($variant->prenda) : null,
                 'hasInventory' => $variant->inventario !== null,
             ])
@@ -816,7 +816,7 @@ class VendedorReservationService
     private function reservationStatusOptions(): array
     {
         return [
-            ['value' => 'por_procesar', 'label' => 'En revision'],
+            ['value' => 'por_procesar', 'label' => 'En revisión'],
             ['value' => 'confirmada', 'label' => 'Confirmada'],
             ['value' => 'lista_recojo', 'label' => 'Lista para recojo'],
             ['value' => 'completada', 'label' => 'Completada'],
@@ -837,14 +837,14 @@ class VendedorReservationService
             'efectivo' => 'Efectivo',
             'qr' => 'QR',
             'transferencia_bancaria' => 'Transferencia bancaria',
-            default => $this->display($method, 'Sin metodo'),
+            default => $this->display($method, 'Sin método'),
         };
     }
 
     private function reservationStatusBadge(?string $status): array
     {
         return match ($status) {
-            'por_procesar' => ['label' => 'En revision', 'tone' => 'warning'],
+            'por_procesar' => ['label' => 'En revisión', 'tone' => 'warning'],
             'confirmada' => ['label' => 'Confirmada', 'tone' => 'success'],
             'lista_recojo' => ['label' => 'Lista para recojo', 'tone' => 'info'],
             'completada', 'recogida' => ['label' => 'Completada', 'tone' => 'success'],
@@ -858,7 +858,7 @@ class VendedorReservationService
         return match ($status) {
             'anticipo_confirmado' => ['label' => 'Adelanto confirmado', 'tone' => 'success'],
             'pagado_total' => ['label' => 'Pagado completamente', 'tone' => 'success'],
-            'pendiente_revision' => ['label' => 'Pendiente revision', 'tone' => 'warning'],
+            'pendiente_revision' => ['label' => 'Pendiente revisión', 'tone' => 'warning'],
             'rechazado' => ['label' => 'Rechazado', 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin pago'), 'tone' => 'neutral'],
         };
@@ -868,7 +868,7 @@ class VendedorReservationService
     {
         return match ($status) {
             'confirmado' => ['label' => 'Confirmado', 'tone' => 'success'],
-            'pendiente_revision' => ['label' => 'Pendiente revision', 'tone' => 'warning'],
+            'pendiente_revision' => ['label' => 'Pendiente revisión', 'tone' => 'warning'],
             'rechazado' => ['label' => 'Rechazado', 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin estado'), 'tone' => 'neutral'],
         };
@@ -879,7 +879,7 @@ class VendedorReservationService
         return match ($status) {
             'lista_recojo' => 'Lista para recojo',
             'pendiente_traslado' => 'Pendiente de traslado',
-            'pendiente_preparacion' => 'Pendiente de preparacion',
+            'pendiente_preparacion' => 'Pendiente de preparación',
             'recogida' => 'Recogida',
             'cancelada' => 'Cancelada',
             'vencida' => 'Vencida',

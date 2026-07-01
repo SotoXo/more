@@ -49,7 +49,7 @@ export default function VendedorModulePage({
                                     Este modulo sera implementado en la siguiente fase.
                                 </h2>
                                 <p className="mt-2 text-sm leading-6 text-[color:var(--admin-muted)]">
-                                    La ruta, el acceso y la estructura visual ya estan disponibles. No se ejecutan ventas, reservas, pagos, confirmaciones ni movimientos de stock desde esta pantalla.
+                                    La ruta, el acceso y la estructura visual ya están disponibles. No se ejecutan ventas, reservas, pagos, confirmaciones ni movimientos de stock desde esta pantalla.
                                 </p>
                             </div>
                         </div>

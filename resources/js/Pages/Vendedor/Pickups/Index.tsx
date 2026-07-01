@@ -45,7 +45,7 @@ type PickupsIndexProps = {
 
 const columns: VendedorReadOnlyColumn<PickupRow>[] = [
     { key: 'type', label: 'Tipo', render: (row) => row.typeLabel },
-    { key: 'number', label: 'Numero', render: (row) => row.number },
+    { key: 'number', label: 'Número', render: (row) => row.number },
     { key: 'customer', label: 'Cliente', render: (row) => row.customer },
     { key: 'date', label: 'Fecha', render: (row) => row.date },
     { key: 'total', label: 'Total', align: 'right', render: (row) => row.total },
@@ -60,8 +60,8 @@ const columns: VendedorReadOnlyColumn<PickupRow>[] = [
             </SuperadminBadge>
         ),
     },
-    { key: 'logistics', label: 'Logistica', render: (row) => row.logisticsStatus },
-    { key: 'location', label: 'Ubicacion', render: (row) => row.location },
+    { key: 'logistics', label: 'Logística', render: (row) => row.logisticsStatus },
+    { key: 'location', label: 'Ubicación', render: (row) => row.location },
 ];
 
 function PickupTabs({ tabs }: { tabs: PickupTab[] }) {
@@ -121,7 +121,7 @@ export default function Index({ pickups, summary, filters, options, tabs, scopeL
                     filters={filters}
                     hidden={{ tab: filters.tab ?? 'ventas' }}
                     fields={[
-                        { name: 'search', label: 'Busqueda', placeholder: 'Numero o cliente' },
+                        { name: 'search', label: 'Búsqueda', placeholder: 'Número o cliente' },
                         { name: 'type', label: 'Tipo', type: 'select', options: options.types },
                         { name: 'payment_status', label: 'Estado de pago', type: 'select', options: options.paymentStatuses },
                         { name: 'logistics_status', label: 'Estado logistico', type: 'select', options: options.logisticsStatuses },
@@ -131,7 +131,7 @@ export default function Index({ pickups, summary, filters, options, tabs, scopeL
                 />
 
                 <section className="sa-panel-muted rounded-2xl p-4 text-sm leading-6 text-[color:var(--admin-muted)]">
-                    No se puede entregar porque el pago no esta confirmado al 100%. Las ventas entregadas no modifican stock; las reservas recogidas usan el flujo central de conversion y no descuentan cdi_inv otra vez.
+                    No se puede entregar porque el pago no está confirmado al 100%. Las ventas entregadas no modifican stock; las reservas recogidas usan el flujo central de conversión y no descuentan el stock disponible otra vez.
                 </section>
 
                 <VendedorReadOnlyTable

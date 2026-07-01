@@ -33,7 +33,7 @@ class VendedorInventoryQueryService
                     'key' => 'available_products',
                     'label' => 'Prendas disponibles',
                     'value' => $this->number($availableProducts),
-                    'note' => 'Prendas con cdi_inv mayor a 0.',
+                    'note' => 'Prendas con stock disponible mayor a 0.',
                     'tone' => 'success',
                     'icon' => 'shirt',
                     'href' => '/vendedor/prendas?availability=disponible',
@@ -51,7 +51,7 @@ class VendedorInventoryQueryService
                     'key' => 'stock_alerts',
                     'label' => 'Alertas de stock',
                     'value' => $this->number($stockAlerts),
-                    'note' => 'Regla temporal: cdi_inv menor o igual a ' . self::LOW_STOCK_LIMIT . '.',
+                    'note' => 'Regla temporal: stock disponible menor o igual a ' . self::LOW_STOCK_LIMIT . '.',
                     'tone' => $stockAlerts > 0 ? 'danger' : 'success',
                     'icon' => 'alert',
                     'href' => '/vendedor/alertas-stock',
@@ -153,7 +153,7 @@ class VendedorInventoryQueryService
             'product' => [
                 'id' => (int) $product->id_prenda,
                 'name' => (string) $product->nom_pre,
-                'description' => trim((string) ($product->des_pre ?? '')) ?: 'Sin descripcion registrada.',
+                'description' => trim((string) ($product->des_pre ?? '')) ?: 'Sin descripción registrada.',
                 'image' => $gallery[0] ?? null,
                 'gallery' => $gallery,
                 'category' => $product->categoria?->nom_cat ?? 'Sin categoria',
@@ -215,8 +215,8 @@ class VendedorInventoryQueryService
             'items' => $records->map(fn (Inventario $inventory) => $this->mapInventoryRow($inventory))->all(),
             'summary' => [
                 ['label' => 'Registros', 'value' => $this->number($records->count()), 'tone' => 'accent'],
-                ['label' => 'Disponible cdi_inv', 'value' => $this->number((int) $records->sum('cdi_inv')), 'tone' => 'success'],
-                ['label' => 'Comprometido cre_inv', 'value' => $this->number((int) $records->sum('cre_inv')), 'tone' => 'warning'],
+                ['label' => 'Stock disponible', 'value' => $this->number((int) $records->sum('cdi_inv')), 'tone' => 'success'],
+                ['label' => 'Stock comprometido', 'value' => $this->number((int) $records->sum('cre_inv')), 'tone' => 'warning'],
                 ['label' => 'Sin stock', 'value' => $this->number($records->filter(fn (Inventario $inventory) => (int) $inventory->cdi_inv <= 0)->count()), 'tone' => 'danger'],
             ],
             'filters' => $this->inventoryFilters($request, $productLabel),
@@ -384,7 +384,7 @@ class VendedorInventoryQueryService
             'price' => $this->money((float) ($variant?->pve_prv ?? $product?->prb_pre ?? 0)),
             'available' => $this->number($available),
             'committed' => $this->number((int) $inventory->cre_inv),
-            'location' => $this->display($inventory->ubi_inv, 'Sin ubicacion'),
+            'location' => $this->display($inventory->ubi_inv, 'Sin ubicación'),
             'status' => ($product?->est_pre && $variant?->est_prv)
                 ? ['label' => 'Activa', 'tone' => 'success']
                 : ['label' => 'Inactiva', 'tone' => 'neutral'],
@@ -412,7 +412,7 @@ class VendedorInventoryQueryService
             'price' => $this->money((float) $variant->pve_prv),
             'available' => $this->number($available),
             'committed' => $this->number((int) ($inventory?->cre_inv ?? 0)),
-            'location' => $this->display($inventory?->ubi_inv, 'Sin ubicacion'),
+            'location' => $this->display($inventory?->ubi_inv, 'Sin ubicación'),
             'status' => $variant->est_prv ? ['label' => 'Activa', 'tone' => 'success'] : ['label' => 'Inactiva', 'tone' => 'neutral'],
             'stockLevel' => $this->stockLevelBadge($available),
         ];

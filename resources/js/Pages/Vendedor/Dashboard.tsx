@@ -111,8 +111,8 @@ export default function Dashboard({ dashboard }: DashboardProps) {
                                 description: 'Prendas, existencias y alertas ya leen datos del inventario.',
                             },
                             {
-                                title: 'Operacion comercial',
-                                description: 'Ventas, reservas y revision de comprobantes ya trabajan con datos reales.',
+                                title: 'Operación comercial',
+                                description: 'Ventas, reservas y revisión de comprobantes ya trabajan con datos reales.',
                             },
                             {
                                 title: 'Inventario protegido',

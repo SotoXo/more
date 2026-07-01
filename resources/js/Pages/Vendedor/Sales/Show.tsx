@@ -96,7 +96,7 @@ export default function Show({ sale, items, movements }: SaleShowProps) {
                         <Detail label="Fecha" value={sale.date} />
                         <Detail label="Vendedor" value={sale.seller} />
                         <Detail label="Cliente" value={sale.customer} />
-                        <Detail label="Metodo de pago" value={sale.paymentMethod} />
+                        <Detail label="Método de pago" value={sale.paymentMethod} />
                         <Detail label="Monto pagado" value={sale.paidAmount} />
                         <Detail label="Verificado por" value={sale.paymentVerifiedBy} />
                         <Detail label="Estado logistico" value={sale.logisticsStatus} />
@@ -122,7 +122,7 @@ export default function Show({ sale, items, movements }: SaleShowProps) {
                 <section className="space-y-3">
                     <div>
                         <p className="text-sm font-semibold text-[color:var(--admin-text)]">Productos vendidos</p>
-                        <p className="mt-1 text-sm text-[color:var(--admin-muted)]">Detalle en modo lectura. No hay edicion ni anulacion en esta fase.</p>
+                        <p className="mt-1 text-sm text-[color:var(--admin-muted)]">Detalle en modo lectura. No hay edición ni anulación en esta fase.</p>
                     </div>
                     <VendedorReadOnlyTable
                         rows={items}
@@ -135,7 +135,7 @@ export default function Show({ sale, items, movements }: SaleShowProps) {
                 <section className="sa-panel rounded-2xl p-5">
                     <p className="text-sm font-semibold text-[color:var(--admin-text)]">Resumen de Kardex</p>
                     <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
-                        Disponible corresponde a cdi_inv y comprometido a cre_inv.
+                        Disponible corresponde al stock disponible y comprometido al stock comprometido.
                     </p>
                     <div className="mt-4 grid gap-3">
                         {movements.length === 0 && (
@@ -148,8 +148,8 @@ export default function Show({ sale, items, movements }: SaleShowProps) {
                                 <Detail label="Producto" value={movement.product} />
                                 <Detail label="SKU" value={movement.sku} />
                                 <Detail label="Cantidad" value={movement.quantity} />
-                                <Detail label="cdi_inv" value={`${movement.availableBefore} -> ${movement.availableAfter}`} />
-                                <Detail label="cre_inv" value={`${movement.committedBefore} -> ${movement.committedAfter}`} />
+                                <Detail label="Stock disponible" value={`${movement.availableBefore} -> ${movement.availableAfter}`} />
+                                <Detail label="Stock comprometido" value={`${movement.committedBefore} -> ${movement.committedAfter}`} />
                             </div>
                         ))}
                     </div>

@@ -51,7 +51,7 @@ type DamagedProductsIndexProps = {
 };
 
 const columns: VendedorReadOnlyColumn<DamagedReportRow>[] = [
-    { key: 'code', label: 'Codigo', render: (row) => row.code },
+    { key: 'code', label: 'Código', render: (row) => row.code },
     { key: 'date', label: 'Fecha', render: (row) => row.date },
     { key: 'name', label: 'Prenda', render: (row) => row.name },
     { key: 'cause', label: 'Causa', render: (row) => row.cause },
@@ -160,7 +160,7 @@ export default function Index({
     }));
 
     return (
-        <VendedorLayout title="Mati Boutique | Prendas danadas">
+        <VendedorLayout title="Mati Boutique | Prendas dañadas">
             <div className="space-y-6">
                 <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div className="max-w-4xl">
@@ -168,7 +168,7 @@ export default function Index({
                             Inventario
                         </p>
                         <h1 className="mt-2 text-2xl font-semibold text-[color:var(--admin-text)] sm:text-3xl">
-                            Reportar prendas danadas
+                            Reportar prendas dañadas
                         </h1>
                         <p className="mt-3 text-sm leading-6 text-[color:var(--admin-muted)]">
                             {scopeLabel}
@@ -191,10 +191,10 @@ export default function Index({
                     resetHref="/vendedor/prendas-daniadas"
                     filters={filters}
                     fields={[
-                        { name: 'search', label: 'Busqueda', placeholder: 'Codigo, nombre u observacion' },
+                        { name: 'search', label: 'Búsqueda', placeholder: 'Código, nombre u observación' },
                         { name: 'estado', label: 'Estado', type: 'select', options: options.states },
                         { name: 'causa', label: 'Causa', type: 'select', options: options.causes },
-                        { name: 'tipo_danio', label: 'Tipo de dano', type: 'select', options: options.damageTypes },
+                        { name: 'tipo_danio', label: 'Tipo de daño', type: 'select', options: options.damageTypes },
                         { name: 'severidad', label: 'Severidad', type: 'select', options: options.severities },
                         { name: 'fecha_desde', label: 'Desde', type: 'date' },
                         { name: 'fecha_hasta', label: 'Hasta', type: 'date' },
@@ -202,14 +202,14 @@ export default function Index({
                 />
 
                 <section className="sa-panel-muted rounded-2xl p-4 text-sm leading-6 text-[color:var(--admin-muted)]">
-                    El vendedor solo reporta. La creacion queda en estado reportado, no modifica cdi_inv, no modifica cre_inv y no registra Kardex.
+                    El vendedor solo reporta. La creación queda en estado reportado, no modifica el stock disponible, no modifica el stock comprometido y no registra Kardex.
                 </section>
 
                 <VendedorReadOnlyTable
                     rows={rows}
                     columns={columns}
                     emptyTitle="Sin reportes para mostrar"
-                    emptyDescription="No hay reportes de prendas danadas con los filtros aplicados."
+                    emptyDescription="No hay reportes de prendas dañadas con los filtros aplicados."
                 />
 
                 <Pagination links={pagination.links} meta={pagination.meta} />

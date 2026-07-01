@@ -242,7 +242,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                                 <input className="sa-input min-h-11 px-3 text-sm" value={options.seller.name} disabled />
                             </label>
                             <label className="space-y-2">
-                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Metodo de pago</span>
+                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Método de pago</span>
                                 <select
                                     className="sa-input min-h-11 px-3 text-sm"
                                     value={data.payment_method}
@@ -316,7 +316,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                                 <div className="flex items-center justify-between gap-3">
                                     <div>
                                         <p className="text-sm font-semibold text-[color:var(--admin-text)]">Carrito de venta</p>
-                                        <p className="mt-1 text-xs text-[color:var(--admin-muted)]">Stock mostrado = cdi_inv.</p>
+                                        <p className="mt-1 text-xs text-[color:var(--admin-muted)]">Stock mostrado = stock disponible.</p>
                                     </div>
                                     <SuperadminBadge tone={data.sale_items.length > 0 ? 'accent' : 'neutral'}>
                                         {data.sale_items.length} items
@@ -408,7 +408,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                                         </label>
                                     )}
                                     <div className="rounded-2xl border border-[rgba(143,200,173,0.28)] bg-[rgba(143,200,173,0.1)] p-4 text-sm leading-6 text-[color:var(--admin-muted)]">
-                                        El pago registrado por vendedor quedara confirmado automaticamente. QR y transferencia no pasan por revision admin en esta fase.
+                                        El pago registrado por vendedor quedará confirmado automáticamente. QR y transferencia no pasan por revisión admin en esta fase.
                                     </div>
                                     <button
                                         type="submit"

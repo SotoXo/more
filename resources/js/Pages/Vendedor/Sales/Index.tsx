@@ -34,7 +34,7 @@ const columns: VendedorReadOnlyColumn<SaleRow>[] = [
     { key: 'customer', label: 'Cliente', render: (row) => row.customer },
     { key: 'seller', label: 'Vendedor', render: (row) => row.seller },
     { key: 'total', label: 'Total', align: 'right', render: (row) => row.total },
-    { key: 'method', label: 'Metodo', render: (row) => row.paymentMethod },
+    { key: 'method', label: 'Método', render: (row) => row.paymentMethod },
     {
         key: 'payment',
         label: 'Pago',
@@ -89,10 +89,10 @@ export default function Index({ sales, summary, filters, options, scopeLabel }: 
                     resetHref="/vendedor/ventas"
                     filters={filters}
                     fields={[
-                        { name: 'search', label: 'Busqueda', placeholder: 'Numero, cliente o vendedor' },
+                        { name: 'search', label: 'Búsqueda', placeholder: 'Número, cliente o vendedor' },
                         { name: 'date_from', label: 'Desde', type: 'date' },
                         { name: 'date_to', label: 'Hasta', type: 'date' },
-                        { name: 'payment_method', label: 'Metodo de pago', type: 'select', options: options.paymentMethods },
+                        { name: 'payment_method', label: 'Método de pago', type: 'select', options: options.paymentMethods },
                         { name: 'status', label: 'Estado', type: 'select', options: options.statuses },
                     ]}
                 />

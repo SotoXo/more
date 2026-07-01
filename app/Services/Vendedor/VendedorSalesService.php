@@ -62,7 +62,7 @@ class VendedorSalesService
                 'paymentMethods' => $this->paymentMethodOptions(),
                 'statuses' => [
                     ['value' => 'registrada', 'label' => 'Registrada'],
-                    ['value' => 'en_revision', 'label' => 'En revision'],
+                    ['value' => 'en_revision', 'label' => 'En revisión'],
                     ['value' => 'cancelada', 'label' => 'Cancelada'],
                 ],
             ],
@@ -368,7 +368,7 @@ class VendedorSalesService
                 }
 
                 if (! $variant->est_prv || ! $variant->prenda?->est_pre) {
-                    $validator->errors()->add('sale_items', 'La variante seleccionada no esta activa para venta.');
+                    $validator->errors()->add('sale_items', 'La variante seleccionada no está activa para venta.');
                     continue;
                 }
 
@@ -536,7 +536,7 @@ class VendedorSalesService
                 'price' => (float) $variant->pve_prv,
                 'stock' => (int) ($variant->inventario?->cdi_inv ?? 0),
                 'committed' => (int) ($variant->inventario?->cre_inv ?? 0),
-                'location' => $variant->inventario?->ubi_inv ?: 'Sin ubicacion',
+                'location' => $variant->inventario?->ubi_inv ?: 'Sin ubicación',
                 'image' => $variant->prenda ? $this->primaryImage($variant->prenda) : null,
                 'hasInventory' => $variant->inventario !== null,
             ])
@@ -606,7 +606,7 @@ class VendedorSalesService
             'efectivo' => 'Efectivo',
             'qr' => 'QR',
             'transferencia_bancaria' => 'Transferencia bancaria',
-            default => $this->display($method, 'Sin metodo'),
+            default => $this->display($method, 'Sin método'),
         };
     }
 
@@ -615,7 +615,7 @@ class VendedorSalesService
         return match ($status) {
             'confirmado' => ['label' => 'Confirmado', 'tone' => 'success'],
             'rechazado' => ['label' => 'Rechazado', 'tone' => 'danger'],
-            'pendiente_revision' => ['label' => 'Pendiente revision', 'tone' => 'warning'],
+            'pendiente_revision' => ['label' => 'Pendiente revisión', 'tone' => 'warning'],
             default => ['label' => 'Sin pago', 'tone' => 'neutral'],
         };
     }
@@ -624,7 +624,7 @@ class VendedorSalesService
     {
         return match ($status) {
             'registrada' => ['label' => 'Registrada', 'tone' => 'success'],
-            'en_revision' => ['label' => 'En revision', 'tone' => 'warning'],
+            'en_revision' => ['label' => 'En revisión', 'tone' => 'warning'],
             'cancelada', 'incompleta' => ['label' => ucfirst((string) $status), 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin estado'), 'tone' => 'neutral'],
         };

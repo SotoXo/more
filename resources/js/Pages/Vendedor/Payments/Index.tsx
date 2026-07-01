@@ -43,9 +43,9 @@ type PaymentsIndexProps = {
 const columns: VendedorReadOnlyColumn<PaymentRow>[] = [
     { key: 'date', label: 'Fecha', render: (row) => row.date },
     { key: 'type', label: 'Tipo', render: (row) => row.typeLabel },
-    { key: 'number', label: 'Numero', render: (row) => row.number },
+    { key: 'number', label: 'Número', render: (row) => row.number },
     { key: 'customer', label: 'Cliente', render: (row) => row.customer },
-    { key: 'method', label: 'Metodo', render: (row) => row.paymentMethod },
+    { key: 'method', label: 'Método', render: (row) => row.paymentMethod },
     { key: 'amount', label: 'Monto', align: 'right', render: (row) => row.amount },
     {
         key: 'status',
@@ -115,17 +115,17 @@ export default function Index({ payments, summary, filters, options, tabs, scope
                     resetHref="/vendedor/pagos"
                     filters={filters}
                     fields={[
-                        { name: 'search', label: 'Busqueda', placeholder: 'Numero, cliente o metodo' },
+                        { name: 'search', label: 'Búsqueda', placeholder: 'Número, cliente o método' },
                         { name: 'status', label: 'Estado', type: 'select', options: options.statuses },
                         { name: 'type', label: 'Tipo', type: 'select', options: options.types },
-                        { name: 'method', label: 'Metodo de pago', type: 'select', options: options.methods },
+                        { name: 'method', label: 'Método de pago', type: 'select', options: options.methods },
                         { name: 'date_from', label: 'Desde', type: 'date' },
                         { name: 'date_to', label: 'Hasta', type: 'date' },
                     ]}
                 />
 
                 <section className="sa-panel-muted rounded-2xl p-4 text-sm leading-6 text-[color:var(--admin-muted)]">
-                    Esta revision confirma o rechaza comprobantes subidos por clientes. No registra pagos del vendedor ni escribe inventario directamente desde esta pantalla.
+                    Esta revisión confirma o rechaza comprobantes subidos por clientes. No registra pagos del vendedor ni escribe inventario directamente desde esta pantalla.
                 </section>
 
                 <VendedorReadOnlyTable

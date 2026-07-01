@@ -203,7 +203,7 @@ export default function Show({ reservation, items, payments, movements, options 
                 <section className="space-y-3">
                     <div>
                         <p className="text-sm font-semibold text-[color:var(--admin-text)]">Productos reservados</p>
-                        <p className="mt-1 text-sm text-[color:var(--admin-muted)]">Detalle en modo lectura. No hay edicion de productos en esta fase.</p>
+                        <p className="mt-1 text-sm text-[color:var(--admin-muted)]">Detalle en modo lectura. No hay edición de productos en esta fase.</p>
                     </div>
                     <VendedorReadOnlyTable
                         rows={items}
@@ -224,7 +224,7 @@ export default function Show({ reservation, items, payments, movements, options 
                         {payments.map((payment) => (
                             <div key={payment.id} className="grid gap-3 rounded-2xl border border-[color:var(--admin-border)] bg-[color:var(--admin-surface-soft)] p-4 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr]">
                                 <Detail label="Fecha" value={payment.date} />
-                                <Detail label="Metodo" value={payment.method} />
+                                <Detail label="Método" value={payment.method} />
                                 <Detail label="Confirmado" value={payment.confirmed} />
                                 <div className="sa-panel-soft rounded-2xl p-4">
                                     <p className="text-xs font-semibold text-[color:var(--admin-muted)]">Estado</p>
@@ -257,7 +257,7 @@ export default function Show({ reservation, items, payments, movements, options 
                             )}
                             <div className="mt-4 grid gap-4 md:grid-cols-2">
                                 <label className="space-y-2">
-                                    <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Metodo de pago</span>
+                                    <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Método de pago</span>
                                     <select
                                         value={paymentForm.data.payment_method}
                                         onChange={(event) => {
@@ -316,10 +316,10 @@ export default function Show({ reservation, items, payments, movements, options 
                     {reservation.canCancel && (
                         <form onSubmit={submitCancel} className="sa-panel rounded-2xl p-5">
                             <p className="text-sm font-semibold text-[color:var(--admin-text)]">Cancelar reserva</p>
-                            <p className="mt-1 text-sm text-[color:var(--admin-muted)]">La cancelacion libera stock: cdi_inv sube y cre_inv baja.</p>
+                            <p className="mt-1 text-sm text-[color:var(--admin-muted)]">La cancelación libera stock: el stock disponible sube y el comprometido baja.</p>
                             {reservation.hasConfirmedPayments && (
                                 <div className="mt-4 rounded-2xl border border-[rgba(244,196,117,0.28)] bg-[rgba(244,196,117,0.1)] p-4 text-sm leading-6 text-[rgb(250,222,179)]">
-                                    La reserva tiene pagos registrados. La cancelacion liberara stock, pero la gestion de devolucion queda fuera de esta fase.
+                                    La reserva tiene pagos registrados. La cancelación liberará stock, pero la gestión de devolución queda fuera de esta fase.
                                 </div>
                             )}
                             {Object.keys(cancelForm.errors).length > 0 && (
@@ -330,7 +330,7 @@ export default function Show({ reservation, items, payments, movements, options 
                                 </div>
                             )}
                             <label className="mt-4 block space-y-2">
-                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Motivo de cancelacion</span>
+                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Motivo de cancelación</span>
                                 <textarea
                                     value={cancelForm.data.cancellation_reason}
                                     onChange={(event) => cancelForm.setData('cancellation_reason', event.target.value)}
@@ -352,7 +352,7 @@ export default function Show({ reservation, items, payments, movements, options 
                 <section className="sa-panel rounded-2xl p-5">
                     <p className="text-sm font-semibold text-[color:var(--admin-text)]">Resumen de Kardex</p>
                     <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
-                        Disponible corresponde a cdi_inv y comprometido a cre_inv.
+                        Disponible corresponde al stock disponible y comprometido al stock comprometido.
                     </p>
                     <div className="mt-4 grid gap-3">
                         {movements.length === 0 && (
@@ -366,8 +366,8 @@ export default function Show({ reservation, items, payments, movements, options 
                                 <Detail label="Producto" value={movement.product} />
                                 <Detail label="SKU" value={movement.sku} />
                                 <Detail label="Cantidad" value={movement.quantity} />
-                                <Detail label="cdi_inv" value={`${movement.availableBefore} -> ${movement.availableAfter}`} />
-                                <Detail label="cre_inv" value={`${movement.committedBefore} -> ${movement.committedAfter}`} />
+                                <Detail label="Stock disponible" value={`${movement.availableBefore} -> ${movement.availableAfter}`} />
+                                <Detail label="Stock comprometido" value={`${movement.committedBefore} -> ${movement.committedAfter}`} />
                             </div>
                         ))}
                     </div>

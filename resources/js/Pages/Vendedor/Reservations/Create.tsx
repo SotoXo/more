@@ -258,7 +258,7 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                                 <input className="sa-input min-h-11 px-3 text-sm" value={options.responsible.name} disabled />
                             </label>
                             <label className="space-y-2">
-                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Metodo de pago</span>
+                                <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Método de pago</span>
                                 <select
                                     className="sa-input min-h-11 px-3 text-sm"
                                     value={data.payment_method}
@@ -342,7 +342,7 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                                 <div className="flex items-center justify-between gap-3">
                                     <div>
                                         <p className="text-sm font-semibold text-[color:var(--admin-text)]">Carrito de reserva</p>
-                                        <p className="mt-1 text-xs text-[color:var(--admin-muted)]">Stock mostrado = cdi_inv.</p>
+                                        <p className="mt-1 text-xs text-[color:var(--admin-muted)]">Stock mostrado = stock disponible.</p>
                                     </div>
                                     <SuperadminBadge tone={data.reservation_items.length > 0 ? 'accent' : 'neutral'}>
                                         {data.reservation_items.length} items
@@ -438,7 +438,7 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                                         </label>
                                     )}
                                     <div className="rounded-2xl border border-[rgba(143,200,173,0.28)] bg-[rgba(143,200,173,0.1)] p-4 text-sm leading-6 text-[color:var(--admin-muted)]">
-                                        La reserva separa stock: cdi_inv baja y cre_inv sube. El pago registrado por vendedor queda confirmado automaticamente.
+                                        La reserva separa stock: el stock disponible baja y el comprometido sube. El pago registrado por vendedor queda confirmado automáticamente.
                                     </div>
                                     <button
                                         type="submit"

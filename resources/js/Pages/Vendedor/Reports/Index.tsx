@@ -474,7 +474,7 @@ export default function Index({
                             { key: 'number', label: 'Venta', render: (row) => <Link href={row.showHref} className="font-semibold text-[color:var(--admin-text)]">{row.number}</Link> },
                             { key: 'customer', label: 'Cliente', render: (row) => row.customer },
                             { key: 'total', label: 'Total', align: 'right', render: (row) => row.total },
-                            { key: 'method', label: 'Metodo', render: (row) => row.paymentMethod },
+                            { key: 'method', label: 'Método', render: (row) => row.paymentMethod },
                             { key: 'status', label: 'Estado', render: (row) => <SuperadminBadge tone={row.status.tone}>{row.status.label}</SuperadminBadge> },
                             { key: 'delivery', label: 'Entrega', render: (row) => row.delivery },
                         ]}
@@ -503,10 +503,10 @@ export default function Index({
                             { key: 'date', label: 'Fecha', render: (row) => row.date },
                             { key: 'type', label: 'Tipo', render: (row) => row.type },
                             { key: 'operation', label: 'Operacion', render: (row) => row.operation },
-                            { key: 'method', label: 'Metodo', render: (row) => row.method },
+                            { key: 'method', label: 'Método', render: (row) => row.method },
                             { key: 'amount', label: 'Monto', align: 'right', render: (row) => row.amount },
                             { key: 'status', label: 'Estado', render: (row) => <SuperadminBadge tone={row.status.tone}>{row.status.label}</SuperadminBadge> },
-                            { key: 'action', label: 'Accion', render: (row) => row.action },
+                            { key: 'action', label: 'Acción', render: (row) => row.action },
                         ]}
                     />
 
@@ -517,19 +517,19 @@ export default function Index({
                         columns={[
                             { key: 'date', label: 'Fecha', render: (row) => row.date },
                             { key: 'type', label: 'Tipo', render: (row) => row.type },
-                            { key: 'number', label: 'Numero', render: (row) => row.number },
+                            { key: 'number', label: 'Número', render: (row) => row.number },
                             { key: 'customer', label: 'Cliente', render: (row) => row.customer },
                             { key: 'status', label: 'Estado', render: (row) => <SuperadminBadge tone={row.status.tone}>{row.status.label}</SuperadminBadge> },
                         ]}
                     />
 
                     <ReportTable<DamagedProductRow>
-                        title="Prendas danadas reportadas"
+                        title="Prendas dañadas reportadas"
                         rows={tables.damagedProducts}
-                        empty="Sin reportes de prendas danadas en el periodo."
+                        empty="Sin reportes de prendas dañadas en el período."
                         columns={[
                             { key: 'date', label: 'Fecha', render: (row) => row.date },
-                            { key: 'code', label: 'Codigo', render: (row) => <Link href={row.showHref} className="font-semibold text-[color:var(--admin-text)]">{row.code}</Link> },
+                            { key: 'code', label: 'Código', render: (row) => <Link href={row.showHref} className="font-semibold text-[color:var(--admin-text)]">{row.code}</Link> },
                             { key: 'name', label: 'Prenda', render: (row) => row.name },
                             { key: 'cause', label: 'Causa', render: (row) => row.cause },
                             { key: 'damageType', label: 'Tipo', render: (row) => row.damageType },

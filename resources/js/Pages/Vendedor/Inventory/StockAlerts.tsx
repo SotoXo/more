@@ -67,7 +67,7 @@ export default function StockAlerts({ items, summary, filters, alerts, options }
                         Alertas de stock
                     </h1>
                     <p className="mt-3 text-sm leading-6 text-[color:var(--admin-muted)]">
-                        Lectura de variantes con cdi_inv menor o igual a {alerts.limit}.
+                        Lectura de variantes con stock disponible menor o igual a {alerts.limit}.
                     </p>
                 </header>
 
@@ -93,7 +93,7 @@ export default function StockAlerts({ items, summary, filters, alerts, options }
                     resetHref="/vendedor/alertas-stock"
                     filters={filters}
                     fields={[
-                        { name: 'search', label: 'Busqueda', placeholder: 'Prenda, SKU, color o ubicacion' },
+                        { name: 'search', label: 'Búsqueda', placeholder: 'Prenda, SKU, color o ubicación' },
                         { name: 'color', label: 'Color', type: 'select', options: options.colors },
                         { name: 'size', label: 'Talla', type: 'select', options: options.sizes },
                         { name: 'location', label: 'Ubicacion', type: 'select', options: options.locations },
@@ -104,7 +104,7 @@ export default function StockAlerts({ items, summary, filters, alerts, options }
                     rows={rows}
                     columns={columns}
                     emptyTitle="Sin alertas de stock"
-                    emptyDescription="No hay variantes con cdi_inv bajo para los filtros aplicados."
+                    emptyDescription="No hay variantes con stock disponible bajo para los filtros aplicados."
                 />
             </div>
         </VendedorLayout>

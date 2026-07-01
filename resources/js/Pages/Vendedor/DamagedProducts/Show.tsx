@@ -96,10 +96,10 @@ export default function Show({ report, indexHref, scopeLabel }: DamagedProductsS
                             </span>
                             <div>
                                 <p className="text-sm font-medium text-[color:var(--admin-text)]">
-                                    Este reporte esta pendiente de revision administrativa.
+                                    Este reporte está pendiente de revisión administrativa.
                                 </p>
                                 <p className="mt-1 text-xs leading-5 text-[color:var(--admin-muted)]">
-                                    Desde vendedor no se puede confirmar dano, quitar stock, reparar, dar baja definitiva ni resolver reportes.
+                                    Desde vendedor no se puede confirmar daño, quitar stock, reparar, dar baja definitiva ni resolver reportes.
                                 </p>
                             </div>
                         </div>
@@ -122,10 +122,10 @@ export default function Show({ report, indexHref, scopeLabel }: DamagedProductsS
                                 <Detail label="Prenda reportada" value={report.name} />
                                 <Detail label="Fecha reporte" value={report.reportedAt} />
                                 <Detail label="Causa" value={report.causeLabel} />
-                                <Detail label="Tipo de dano" value={report.damageTypeLabel} />
+                                <Detail label="Tipo de daño" value={report.damageTypeLabel} />
                                 <Detail label="Reportado por" value={report.reportedBy} />
                                 <Detail label="Revisado por" value={report.reviewedBy} />
-                                <Detail label="Fecha revision" value={report.reviewedAt} />
+                                <Detail label="Fecha de revisión" value={report.reviewedAt} />
                                 <Detail label="Afecta inventario" value={report.affectsInventory ? 'Revisar decision administrativa' : 'No modifica stock'} />
                             </div>
 
@@ -159,8 +159,8 @@ export default function Show({ report, indexHref, scopeLabel }: DamagedProductsS
                                     <Detail label="SKU" value={report.inventory.sku} />
                                     <Detail label="Color" value={report.inventory.color} />
                                     <Detail label="Talla" value={report.inventory.size} />
-                                    <Detail label="Disponible cdi_inv" value={report.inventory.availableStock === null ? 'Sin inventario' : String(report.inventory.availableStock)} />
-                                    <Detail label="Comprometido cre_inv" value={report.inventory.committedStock === null ? 'Sin inventario' : String(report.inventory.committedStock)} />
+                                    <Detail label="Stock disponible" value={report.inventory.availableStock === null ? 'Sin inventario' : String(report.inventory.availableStock)} />
+                                    <Detail label="Stock comprometido" value={report.inventory.committedStock === null ? 'Sin inventario' : String(report.inventory.committedStock)} />
                                     <Detail label="Ubicacion" value={report.inventory.location} />
                                     <Detail label="Estado variante" value={report.inventory.variantStatusLabel} />
                                     <Detail label="Inventario" value={report.inventory.inventoryId ? `#${report.inventory.inventoryId}` : 'Sin inventario'} />
@@ -210,7 +210,7 @@ export default function Show({ report, indexHref, scopeLabel }: DamagedProductsS
                                 <p className="text-xs font-semibold uppercase text-[color:var(--admin-muted)]">Acciones administrativas</p>
                             </div>
                             <p className="mt-5 text-sm leading-6 text-[color:var(--admin-muted)]">
-                                No hay acciones disponibles en el panel vendedor. La revision, confirmacion, reparacion, baja definitiva o resolucion se mantiene en el modulo superadmin.
+                                No hay acciones disponibles en el panel vendedor. La revisión, confirmación, reparación, baja definitiva o resolución se mantiene en el módulo superadmin.
                             </p>
                         </div>
                     </div>

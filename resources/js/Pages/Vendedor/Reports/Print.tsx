@@ -165,7 +165,7 @@ export default function Print({
                         { key: 'number', label: 'Venta' },
                         { key: 'customer', label: 'Cliente' },
                         { key: 'total', label: 'Total' },
-                        { key: 'paymentMethod', label: 'Metodo' },
+                        { key: 'paymentMethod', label: 'Método' },
                         { key: 'status', label: 'Estado' },
                         { key: 'delivery', label: 'Entrega' },
                     ]}
@@ -190,10 +190,10 @@ export default function Print({
                         { key: 'date', label: 'Fecha' },
                         { key: 'type', label: 'Tipo' },
                         { key: 'operation', label: 'Operacion' },
-                        { key: 'method', label: 'Metodo' },
+                        { key: 'method', label: 'Método' },
                         { key: 'amount', label: 'Monto' },
                         { key: 'status', label: 'Estado' },
-                        { key: 'action', label: 'Accion' },
+                        { key: 'action', label: 'Acción' },
                     ]}
                 />
                 <PrintTable
@@ -202,17 +202,17 @@ export default function Print({
                     columns={[
                         { key: 'date', label: 'Fecha' },
                         { key: 'type', label: 'Tipo' },
-                        { key: 'number', label: 'Numero' },
+                        { key: 'number', label: 'Número' },
                         { key: 'customer', label: 'Cliente' },
                         { key: 'status', label: 'Estado' },
                     ]}
                 />
                 <PrintTable
-                    title="Prendas danadas"
+                    title="Prendas dañadas"
                     rows={tables.damagedProducts}
                     columns={[
                         { key: 'date', label: 'Fecha' },
-                        { key: 'code', label: 'Codigo' },
+                        { key: 'code', label: 'Código' },
                         { key: 'name', label: 'Prenda' },
                         { key: 'cause', label: 'Causa' },
                         { key: 'damageType', label: 'Tipo' },

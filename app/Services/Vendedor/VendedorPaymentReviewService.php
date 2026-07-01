@@ -62,7 +62,7 @@ class VendedorPaymentReviewService
                 'statuses' => $this->statusOptions(),
             ],
             'tabs' => $this->tabs($request, $status),
-            'scopeLabel' => 'Comprobantes subidos por clientes para compras online y reservas. Los pagos registrados por vendedor quedan fuera de esta revision.',
+            'scopeLabel' => 'Comprobantes subidos por clientes para compras online y reservas. Los pagos registrados por vendedor quedan fuera de esta revisión.',
         ];
     }
 
@@ -175,7 +175,7 @@ class VendedorPaymentReviewService
             'pending_payments' => [
                 'value' => $this->number($pending),
                 'note' => $pending > 0
-                    ? 'Comprobantes de clientes pendientes de revision.'
+                    ? 'Comprobantes de clientes pendientes de revisión.'
                     : 'Sin comprobantes de clientes pendientes.',
                 'tone' => $pending > 0 ? 'warning' : 'success',
             ],
@@ -328,12 +328,12 @@ class VendedorPaymentReviewService
                 'balanceAmount' => $this->money(max(0, $total - $verified)),
                 'status' => $this->paymentStatusBadge($payment->est_vpg),
                 'voucherUrl' => $this->voucherUrl($payment->comprobante_url_vpg, $payment->comprobante_ruta_vpg),
-                'note' => $this->display($payment->obs_vpg, 'Sin observacion'),
+                'note' => $this->display($payment->obs_vpg, 'Sin observación'),
                 'origin' => 'Cliente online',
                 'canReview' => $canReview,
                 'approveAction' => '/vendedor/pagos/venta-' . $payment->id_venta_pago . '/aprobar',
                 'rejectAction' => '/vendedor/pagos/venta-' . $payment->id_venta_pago . '/rechazar',
-                'inventoryNotice' => 'La revision no escribe inventario desde esta pantalla. La aprobacion delega en el servicio central de ventas online, que consume el stock ya separado sin duplicar movimientos.',
+                'inventoryNotice' => 'La revisión no escribe inventario desde esta pantalla. La aprobación delega en el servicio central de ventas online, que consume el stock ya separado sin duplicar movimientos.',
             ],
             'operation' => [
                 'id' => (int) $sale->id_venta,
@@ -383,12 +383,12 @@ class VendedorPaymentReviewService
                 'balanceAmount' => $this->money((float) $reservation->saldo_res),
                 'status' => $this->paymentStatusBadge($payment->est_rpg),
                 'voucherUrl' => $this->voucherUrl($payment->comprobante_url_rpg, $payment->comprobante_ruta_rpg),
-                'note' => $this->display($payment->obs_rpg, 'Sin observacion'),
+                'note' => $this->display($payment->obs_rpg, 'Sin observación'),
                 'origin' => 'Cliente reserva',
                 'canReview' => $canReview,
                 'approveAction' => '/vendedor/pagos/reserva-' . $payment->id_reserva_pago . '/aprobar',
                 'rejectAction' => '/vendedor/pagos/reserva-' . $payment->id_reserva_pago . '/rechazar',
-                'inventoryNotice' => 'La revision no escribe inventario desde esta pantalla. El rechazo de una reserva delega en el servicio central vigente, que libera el stock separado cuando corresponde.',
+                'inventoryNotice' => 'La revisión no escribe inventario desde esta pantalla. El rechazo de una reserva delega en el servicio central vigente, que libera el stock separado cuando corresponde.',
             ],
             'operation' => [
                 'id' => (int) $reservation->id_reserva,
@@ -421,7 +421,7 @@ class VendedorPaymentReviewService
             'status' => $this->paymentStatusBadge($payment->est_vpg),
             'verifiedAt' => $this->dateTime($payment->fec_verificacion_vpg),
             'verifiedBy' => $payment->usuarioVerifica ? $this->userName($payment->usuarioVerifica) : 'Sin verificador',
-            'note' => $this->display($payment->obs_vpg, 'Sin observacion'),
+            'note' => $this->display($payment->obs_vpg, 'Sin observación'),
         ];
     }
 
@@ -436,7 +436,7 @@ class VendedorPaymentReviewService
             'status' => $this->paymentStatusBadge($payment->est_rpg),
             'verifiedAt' => $this->dateTime($payment->fec_verificacion_rpg),
             'verifiedBy' => $payment->usuarioVerifica ? $this->userName($payment->usuarioVerifica) : 'Sin verificador',
-            'note' => $this->display($payment->obs_rpg, 'Sin observacion'),
+            'note' => $this->display($payment->obs_rpg, 'Sin observación'),
         ];
     }
 
@@ -501,7 +501,7 @@ class VendedorPaymentReviewService
 
         if ($payment->venta?->est_ven !== 'en_revision') {
             throw ValidationException::withMessages([
-                'payment_action' => 'La compra online ya no esta en revision.',
+                'payment_action' => 'La compra online ya no está en revisión.',
             ]);
         }
 
@@ -528,7 +528,7 @@ class VendedorPaymentReviewService
 
         if (! in_array((string) $payment->reserva?->est_res, ['por_procesar', 'confirmada', 'lista_recojo'], true)) {
             throw ValidationException::withMessages([
-                'payment_action' => 'La reserva ya no admite revision de pagos.',
+                'payment_action' => 'La reserva ya no admite revisión de pagos.',
             ]);
         }
 
@@ -696,7 +696,7 @@ class VendedorPaymentReviewService
     private function statusOptions(): array
     {
         return [
-            ['value' => 'pendiente_revision', 'label' => 'Pendiente revision'],
+            ['value' => 'pendiente_revision', 'label' => 'Pendiente revisión'],
             ['value' => 'confirmado', 'label' => 'Aprobado'],
             ['value' => 'rechazado', 'label' => 'Rechazado'],
         ];
@@ -776,7 +776,7 @@ class VendedorPaymentReviewService
             'efectivo' => 'Efectivo',
             'qr' => 'QR',
             'transferencia_bancaria' => 'Transferencia bancaria',
-            default => $this->display($method, 'Sin metodo'),
+            default => $this->display($method, 'Sin método'),
         };
     }
 
@@ -785,7 +785,7 @@ class VendedorPaymentReviewService
         return match ($status) {
             'confirmado' => ['label' => 'Aprobado', 'tone' => 'success'],
             'rechazado' => ['label' => 'Rechazado', 'tone' => 'danger'],
-            'pendiente_revision' => ['label' => 'Pendiente revision', 'tone' => 'warning'],
+            'pendiente_revision' => ['label' => 'Pendiente revisión', 'tone' => 'warning'],
             default => ['label' => $this->display($status, 'Sin pago'), 'tone' => 'neutral'],
         };
     }
@@ -794,7 +794,7 @@ class VendedorPaymentReviewService
     {
         return match ($status) {
             'registrada' => ['label' => 'Registrada', 'tone' => 'success'],
-            'en_revision' => ['label' => 'En revision', 'tone' => 'warning'],
+            'en_revision' => ['label' => 'En revisión', 'tone' => 'warning'],
             'cancelada', 'incompleta' => ['label' => ucfirst((string) $status), 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin estado'), 'tone' => 'neutral'],
         };
@@ -803,7 +803,7 @@ class VendedorPaymentReviewService
     private function reservationStatusBadge(?string $status): array
     {
         return match ($status) {
-            'por_procesar' => ['label' => 'En revision', 'tone' => 'warning'],
+            'por_procesar' => ['label' => 'En revisión', 'tone' => 'warning'],
             'confirmada' => ['label' => 'Confirmada', 'tone' => 'success'],
             'lista_recojo' => ['label' => 'Lista para recojo', 'tone' => 'info'],
             'completada', 'recogida' => ['label' => 'Completada', 'tone' => 'success'],
@@ -817,7 +817,7 @@ class VendedorPaymentReviewService
         return match ($status) {
             'anticipo_confirmado' => ['label' => 'Adelanto confirmado', 'tone' => 'success'],
             'pagado_total' => ['label' => 'Pagado completamente', 'tone' => 'success'],
-            'pendiente_revision' => ['label' => 'Pendiente revision', 'tone' => 'warning'],
+            'pendiente_revision' => ['label' => 'Pendiente revisión', 'tone' => 'warning'],
             'rechazado' => ['label' => 'Rechazado', 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin pago'), 'tone' => 'neutral'],
         };
@@ -826,8 +826,8 @@ class VendedorPaymentReviewService
     private function logisticsStatusLabel(?string $status): string
     {
         return match ($status) {
-            'pendiente_revision' => 'Pendiente revision',
-            'pendiente_preparacion' => 'Pendiente preparacion',
+            'pendiente_revision' => 'Pendiente revisión',
+            'pendiente_preparacion' => 'Pendiente preparación',
             'pendiente_traslado' => 'Pendiente traslado',
             'lista_recojo' => 'Lista para recojo',
             'entregada' => 'Entregada',

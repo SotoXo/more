@@ -75,7 +75,7 @@ export default function Index({ products, summary, filters, options }: ProductIn
                         Consultar prendas
                     </h1>
                     <p className="mt-3 text-sm leading-6 text-[color:var(--admin-muted)]">
-                        Busqueda operativa de prendas, variantes, colores, tallas y disponibilidad real.
+                        Búsqueda operativa de prendas, variantes, colores, tallas y disponibilidad real.
                     </p>
                 </header>
 
@@ -86,7 +86,7 @@ export default function Index({ products, summary, filters, options }: ProductIn
                     resetHref="/vendedor/prendas"
                     filters={filters}
                     fields={[
-                        { name: 'search', label: 'Busqueda', placeholder: 'Nombre, SKU, color o talla' },
+                        { name: 'search', label: 'Búsqueda', placeholder: 'Nombre, SKU, color o talla' },
                         { name: 'category', label: 'Categoria', type: 'select', options: options.categories },
                         { name: 'brand', label: 'Marca', type: 'select', options: options.brands },
                         { name: 'color', label: 'Color', type: 'select', options: options.colors },

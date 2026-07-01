@@ -84,7 +84,7 @@ export default function Index({ reservations, summary, filters, options, scopeLa
                     resetHref="/vendedor/reservas"
                     filters={filters}
                     fields={[
-                        { name: 'search', label: 'Busqueda', placeholder: 'Numero, cliente o responsable' },
+                        { name: 'search', label: 'Búsqueda', placeholder: 'Número, cliente o responsable' },
                         { name: 'date_from', label: 'Desde', type: 'date' },
                         { name: 'date_to', label: 'Hasta', type: 'date' },
                         { name: 'status', label: 'Estado', type: 'select', options: options.statuses },

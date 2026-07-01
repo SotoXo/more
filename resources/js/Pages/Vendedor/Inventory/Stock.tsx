@@ -68,7 +68,7 @@ export default function Stock({ items, summary, filters, options }: StockProps) 
                         Existencias
                     </h1>
                     <p className="mt-3 text-sm leading-6 text-[color:var(--admin-muted)]">
-                        Consulta de inventario en modo lectura con disponible cdi_inv y comprometido cre_inv.
+                        Consulta de inventario en modo lectura con stock disponible y stock comprometido.
                     </p>
                 </header>
 
@@ -86,7 +86,7 @@ export default function Stock({ items, summary, filters, options }: StockProps) 
                     filters={filters}
                     hidden={{ product: filters.product }}
                     fields={[
-                        { name: 'search', label: 'Busqueda', placeholder: 'Prenda, SKU, color o ubicacion' },
+                        { name: 'search', label: 'Búsqueda', placeholder: 'Prenda, SKU, color o ubicación' },
                         { name: 'color', label: 'Color', type: 'select', options: options.colors },
                         { name: 'size', label: 'Talla', type: 'select', options: options.sizes },
                         { name: 'location', label: 'Ubicacion', type: 'select', options: options.locations },

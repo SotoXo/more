@@ -121,7 +121,7 @@ export default function SaleShow({ sale, items, payments, rules }: SaleShowProps
             return;
         }
 
-        if (!window.confirm('Marcar esta venta como entregada?')) {
+        if (!window.confirm('¿Marcar esta venta como entregada?')) {
             return;
         }
 
@@ -198,7 +198,7 @@ export default function SaleShow({ sale, items, payments, rules }: SaleShowProps
                                 {payments.map((payment) => (
                                     <div key={payment.id} className="grid gap-3 rounded-2xl border border-[color:var(--admin-border)] bg-[color:var(--admin-surface-soft)] p-4 md:grid-cols-5">
                                         <Detail label="Fecha" value={payment.date} />
-                                        <Detail label="Metodo" value={payment.method} />
+                                        <Detail label="Método" value={payment.method} />
                                         <Detail label="Confirmado" value={payment.confirmed} />
                                         <div className="sa-panel-soft rounded-2xl p-4">
                                             <p className="text-xs font-semibold text-[color:var(--admin-muted)]">Estado</p>
@@ -221,7 +221,7 @@ export default function SaleShow({ sale, items, payments, rules }: SaleShowProps
                     <form onSubmit={submitDelivery} className="sa-panel h-fit rounded-2xl p-5">
                         <p className="text-sm font-semibold text-[color:var(--admin-text)]">Confirmar entrega</p>
                         <p className="mt-2 text-sm leading-6 text-[color:var(--admin-muted)]">
-                            {sale.canDeliver ? 'La venta esta pagada al 100% y lista para entrega fisica.' : (sale.blockReason ?? rules.paymentBlockMessage)}
+                            {sale.canDeliver ? 'La venta está pagada al 100% y lista para entrega física.' : (sale.blockReason ?? rules.paymentBlockMessage)}
                         </p>
                         <FormErrors errors={form.errors} />
                         <button

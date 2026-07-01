@@ -23,7 +23,7 @@ use Illuminate\Validation\ValidationException;
 
 class VendedorPickupService
 {
-    private const PAYMENT_BLOCK_MESSAGE = 'No se puede entregar porque el pago no esta confirmado al 100%.';
+    private const PAYMENT_BLOCK_MESSAGE = 'No se puede entregar porque el pago no está confirmado al 100%.';
     private const READY_LOGISTICS = ['lista_recojo'];
     private const ACTIVE_RESERVATION_STATES = ['confirmada', 'lista_recojo'];
 
@@ -66,19 +66,19 @@ class VendedorPickupService
                 ],
                 'paymentStatuses' => [
                     ['value' => 'pagado_total', 'label' => 'Pago 100%'],
-                    ['value' => 'pendiente_revision', 'label' => 'Pendiente revision'],
+                    ['value' => 'pendiente_revision', 'label' => 'Pendiente revisión'],
                     ['value' => 'incompleto', 'label' => 'Pago incompleto'],
                     ['value' => 'sin_pago', 'label' => 'Sin pago'],
                 ],
                 'logisticsStatuses' => [
                     ['value' => 'lista_recojo', 'label' => 'Lista para recojo'],
-                    ['value' => 'pendiente_preparacion', 'label' => 'Pendiente preparacion'],
+                    ['value' => 'pendiente_preparacion', 'label' => 'Pendiente preparación'],
                     ['value' => 'pendiente_traslado', 'label' => 'Pendiente traslado'],
-                    ['value' => 'pendiente_revision', 'label' => 'Pendiente revision'],
+                    ['value' => 'pendiente_revision', 'label' => 'Pendiente revisión'],
                 ],
             ],
             'tabs' => $this->tabs($request, $tab, $allRows),
-            'scopeLabel' => 'Bandeja operativa de entregas fisicas y recojos. Solo se habilita entrega cuando el pago confirmado cubre el 100%.',
+            'scopeLabel' => 'Bandeja operativa de entregas físicas y recojos. Solo se habilita entrega cuando el pago confirmado cubre el 100%.',
         ];
     }
 
@@ -126,7 +126,7 @@ class VendedorPickupService
                 ->all(),
             'rules' => [
                 'paymentBlockMessage' => self::PAYMENT_BLOCK_MESSAGE,
-                'stockNotice' => 'Entregar una venta no modifica cdi_inv ni cre_inv. El stock ya fue descontado o confirmado en el flujo comercial previo.',
+                'stockNotice' => 'Entregar una venta no modifica el stock disponible ni el stock comprometido. El stock ya fue descontado o confirmado en el flujo comercial previo.',
             ],
         ];
     }
@@ -175,7 +175,7 @@ class VendedorPickupService
                 ->all(),
             'rules' => [
                 'paymentBlockMessage' => self::PAYMENT_BLOCK_MESSAGE,
-                'stockNotice' => 'Recoger una reserva no descuenta cdi_inv otra vez. El flujo central consume el stock comprometido en cre_inv y registra conversion_reserva_venta.',
+                'stockNotice' => 'Recoger una reserva no descuenta el stock disponible otra vez. El flujo central consume el stock comprometido y registra la conversión de reserva a venta.',
             ],
         ];
     }
@@ -618,7 +618,7 @@ class VendedorPickupService
         }
 
         if (! $this->reservationHasCommittedStock($reservation)) {
-            return ['canDeliver' => false, 'reason' => 'No existe stock comprometido suficiente en cre_inv para completar la reserva.'];
+            return ['canDeliver' => false, 'reason' => 'No existe stock comprometido suficiente para completar la reserva.'];
         }
 
         return ['canDeliver' => true, 'reason' => null];
@@ -672,7 +672,7 @@ class VendedorPickupService
             'color' => $variant?->color?->nom_col ?? 'Sin color',
             'size' => $variant?->talla?->nom_tal ?? 'Sin talla',
             'quantity' => $this->number((int) $detail->can_dve),
-            'location' => $variant?->inventario?->ubi_inv ?: 'Sin ubicacion',
+            'location' => $variant?->inventario?->ubi_inv ?: 'Sin ubicación',
         ];
     }
 
@@ -692,11 +692,11 @@ class VendedorPickupService
             'color' => $variant?->color?->nom_col ?? 'Sin color',
             'size' => $variant?->talla?->nom_tal ?? 'Sin talla',
             'quantity' => $this->number($quantity),
-            'location' => $variant?->inventario?->ubi_inv ?: 'Sin ubicacion',
+            'location' => $variant?->inventario?->ubi_inv ?: 'Sin ubicación',
             'committed' => $this->number($committed),
             'committedStatus' => $committed >= $quantity
-                ? ['label' => 'cre_inv suficiente', 'tone' => 'success']
-                : ['label' => 'cre_inv insuficiente', 'tone' => 'danger'],
+                ? ['label' => 'Stock comprometido suficiente', 'tone' => 'success']
+                : ['label' => 'Stock comprometido insuficiente', 'tone' => 'danger'],
         ];
     }
 
@@ -732,7 +732,7 @@ class VendedorPickupService
     {
         return match ($status) {
             'pagado_total' => ['label' => 'Pago 100%', 'tone' => 'success'],
-            'pendiente_revision' => ['label' => 'Pendiente revision', 'tone' => 'warning'],
+            'pendiente_revision' => ['label' => 'Pendiente revisión', 'tone' => 'warning'],
             'incompleto' => ['label' => 'Incompleto', 'tone' => 'warning'],
             'rechazado' => ['label' => 'Rechazado', 'tone' => 'danger'],
             default => ['label' => 'Sin pago', 'tone' => 'neutral'],
@@ -743,7 +743,7 @@ class VendedorPickupService
     {
         return match ($status) {
             'confirmado' => ['label' => 'Confirmado', 'tone' => 'success'],
-            'pendiente_revision' => ['label' => 'Pendiente revision', 'tone' => 'warning'],
+            'pendiente_revision' => ['label' => 'Pendiente revisión', 'tone' => 'warning'],
             'rechazado' => ['label' => 'Rechazado', 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin estado'), 'tone' => 'neutral'],
         };
@@ -753,7 +753,7 @@ class VendedorPickupService
     {
         return match ($status) {
             'registrada' => ['label' => 'Registrada', 'tone' => 'success'],
-            'en_revision' => ['label' => 'En revision', 'tone' => 'warning'],
+            'en_revision' => ['label' => 'En revisión', 'tone' => 'warning'],
             'cancelada', 'incompleta' => ['label' => ucfirst((string) $status), 'tone' => 'danger'],
             default => ['label' => $this->display($status, 'Sin estado'), 'tone' => 'neutral'],
         };
@@ -762,7 +762,7 @@ class VendedorPickupService
     private function reservationStatusBadge(?string $status): array
     {
         return match ($status) {
-            'por_procesar' => ['label' => 'En revision', 'tone' => 'warning'],
+            'por_procesar' => ['label' => 'En revisión', 'tone' => 'warning'],
             'confirmada' => ['label' => 'Confirmada', 'tone' => 'success'],
             'lista_recojo' => ['label' => 'Lista para recojo', 'tone' => 'info'],
             'completada', 'recogida' => ['label' => 'Completada', 'tone' => 'success'],
@@ -774,15 +774,15 @@ class VendedorPickupService
     private function logisticsStatusLabel(?string $status): string
     {
         return match ($status) {
-            'pendiente_revision' => 'Pendiente revision',
-            'pendiente_preparacion' => 'Pendiente preparacion',
+            'pendiente_revision' => 'Pendiente revisión',
+            'pendiente_preparacion' => 'Pendiente preparación',
             'pendiente_traslado' => 'Pendiente traslado',
             'lista_recojo' => 'Lista para recojo',
             'entregada' => 'Entregada',
             'recogida' => 'Recogida',
             'cancelada' => 'Cancelada',
             'vencida' => 'Vencida',
-            default => $this->display($status, 'Sin estado logistico'),
+            default => $this->display($status, 'Sin estado logístico'),
         };
     }
 
@@ -803,7 +803,7 @@ class VendedorPickupService
             'qr' => 'QR',
             'transferencia', 'transferencia_bancaria' => 'Transferencia bancaria',
             'reserva' => 'Reserva',
-            default => $this->display($method, 'Sin metodo'),
+            default => $this->display($method, 'Sin método'),
         };
     }
 
