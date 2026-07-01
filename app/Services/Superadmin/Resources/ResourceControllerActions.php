@@ -347,6 +347,13 @@ class ResourceControllerActions
             }
 
             if ($request->input('reservation_action') === 'cancel') {
+                $request->validate([
+                    'obs_res' => ['required', 'string', 'min:5', 'max:1000'],
+                ], [
+                    'obs_res.required' => 'Ingresa el motivo de la cancelación de la reserva.',
+                    'obs_res.min' => 'El motivo de la cancelación debe tener al menos 5 caracteres.',
+                ]);
+
                 $this->reservations->cancel(
                     $resolvedRecord,
                     $request->input('obs_res') ? (string) $request->input('obs_res') : null,
@@ -419,6 +426,13 @@ class ResourceControllerActions
             }
 
             if ($request->input('sale_action') === 'mark_incomplete') {
+                $request->validate([
+                    'obs_vpg' => ['required', 'string', 'min:5', 'max:1000'],
+                ], [
+                    'obs_vpg.required' => 'Ingresa el motivo para marcar la venta como incompleta.',
+                    'obs_vpg.min' => 'El motivo debe tener al menos 5 caracteres.',
+                ]);
+
                 $this->sales->markOnlineSaleIncomplete(
                     $resolvedRecord,
                     (float) $request->input('monto_verificado_ven', 0),
@@ -431,6 +445,13 @@ class ResourceControllerActions
             }
 
             if ($request->input('sale_action') === 'cancel_online') {
+                $request->validate([
+                    'obs_vpg' => ['required', 'string', 'min:5', 'max:1000'],
+                ], [
+                    'obs_vpg.required' => 'Ingresa el motivo de la cancelación de la venta.',
+                    'obs_vpg.min' => 'El motivo de la cancelación debe tener al menos 5 caracteres.',
+                ]);
+
                 $this->sales->cancelOnlineSale(
                     $resolvedRecord,
                     (int) $request->user()->id,
@@ -991,7 +1012,7 @@ class ResourceControllerActions
                 'method' => 'put',
                 'data' => ['reservation_action' => 'cancel'],
                 'promptFields' => [
-                    ['key' => 'obs_res', 'label' => 'Observación', 'optional' => true],
+                    ['key' => 'obs_res', 'label' => 'Motivo de la cancelación (obligatorio)'],
                 ],
                 'confirm' => 'La reserva se cancelará y el stock reservado volverá a disponible. Continuar?',
                 'kind' => 'danger',
@@ -1025,7 +1046,7 @@ class ResourceControllerActions
                 'data' => ['sale_action' => 'mark_incomplete'],
                 'promptFields' => [
                     ['key' => 'monto_verificado_ven', 'label' => 'Monto verificado'],
-                    ['key' => 'obs_vpg', 'label' => 'Observacion', 'optional' => true],
+                    ['key' => 'obs_vpg', 'label' => 'Motivo (obligatorio)'],
                 ],
                 'kind' => 'secondary',
             ];
@@ -1035,7 +1056,7 @@ class ResourceControllerActions
                 'method' => 'put',
                 'data' => ['sale_action' => 'cancel_online'],
                 'promptFields' => [
-                    ['key' => 'obs_vpg', 'label' => 'Observacion', 'optional' => true],
+                    ['key' => 'obs_vpg', 'label' => 'Motivo de la cancelación (obligatorio)'],
                 ],
                 'confirm' => 'La venta se cancelara y no descontara inventario. Continuar?',
                 'kind' => 'danger',

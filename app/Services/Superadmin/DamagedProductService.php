@@ -442,6 +442,13 @@ class DamagedProductService
 
     public function discardReport(Request $request, PrendaDanioReporte $report): PrendaDanioReporte
     {
+        $request->validate([
+            'observacion_revision_pdr' => ['required', 'string', 'min:5', 'max:5000'],
+        ], [
+            'observacion_revision_pdr.required' => 'Ingresa el motivo para descartar el reporte.',
+            'observacion_revision_pdr.min' => 'El motivo debe tener al menos 5 caracteres.',
+        ]);
+
         $payload = $this->validateReviewPayload($request);
 
         return DB::transaction(function () use ($report, $payload) {
@@ -539,6 +546,13 @@ class DamagedProductService
 
     public function markDefinitiveLoss(Request $request, PrendaDanioReporte $report): PrendaDanioReporte
     {
+        $request->validate([
+            'observacion_revision_pdr' => ['required', 'string', 'min:5', 'max:5000'],
+        ], [
+            'observacion_revision_pdr.required' => 'Ingresa el motivo de la baja definitiva.',
+            'observacion_revision_pdr.min' => 'El motivo debe tener al menos 5 caracteres.',
+        ]);
+
         $payload = $this->validateReviewPayload($request);
 
         return DB::transaction(function () use ($report, $payload) {

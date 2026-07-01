@@ -151,14 +151,22 @@ export default function DamagedProductsShow({
 }: DamagedProductsShowProps) {
     const page = usePage<LandingPageProps>();
     const flash = page.props.flash;
-    const { data, setData, post, processing, errors } = useForm<ReviewForm>({
+    const { data, setData, post, processing, errors, setError, clearErrors } = useForm<ReviewForm>({
         decision_pdr: report.decision ?? '',
         observacion_revision_pdr: '',
     });
     const errorEntries = Object.entries(errors as Record<string, string>);
+    const motivoRequeridoActions = ['descartar', 'baja_definitiva'];
 
     const submitAction = (event: FormEvent<HTMLFormElement>, action: ReportAction) => {
         event.preventDefault();
+
+        if (motivoRequeridoActions.includes(action.key) && data.observacion_revision_pdr.trim().length < 5) {
+            setError('observacion_revision_pdr', 'Ingresa el motivo de la acción (mínimo 5 caracteres).');
+            return;
+        }
+
+        clearErrors('observacion_revision_pdr');
 
         if (!window.confirm(action.confirm)) {
             return;
@@ -341,7 +349,7 @@ export default function DamagedProductsShow({
                                 </label>
 
                                 <label className="space-y-2">
-                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Observación de revisión</span>
+                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Observación de revisión (obligatoria para descartar o dar de baja)</span>
                                     <textarea
                                         value={data.observacion_revision_pdr}
                                         onChange={(event) => setData('observacion_revision_pdr', event.target.value)}
