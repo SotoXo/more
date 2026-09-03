@@ -374,6 +374,8 @@ class VendedorReservationService
                 ]);
             }
 
+            $this->payments->ensureCancellationAllowed($reservation);
+
             if ($reservation->detalles->isEmpty()) {
                 throw ValidationException::withMessages([
                     'reservation_action' => 'La reserva no tiene prendas para liberar.',

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inventario;
 use App\Models\PrendaVariante;
 use App\Services\Superadmin\ReservationService;
 use Illuminate\Http\Request;
@@ -68,9 +67,8 @@ class CarritoController extends Controller
         $varianteId = $request->variante_id;
         $cantidad   = $request->cantidad;
 
-        // Check stock
-        $inventario = Inventario::where('cod_prenda_variantes_inv', $varianteId)->first();
-        $stock = $inventario ? max(0, (int) $inventario->cdi_inv) : 0;
+        $variante = $this->reservableVariant($varianteId);
+        $stock = max(0, (int) $variante->inventario->cdi_inv);
 
         if ($stock === 0 || $stock < $cantidad) {
             return response()->json(['message' => 'No hay stock suficiente para reservar esa cantidad.'], 422);
@@ -85,9 +83,6 @@ class CarritoController extends Controller
         if ($cantidadFinal > $stock) {
             return response()->json(['message' => 'No hay stock suficiente para reservar esa cantidad.'], 422);
         }
-
-        $variante = PrendaVariante::with(['prenda.marca', 'prenda.imagenes', 'color', 'talla'])
-            ->findOrFail($varianteId);
 
         $imagen = $variante->prenda->imagenes
             ->sortByDesc('pri_igp')->sortBy('ord_igp')
@@ -121,8 +116,8 @@ class CarritoController extends Controller
         $key     = (string) $varianteId;
 
         if (isset($carrito[$key])) {
-            $inventario = Inventario::where('cod_prenda_variantes_inv', $varianteId)->first();
-            $stock = $inventario ? max(0, (int) $inventario->cdi_inv) : 0;
+            $variante = $this->reservableVariant($varianteId);
+            $stock = max(0, (int) $variante->inventario->cdi_inv);
 
             if ($stock < $request->integer('cantidad')) {
                 return response()->json(['message' => 'No hay stock suficiente para reservar esa cantidad.'], 422);
@@ -168,6 +163,27 @@ class CarritoController extends Controller
     private function cartCount(array $carrito): int
     {
         return collect($carrito)->sum(fn (array $item) => (int) ($item['cantidad'] ?? 0));
+    }
+
+    private function reservableVariant(int $variantId): PrendaVariante
+    {
+        $variant = PrendaVariante::query()
+            ->with(['prenda.marca', 'prenda.imagenes', 'color', 'talla', 'inventario'])
+            ->find($variantId);
+
+        if (!$variant || !$variant->est_prv || !$variant->prenda?->est_pre) {
+            throw ValidationException::withMessages([
+                'variante_id' => 'La prenda seleccionada ya no está activa para reservas.',
+            ]);
+        }
+
+        if (!$variant->inventario) {
+            throw ValidationException::withMessages([
+                'variante_id' => 'La variante seleccionada no tiene inventario registrado.',
+            ]);
+        }
+
+        return $variant;
     }
 
     private function ensureCustomerCanReserve(Request $request): void

@@ -54,8 +54,22 @@ class SaleCheckoutService
         ])->validate();
     }
 
+    public function ensureCustomerCanCheckout(?User $customer): void
+    {
+        $customer?->loadMissing('rol');
+        $role = mb_strtolower((string) ($customer?->rol?->nom_rol ?? ''), 'UTF-8');
+
+        if (!$customer || !$customer->isActive() || !$customer->rol?->isActive() || $role !== 'cliente') {
+            throw ValidationException::withMessages([
+                'checkout' => 'Debes usar una cuenta de cliente activa para finalizar la compra.',
+            ]);
+        }
+    }
+
     public function createOnlineCheckout(Request $request, User $customer, array $validated): Venta
     {
+        $this->ensureCustomerCanCheckout($customer);
+
         return DB::transaction(function () use ($request, $customer, $validated) {
             $items = collect($validated['sale_items'])
                 ->groupBy('variante_id')

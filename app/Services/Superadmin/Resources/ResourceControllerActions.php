@@ -471,19 +471,15 @@ class ResourceControllerActions
         $validated = $this->validation->validateWrite($request, $definition, $resolvedRecord);
 
         if ($definitionKey === 'inventario.stock') {
-            DB::transaction(function () use ($request, $definition, $validated, $resolvedRecord, $original) {
-                $this->writer->updateRecord(
-                    $request,
-                    $definition,
-                    $validated,
-                    $resolvedRecord,
-                    fn (Request $request, $record, array $payload, array $validated) => $this->products->updateProductRecord($request, $record, $payload, $validated),
-                    fn ($record, array $validated, array $payload) => $this->productImages->updateImageRecord($record, $validated, $payload),
-                );
-                $resolvedRecord->refresh();
-                $this->recordInventoryUpdated($resolvedRecord, $original);
-                $this->logResourceUpdated($definition, $resolvedRecord, $original);
-            });
+            $this->writer->updateInventoryRecordWithLock(
+                $definition,
+                $validated,
+                $resolvedRecord,
+                function (Inventario $lockedRecord, array $lockedOriginal) use ($definition) {
+                    $this->recordInventoryUpdated($lockedRecord, $lockedOriginal);
+                    $this->logResourceUpdated($definition, $lockedRecord, $lockedOriginal);
+                },
+            );
 
             return redirect($this->definitions->editHref($definition, $this->definitions->recordKey($resolvedRecord)))
                 ->with('success', ucfirst($definition['singular']) . ' actualizado correctamente.');
@@ -994,7 +990,10 @@ class ResourceControllerActions
             ];
         }
 
-        if (in_array(($record->est_res ?? null), ['por_procesar', 'confirmada', 'lista_recojo'], true)) {
+        if (
+            in_array(($record->est_res ?? null), ['por_procesar', 'confirmada', 'lista_recojo'], true)
+            && $this->reservations->isVisuallyExpired($record)
+        ) {
             $actions[] = [
                 'label' => 'Marcar vencida',
                 'action' => $action,
@@ -1006,6 +1005,9 @@ class ResourceControllerActions
                 'confirm' => 'La reserva se marcará como vencida y el stock reservado volverá a disponible. Continuar?',
                 'kind' => 'secondary',
             ];
+        }
+
+        if (in_array(($record->est_res ?? null), ['por_procesar', 'confirmada', 'lista_recojo'], true)) {
             $actions[] = [
                 'label' => 'Cancelar reserva',
                 'action' => $action,

@@ -3,6 +3,7 @@
 namespace App\Services\Superadmin;
 
 use App\Models\DetalleReserva;
+use App\Models\Prenda;
 use App\Models\PrendaVariante;
 use App\Models\Reserva;
 use App\Models\ReservaPago;
@@ -106,7 +107,12 @@ class ReservationService
                 $variant = PrendaVariante::query()->with(['inventario', 'prenda'])->find((int) $variantId);
                 $quantity = $rows->sum(fn ($row) => (int) ($row['can_dre'] ?? 0));
 
-                if (!$variant?->inventario) {
+                if (!$variant || !$variant->est_prv || !$variant->prenda?->est_pre) {
+                    $validator->errors()->add('reservation_items', 'La prenda seleccionada ya no está activa para reservas.');
+                    continue;
+                }
+
+                if (!$variant->inventario) {
                     $validator->errors()->add('reservation_items', 'La variante seleccionada no tiene inventario registrado.');
                     continue;
                 }
@@ -157,11 +163,34 @@ class ReservationService
                 ])
                 ->values();
 
+            $variantIds = $items->pluck('variant_id');
+            $productIds = PrendaVariante::query()
+                ->whereIn('id_prenda_variante', $variantIds)
+                ->pluck('cod_prendas_prv');
+            $products = Prenda::query()
+                ->whereIn('id_prenda', $productIds)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id_prenda');
             $variants = PrendaVariante::query()
-                ->with(['inventario', 'prenda'])
-                ->whereIn('id_prenda_variante', $items->pluck('variant_id'))
+                ->with('inventario')
+                ->whereIn('id_prenda_variante', $variantIds)
+                ->lockForUpdate()
                 ->get()
                 ->keyBy('id_prenda_variante');
+
+            foreach ($items as $item) {
+                $variant = $variants->get($item['variant_id']);
+                $product = $variant ? $products->get($variant->cod_prendas_prv) : null;
+
+                if (!$variant || !$variant->est_prv || !$product?->est_pre) {
+                    throw ValidationException::withMessages([
+                        'reservation_items' => 'La prenda seleccionada ya no está activa para reservas.',
+                    ]);
+                }
+
+                $variant->setRelation('prenda', $product);
+            }
 
             $subtotal = $items->sum(function (array $item) use ($variants) {
                 $variant = $variants->get($item['variant_id']);
@@ -371,25 +400,30 @@ class ReservationService
 
     public function cancel(Reserva $reservation, ?string $observation = null): void
     {
-        if ($reservation->est_res === 'completada') {
-            throw ValidationException::withMessages([
-                'reservation_action' => 'No se puede cancelar una reserva completada.',
-            ]);
-        }
-
-        if ($reservation->est_res === 'cancelada') {
-            throw ValidationException::withMessages([
-                'reservation_action' => 'La reserva ya fue cancelada.',
-            ]);
-        }
-
-        if (!in_array($reservation->est_res, ['por_procesar', 'confirmada', 'lista_recojo'], true)) {
-            throw ValidationException::withMessages([
-                'reservation_action' => 'Esta reserva ya no tiene stock reservado para liberar.',
-            ]);
-        }
-
         DB::transaction(function () use ($reservation, $observation) {
+            $reservation = Reserva::query()
+                ->lockForUpdate()
+                ->findOrFail($reservation->id_reserva);
+
+            if ($reservation->est_res === 'completada') {
+                throw ValidationException::withMessages([
+                    'reservation_action' => 'No se puede cancelar una reserva completada.',
+                ]);
+            }
+
+            if ($reservation->est_res === 'cancelada') {
+                throw ValidationException::withMessages([
+                    'reservation_action' => 'La reserva ya fue cancelada.',
+                ]);
+            }
+
+            if (!in_array($reservation->est_res, ['por_procesar', 'confirmada', 'lista_recojo'], true)) {
+                throw ValidationException::withMessages([
+                    'reservation_action' => 'Esta reserva ya no tiene stock reservado para liberar.',
+                ]);
+            }
+
+            $this->payments->ensureCancellationAllowed($reservation);
             $this->releaseStock($reservation, 'Reserva cancelada: stock reservado liberado.');
 
             $reservation->update([
@@ -700,13 +734,29 @@ class ReservationService
 
     public function markExpired(Reserva $reservation, ?string $observation = null): void
     {
-        if (!in_array($reservation->est_res, ['por_procesar', 'confirmada', 'lista_recojo'], true)) {
-            throw ValidationException::withMessages([
-                'reservation_action' => 'Solo se puede vencer una reserva por procesar, confirmada o lista para recojo.',
-            ]);
-        }
-
         DB::transaction(function () use ($reservation, $observation) {
+            $reservation = Reserva::query()
+                ->lockForUpdate()
+                ->findOrFail($reservation->id_reserva);
+
+            if (!in_array($reservation->est_res, ['por_procesar', 'confirmada', 'lista_recojo'], true)) {
+                throw ValidationException::withMessages([
+                    'reservation_action' => 'Solo se puede vencer una reserva por procesar, confirmada o lista para recojo.',
+                ]);
+            }
+
+            if (!$reservation->fec_limite_recojo_res) {
+                throw ValidationException::withMessages([
+                    'reservation_action' => 'La reserva no tiene una fecha límite de recojo válida.',
+                ]);
+            }
+
+            if (Carbon::now()->lt($reservation->fec_limite_recojo_res)) {
+                throw ValidationException::withMessages([
+                    'reservation_action' => 'La reserva aún no alcanzó su fecha límite de recojo.',
+                ]);
+            }
+
             $this->releaseStock($reservation, 'Reserva vencida: stock reservado liberado.');
 
             $reservation->update([
@@ -730,7 +780,7 @@ class ReservationService
         return $reservation
             && in_array($reservation->est_res, ['por_procesar', 'confirmada', 'lista_recojo'], true)
             && $reservation->fec_limite_recojo_res
-            && $reservation->fec_limite_recojo_res->lt(Carbon::now());
+            && $reservation->fec_limite_recojo_res->lte(Carbon::now());
     }
 
     private function pendingPayment(Reserva $reservation): ReservaPago

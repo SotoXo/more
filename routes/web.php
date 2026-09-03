@@ -57,7 +57,7 @@ Route::get('/bolsa', [CarritoController::class, 'index'])->name('carrito.index')
 Route::middleware('auth')->post('/bolsa/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
 Route::middleware('auth')->post('/compras/online', [CompraOnlineController::class, 'store'])->name('compras.online.store');
 Route::get('/carrito', fn () => Inertia::render('CarritoCompra'))->name('compras.carrito');
-Route::middleware('auth')->get('/checkout', fn () => Inertia::render('Checkout'))->name('compras.checkout');
+Route::middleware('auth')->get('/checkout', [CompraOnlineController::class, 'create'])->name('compras.checkout');
 
 Route::prefix('api/carrito')->group(function () {
     Route::post('/agregar',        [CarritoController::class, 'agregar'])->name('carrito.agregar');

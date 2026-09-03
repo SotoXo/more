@@ -131,17 +131,13 @@ class ProductCatalogService
             }
 
             $code = null;
-            $inventoryPayload = [
-                'cdi_inv' => (int) $row['stock_inicial'],
-                'cre_inv' => 0,
-                'ubi_inv' => $this->formatting->normalizeNullableText($row['ubi_inv'] ?? null),
-            ];
 
             if ($variantId && $existingVariants->has($variantId)) {
                 /** @var PrendaVariante $variant */
                 $variant = $existingVariants->get($variantId);
                 $variantOriginal = $variant->getOriginal();
-                $inventoryOriginal = $variant->inventario?->getOriginal();
+                $inventoryOriginal = null;
+                $inventoryWasUpdated = false;
                 $code = $variant->sku_prv ?: $this->nextVariantInternalCode($baseCode, $usedCodes);
 
                 $variant->update([
@@ -156,13 +152,20 @@ class ProductCatalogService
                     'est_prv' => (bool) ($row['est_prv'] ?? true),
                 ]);
 
+                $requestedLocation = $this->formatting->normalizeNullableText($row['ubi_inv'] ?? null);
+
                 if ($variant->inventario) {
-                    $variant->inventario->update($inventoryPayload);
-                } else {
-                    $variant->setRelation('inventario', Inventario::query()->create([
-                        'cod_prenda_variantes_inv' => $variant->id_prenda_variante,
-                        ...$inventoryPayload,
-                    ]));
+                    // Product maintenance never rewrites cdi_inv or cre_inv for an existing variant.
+                    if ((string) ($variant->inventario->ubi_inv ?? '') !== (string) ($requestedLocation ?? '')) {
+                        $inventory = Inventario::query()
+                            ->whereKey($variant->inventario->getKey())
+                            ->lockForUpdate()
+                            ->firstOrFail();
+                        $inventoryOriginal = $inventory->getOriginal();
+                        $inventory->update(['ubi_inv' => $requestedLocation]);
+                        $variant->setRelation('inventario', $inventory);
+                        $inventoryWasUpdated = true;
+                    }
                 }
 
                 $variant->refresh();
@@ -192,9 +195,16 @@ class ProductCatalogService
                     );
                 }
 
-                $this->logInventoryChange($variant->inventario, $inventoryOriginal, 'Stock actualizado desde ficha de prenda.');
+                if ($inventoryWasUpdated) {
+                    $this->logInventoryChange($variant->inventario, $inventoryOriginal, 'Inventario actualizado desde ficha de prenda.');
+                }
             } else {
                 $code = $this->nextVariantInternalCode($baseCode, $usedCodes);
+                $inventoryPayload = [
+                    'cdi_inv' => (int) $row['stock_inicial'],
+                    'cre_inv' => 0,
+                    'ubi_inv' => $this->formatting->normalizeNullableText($row['ubi_inv'] ?? null),
+                ];
 
                 $variant = PrendaVariante::query()->create([
                     'cod_prendas_prv' => $product->id_prenda,

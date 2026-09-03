@@ -5,13 +5,16 @@ namespace App\Services\Superadmin\Resources;
 use App\Models\Color;
 use App\Models\DetalleReserva;
 use App\Models\DetalleVenta;
+use App\Models\Inventario;
 use App\Models\Role;
 use App\Models\Temporada;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ResourceWriteService
 {
@@ -151,13 +154,49 @@ class ResourceWriteService
                 ...($record ? [] : ['fec_igp' => Carbon::now()]),
             ],
             'inventario.stock' => [
-                'cod_prenda_variantes_inv' => (int) $validated['cod_prenda_variantes_inv'],
+                'cod_prenda_variantes_inv' => $record
+                    ? (int) $record->cod_prenda_variantes_inv
+                    : (int) $validated['cod_prenda_variantes_inv'],
                 'cdi_inv' => (int) $validated['cdi_inv'],
                 'cre_inv' => $record ? (int) $record->cre_inv : (int) $validated['cre_inv'],
                 'ubi_inv' => $this->formatting->normalizeUpper($validated['ubi_inv'] ?? null),
             ],
             default => [],
         };
+    }
+
+    public function updateInventoryRecordWithLock(
+        array $definition,
+        array $validated,
+        Inventario $record,
+        callable $afterUpdate,
+    ): Inventario {
+        return DB::transaction(function () use ($definition, $validated, $record, $afterUpdate) {
+            $lockedRecord = Inventario::query()
+                ->whereKey($record->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $availableChanged = (int) $validated['cdi_inv_original'] !== (int) $lockedRecord->cdi_inv;
+            $reservedChanged = (int) $validated['cre_inv_original'] !== (int) $lockedRecord->cre_inv;
+            $locationChanged = (string) ($this->formatting->normalizeUpper($validated['ubi_inv_original'] ?? null) ?? '')
+                !== (string) ($lockedRecord->ubi_inv ?? '');
+
+            if ($availableChanged || $reservedChanged || $locationChanged) {
+                throw ValidationException::withMessages([
+                    'cdi_inv' => 'El inventario cambió mientras editabas. Recarga la página y vuelve a aplicar el ajuste sobre los valores actuales.',
+                ]);
+            }
+
+            $original = $lockedRecord->getOriginal();
+            $payload = $this->normalizePayload($definition, $validated, $lockedRecord);
+            $lockedRecord->update($payload);
+            $lockedRecord->refresh();
+
+            $afterUpdate($lockedRecord, $original);
+
+            return $lockedRecord;
+        });
     }
 
     public function createRecord(

@@ -796,6 +796,9 @@ class ResourceDetailViewService
                 [
                     'title' => 'Disponible y reserva',
                     'fields' => [
+                        ['name' => 'cdi_inv_original', 'label' => 'Disponible original', 'value' => (string) ($record?->cdi_inv ?? 0), 'type' => 'hidden'],
+                        ['name' => 'cre_inv_original', 'label' => 'Reservado original', 'value' => (string) ($record?->cre_inv ?? 0), 'type' => 'hidden'],
+                        ['name' => 'ubi_inv_original', 'label' => 'Ubicación original', 'value' => (string) ($record?->ubi_inv ?? ''), 'type' => 'hidden'],
                         ['name' => 'cdi_inv', 'label' => 'Disponible', 'value' => (string) ($record?->cdi_inv ?? 0), 'type' => 'number', 'required' => true, 'placeholder' => '0', 'min' => 0, 'hint' => 'Stock disponible real para vender o reservar.'],
                         ['name' => 'cre_inv', 'label' => 'Reservado', 'value' => (string) ($record?->cre_inv ?? 0), 'type' => 'number', 'required' => true, 'placeholder' => '0', 'min' => 0, 'disabled' => true, 'hint' => 'Solo lectura: las reservas actualizan esta cantidad automaticamente.'],
                         ['name' => 'total_view', 'label' => 'Stock total calculado', 'value' => (string) $this->inventoryStatus->total($record), 'disabled' => true],

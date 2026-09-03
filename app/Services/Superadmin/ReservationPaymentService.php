@@ -251,6 +251,21 @@ class ReservationPaymentService
         );
     }
 
+    public function ensureCancellationAllowed(Reserva $reservation): void
+    {
+        $confirmedTotal = (float) $reservation->pagos()
+            ->where('est_rpg', 'confirmado')
+            ->lockForUpdate()
+            ->get()
+            ->sum(fn (ReservaPago $payment) => (float) $payment->monto_confirmado_rpg);
+
+        if ($confirmedTotal > 0) {
+            throw ValidationException::withMessages([
+                'reservation_action' => 'La reserva posee pagos confirmados. Resuelve esos pagos antes de cancelarla.',
+            ]);
+        }
+    }
+
     private function verificationPayload(Reserva $reservation, float $confirmedAmount, string $status, ?string $observation, int $userId): array
     {
         return [
