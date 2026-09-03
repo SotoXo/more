@@ -207,6 +207,36 @@ class SaleService
                 ]);
             }
 
+            // Venta directa superadmin: registra el pago confirmado espejo del flujo del vendedor.
+            // Guard anti-duplicado por si la venta ya tuviera un pago asociado.
+            if (! VentaPago::query()->where('cod_ventas_vpg', $sale->id_venta)->exists()) {
+                $payment = VentaPago::query()->create([
+                    'cod_ventas_vpg' => $sale->id_venta,
+                    'monto_declarado_vpg' => (float) $sale->tot_ven,
+                    'monto_verificado_vpg' => (float) $sale->tot_ven,
+                    'metodo_pago_vpg' => $sale->mpa_ven,
+                    'est_vpg' => 'confirmado',
+                    'cod_usuario_verifica_vpg' => (int) $request->user()->id,
+                    'fec_verificacion_vpg' => Carbon::now(),
+                    'obs_vpg' => 'Pago confirmado en venta directa por superadmin.',
+                    'fec_vpg' => Carbon::now(),
+                ]);
+
+                $this->logs->info(
+                    'pagos',
+                    'pago_confirmado',
+                    'Pago confirmado en venta directa por superadmin: ' . $sale->nve_ven . '.',
+                    $payment,
+                    [
+                        'venta_id' => $sale->id_venta,
+                        'numero_venta' => $sale->nve_ven,
+                        'metodo_pago' => $sale->mpa_ven,
+                        'monto' => (float) $sale->tot_ven,
+                        'estado' => 'confirmado',
+                    ],
+                );
+            }
+
             $this->logs->info(
                 'ventas',
                 'venta_creada',
