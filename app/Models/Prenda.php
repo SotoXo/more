@@ -60,6 +60,21 @@ class Prenda extends Model
             ->orderBy('ord_igp');
     }
 
+    public function patrones()
+    {
+        return $this->belongsToMany(Patron::class, 'prenda_patrones', 'cod_prenda_ppn', 'cod_patron_ppn', 'id_prenda', 'id_patron')->withTimestamps();
+    }
+
+    public function texturas()
+    {
+        return $this->belongsToMany(Textura::class, 'prenda_texturas', 'cod_prenda_ptx', 'cod_textura_ptx', 'id_prenda', 'id_textura')->withTimestamps();
+    }
+
+    public function materiales()
+    {
+        return $this->belongsToMany(Material::class, 'prenda_materiales', 'cod_prenda_pmt', 'cod_material_pmt', 'id_prenda', 'id_material')->withPivot('porcentaje_pmt', 'ord_pmt')->withTimestamps()->orderByPivot('ord_pmt');
+    }
+
     public function favoritos()
     {
         return $this->hasMany(Favorito::class, 'cod_prendas_fav', 'id_prenda');

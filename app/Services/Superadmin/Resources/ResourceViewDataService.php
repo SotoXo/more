@@ -54,6 +54,9 @@ class ResourceViewDataService
         }
 
         $createLabel = match ($this->definitions->definitionKey($definition)) {
+            'catalogo.patrones' => 'Nuevo patrón',
+            'catalogo.texturas' => 'Nueva textura',
+            'catalogo.materiales' => 'Nuevo material',
             'catalogo.tallas' => 'Nueva talla',
             'catalogo.temporadas' => 'Nueva temporada',
             'comercial.ventas' => 'Nueva venta',
@@ -204,6 +207,9 @@ class ResourceViewDataService
             'description' => 'No hay registros disponibles en ' . mb_strtolower($definition['title']) . '.',
             'actionLabel' => $this->definitions->supportsCreate($definition)
                 ? match ($this->definitions->definitionKey($definition)) {
+                    'catalogo.patrones' => 'Nuevo patrón',
+                    'catalogo.texturas' => 'Nueva textura',
+                    'catalogo.materiales' => 'Nuevo material',
                     'catalogo.tallas' => 'Nueva talla',
                     'catalogo.temporadas' => 'Nueva temporada',
                     'comercial.ventas' => 'Nueva venta',

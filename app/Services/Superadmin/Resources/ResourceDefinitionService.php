@@ -8,6 +8,9 @@ use App\Models\Favorito;
 use App\Models\ImagenPrenda;
 use App\Models\Inventario;
 use App\Models\Marca;
+use App\Models\Material;
+use App\Models\Patron;
+use App\Models\Textura;
 use App\Models\Prenda;
 use App\Models\PrendaVariante;
 use App\Models\Reserva;
@@ -25,6 +28,9 @@ class ResourceDefinitionService
         'catalogo.categorias',
         'catalogo.marcas',
         'catalogo.colores',
+        'catalogo.patrones',
+        'catalogo.texturas',
+        'catalogo.materiales',
         'catalogo.tallas',
         'catalogo.temporadas',
         'catalogo.prendas',
@@ -123,6 +129,57 @@ class ResourceDefinitionService
                 'countRelation' => 'variantes',
                 'countLabel' => 'variantes',
                 'filters' => ['Activos', 'Con variantes', 'Paleta'],
+            ],
+            'catalogo.patrones' => [
+                'sectionKey' => 'catalogo',
+                'sectionLabel' => 'Catálogo',
+                'resourceKey' => 'patrones',
+                'title' => 'Patrones',
+                'singular' => 'patrón',
+                'description' => 'Patrones visuales aplicables a prendas.',
+                'kind' => 'taxonomy',
+                'modelClass' => Patron::class,
+                'nameField' => 'nom_pat',
+                'descriptionField' => 'des_pat',
+                'statusField' => 'est_pat',
+                'dateField' => 'created_at',
+                'countRelation' => 'prendas',
+                'countLabel' => 'prendas',
+                'filters' => ['Activos', 'Con prendas', 'Recientes'],
+            ],
+            'catalogo.texturas' => [
+                'sectionKey' => 'catalogo',
+                'sectionLabel' => 'Catálogo',
+                'resourceKey' => 'texturas',
+                'title' => 'Texturas',
+                'singular' => 'textura',
+                'description' => 'Construcción y textura de las prendas.',
+                'kind' => 'taxonomy',
+                'modelClass' => Textura::class,
+                'nameField' => 'nom_tex',
+                'descriptionField' => 'des_tex',
+                'statusField' => 'est_tex',
+                'dateField' => 'created_at',
+                'countRelation' => 'prendas',
+                'countLabel' => 'prendas',
+                'filters' => ['Activos', 'Con prendas', 'Recientes'],
+            ],
+            'catalogo.materiales' => [
+                'sectionKey' => 'catalogo',
+                'sectionLabel' => 'Catálogo',
+                'resourceKey' => 'materiales',
+                'title' => 'Materiales',
+                'singular' => 'material',
+                'description' => 'Materiales de composición textil.',
+                'kind' => 'taxonomy',
+                'modelClass' => Material::class,
+                'nameField' => 'nom_mat',
+                'descriptionField' => 'des_mat',
+                'statusField' => 'est_mat',
+                'dateField' => 'created_at',
+                'countRelation' => 'prendas',
+                'countLabel' => 'prendas',
+                'filters' => ['Activos', 'Con prendas', 'Recientes'],
             ],
             'catalogo.tallas' => [
                 'sectionKey' => 'catalogo',

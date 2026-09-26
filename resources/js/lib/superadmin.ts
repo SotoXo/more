@@ -98,6 +98,9 @@ export const superadminNavGroups: SuperadminNavGroup[] = [
                 href: superadminRoutes.resource('catalogo', 'colores'),
                 icon: Palette,
             },
+            { label: 'Patrones', href: superadminRoutes.resource('catalogo', 'patrones'), icon: SwatchBook },
+            { label: 'Texturas', href: superadminRoutes.resource('catalogo', 'texturas'), icon: SwatchBook },
+            { label: 'Materiales', href: superadminRoutes.resource('catalogo', 'materiales'), icon: SwatchBook },
             {
                 label: 'Tallas',
                 href: superadminRoutes.resource('catalogo', 'tallas'),

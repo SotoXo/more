@@ -19,7 +19,16 @@ class PrendaController extends Controller
         $prenda = ProductMapper::withRelations(Prenda::where('est_pre', true))
             ->findOrFail($id);
 
+        $prenda->loadMissing(['patrones', 'texturas', 'materiales', 'variantes.colores']);
         $product = ProductMapper::toShopProduct($prenda);
+        $details = [
+            'patterns' => $prenda->patrones->pluck('nom_pat')->values()->all(),
+            'textures' => $prenda->texturas->pluck('nom_tex')->values()->all(),
+            'materials' => $prenda->materiales->sortBy('pivot.ord_pmt')->map(fn ($material) => [
+                'name' => $material->nom_mat,
+                'percentage' => $material->pivot->porcentaje_pmt,
+            ])->values()->all(),
+        ];
 
         // Build detailed variants for the product page
         $variants = $prenda->variantes
@@ -29,6 +38,8 @@ class PrendaController extends Controller
                 'sku'       => $v->sku_prv,
                 'color'     => $v->color?->nom_col ?? '',
                 'color_hex' => $v->color?->hex_col ?? null,
+                'palette_type' => $v->tip_pal_prv ?? 'dominante',
+                'palette' => $v->colores->sortBy('pivot.ord_pvc')->map(fn ($color) => ['name' => $color->nom_col, 'hex' => $color->hex_col])->values()->all(),
                 'talla'     => $v->talla?->nom_tal ?? '',
                 'precio'    => (float) $v->pve_prv,
                 'stock'     => max(0, (int) ($v->inventario?->cdi_inv ?? 0)),
@@ -87,6 +98,7 @@ class PrendaController extends Controller
         return Inertia::render('Shop/Product', [
             'product'        => $product,
             'variants'       => $variants,
+            'details'        => $details,
             'relatedProducts' => $relatedProducts,
             'completeLookProducts' => $completeLookProducts,
             'isFavorite'     => $isFavorite,

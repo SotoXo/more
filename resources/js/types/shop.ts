@@ -58,6 +58,8 @@ export type ShopVariant = {
     sku: string;
     color: string;
     color_hex: string | null;
+    palette_type?: 'dominante' | 'equilibrada';
+    palette?: Array<{ name: string; hex: string | null }>;
     talla: string;
     precio: number;
     stock: number;

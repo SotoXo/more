@@ -1,6 +1,7 @@
 import SuperadminBadge from '@/Components/Superadmin/SuperadminBadge';
 import SuperadminComboboxField from '@/Components/Superadmin/SuperadminComboboxField';
 import ProductColorPicker from '@/Components/Superadmin/ProductColorPicker';
+import { PaletteEditor, VisualAttributePicker } from '@/Components/Superadmin/ProductAttributeFields';
 import SuperadminDrawer from '@/Components/Superadmin/SuperadminDrawer';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import SuperadminLayout from '@/Components/Superadmin/SuperadminLayout';
@@ -9,13 +10,14 @@ import type { LandingPageProps } from '@/types/landing';
 import type { SuperadminBreadcrumb, SuperadminFormFieldOption, SuperadminFormStateAction, SuperadminFormSubmit, SuperadminResourceMeta } from '@/types/superadmin';
 import axios from 'axios';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, Check, ImagePlus, Palette, Plus, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ImagePlus, Layers3, Palette, Plus, Sparkles, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 
-type ProductVariantRow = { id: string; sku_prv: string; cod_colores_prv: string; cod_tallas_prv: string; cob_prv: string; pve_prv: string; cos_prv: string; stock_inicial: string; ubi_inv: string; est_prv: boolean; remove: boolean; };
+type ProductVariantRow = { id: string; sku_prv: string; cod_colores_prv: string; tip_pal_prv: 'dominante' | 'equilibrada'; colores_adicionales: string[]; cod_tallas_prv: string; cob_prv: string; pve_prv: string; cos_prv: string; stock_inicial: string; ubi_inv: string; est_prv: boolean; remove: boolean; };
 type ExistingImageRow = { id: string; url_igp: string; rut_igp: string; ord_igp: string; pri_igp: boolean; fue_igp: string; variant_label?: string | null; remove: boolean; };
 type NewGalleryImageRow = { archivo: File | null; ord_igp: string; pri_igp: boolean; fue_igp: string; };
-type ProductEditorForm = { nom_pre: string; des_pre: string; cod_categorias_pre: string; cod_marcas_pre: string; cod_temporadas_pre: string; gen_pre: string; prb_pre: string; est_pre: boolean; usa_variantes: boolean; imagen_principal: File | null; fue_igp: string; existing_images: ExistingImageRow[]; gallery_images: NewGalleryImageRow[]; variant_rows: ProductVariantRow[]; };
+type MaterialRow = { cod_material: string; porcentaje: string };
+type ProductEditorForm = { patron_ids: string[]; textura_ids: string[]; material_rows: MaterialRow[]; nom_pre: string; des_pre: string; cod_categorias_pre: string; cod_marcas_pre: string; cod_temporadas_pre: string; gen_pre: string; prb_pre: string; est_pre: boolean; usa_variantes: boolean; imagen_principal: File | null; fue_igp: string; existing_images: ExistingImageRow[]; gallery_images: NewGalleryImageRow[]; variant_rows: ProductVariantRow[]; };
 type InlineCatalogKey = 'categories' | 'brands' | 'colors' | 'sizes' | 'seasons';
 type ProductStepId = 'base' | 'image' | 'type' | 'commercial' | 'variants' | 'review';
 type InlineTarget = { type: 'product'; field: 'cod_categorias_pre' | 'cod_marcas_pre' | 'cod_temporadas_pre' } | { type: 'variant'; field: 'cod_colores_prv' | 'cod_tallas_prv'; rowIndex: number };
@@ -26,9 +28,9 @@ type SizeProfile = { key: 'alpha' | 'numeric' | 'unit'; label: string; values: s
 type ProductStep = { id: ProductStepId; number: number; title: string; description: string; };
 type ColorInsight = { hex: string; family: SuperadminFormFieldOption | null; suggestedColor: SuperadminFormFieldOption | null; };
 type PickedColorSample = { hex: string; relativeX: number; relativeY: number; };
-type ProductCreateProps = { meta: SuperadminResourceMeta; breadcrumbs: SuperadminBreadcrumb[]; mode: 'create' | 'edit'; recordLabel?: string | null; submit: SuperadminFormSubmit; stateAction?: SuperadminFormStateAction | null; editor: { title: string; description: string; currentPrimaryUrl?: string | null; currentPrimaryLabel?: string | null; }; options: { categories: SuperadminFormFieldOption[]; brands: SuperadminFormFieldOption[]; seasons: SuperadminFormFieldOption[]; genders: SuperadminFormFieldOption[]; colors: SuperadminFormFieldOption[]; sizes: SuperadminFormFieldOption[]; sizeSegments?: SuperadminFormFieldOption[]; locations: SuperadminFormFieldOption[]; colorFamilies: SuperadminFormFieldOption[]; categoryProfiles: Record<string, CategorySizeProfile>; }; initialData: ProductEditorForm; };
+type ProductCreateProps = { meta: SuperadminResourceMeta; breadcrumbs: SuperadminBreadcrumb[]; mode: 'create' | 'edit'; recordLabel?: string | null; submit: SuperadminFormSubmit; stateAction?: SuperadminFormStateAction | null; editor: { title: string; description: string; currentPrimaryUrl?: string | null; currentPrimaryLabel?: string | null; }; options: { categories: SuperadminFormFieldOption[]; brands: SuperadminFormFieldOption[]; seasons: SuperadminFormFieldOption[]; genders: SuperadminFormFieldOption[]; colors: SuperadminFormFieldOption[]; patterns: SuperadminFormFieldOption[]; textures: SuperadminFormFieldOption[]; materials: SuperadminFormFieldOption[]; sizes: SuperadminFormFieldOption[]; sizeSegments?: SuperadminFormFieldOption[]; locations: SuperadminFormFieldOption[]; colorFamilies: SuperadminFormFieldOption[]; categoryProfiles: Record<string, CategorySizeProfile>; }; initialData: ProductEditorForm; };
 
-function createVariantRow(defaultPrice = '', defaultLocation = 'TIENDA'): ProductVariantRow { return { id: '', sku_prv: '', cod_colores_prv: '', cod_tallas_prv: '', cob_prv: '', pve_prv: defaultPrice, cos_prv: '', stock_inicial: '1', ubi_inv: defaultLocation, est_prv: true, remove: false }; }
+function createVariantRow(defaultPrice = '', defaultLocation = 'TIENDA'): ProductVariantRow { return { id: '', sku_prv: '', cod_colores_prv: '', tip_pal_prv: 'dominante', colores_adicionales: [], cod_tallas_prv: '', cob_prv: '', pve_prv: defaultPrice, cos_prv: '', stock_inicial: '1', ubi_inv: defaultLocation, est_prv: true, remove: false }; }
 function createGalleryRow(order = '1', source = 'galeria'): NewGalleryImageRow { return { archivo: null, ord_igp: order, pri_igp: false, fue_igp: source }; }
 function normalizeText(value: string) { return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase(); }
 function inferCategoryProfile(name: string): CategorySizeProfile { const haystack = normalizeText(name); if (haystack.includes('PANTAL')) return { segment: 'ADULTO', system: 'NUMERICA', group: 'INFERIOR' }; if (haystack.includes('ACCESOR')) return { segment: 'ADULTO', system: 'UNICA', group: 'GENERAL' }; return { segment: 'ADULTO', system: 'ALFA', group: 'SUPERIOR' }; }
@@ -70,6 +72,8 @@ function inferColorFamily(hex: string, families: SuperadminFormFieldOption[]) { 
 function closestColorOption(colors: SuperadminFormFieldOption[], hex: string, familyLabel?: string) { const normalizedHex = normalizeHex(hex); const family = normalizeText(familyLabel ?? ''); const exact = colors.find((option) => normalizeHex(option.hex ?? option.swatch ?? '') === normalizedHex); if (exact) return exact; const best = [...colors].filter((option) => Boolean(option.swatch) && (!family || normalizeText(option.group ?? '').includes(family))).map((option) => ({ option, distance: colorDistance(option.swatch ?? '#000000', hex) })).sort((left, right) => left.distance - right.distance)[0]; return best && best.distance <= 24 ? best.option : null; }
 function variantIssue(row?: ProductVariantRow | null) {
     if (!row || row.remove) return 'Completa la configuración de la variante.';
+    if (row.colores_adicionales.includes(row.cod_colores_prv) || new Set(row.colores_adicionales).size !== row.colores_adicionales.length) return 'No repitas colores en la paleta.';
+    if (row.tip_pal_prv === 'equilibrada' && row.colores_adicionales.length < 1) return 'Agrega al menos dos colores para una paleta equilibrada.';
     if (!row.cod_colores_prv || !row.cod_tallas_prv || !row.ubi_inv) return 'Completa color, talla y ubicación.';
 
     const price = Number(row.pve_prv);
@@ -98,6 +102,8 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const [primaryPreview, setPrimaryPreview] = useState<string | null>(editor.currentPrimaryUrl ?? null);
     const [currentStep, setCurrentStep] = useState<ProductStepId>('base');
     const [stepError, setStepError] = useState<string | null>(null);
+    const [materialTouched, setMaterialTouched] = useState(false);
+    const [materialAttempted, setMaterialAttempted] = useState(false);
     const [showInternalFields, setShowInternalFields] = useState(false);
     const [inlineDrawer, setInlineDrawer] = useState<InlineDrawerState | null>(null);
     const [inlineForm, setInlineForm] = useState<InlineForm>(inlineDefaults('categories', ''));
@@ -115,7 +121,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
             { id: 'image', number: 2, title: 'Imagen principal', description: 'Portada principal de la prenda.' },
             { id: 'type', number: 3, title: 'Tipo de prenda', description: 'Define si será única o tendrá más tallas o colores.' },
             { id: 'commercial', number: 4, title: 'Configuración comercial', description: data.usa_variantes ? 'Preparación antes de cargar variantes.' : 'Color, talla, precio y existencias base.' },
-            { id: 'review', number: 6, title: 'Revisión y guardado', description: 'Confirma la ficha, la galería y el cierre del alta.' },
+            { id: 'review', number: data.usa_variantes ? 6 : 5, title: 'Revisión y guardado', description: 'Confirma la ficha, la galería y el cierre del alta.' },
         ];
 
         if (data.usa_variantes) {
@@ -156,7 +162,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const currentPrimaryLabel = useMemo(() => { if (data.imagen_principal) return data.imagen_principal.name; const existingPrimary = data.existing_images.find((image) => !image.remove && image.pri_igp); if (existingPrimary) return filenameLabel(existingPrimary.rut_igp); return editor.currentPrimaryLabel ?? null; }, [data.existing_images, data.imagen_principal, editor.currentPrimaryLabel]);
     const galleryCount = useMemo(() => data.existing_images.filter((image) => !image.remove).length + data.gallery_images.filter((image) => image.archivo).length + (data.imagen_principal ? 1 : 0), [data.existing_images, data.gallery_images, data.imagen_principal]);
     const summary = useMemo(() => ({ variants: activeVariantRows.length, stock: activeVariantRows.reduce((total, row) => total + (Number(row.stock_inicial) || 0), 0), price: resolvedBasePrice, images: galleryCount }), [activeVariantRows, galleryCount, resolvedBasePrice]);
-    const colorHint = colorInsight ? `Dominante sugerido: ${colorInsight.family?.label ?? 'Sin familia'} · tono sugerido: ${colorInsight.suggestedColor?.label ?? 'Revisar manualmente'}` : undefined;
+    const colorHint = colorInsight ? `Familia sugerida: ${colorInsight.family?.label ?? 'Sin familia'} · tono sugerido: ${colorInsight.suggestedColor?.label ?? 'Revisar manualmente'}` : undefined;
     const selectedCommercialColor = useMemo(() => optionSets.colors.find((option) => option.value === activeVariantRows[0]?.cod_colores_prv) ?? null, [activeVariantRows, optionSets.colors]);
     const isSuggestedColorApplied = Boolean(colorInsight?.suggestedColor && selectedCommercialColor?.value === colorInsight.suggestedColor.value);
     const inlineColorHex = normalizeHex(inlineForm.hex) ?? '#D8C3A5';
@@ -173,8 +179,27 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     useEffect(() => { if (availableSuggestedSizes.length !== 1) return; const firstIndex = data.variant_rows.findIndex((row) => !row.remove); if (firstIndex === -1 || data.variant_rows[firstIndex].cod_tallas_prv) return; setData('variant_rows', data.variant_rows.map((row, rowIndex) => rowIndex === firstIndex ? { ...row, cod_tallas_prv: availableSuggestedSizes[0].value } : row)); }, [availableSuggestedSizes, data.variant_rows, setData]);
     useEffect(() => { setPickedColorSample(null); setColorInsight(null); }, [primaryPreview]);
     useEffect(() => { if (steps.some((step) => step.id === currentStep)) return; setCurrentStep(steps[steps.length - 1]?.id ?? 'base'); }, [currentStep, steps]);
-    useEffect(() => { setStepError(null); }, [currentStep, data.cod_categorias_pre, data.cod_marcas_pre, data.cod_temporadas_pre, data.gen_pre, data.imagen_principal, data.nom_pre, data.usa_variantes, data.variant_rows]);
+    useEffect(() => { setStepError(null); }, [currentStep, data.cod_categorias_pre, data.cod_marcas_pre, data.cod_temporadas_pre, data.gen_pre, data.imagen_principal, data.nom_pre, data.usa_variantes, data.variant_rows, data.patron_ids, data.textura_ids, data.material_rows]);
 
+    const setAdditionalColor = (index: number, colorId: string, selected: boolean) => {
+        setData('variant_rows', data.variant_rows.map((row, rowIndex) => rowIndex !== index ? row : {
+            ...row,
+            colores_adicionales: selected ? [...row.colores_adicionales, colorId] : row.colores_adicionales.filter((id) => id !== colorId),
+        }));
+    };
+    const toggleAttribute = (field: 'patron_ids' | 'textura_ids', id: string) => {
+        setData(field, data[field].includes(id) ? data[field].filter((value) => value !== id) : [...data[field], id]);
+    };
+    const knownMaterialTotal = data.material_rows.reduce((total, row) => total + (Number(row.porcentaje) || 0), 0);
+    const materialPercentagesMissing = data.material_rows.some((row) => !row.porcentaje.trim());
+    const attributeIssue = () => {
+        const values = data.material_rows.map((row) => row.porcentaje.trim()).filter(Boolean);
+        if (data.material_rows.some((row) => !row.cod_material)) return 'Selecciona el material de cada fila para continuar.';
+        if (new Set(data.material_rows.map((row) => row.cod_material)).size !== data.material_rows.length) return 'No repitas el mismo material.';
+        if (values.some((value) => !/^\d{1,3}(\.\d{1,2})?$/.test(value) || Number(value) <= 0 || Number(value) > 100)) return 'Cada porcentaje debe estar entre 0 y 100 con hasta dos decimales.';
+        if (values.reduce((sum, value) => sum + Math.round(Number(value) * 100), 0) > 10000) return 'Los porcentajes conocidos de materiales no pueden superar el 100 %.';
+        return null;
+    };
     const normalizeVariantValue = (field: keyof ProductVariantRow, value: string | boolean) =>
         typeof value === 'string' && field === 'sku_prv'
             ? normalizeText(value).replace(/[^A-Z0-9_-]/g, '')
@@ -185,6 +210,8 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const createVariantRowFromSeed = (seed = commercialVariantSeed(), overrides: Partial<ProductVariantRow> = {}) => ({
         ...createVariantRow(seed.pve_prv || summary.price, seed.ubi_inv || 'TIENDA'),
         cod_colores_prv: seed.cod_colores_prv,
+        tip_pal_prv: seed.tip_pal_prv,
+        colores_adicionales: [...seed.colores_adicionales],
         pve_prv: seed.pve_prv || summary.price,
         cos_prv: seed.cos_prv,
         stock_inicial: seed.stock_inicial || '1',
@@ -198,7 +225,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
             return;
         }
 
-        setData('variant_rows', data.variant_rows.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: normalizedValue } : row));
+        setData('variant_rows', data.variant_rows.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: normalizedValue, ...(field === 'cod_colores_prv' ? { colores_adicionales: row.colores_adicionales.filter((id) => id !== normalizedValue) } : {}) } : row));
     };
     const updateInlineVariantTarget = (target: Extract<InlineTarget, { type: 'variant' }>, value: string) => {
         const targetIndex = target.rowIndex >= 0 && !data.variant_rows[target.rowIndex]?.remove ? target.rowIndex : firstActiveVariantIndex;
@@ -248,7 +275,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
             if (!data.cod_temporadas_pre) missing.push('temporada');
             if (!data.gen_pre) missing.push('género');
 
-            return missing.length > 0 ? `Completa ${missing.join(', ')} para continuar.` : null;
+            return missing.length > 0 ? `Completa ${missing.join(', ')} para continuar.` : attributeIssue();
         }
 
         if (stepId === 'image') return hasPrimaryImage ? null : 'Carga la imagen principal para continuar.';
@@ -281,10 +308,10 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     };
     const validateBeforeSubmit = () => { for (const step of steps) { const issue = issueForStep(step.id); if (issue) return { stepId: step.id, message: issue }; } return null; };
     const goToStep = (stepId: ProductStepId) => { setCurrentStep(stepId); setStepError(null); };
-    const goNext = () => { const issue = issueForStep(currentStep); if (issue) { setStepError(issue); return; } const currentIndex = steps.findIndex((step) => step.id === currentStep); const nextStep = steps[currentIndex + 1]; if (nextStep) setCurrentStep(nextStep.id); };
+    const goNext = () => { const issue = issueForStep(currentStep); if (issue) { if (currentStep === 'base' && attributeIssue()) setMaterialAttempted(true); setStepError(issue); return; } const currentIndex = steps.findIndex((step) => step.id === currentStep); const nextStep = steps[currentIndex + 1]; if (nextStep) setCurrentStep(nextStep.id); };
     const goBack = () => { const currentIndex = steps.findIndex((step) => step.id === currentStep); const previousStep = steps[currentIndex - 1]; if (previousStep) setCurrentStep(previousStep.id); };
     const submitForm = (overrides: Partial<ProductEditorForm> = {}) => { const nextValues = { ...data, ...overrides }; const hasFiles = valuesHasFiles(nextValues); transform(() => ({ ...nextValues, prb_pre: resolvedBasePrice, gallery_images: nextValues.gallery_images.map((image) => ({ ...image, pri_igp: false })), ...(submit.method === 'put' && hasFiles ? { _method: 'put' } : {}) })); const requestOptions = { preserveScroll: true, forceFormData: hasFiles }; if (submit.method === 'put' && !hasFiles) { put(submit.action, requestOptions); return; } if (submit.method === 'put' && hasFiles) { post(submit.action, requestOptions); return; } post(submit.action, requestOptions); };
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const issue = validateBeforeSubmit(); if (issue) { setCurrentStep(issue.stepId); setStepError(issue.message); return; } submitForm(); };
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const issue = validateBeforeSubmit(); if (issue) { if (issue.stepId === 'base' && attributeIssue()) setMaterialAttempted(true); setCurrentStep(issue.stepId); setStepError(issue.message); return; } submitForm(); };
     const handleStateAction = () => { if (!stateAction) return; if (stateAction.confirm && !window.confirm(stateAction.confirm)) return; submitForm({ est_pre: stateAction.value === '1' }); };
     const completedSteps: Record<ProductStepId, boolean> = { base: !issueForStep('base'), image: !issueForStep('image'), type: true, commercial: !issueForStep('commercial'), variants: !data.usa_variantes || !issueForStep('variants'), review: false };
     const serverErrorCount = Object.keys(errors).length;
@@ -467,6 +494,30 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                 </label>
                             </div>
 
+                            <div className="mt-6 grid min-w-0 gap-5 lg:grid-cols-2">
+                                <VisualAttributePicker title="Patrones" kind="pattern" items={options.patterns} selected={data.patron_ids} onToggle={(id) => toggleAttribute('patron_ids', id)} error={errors.patron_ids} />
+                                <VisualAttributePicker title="Texturas" kind="texture" items={options.textures} selected={data.textura_ids} onToggle={(id) => toggleAttribute('textura_ids', id)} error={errors.textura_ids} />
+                            </div>
+                            <div className="mt-5 rounded-[1.2rem] border border-white/8 bg-[#0d141d] p-4 sm:p-5">
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                    <div><p className="text-sm text-white">Materiales y composición</p><p className="mt-1 text-sm text-stone-400">Añade los materiales conocidos. El porcentaje es opcional.</p></div>
+                                    {data.material_rows.length > 0 && <div className="rounded-xl border border-white/10 px-3 py-2 text-xs text-stone-300">{materialPercentagesMissing && knownMaterialTotal === 0 ? 'Composición porcentual no especificada' : `Composición conocida: ${Number(knownMaterialTotal.toFixed(2))} %`}</div>}
+                                </div>
+                                <div className="mt-4 space-y-2">
+                                    {data.material_rows.map((row, index) => <div key={index} className="grid min-w-0 gap-3 rounded-xl border border-white/10 bg-[#0b1118] p-3 sm:grid-cols-[minmax(0,1fr)_8rem_auto] sm:items-center">
+                                        <div className="flex min-w-0 items-center gap-3"><Layers3 aria-hidden="true" size={18} className="shrink-0 text-[#bfa786]" /><select aria-label={`Material ${index + 1}`} className="sa-input min-w-0 w-full" value={row.cod_material} onChange={(event) => { setMaterialTouched(true); setData('material_rows', data.material_rows.map((item, rowIndex) => rowIndex === index ? { ...item, cod_material: event.target.value } : item)); }}>
+                                            <option value="">Selecciona material</option>
+                                            {options.materials.map((item) => <option key={item.value} value={item.value} disabled={item.active === false && row.cod_material !== item.value}>{item.label}</option>)}
+                                        </select></div>
+                                        <div className="flex items-center gap-2"><input aria-label={`Porcentaje de material ${index + 1}`} type="number" min="0.01" max="100" step="0.01" placeholder="—" className="sa-input min-w-0 w-full" value={row.porcentaje} onChange={(event) => { setMaterialTouched(true); setData('material_rows', data.material_rows.map((item, rowIndex) => rowIndex === index ? { ...item, porcentaje: event.target.value } : item)); }} /><span className="text-sm text-stone-400">%</span></div>
+                                        <button type="button" aria-label={`Quitar material ${index + 1}`} className="sa-button-ghost inline-flex h-10 w-10 items-center justify-center p-0" onClick={() => { setMaterialTouched(true); setData('material_rows', data.material_rows.filter((_, rowIndex) => rowIndex !== index)); }}><X size={16} /></button>
+                                    </div>)}
+                                </div>
+                                <button type="button" className="sa-button-ghost mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm" onClick={() => setData('material_rows', [...data.material_rows, { cod_material: '', porcentaje: '' }])}><Plus size={14} />Agregar material</button>
+                                {data.material_rows.length > 0 && materialPercentagesMissing && knownMaterialTotal > 0 && <p className="mt-3 text-xs text-stone-400">Hay materiales sin porcentaje especificado.</p>}
+                                {(materialTouched || materialAttempted) && attributeIssue() && (materialAttempted || attributeIssue() !== 'Selecciona el material de cada fila para continuar.') && <p className="mt-3 text-sm text-rose-300">{attributeIssue()}</p>}
+                                {errors.material_rows && <p className="mt-2 text-sm text-rose-300">{errors.material_rows}</p>}
+                            </div>
                             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
                                 <Link href={meta.indexHref} className="sa-button-ghost px-5 py-3 text-center text-[0.72rem] uppercase tracking-[0.18em]">Cancelar</Link>
                                 <button type="button" onClick={goNext} className="sa-button-primary inline-flex items-center justify-center gap-2 px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em]">
@@ -634,21 +685,11 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
 
                             {!data.usa_variantes ? (
                                 <div className="mt-6 rounded-[1.45rem] border border-white/8 bg-[#0d141d] p-5">
-                                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                                        <SuperadminComboboxField
-                                            label="Color"
-                                            value={activeVariantRows[0]?.cod_colores_prv ?? ''}
-                                            options={orderedColorOptions}
-                                            placeholder="Selecciona color"
-                                            searchPlaceholder="Buscar color"
-                                            error={errors['variant_rows.0.cod_colores_prv']}
-                                            hint={colorHint}
-                                            createLabel="Crear color"
-                                            createMode="list"
-                                            onChange={(value) => updateVariantRow(firstActiveVariantIndex, 'cod_colores_prv', value)}
-                                            onCreate={(seed) => openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: Math.max(firstActiveVariantIndex, 0) }, seed)}
-                                        />
-
+                                    <div className="rounded-[1.25rem] border border-white/8 bg-[#0b1118] p-4">
+                                        <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Características de la variante</p>
+                                        <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                                            <PaletteEditor row={activeVariantRows[0] ?? createVariantRow()} colors={orderedColorOptions} referenceError={errors[`variant_rows.${firstActiveVariantIndex}.cod_colores_prv`]} paletteError={errors[`variant_rows.${firstActiveVariantIndex}.colores_adicionales`]} hint={colorHint} onTypeChange={(value) => updateVariantRow(firstActiveVariantIndex, 'tip_pal_prv', value)} onReferenceChange={(value) => updateVariantRow(firstActiveVariantIndex, 'cod_colores_prv', value)} onCreateColor={(seed) => openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: Math.max(firstActiveVariantIndex, 0) }, seed)} onAdditionalToggle={(value, selected) => setAdditionalColor(firstActiveVariantIndex, value, selected)} />
+                                            <div className="min-w-0">
                                         <SuperadminComboboxField
                                             label="Talla"
                                             value={activeVariantRows[0]?.cod_tallas_prv ?? ''}
@@ -663,6 +704,12 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                             onCreate={(seed) => openInlineCreate('sizes', { type: 'variant', field: 'cod_tallas_prv', rowIndex: Math.max(firstActiveVariantIndex, 0) }, seed)}
                                         />
 
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 rounded-[1.25rem] border border-white/8 bg-[#0b1118] p-4">
+                                        <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Inventario y precio</p>
+                                        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                                         <label className="space-y-2">
                                             <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Precio de venta (Bs.)</span>
                                             <input type="number" min="0.01" step="0.01" value={activeVariantRows[0]?.pve_prv ?? ''} onChange={(event) => updateVariantRow(firstActiveVariantIndex, 'pve_prv', event.target.value)} className="sa-input w-full" placeholder="0.00" />
@@ -687,6 +734,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                             <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Código interno</span>
                                             <input value={previewVariantCode(previewBaseCode, 1, false, activeVariantRows[0]?.sku_prv ?? '')} disabled className="sa-input w-full" />
                                         </label>
+                                    </div>
                                     </div>
 
                                     <div className="mt-5 rounded-[1.25rem] border border-white/8 bg-[#0b1118] p-4">
@@ -719,7 +767,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                             <div className="rounded-[1.2rem] border border-white/8 bg-[#0b1118] p-4">
                                                 <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Color sugerido</p>
                                                 <p className="mt-2 text-sm text-white">{colorInsight?.suggestedColor?.label ?? 'Selección manual en el siguiente paso'}</p>
-                                                <p className="mt-2 text-sm text-stone-400">{colorInsight?.family?.label ? `Familia dominante: ${colorInsight.family.label}` : 'La sugerencia aparecerá cuando cargues una portada.'}</p>
+                                                <p className="mt-2 text-sm text-stone-400">{colorInsight?.family?.label ? `Familia sugerida: ${colorInsight.family.label}` : 'La sugerencia aparecerá cuando cargues una portada.'}</p>
                                             </div>
                                             <div className="rounded-[1.2rem] border border-white/8 bg-[#0b1118] p-4">
                                                 <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Perfil de talla</p>
@@ -781,21 +829,11 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
 
                                         {!row.remove && (
                                             <>
-                                                <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                                                    <SuperadminComboboxField
-                                                        label="Color"
-                                                        value={row.cod_colores_prv}
-                                                        options={orderedColorOptions}
-                                                        placeholder="Selecciona color"
-                                                        searchPlaceholder="Buscar color"
-                                                        error={errors[`variant_rows.${index}.cod_colores_prv`]}
-                                                        hint={index === 0 ? colorHint : undefined}
-                                                        createLabel="Crear color"
-                                                        createMode="list"
-                                                        onChange={(value) => updateVariantRow(index, 'cod_colores_prv', value)}
-                                                        onCreate={(seed) => openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: index }, seed)}
-                                                    />
-
+                                                <div className="mt-4 rounded-[1.25rem] border border-white/8 bg-[#0b1118] p-4">
+                                                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Características de la variante</p>
+                                                    <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                                                        <PaletteEditor row={row} colors={orderedColorOptions} referenceError={errors[`variant_rows.${index}.cod_colores_prv`]} paletteError={errors[`variant_rows.${index}.colores_adicionales`]} hint={index === 0 ? colorHint : undefined} onTypeChange={(value) => updateVariantRow(index, 'tip_pal_prv', value)} onReferenceChange={(value) => updateVariantRow(index, 'cod_colores_prv', value)} onCreateColor={(seed) => openInlineCreate('colors', { type: 'variant', field: 'cod_colores_prv', rowIndex: index }, seed)} onAdditionalToggle={(value, selected) => setAdditionalColor(index, value, selected)} />
+                                                        <div className="min-w-0">
                                                     <SuperadminComboboxField
                                                         label="Talla"
                                                         value={row.cod_tallas_prv}
@@ -810,6 +848,12 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                                         onCreate={(seed) => openInlineCreate('sizes', { type: 'variant', field: 'cod_tallas_prv', rowIndex: index }, seed)}
                                                     />
 
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-4 rounded-[1.25rem] border border-white/8 bg-[#0b1118] p-4">
+                                                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Inventario y precio</p>
+                                                    <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                                                     <label className="space-y-2">
                                                         <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Código interno</span>
                                                         <input value={previewVariantCode(previewBaseCode, index + 1, true, row.sku_prv)} disabled className="sa-input w-full" />
@@ -834,6 +878,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                                         </select>
                                                         {errors[`variant_rows.${index}.ubi_inv`] && <p className="text-sm text-rose-300">{errors[`variant_rows.${index}.ubi_inv`]}</p>}
                                                     </label>
+                                                    </div>
                                                 </div>
 
                                                 {showInternalFields && (
@@ -875,7 +920,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                     {currentStep === 'review' && (
                         <section className="sa-panel rounded-[1.6rem] p-5">
                             <div>
-                                <p className="text-[0.72rem] uppercase tracking-[0.18em] text-stone-400">Paso 6</p>
+                                <p className="text-[0.72rem] uppercase tracking-[0.18em] text-stone-400">Paso {data.usa_variantes ? 6 : 5}</p>
                                 <h2 className="mt-2 text-lg text-white">Revisión y guardado</h2>
                                 <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-300">Revisa la ficha, completa la galería si hace falta y confirma el guardado final.</p>
                             </div>
@@ -1085,7 +1130,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                         <div>
                                             <p className="text-sm text-white">{inlineExistingColor?.label ?? inlineColorName}</p>
                                             <p className="mt-1 text-sm text-stone-400">Familia: {inlineExistingColor?.group ?? inlineColorFamily}</p>
-                                            <p className="mt-1 text-xs uppercase tracking-[0.14em] text-stone-500">Dominante: {familyPalette[normalizeText(inlineExistingColor?.group ?? inlineColorFamily)] ?? inlineColorHex}</p>
+                                            <p className="mt-1 text-xs uppercase tracking-[0.14em] text-stone-500">Tono de familia: {familyPalette[normalizeText(inlineExistingColor?.group ?? inlineColorFamily)] ?? inlineColorHex}</p>
                                         </div>
                                     </div>
                                 </div>

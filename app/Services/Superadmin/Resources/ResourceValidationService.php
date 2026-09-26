@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Support\UserValidation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ResourceValidationService
@@ -50,6 +51,23 @@ class ResourceValidationService
                 'ord_col' => ['nullable', 'integer', 'min:0'],
                 'est_col' => ['nullable', 'boolean'],
             ],
+            'catalogo.patrones' => [
+                'nom_pat' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\p{M}\s-]+$/u', Rule::unique('patrones', 'nom_pat')->ignore($record?->id_patron, 'id_patron')],
+                'des_pat' => ['nullable', 'string', 'max:255'],
+                'est_pat' => ['nullable', 'boolean'],
+                'ord_pat' => ['nullable', 'integer', 'min:0'],
+            ],
+            'catalogo.texturas' => [
+                'nom_tex' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\p{M}\s-]+$/u', Rule::unique('texturas', 'nom_tex')->ignore($record?->id_textura, 'id_textura')],
+                'des_tex' => ['nullable', 'string', 'max:255'],
+                'est_tex' => ['nullable', 'boolean'],
+                'ord_tex' => ['nullable', 'integer', 'min:0'],
+            ],
+            'catalogo.materiales' => [
+                'nom_mat' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\p{M}\s-]+$/u', Rule::unique('materiales', 'nom_mat')->ignore($record?->id_material, 'id_material')],
+                'des_mat' => ['nullable', 'string', 'max:255'],
+                'est_mat' => ['nullable', 'boolean'],
+            ],
             'catalogo.tallas' => [
                 'nom_tal' => ['required', 'string', 'max:20', 'regex:/^[\p{L}0-9.\-\s\/]+$/u', Rule::unique('tallas', 'nom_tal')->ignore($record?->id_talla, 'id_talla')],
                 'seg_tal' => ['required', 'string', Rule::in(['ADULTO', 'INFANTIL', 'BEBE'])],
@@ -77,6 +95,13 @@ class ResourceValidationService
                 'prb_pre' => ['required', 'numeric', 'min:0.01'],
                 'est_pre' => ['nullable', 'boolean'],
                 'usa_variantes' => ['nullable', 'boolean'],
+                'patron_ids' => ['sometimes', 'array'],
+                'patron_ids.*' => ['required', 'integer', 'distinct', Rule::exists('patrones', 'id_patron')],
+                'textura_ids' => ['sometimes', 'array'],
+                'textura_ids.*' => ['required', 'integer', 'distinct', Rule::exists('texturas', 'id_textura')],
+                'material_rows' => ['sometimes', 'array'],
+                'material_rows.*.cod_material' => ['required', 'integer', 'distinct', Rule::exists('materiales', 'id_material')],
+                'material_rows.*.porcentaje' => ['nullable', 'numeric', 'gt:0', 'lte:100', 'regex:/^\d{1,3}(\.\d{1,2})?$/'],
                 'imagen_principal' => [$record ? 'nullable' : 'required', 'file', 'image', 'max:6144'],
                 'fue_igp' => ['nullable', 'string', 'max:50'],
                 'existing_images' => ['nullable', 'array'],
@@ -92,7 +117,10 @@ class ResourceValidationService
                 'gallery_images.*.fue_igp' => ['nullable', 'string', 'max:50'],
                 'variant_rows' => ['required', 'array', 'min:1'],
                 'variant_rows.*.id' => ['nullable', 'integer', Rule::exists('prenda_variantes', 'id_prenda_variante')],
+                'variant_rows.*.tip_pal_prv' => ['nullable', Rule::in(['dominante', 'equilibrada'])],
                 'variant_rows.*.cod_colores_prv' => ['required', 'integer', Rule::exists('colores', 'id_color')],
+                'variant_rows.*.colores_adicionales' => ['sometimes', 'array'],
+                'variant_rows.*.colores_adicionales.*' => ['required', 'integer', 'distinct', Rule::exists('colores', 'id_color')],
                 'variant_rows.*.cod_tallas_prv' => ['required', 'integer', Rule::exists('tallas', 'id_talla')],
                 'variant_rows.*.cob_prv' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9\-]+$/', 'distinct'],
                 'variant_rows.*.pve_prv' => ['required', 'numeric', 'min:0.01'],
@@ -229,6 +257,9 @@ class ResourceValidationService
         if (in_array($key, [
             'catalogo.categorias',
             'catalogo.marcas',
+            'catalogo.patrones',
+            'catalogo.texturas',
+            'catalogo.materiales',
             'catalogo.tallas',
             'catalogo.temporadas',
         ], true)) {
@@ -332,6 +363,42 @@ class ResourceValidationService
 
         if ($key === 'catalogo.prendas') {
             $validator->after(function ($validator) use ($request, $record) {
+                foreach ([
+                    ['patron_ids', 'patrones', 'id_patron', 'est_pat', 'patrones'],
+                    ['textura_ids', 'texturas', 'id_textura', 'est_tex', 'texturas'],
+                    ['material_rows', 'materiales', 'id_material', 'est_mat', 'materiales'],
+                ] as [$field, $table, $idField, $statusField, $relation]) {
+                    $submitted = $request->input($field, []);
+                    $submitted = is_array($submitted) ? $submitted : [];
+                    $requested = $field === 'material_rows'
+                        ? collect($submitted)->filter('is_array')->pluck('cod_material')
+                        : collect($submitted);
+                    $existing = $record instanceof Prenda ? $record->{$relation}()->pluck($idField)->map(fn ($id) => (int) $id)->all() : [];
+                    $newIds = $requested->filter(fn ($id) => is_numeric($id) && !in_array((int) $id, $existing, true))->map(fn ($id) => (int) $id)->all();
+                    if ($newIds && DB::table($table)->whereIn($idField, $newIds)->where($statusField, false)->exists()) {
+                        $validator->errors()->add($field, 'No puedes agregar registros inactivos de este catálogo.');
+                    }
+                }
+                $knownPercentage = 0;
+                foreach ((array) $request->input('material_rows', []) as $index => $material) {
+                    if (!is_array($material)) continue;
+                    if (filled($material['porcentaje'] ?? null) && is_numeric($material['porcentaje'])) {
+                        $knownPercentage += (int) round((float) $material['porcentaje'] * 100);
+                    }
+                }
+                if ($knownPercentage > 10000) {
+                    $validator->errors()->add('material_rows', 'Los porcentajes conocidos de materiales no pueden superar el 100 %.');
+                }
+                foreach ((array) $request->input('variant_rows', []) as $index => $row) {
+                    if (!is_array($row)) continue;
+                    $additional = $row['colores_adicionales'] ?? [];
+                    if (($row['tip_pal_prv'] ?? 'dominante') === 'equilibrada' && is_array($additional) && count(array_unique(array_map('strval', $additional))) < 1 && !filter_var($row['remove'] ?? false, FILTER_VALIDATE_BOOL)) {
+                        $validator->errors()->add("variant_rows.$index.colores_adicionales", 'Una paleta equilibrada necesita al menos dos colores.');
+                    }
+                    if (is_array($additional) && in_array((string) ($row['cod_colores_prv'] ?? ''), array_map('strval', $additional), true)) {
+                        $validator->errors()->add("variant_rows.$index.colores_adicionales", 'El color de referencia no puede repetirse en la paleta.');
+                    }
+                }
                 $variantRows = collect($request->input('variant_rows', []));
                 $activeRows = $variantRows
                     ->reject(fn ($row) => filter_var($row['remove'] ?? false, FILTER_VALIDATE_BOOL));

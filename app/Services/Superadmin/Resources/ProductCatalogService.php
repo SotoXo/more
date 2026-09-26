@@ -43,6 +43,7 @@ class ProductCatalogService
                     'cod_usuario_registra_pre' => $request->user()->getAuthIdentifier(),
                 ]);
 
+                $this->syncProductAttributes($product, $validated);
                 $this->syncProductVariants($product, $validated['variant_rows'] ?? []);
                 $this->images->replaceOrCreatePrimaryProductImage(
                     $product,
@@ -72,6 +73,7 @@ class ProductCatalogService
         try {
             DB::transaction(function () use ($product, $payload, $validated, &$createdPaths, &$deleteAfterSuccess) {
                 $product->update($payload);
+                $this->syncProductAttributes($product, $validated);
 
                 $this->images->syncProductExistingImages($product, $validated['existing_images'] ?? [], $deleteAfterSuccess);
                 $this->syncProductVariants($product->fresh(['variantes.inventario', 'imagenes']), $validated['variant_rows'] ?? []);
@@ -100,6 +102,25 @@ class ProductCatalogService
         foreach ($deleteAfterSuccess as $path) {
             $this->images->deleteImageFile($path);
         }
+    }
+
+    private function syncProductAttributes(Prenda $product, array $validated): void
+    {
+        // Legacy isolated test fixtures intentionally create only the pre-existing schema.
+        if (!Schema::hasTable('prenda_patrones')) {
+            if (!empty($validated['patron_ids']) || !empty($validated['textura_ids']) || !empty($validated['material_rows'])) {
+                throw new \RuntimeException('La migración de atributos de prendas no está aplicada.');
+            }
+            return;
+        }
+        $product->patrones()->sync($validated['patron_ids'] ?? []);
+        $product->texturas()->sync($validated['textura_ids'] ?? []);
+        $materials = collect($validated['material_rows'] ?? [])
+            ->values()->mapWithKeys(fn ($row, $position) => [(int) $row['cod_material'] => [
+                'porcentaje_pmt' => filled($row['porcentaje'] ?? null) ? $row['porcentaje'] : null,
+                'ord_pmt' => $position,
+            ]])->all();
+        $product->materiales()->sync($materials);
     }
 
     private function syncProductVariants(Prenda $product, array $rows): void
@@ -142,6 +163,7 @@ class ProductCatalogService
 
                 $variant->update([
                     'cod_colores_prv' => (int) $row['cod_colores_prv'],
+                    ...(Schema::hasColumn('prenda_variantes', 'tip_pal_prv') ? ['tip_pal_prv' => $row['tip_pal_prv'] ?? 'dominante'] : []),
                     'cod_tallas_prv' => (int) $row['cod_tallas_prv'],
                     'sku_prv' => $code,
                     'cob_prv' => filled($row['cob_prv'] ?? null)
@@ -209,6 +231,7 @@ class ProductCatalogService
                 $variant = PrendaVariante::query()->create([
                     'cod_prendas_prv' => $product->id_prenda,
                     'cod_colores_prv' => (int) $row['cod_colores_prv'],
+                    ...(Schema::hasColumn('prenda_variantes', 'tip_pal_prv') ? ['tip_pal_prv' => $row['tip_pal_prv'] ?? 'dominante'] : []),
                     'cod_tallas_prv' => (int) $row['cod_tallas_prv'],
                     'sku_prv' => $code,
                     'cob_prv' => filled($row['cob_prv'] ?? null)
@@ -238,6 +261,20 @@ class ProductCatalogService
                 $this->logInventoryChange($inventory, null, 'Stock inicial registrado para variante.');
             }
 
+            if (!Schema::hasTable('prenda_variante_colores')) {
+                if (!empty($row['colores_adicionales'])) {
+                    throw new \RuntimeException('La migración de colores de variantes no está aplicada.');
+                }
+                $usedCodes[] = $code;
+                continue;
+            }
+            $palette = collect($row['colores_adicionales'] ?? [])->map(fn ($id) => (int) $id)
+                ->reject(fn ($id) => $id === (int) $variant->cod_colores_prv)->unique()->values();
+            $variant->colores()->sync(collect([(int) $variant->cod_colores_prv])->concat($palette)
+                ->values()->mapWithKeys(fn ($id, $position) => [$id => [
+                    'es_principal_pvc' => $position === 0,
+                    'ord_pvc' => $position,
+                ]])->all());
             $usedCodes[] = $code;
         }
     }
@@ -445,7 +482,7 @@ class ProductCatalogService
 
     public function productEditorPayload(array $definition, ?Prenda $record, Request $request, string $mode, array $options): array
     {
-        $record?->loadMissing(['categoria', 'marca', 'temporada', 'usuarioRegistra', 'variantes.color', 'variantes.talla', 'variantes.inventario', 'imagenes.variante']);
+        $record?->loadMissing(['categoria', 'marca', 'temporada', 'usuarioRegistra', 'variantes.color', 'variantes.colores', 'patrones', 'texturas', 'materiales', 'variantes.talla', 'variantes.inventario', 'imagenes.variante']);
 
         $isEdit = $mode === 'edit' && $record;
         $title = $isEdit ? ($record->nom_pre ?: 'Editar prenda') : 'Nueva prenda';
@@ -486,6 +523,9 @@ class ProductCatalogService
                 'seasons' => $options['seasons'] ?? [],
                 'genders' => $options['genders'] ?? [],
                 'colors' => $options['colors'] ?? [],
+                'patterns' => $options['patterns'] ?? [],
+                'textures' => $options['textures'] ?? [],
+                'materials' => $options['materials'] ?? [],
                 'sizes' => $options['sizes'] ?? [],
                 'sizeSegments' => $options['sizeSegments'] ?? [],
                 'locations' => $options['locations'] ?? [],
@@ -498,7 +538,7 @@ class ProductCatalogService
 
     public function productShowPayload(array $definition, Prenda $record): array
     {
-        $record->loadMissing(['categoria', 'marca', 'temporada', 'usuarioRegistra', 'variantes.color', 'variantes.talla', 'variantes.inventario', 'imagenes.variante']);
+        $record->loadMissing(['categoria', 'marca', 'temporada', 'usuarioRegistra', 'variantes.color', 'variantes.colores', 'patrones', 'texturas', 'materiales', 'variantes.talla', 'variantes.inventario', 'imagenes.variante']);
 
         $gallery = collect($record->imagenes ?? [])
             ->map(fn ($image) => [
@@ -519,7 +559,9 @@ class ProductCatalogService
                 'id' => $variant->id_prenda_variante,
                 'label' => $variant->sku_prv ?: ('Variante #' . $variant->id_prenda_variante),
                 'color' => $variant->color?->nom_col ?? 'Sin color',
+                'paletteType' => $variant->tip_pal_prv ?? 'dominante',
                 'colorSwatch' => $variant->color?->hex_dom_col ?: $variant->color?->hex_col,
+                'palette' => $variant->colores->sortBy('pivot.ord_pvc')->map(fn ($color) => ['name' => $color->nom_col, 'hex' => $color->hex_col, 'principal' => (bool) $color->pivot->es_principal_pvc])->values()->all(),
                 'size' => $variant->talla?->nom_tal ?? 'Sin talla',
                 'price' => $this->formatting->money((float) $variant->pve_prv),
                 'cost' => $variant->cos_prv !== null ? $this->formatting->money((float) $variant->cos_prv) : null,
@@ -548,6 +590,9 @@ class ProductCatalogService
                 'code' => $this->buildProductBaseCode($record),
                 'registeredBy' => $record->usuarioRegistra?->nombreCompleto() ?? 'Sin usuario',
                 'registeredAt' => $this->formatting->formatDate($record->fec_pre),
+                'patterns' => $record->patrones->pluck('nom_pat')->all(),
+                'textures' => $record->texturas->pluck('nom_tex')->all(),
+                'materials' => $record->materiales->sortBy('pivot.ord_pmt')->map(fn ($material) => ['name' => $material->nom_mat, 'percentage' => $material->pivot->porcentaje_pmt])->values()->all(),
             ],
             'metrics' => [
                 ['label' => 'Variantes', 'value' => (string) count($variants), 'note' => 'Configuraciones activas o históricas.', 'tone' => 'accent'],
@@ -566,7 +611,7 @@ class ProductCatalogService
 
     private function productEditorState(?Prenda $record): array
     {
-        $record?->loadMissing(['variantes.inventario', 'imagenes.variante']);
+        $record?->loadMissing(['variantes.inventario', 'variantes.colores', 'patrones', 'texturas', 'materiales', 'imagenes.variante']);
 
         $variantRows = $record
             ? $record->variantes
@@ -575,6 +620,8 @@ class ProductCatalogService
                     'id' => (string) $variant->id_prenda_variante,
                     'sku_prv' => $variant->sku_prv ?? '',
                     'cod_colores_prv' => (string) $variant->cod_colores_prv,
+                    'tip_pal_prv' => $variant->tip_pal_prv ?? 'dominante',
+                    'colores_adicionales' => $variant->colores->where('pivot.es_principal_pvc', false)->sortBy('pivot.ord_pvc')->pluck('id_color')->map(fn ($id) => (string) $id)->values()->all(),
                     'cod_tallas_prv' => (string) $variant->cod_tallas_prv,
                     'cob_prv' => $variant->cob_prv ?? '',
                     'pve_prv' => $variant->pve_prv !== null ? (string) $variant->pve_prv : '0',
@@ -590,6 +637,8 @@ class ProductCatalogService
                 'id' => '',
                 'sku_prv' => '',
                 'cod_colores_prv' => '',
+                'tip_pal_prv' => 'dominante',
+                'colores_adicionales' => [],
                 'cod_tallas_prv' => '',
                 'cob_prv' => '',
                 'pve_prv' => '',
@@ -628,6 +677,9 @@ class ProductCatalogService
             'cod_marcas_pre' => (string) ($record?->cod_marcas_pre ?? ''),
             'cod_temporadas_pre' => (string) ($record?->cod_temporadas_pre ?? $this->defaultSeasonId()),
             'gen_pre' => (string) ($record?->gen_pre ?? ''),
+            'patron_ids' => $record?->patrones->pluck('id_patron')->map(fn ($id) => (string) $id)->all() ?? [],
+            'textura_ids' => $record?->texturas->pluck('id_textura')->map(fn ($id) => (string) $id)->all() ?? [],
+            'material_rows' => $record?->materiales->sortBy('pivot.ord_pmt')->map(fn ($material) => ['cod_material' => (string) $material->id_material, 'porcentaje' => $material->pivot->porcentaje_pmt !== null ? (string) $material->pivot->porcentaje_pmt : ''])->values()->all() ?? [],
             'prb_pre' => $record?->prb_pre !== null ? (string) $record->prb_pre : '',
             'est_pre' => $record ? (bool) $record->est_pre : true,
             'usa_variantes' => count($variantRows) > 1,

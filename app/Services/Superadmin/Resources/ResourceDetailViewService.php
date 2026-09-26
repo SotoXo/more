@@ -86,6 +86,9 @@ class ResourceDetailViewService
             'seguridad.roles',
             'catalogo.categorias',
             'catalogo.colores',
+            'catalogo.patrones',
+            'catalogo.texturas',
+            'catalogo.materiales',
             'catalogo.temporadas',
         ], true);
         $count = $record && !empty($definition['countRelation'])
@@ -287,6 +290,14 @@ class ResourceDetailViewService
                 'value' => (string) ($record?->{$definition['descriptionField']} ?? ''),
                 'type' => 'textarea',
                 'placeholder' => 'Descripción del registro',
+            ];
+        }
+
+        if (in_array($key, ['catalogo.patrones', 'catalogo.texturas'], true)) {
+            $orderField = $key === 'catalogo.patrones' ? 'ord_pat' : 'ord_tex';
+            $mainFields[] = [
+                'name' => $orderField, 'label' => 'Orden', 'value' => (string) ($record?->{$orderField} ?? 0),
+                'type' => 'number', 'min' => 0,
             ];
         }
 

@@ -12,6 +12,7 @@ class BaseCatalogSeeder extends Seeder
             CategoriasTableSeeder::class,
             MarcasTableSeeder::class,
             ColoresTableSeeder::class,
+            ExpandedColorCatalogSeeder::class,
             TallasTableSeeder::class,
             TemporadasTableSeeder::class,
         ]);

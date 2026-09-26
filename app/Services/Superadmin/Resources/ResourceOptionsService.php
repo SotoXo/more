@@ -6,6 +6,9 @@ use App\Models\Categoria;
 use App\Models\Color;
 use App\Models\Inventario;
 use App\Models\Marca;
+use App\Models\Patron;
+use App\Models\Textura;
+use App\Models\Material;
 use App\Models\Prenda;
 use App\Models\PrendaVariante;
 use App\Models\Role;
@@ -459,6 +462,24 @@ class ResourceOptionsService
             ->all();
     }
 
+    public function patternOptions(): array
+    {
+        return Patron::query()->orderBy('ord_pat')->orderBy('nom_pat')->get()
+            ->map(fn ($item) => ['label' => $item->nom_pat, 'value' => (string) $item->id_patron, 'active' => (bool) $item->est_pat])->all();
+    }
+
+    public function textureOptions(): array
+    {
+        return Textura::query()->orderBy('ord_tex')->orderBy('nom_tex')->get()
+            ->map(fn ($item) => ['label' => $item->nom_tex, 'value' => (string) $item->id_textura, 'active' => (bool) $item->est_tex])->all();
+    }
+
+    public function materialOptions(): array
+    {
+        return Material::query()->orderBy('nom_mat')->get()
+            ->map(fn ($item) => ['label' => $item->nom_mat, 'value' => (string) $item->id_material, 'active' => (bool) $item->est_mat])->all();
+    }
+
     public function colorOptions(): array
     {
         $query = Color::query();
@@ -478,6 +499,7 @@ class ResourceOptionsService
                 'dominantSwatch' => $color->hex_dom_col ?: null,
                 'hex' => $color->hex_col ?: null,
                 'group' => $color->fam_col ?: null,
+                'active' => (bool) $color->est_col,
             ])
             ->values()
             ->all();

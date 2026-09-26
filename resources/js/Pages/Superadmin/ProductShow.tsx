@@ -23,6 +23,9 @@ type ProductShowProps = {
         code: string;
         registeredBy: string;
         registeredAt: string;
+        patterns: string[];
+        textures: string[];
+        materials: Array<{ name: string; percentage: string | number | null }>;
     };
     metrics: SuperadminMetric[];
     gallery: Array<{
@@ -39,7 +42,9 @@ type ProductShowProps = {
         id: number;
         label: string;
         color: string;
+        paletteType: 'dominante' | 'equilibrada';
         colorSwatch?: string | null;
+        palette: Array<{ name: string; hex: string | null; principal: boolean }>;
         size: string;
         price: string;
         cost?: string | null;
@@ -99,6 +104,12 @@ export default function ProductShow({
                                 <DetailCard label="Alta" value={product.registeredAt} />
                                 <DetailCard label="Registrado por" value={product.registeredBy} />
                             </div>
+                            {(product.patterns.length > 0 || product.textures.length > 0 || product.materials.length > 0) && <div className="mt-4 rounded-[1.2rem] border border-white/8 bg-[#0d141d] p-4 text-sm text-stone-200">
+                                <p className="mb-3 text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Atributos de prenda</p>
+                                {product.patterns.length > 0 && <p>Patrones: {product.patterns.join(', ')}</p>}
+                                {product.textures.length > 0 && <p>Texturas: {product.textures.join(', ')}</p>}
+                                {product.materials.length > 0 && <p>Materiales: {product.materials.every((item) => item.percentage !== null) ? product.materials.map((item) => `${item.percentage}% ${item.name}`).join(', ') : product.materials.map((item) => item.name).join(', ')}</p>}
+                            </div>}
                             <div className="mt-4 rounded-[1.2rem] border border-white/8 bg-[#0d141d] p-4">
                                 <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Descripción</p>
                                 <p className="mt-3 text-sm leading-7 text-stone-200">{product.description}</p>
@@ -123,10 +134,10 @@ export default function ProductShow({
                                                 </div>
                                                 <div className="mt-3 flex flex-wrap gap-3 text-sm text-stone-300">
                                                     <span className="inline-flex items-center gap-2">
-                                                        {variant.colorSwatch && (
-                                                            <span className="inline-flex h-3.5 w-3.5 rounded-full border border-white/15" style={{ backgroundColor: variant.colorSwatch }} />
+                                                        {variant.paletteType === 'dominante' && variant.colorSwatch && (
+                                                            <span className="inline-flex h-3.5 w-3.5 rounded-full border-2 border-white/40" style={{ backgroundColor: variant.colorSwatch }} />
                                                         )}
-                                                        {variant.color}
+                                                        {variant.paletteType === 'equilibrada' ? 'Multicolor equilibrado' : `Dominante: ${variant.color}`}
                                                     </span>
                                                     <span>{variant.size}</span>
                                                     <span>{variant.location}</span>
@@ -137,6 +148,8 @@ export default function ProductShow({
                                             </Link>
                                         </div>
 
+                                        {variant.paletteType === 'equilibrada' && <p className="mt-3 text-xs text-stone-400">Paleta equilibrada: ningún color predomina visualmente. Referencia del sistema: {variant.color}. Se usa para compatibilidad y clasificación.</p>}
+                                        {variant.palette.length > 1 && <div className="mt-3 flex flex-wrap gap-3 text-sm text-stone-300">{variant.palette.map((item) => <span key={item.name} className="inline-flex items-center gap-2"><span className="h-3.5 w-3.5 rounded-full border-2 border-white/40" style={{ backgroundColor: item.hex ?? '#ffffff' }} />{item.name}{item.principal && variant.paletteType === 'dominante' ? ' (dominante)' : ''}</span>)}</div>}
                                         <div className="mt-4 grid gap-3 md:grid-cols-4">
                                             <DetailCard label="Precio" value={variant.price} compact />
                                             <DetailCard label="Costo" value={variant.cost ?? 'Sin costo'} compact />

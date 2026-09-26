@@ -86,6 +86,23 @@ class ResourceWriteService
                 'est_col' => (bool) ($validated['est_col'] ?? false),
                 ...($record ? [] : ['fec_col' => Carbon::now()]),
             ],
+            'catalogo.patrones' => [
+                'nom_pat' => $this->formatting->normalizeUpper($validated['nom_pat']),
+                'des_pat' => $this->formatting->normalizeNullableText($validated['des_pat'] ?? null),
+                'est_pat' => (bool) ($validated['est_pat'] ?? false),
+                'ord_pat' => (int) ($validated['ord_pat'] ?? 0),
+            ],
+            'catalogo.texturas' => [
+                'nom_tex' => $this->formatting->normalizeUpper($validated['nom_tex']),
+                'des_tex' => $this->formatting->normalizeNullableText($validated['des_tex'] ?? null),
+                'est_tex' => (bool) ($validated['est_tex'] ?? false),
+                'ord_tex' => (int) ($validated['ord_tex'] ?? 0),
+            ],
+            'catalogo.materiales' => [
+                'nom_mat' => $this->formatting->normalizeUpper($validated['nom_mat']),
+                'des_mat' => $this->formatting->normalizeNullableText($validated['des_mat'] ?? null),
+                'est_mat' => (bool) ($validated['est_mat'] ?? false),
+            ],
             'catalogo.tallas' => [
                 'nom_tal' => $this->formatting->normalizeUpper($validated['nom_tal']),
                 'seg_tal' => Schema::hasColumn('tallas', 'seg_tal')
@@ -213,6 +230,7 @@ class ResourceWriteService
         return match ($key) {
             'catalogo.prendas' => $createProductRecord($request, $payload, $validated),
             'catalogo.imagenes' => $createImageRecord($validated, $payload),
+            'catalogo.variantes' => DB::transaction(fn () => $modelClass::query()->create($payload)),
             default => $modelClass::query()->create($payload),
         };
     }
@@ -231,6 +249,7 @@ class ResourceWriteService
         match ($key) {
             'catalogo.prendas' => $updateProductRecord($request, $record, $payload, $validated),
             'catalogo.imagenes' => $updateImageRecord($record, $validated, $payload),
+            'catalogo.variantes' => DB::transaction(fn () => $record->update($payload)),
             default => $record->update($payload),
         };
     }
@@ -260,7 +279,7 @@ class ResourceWriteService
             'catalogo.marcas' => $record->prendas()->exists()
                 ? 'No puedes eliminar esta marca porque tiene prendas asociadas.'
                 : null,
-            'catalogo.colores' => $record->variantes()->exists()
+            'catalogo.colores' => $record->variantes()->exists() || $record->variantesEnPaleta()->exists()
                 ? 'No puedes eliminar este color porque tiene variantes asociadas.'
                 : null,
             'catalogo.tallas' => $record->variantes()->exists()

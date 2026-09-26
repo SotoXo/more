@@ -28,10 +28,22 @@ const primaryButtonClass =
     'more-cta-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] disabled:cursor-not-allowed disabled:opacity-60';
 const secondaryButtonClass =
     'more-cta-secondary px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em]';
+function colorLabel(variant: ShopVariant) {
+    return variant.palette_type === 'equilibrada' ? 'Multicolor' : variant.color;
+}
+function colorSwatch(variant: ShopVariant) {
+    const colors = variant.palette?.map((item) => item.hex).filter((hex): hex is string => Boolean(hex)) ?? [];
+    if (variant.palette_type === 'equilibrada' && colors.length > 1) {
+        return `conic-gradient(${colors.map((hex, index) => `${hex} ${index * 100 / colors.length}% ${(index + 1) * 100 / colors.length}%`).join(', ')})`;
+    }
+    return variant.color_hex ?? '#ffffff';
+}
+
 
 type ProductPageProps = {
     product: ShopProduct;
     variants: ShopVariant[];
+    details: { patterns: string[]; textures: string[]; materials: Array<{ name: string; percentage: string | number | null }> };
     relatedProducts: ShopProduct[];
     completeLookProducts: ShopProduct[];
     isFavorite: boolean;
@@ -40,6 +52,7 @@ type ProductPageProps = {
 export default function Product({
     product,
     variants,
+    details,
     relatedProducts,
     completeLookProducts,
     isFavorite,
@@ -270,7 +283,7 @@ export default function Product({
             name: product.name,
             brand: product.brand,
             image: product.image,
-            color: selectedVariant.color,
+            color: colorLabel(selectedVariant),
             size: selectedVariant.talla,
             sku: selectedVariant.sku,
             price: selectedVariant.precio,
@@ -349,7 +362,7 @@ export default function Product({
                                         {formatPrice(displayPrice)}
                                     </span>
                                     <span className="more-pill rounded-full px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em]">
-                                        {selectedColor ?? product.color}
+                                        {selectedVariant ? colorLabel(selectedVariant) : selectedColor ?? product.color}
                                     </span>
                                     <span className="more-pill rounded-full px-4 py-2 text-[0.7rem] uppercase tracking-[0.2em]">
                                         {displayAvailabilityLabel}
@@ -378,13 +391,12 @@ export default function Product({
                                                         ].join(' ')}
                                                     >
                                                         <span
-                                                            className="h-3 w-3 rounded-full border border-white/10"
+                                                            className="h-3 w-3 rounded-full border-2 border-white/40"
                                                             style={{
-                                                                backgroundColor:
-                                                                    variant.color_hex ?? '#ffffff',
+                                                                background: colorSwatch(variant),
                                                             }}
                                                         />
-                                                        {variant.color}
+                                                        {colorLabel(variant)}
                                                     </button>
                                                 );
                                             })}
@@ -441,6 +453,17 @@ export default function Product({
                                     </div>
                                 </div>
 
+                                {(details.patterns.length > 0 || details.textures.length > 0 || details.materials.length > 0 || (selectedVariant?.palette?.length ?? 0) > 1) && (
+                                    <div className="mt-6 space-y-2 rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-5 text-sm text-stone-200">
+                                        <p className="mb-3 text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">Detalles</p>
+                                        {details.patterns.length > 0 && <p><span className="text-stone-400">Patrones: </span>{details.patterns.join(', ')}</p>}
+                                        {details.textures.length > 0 && <p><span className="text-stone-400">Texturas: </span>{details.textures.join(', ')}</p>}
+                                        {details.materials.length > 0 && <p><span className="text-stone-400">Materiales: </span>{details.materials.every((item) => item.percentage !== null) ? details.materials.map((item) => `${item.percentage}% ${item.name}`).join(', ') : details.materials.map((item) => item.name).join(', ')}</p>}
+                                        {selectedVariant?.palette_type === 'equilibrada' && <p className="text-stone-400">Paleta equilibrada: esta variante no tiene un color visual predominante.</p>}
+                                        {(selectedVariant?.palette?.length ?? 0) > 1 && <div><span className="text-stone-400">Colores de esta variante: </span><span className="inline-flex flex-wrap gap-2">{selectedVariant?.palette?.map((item) => <span key={item.name} className="inline-flex items-center gap-1"><span className="h-3 w-3 rounded-full border-2 border-white/40" style={{ backgroundColor: item.hex ?? '#ffffff' }} />{item.name}</span>)}</span></div>}
+                                    </div>
+                                )}
+
                                 {statusMessage && (
                                     <p className="mt-6 text-sm text-stone-300">{statusMessage}</p>
                                 )}
@@ -489,7 +512,7 @@ export default function Product({
                                                 </p>
                                                 <p className="mt-2 text-sm text-white">
                                                     {selectedVariant
-                                                        ? `${selectedVariant.color} / ${selectedVariant.talla}`
+                                                        ? `${colorLabel(selectedVariant)} / ${selectedVariant.talla}`
                                                         : 'Selecciona color y talla'}
                                                 </p>
                                             </div>
@@ -557,7 +580,7 @@ export default function Product({
                                                 </p>
                                                 <p className="mt-2 text-sm text-white">
                                                     {selectedVariant
-                                                        ? `${selectedVariant.color} / ${selectedVariant.talla}`
+                                                        ? `${colorLabel(selectedVariant)} / ${selectedVariant.talla}`
                                                         : 'Selecciona color y talla'}
                                                 </p>
                                             </div>

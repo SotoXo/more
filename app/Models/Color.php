@@ -17,6 +17,11 @@ class Color extends Model
         'fec_col' => 'datetime',
     ];
 
+    public function variantesEnPaleta()
+    {
+        return $this->belongsToMany(PrendaVariante::class, 'prenda_variante_colores', 'cod_color_pvc', 'cod_prenda_variante_pvc', 'id_color', 'id_prenda_variante')->withPivot('es_principal_pvc', 'ord_pvc')->withTimestamps();
+    }
+
     public function variantes()
     {
         return $this->hasMany(PrendaVariante::class, 'cod_colores_prv', 'id_color');
