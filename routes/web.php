@@ -11,6 +11,7 @@ use App\Http\Controllers\PrendaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\Superadmin\AuditController as SuperadminAuditController;
+use App\Http\Controllers\Superadmin\CategoryComplementController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
 use App\Http\Controllers\Superadmin\DatabaseBackupController as SuperadminDatabaseBackupController;
 use App\Http\Controllers\Superadmin\DamagedProductController as SuperadminDamagedProductController;
@@ -161,6 +162,8 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::get('/comercial/ventas/{venta}/recibo', [ReceiptController::class, 'adminSale'])->name('receipts.sales.show');
     Route::post('/comercial/ventas/{venta}/lista-recojo', [SuperadminSalePickupController::class, 'markReady'])->name('sales.pickup.ready');
     Route::post('/comercial/ventas/{venta}/entregar', [SuperadminSalePickupController::class, 'markDelivered'])->name('sales.pickup.deliver');
+    Route::put('/catalogo/categorias/{categoria}/complementos', [CategoryComplementController::class, 'update'])
+        ->whereNumber('categoria')->name('categories.complements.update');
     Route::post('/{section}/{resource}/inline', [SuperadminResourceController::class, 'storeInline'])->name('resources.inline');
     Route::get('/{section}/{resource}', [SuperadminResourceController::class, 'index'])->name('resources.index');
     Route::get('/{section}/{resource}/nuevo', [SuperadminResourceController::class, 'create'])->name('resources.create');

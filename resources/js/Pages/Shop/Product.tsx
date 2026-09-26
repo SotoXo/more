@@ -1,7 +1,6 @@
 import SectionHeading from '@/Components/landing/SectionHeading';
 import ProductGallery from '@/Components/shop/ProductGallery';
 import ProductCard from '@/Components/shop/ProductCard';
-import ProductRail from '@/Components/shop/ProductRail';
 import StoreLayout from '@/Components/shop/StoreLayout';
 import { addPurchaseCartItem } from '@/lib/purchaseCart';
 import {
@@ -44,8 +43,7 @@ type ProductPageProps = {
     product: ShopProduct;
     variants: ShopVariant[];
     details: { patterns: string[]; textures: string[]; materials: Array<{ name: string; percentage: string | number | null }> };
-    relatedProducts: ShopProduct[];
-    completeLookProducts: ShopProduct[];
+    complementaryProducts: ShopProduct[];
     isFavorite: boolean;
 };
 
@@ -53,8 +51,7 @@ export default function Product({
     product,
     variants,
     details,
-    relatedProducts,
-    completeLookProducts,
+    complementaryProducts,
     isFavorite,
 }: ProductPageProps) {
     const page = usePage();
@@ -63,6 +60,7 @@ export default function Product({
     const [favoritePending, setFavoritePending] = useState(false);
     const [addToCartPending, setAddToCartPending] = useState(false);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
+    const [showComplementHint, setShowComplementHint] = useState(false);
     const [selectedAction, setSelectedAction] = useState<'reservar' | 'comprar'>('reservar');
     const [reservationQuantity, setReservationQuantity] = useState<number | string>(1);
     const [purchaseQuantity, setPurchaseQuantity] = useState<number | string>(1);
@@ -233,6 +231,7 @@ export default function Product({
 
         setAddToCartPending(true);
         setStatusMessage(null);
+        setShowComplementHint(false);
 
         try {
             const response = await axios.post('/api/carrito/agregar', {
@@ -245,6 +244,7 @@ export default function Product({
                 }),
             );
             setStatusMessage('Prenda agregada a la bolsa de reservas.');
+            setShowComplementHint(true);
         } catch (error) {
             if (
                 axios.isAxiosError(error) &&
@@ -269,6 +269,7 @@ export default function Product({
     function handleAddToPurchaseCart() {
         setSelectedAction('comprar');
         setStatusMessage(null);
+        setShowComplementHint(false);
 
         if (!selectedVariant || !validQuantity(purchaseQuantity, maxPurchaseQuantity)) {
             setStatusMessage('No hay stock suficiente para comprar esta prenda.');
@@ -296,6 +297,7 @@ export default function Product({
         }
 
         setStatusMessage('Prenda agregada al carrito.');
+        setShowComplementHint(true);
     }
 
     return (
@@ -465,7 +467,18 @@ export default function Product({
                                 )}
 
                                 {statusMessage && (
-                                    <p className="mt-6 text-sm text-stone-300">{statusMessage}</p>
+                                    <p className="mt-6 text-sm text-stone-300" role="status">{statusMessage}</p>
+                                )}
+                                {showComplementHint && complementaryProducts.length > 0 && (
+                                    <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                                        <p className="text-[0.68rem] uppercase tracking-[0.18em] text-[rgb(223,184,166)]">Combina esta prenda con</p>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {complementaryProducts.slice(0, 2).map((item) => (
+                                                <Link key={item.id} href={shopRoutes.product(item.slug)} className="rounded-full border border-white/15 px-3 py-2 text-xs text-stone-200 transition hover:border-white/40 hover:text-white">{item.name}</Link>
+                                            ))}
+                                        </div>
+                                        <a href="#combina-con" className="mt-3 inline-block text-xs text-stone-400 underline transition hover:text-white">Ver todos los complementos</a>
+                                    </div>
                                 )}
 
                                 <div className="mt-8 grid gap-2 rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-2 sm:grid-cols-2">
@@ -480,6 +493,7 @@ export default function Product({
                                             onClick={() => {
                                                 setSelectedAction(value as 'reservar' | 'comprar');
                                                 setStatusMessage(null);
+                                                setShowComplementHint(false);
                                             }}
                                             className={
                                                 selectedAction === value
@@ -674,43 +688,17 @@ export default function Product({
                 </div>
             </section>
 
-            {relatedProducts.length > 0 && (
-                <section className="pt-16">
+            {complementaryProducts.length > 0 && (
+                <section id="combina-con" className="pt-16">
                     <div className={sectionShell}>
-                        <ProductRail
-                            eyebrow="También puede interesarte"
-                            title="Productos relacionados"
-                            description="Prendas similares que puedes revisar antes de decidir."
-                            products={relatedProducts}
+                        <SectionHeading
+                            eyebrow="Combina con"
+                            title="Completa el look"
+                            description="Prendas disponibles de categorías que complementan esta pieza."
                         />
-                    </div>
-                </section>
-            )}
-
-            {completeLookProducts.length > 0 && (
-                <section className="pt-16">
-                    <div className={sectionShell}>
-                        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                            <SectionHeading
-                                eyebrow="Cierra el look"
-                                title="Completa el look"
-                                description="Prendas y accesorios que combinan con este producto."
-                            />
-                            <Link
-                                href={shopRoutes.catalog}
-                                className={secondaryButtonClass}
-                            >
-                                Ver catálogo
-                            </Link>
-                        </div>
-
-                        <div className="mt-10 grid gap-6 lg:grid-cols-3">
-                            {completeLookProducts.map((lookProduct) => (
-                                <ProductCard
-                                    key={lookProduct.slug}
-                                    product={lookProduct}
-                                    imageClassName="h-[340px]"
-                                />
+                        <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+                            {complementaryProducts.map((item) => (
+                                <ProductCard key={item.id} product={item} imageClassName="h-[320px] sm:h-[360px]" />
                             ))}
                         </div>
                     </div>

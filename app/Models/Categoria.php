@@ -26,6 +26,14 @@ class Categoria extends Model
         return $this->hasMany(Categoria::class, 'cod_categoria_padre_cat', 'id_categoria');
     }
 
+    public function complementarias()
+    {
+        return $this->belongsToMany(self::class, 'categoria_complementarias', 'cod_categoria_origen_cc', 'cod_categoria_destino_cc', 'id_categoria', 'id_categoria')
+            ->withPivot('pri_cc', 'est_cc')
+            ->withTimestamps()
+            ->orderByPivot('pri_cc');
+    }
+
     public function prendas()
     {
         return $this->hasMany(Prenda::class, 'cod_categorias_pre', 'id_categoria');

@@ -2,6 +2,7 @@
 
 namespace App\Services\Superadmin\Resources;
 
+use App\Models\Categoria;
 use App\Models\Inventario;
 use App\Models\Role;
 use App\Services\InventoryMovementService;
@@ -209,6 +210,19 @@ class ResourceControllerActions
                 ]
                 : null,
             'stateAction' => $this->stateAction($definition, $resolvedRecord, $request->user()),
+            'categoryComplements' => $this->definitions->definitionKey($definition) === 'catalogo.categorias'
+                ? [
+                    'saveUrl' => route('superadmin.categories.complements.update', $resolvedRecord->id_categoria),
+                    'options' => Categoria::query()->where('id_categoria', '!=', $resolvedRecord->id_categoria)
+                        ->orderBy('nom_cat')->get(['id_categoria', 'nom_cat'])
+                        ->map(fn (Categoria $category) => ['value' => (string) $category->id_categoria, 'label' => $category->nom_cat])->all(),
+                    'rows' => $resolvedRecord->complementarias()
+                        ->get()->map(fn (Categoria $category) => [
+                            'destino_id' => (string) $category->id_categoria,
+                            'prioridad' => (int) $category->pivot->pri_cc,
+                            'activo' => (bool) $category->pivot->est_cc,
+                        ])->all(),
+                ] : null,
         ]);
     }
 

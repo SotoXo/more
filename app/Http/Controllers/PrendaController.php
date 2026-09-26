@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Favorito;
 use App\Models\Prenda;
+use App\Services\ComplementaryProductService;
 use App\Services\ProductMapper;
-use App\Services\StorefrontCatalogService;
 use Inertia\Inertia;
 
 class PrendaController extends Controller
 {
-    public function __construct(private StorefrontCatalogService $catalogService)
+    public function __construct(private ComplementaryProductService $complements)
     {
     }
 
@@ -47,41 +47,9 @@ class PrendaController extends Controller
             ->values()
             ->toArray();
 
-        // Related products (same category, different product)
-        $relacionadas = ProductMapper::withRelations(
-            Prenda::where('est_pre', true)
-                ->where('cod_categorias_pre', $prenda->cod_categorias_pre)
-                ->where('id_prenda', '!=', $prenda->id_prenda)
+        $complementaryProducts = ProductMapper::toShopProductArray(
+            $this->complements->recommend($prenda)->pluck('product')
         );
-        $this->catalogService->applySeasonOrdering($relacionadas);
-        $relacionadas = $relacionadas->limit(4)->get();
-
-        $relatedProducts = ProductMapper::toShopProductArray($relacionadas);
-
-        $completaTuLook = ProductMapper::withRelations(
-            Prenda::where('est_pre', true)
-                ->where('id_prenda', '!=', $prenda->id_prenda)
-                ->where(function ($query) use ($prenda) {
-                    if (strcasecmp((string) $prenda->categoria?->nom_cat, 'Accesorios') === 0) {
-                        $query->whereHas('categoria', fn($q) => $q->where('nom_cat', '!=', 'Accesorios'));
-
-                        return;
-                    }
-
-                    $query
-                        ->whereHas('categoria', fn($q) => $q->where('nom_cat', 'Accesorios'))
-                        ->orWhere(function ($subQuery) use ($prenda) {
-                            $subQuery
-                                ->where('gen_pre', $prenda->gen_pre)
-                                ->where('cod_categorias_pre', '!=', $prenda->cod_categorias_pre)
-                                ->whereHas('categoria', fn($q) => $q->where('nom_cat', '!=', 'Accesorios'));
-                        });
-                })
-        );
-        $this->catalogService->applySeasonOrdering($completaTuLook);
-        $completaTuLook = $completaTuLook->limit(3)->get();
-
-        $completeLookProducts = ProductMapper::toShopProductArray($completaTuLook);
 
         $isFavorite = false;
         if ($user = auth()->user()) {
@@ -89,8 +57,7 @@ class PrendaController extends Controller
                 ->where('cod_prendas_fav', $prenda->id_prenda)
                 ->exists();
 
-            $relatedProducts = ProductMapper::attachFavoriteState($relatedProducts, $user);
-            $completeLookProducts = ProductMapper::attachFavoriteState($completeLookProducts, $user);
+            $complementaryProducts = ProductMapper::attachFavoriteState($complementaryProducts, $user);
         }
 
         $product['isFavorite'] = $isFavorite;
@@ -99,8 +66,7 @@ class PrendaController extends Controller
             'product'        => $product,
             'variants'       => $variants,
             'details'        => $details,
-            'relatedProducts' => $relatedProducts,
-            'completeLookProducts' => $completeLookProducts,
+            'complementaryProducts' => $complementaryProducts,
             'isFavorite'     => $isFavorite,
         ]);
     }

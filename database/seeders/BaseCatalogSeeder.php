@@ -10,6 +10,7 @@ class BaseCatalogSeeder extends Seeder
     {
         $this->call([
             CategoriasTableSeeder::class,
+            CategoriaComplementariaSeeder::class,
             MarcasTableSeeder::class,
             ColoresTableSeeder::class,
             ExpandedColorCatalogSeeder::class,

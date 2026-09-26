@@ -365,6 +365,10 @@ class ResourceDetailViewService
                     ...($key === 'catalogo.categorias' ? [
                         ['label' => 'Sistema de talla', 'value' => $sizeSystem ?: 'Sin dato', 'tone' => 'accent'],
                         ['label' => 'Grupo de talla', 'value' => $sizeGroup ?: 'Sin dato', 'tone' => 'warning'],
+                        ['label' => 'Combina con', 'value' => $record
+                            ? ($record->complementarias->map(fn ($category) =>
+                                $category->pivot->pri_cc . '. ' . $category->nom_cat . ($category->pivot->est_cc ? '' : ' (inactiva)'))->join(' · ') ?: 'Sin relaciones')
+                            : 'Sin relaciones', 'tone' => 'accent'],
                     ] : []),
                     ...($key === 'catalogo.colores' ? [
                         ['label' => 'Familia', 'value' => $record?->fam_col ?: 'Sin familia', 'tone' => 'accent'],

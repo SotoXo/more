@@ -1,3 +1,4 @@
+import CategoryComplementEditor, { type CategoryComplementSettings } from '@/Components/Superadmin/CategoryComplementEditor';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import SuperadminFormSection from '@/Components/Superadmin/SuperadminFormSection';
 import SuperadminLayout from '@/Components/Superadmin/SuperadminLayout';
@@ -26,6 +27,7 @@ type ResourceFormProps = {
     description?: string | null;
     submit?: SuperadminFormSubmit | null;
     stateAction?: SuperadminFormStateAction | null;
+    categoryComplements?: CategoryComplementSettings | null;
 };
 
 function buildInitialData(sections: SuperadminFormSectionData[]) {
@@ -63,6 +65,7 @@ export default function ResourceForm({
     description,
     submit,
     stateAction,
+    categoryComplements,
 }: ResourceFormProps) {
     const page = usePage<LandingPageProps>();
     const flash = page.props.flash;
@@ -252,6 +255,7 @@ export default function ResourceForm({
                         </div>
                     </div>
                 </form>
+                {categoryComplements && <CategoryComplementEditor settings={categoryComplements} />}
             </div>
         </SuperadminLayout>
     );
