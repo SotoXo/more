@@ -77,10 +77,10 @@ export default function ReportSummary({
                 <div className="space-y-4">
                     <div>
                         <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--admin-text)]">
-                            Senales de catalogo
+                            Senales de catálogo
                         </h3>
                         <p className="mt-2 text-sm text-[color:var(--admin-muted)]">
-                            Informacion complementaria del catalogo sin convertirla en una pestana principal.
+                            Informacion complementaria del catálogo sin convertirla en una pestana principal.
                         </p>
                     </div>
                     <ReportMetricGrid metrics={catalog.metrics} columns="xl:grid-cols-4" />

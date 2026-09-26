@@ -1,3 +1,6 @@
+import { decimalAmount } from '@/lib/commercialValidation';
+import { operationToken, completeOperation, renewOperation } from '@/lib/commercialOperation';
+import OperationRecovery from '@/Components/shop/OperationRecovery';
 import StoreLayout from '@/Components/shop/StoreLayout';
 import { ONLINE_PAYMENT_METHOD_OPTIONS, PAYMENT_METHODS } from '@/config/paymentMethods';
 import {
@@ -17,6 +20,8 @@ const serifStyle = {
 
 export default function Checkout() {
     const page = usePage();
+    const [operationId, setOperationId] = useState(operationToken);
+    const [operationErrorDismissed, setOperationErrorDismissed] = useState(false);
     const serverErrors = (page.props.errors ?? {}) as Record<string, string>;
     const [items, setItems] = useState<PurchaseCartItem[]>([]);
     const [method, setMethod] = useState<'qr' | 'transferencia_bancaria'>('qr');
@@ -38,13 +43,13 @@ export default function Checkout() {
 
     function validateCheckout() {
         const nextErrors: Record<string, string> = {};
-        const amount = Number(declaredAmount || 0);
+        const amount = decimalAmount(declaredAmount);
 
-        if (items.length === 0) {
+        if (items.length === 0 || items.some(item => !Number.isSafeInteger(item.quantity) || item.quantity < 1 || item.quantity > item.stock)) {
             nextErrors.sale_items = 'Agrega al menos una prenda al carrito.';
         }
 
-        if (!declaredAmount || amount <= 0) {
+        if (!Number.isFinite(amount) || amount <= 0) {
             nextErrors.monto_declarado = 'Para completar la compra debes pagar el 100% del total.';
         } else if (amount < total) {
             nextErrors.monto_declarado = 'El monto pagado no puede ser menor al total de la compra.';
@@ -53,7 +58,7 @@ export default function Checkout() {
         }
 
         if (!method) {
-            nextErrors.metodo_pago = 'Selecciona el metodo de pago.';
+            nextErrors.metodo_pago = 'Selecciona el método de pago.';
         }
 
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -78,6 +83,7 @@ export default function Checkout() {
         }
 
         const payload: Record<string, string | number | File> = {
+            operation_id: operationId,
             metodo_pago: method,
             monto_declarado: declaredAmount,
             comprobante: voucher,
@@ -92,8 +98,8 @@ export default function Checkout() {
             forceFormData: true,
             preserveScroll: true,
             onStart: () => setProcessing(true),
-            onError: (server) => setErrors(server as Record<string, string>),
-            onSuccess: () => clearPurchaseCart(),
+            onError: (server) => { setOperationErrorDismissed(false); setErrors(server as Record<string, string>); },
+            onSuccess: () => { completeOperation(operationId); clearPurchaseCart(); },
             onFinish: () => setProcessing(false),
         });
     }
@@ -129,7 +135,7 @@ export default function Checkout() {
                                 href={shopRoutes.catalog}
                                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950"
                             >
-                                Explorar catalogo
+                                Explorar catálogo
                             </Link>
                         </div>
                     ) : (
@@ -156,7 +162,7 @@ export default function Checkout() {
 
                                 <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6">
                                     <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-400">
-                                        Metodo de pago
+                                        Método de pago
                                     </p>
                                     <p className="mt-2 text-sm leading-6 text-stone-300">
                                         Para completar la compra debes pagar el 100% del total.
@@ -264,6 +270,7 @@ export default function Checkout() {
                                     )}
                                 </label>
 
+                                <OperationRecovery error={operationErrorDismissed ? undefined : (errors.operation_id || serverErrors.operation_id)} onRenew={() => { setOperationId(renewOperation(operationId)); setOperationErrorDismissed(true); setErrors(current => { const next = { ...current }; delete next.operation_id; return next; }); }} />
                                 {(errors.sale_items || serverErrors.sale_items) && (
                                     <p className="mt-4 rounded-[1rem] border border-red-300/20 bg-red-950/20 p-4 text-sm text-red-100">
                                         {errors.sale_items || serverErrors.sale_items}
@@ -273,7 +280,7 @@ export default function Checkout() {
                                 <button
                                     type="button"
                                     onClick={submitCheckout}
-                                    disabled={processing}
+                                    disabled={processing || Object.keys(validateCheckout()).length > 0}
                                     className="mt-6 inline-flex w-full justify-center rounded-full bg-white px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 disabled:opacity-60"
                                 >
                                     {processing ? 'Enviando...' : 'Enviar compra a revision'}

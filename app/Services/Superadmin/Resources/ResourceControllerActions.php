@@ -943,7 +943,7 @@ class ResourceControllerActions
             if ($realBalance > 0) {
                 $promptFields = [
                     ['key' => 'monto_pago_final', 'label' => 'Monto recibido ahora. Saldo pendiente: Bs ' . number_format($realBalance, 2, '.', ',')],
-                    ['key' => 'metodo_pago_final', 'label' => 'Metodo de pago final: efectivo, qr o transferencia_bancaria'],
+                    ['key' => 'metodo_pago_final', 'label' => 'Método de pago final: efectivo, qr o transferencia_bancaria'],
                     ['key' => 'obs_res', 'label' => 'Observacion', 'optional' => true],
                 ];
             }
@@ -972,7 +972,7 @@ class ResourceControllerActions
             if ($realBalance > 0) {
                 $promptFields = [
                     ['key' => 'monto_pago_final', 'label' => 'Monto recibido ahora. Saldo pendiente: Bs ' . number_format($realBalance, 2, '.', ',')],
-                    ['key' => 'metodo_pago_final', 'label' => 'Metodo de pago final: efectivo, qr o transferencia_bancaria'],
+                    ['key' => 'metodo_pago_final', 'label' => 'Método de pago final: efectivo, qr o transferencia_bancaria'],
                     ['key' => 'obs_res', 'label' => 'Observacion', 'optional' => true],
                 ];
             }
@@ -1114,7 +1114,7 @@ class ResourceControllerActions
             if ($this->receipts->canIssueSaleReceipt($record)) {
                 return [
                     'title' => 'Recibo emitido por Mati Boutique',
-                    'description' => 'Este documento se habilita despues de confirmar el pago de la venta.',
+                    'description' => 'Este documento se habilita después de confirmar el pago de la venta.',
                     'links' => [[
                         'label' => 'Ver recibo de venta',
                         'href' => route('superadmin.receipts.sales.show', ['venta' => $record->id_venta]),
@@ -1163,7 +1163,7 @@ class ResourceControllerActions
 
         return [
             'title' => 'Recibos emitidos por Mati Boutique',
-            'description' => 'Estos documentos son generados por el sistema despues de la verificacion administrativa del pago.',
+            'description' => 'Estos documentos son generados por el sistema después de la verificacion administrativa del pago.',
             'links' => $links,
             'notice' => null,
         ];

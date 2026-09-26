@@ -53,9 +53,10 @@ Route::get('/colecciones', [CatalogoController::class, 'colecciones'])->name('sh
 Route::get('/editorial',   [CatalogoController::class, 'editorial'])->name('shop.editorial');
 
 // ─── Carrito (sin sesión requerida) ─────────────────────────
+Route::middleware('auth')->get('/bolsa/pago', [CarritoController::class, 'index'])->name('carrito.pago');
 Route::get('/bolsa', [CarritoController::class, 'index'])->name('carrito.index');
-Route::middleware('auth')->post('/bolsa/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
-Route::middleware('auth')->post('/compras/online', [CompraOnlineController::class, 'store'])->name('compras.online.store');
+Route::middleware(['auth', 'commercial.once'])->post('/bolsa/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
+Route::middleware(['auth', 'commercial.once'])->post('/compras/online', [CompraOnlineController::class, 'store'])->name('compras.online.store');
 Route::get('/carrito', fn () => Inertia::render('CarritoCompra'))->name('compras.carrito');
 Route::middleware('auth')->get('/checkout', [CompraOnlineController::class, 'create'])->name('compras.checkout');
 
@@ -98,11 +99,11 @@ Route::middleware(['auth', 'vendedor'])->prefix('vendedor')->name('vendedor.')->
     Route::get('/alertas-stock', [VendedorPageController::class, 'alertasStock'])->name('alertas-stock.index');
     Route::get('/ventas', [VendedorSalesController::class, 'index'])->name('ventas.index');
     Route::get('/ventas/crear', [VendedorSalesController::class, 'create'])->name('ventas.create');
-    Route::post('/ventas', [VendedorSalesController::class, 'store'])->name('ventas.store');
+    Route::post('/ventas', [VendedorSalesController::class, 'store'])->middleware('commercial.once')->name('ventas.store');
     Route::get('/ventas/{venta}', [VendedorSalesController::class, 'show'])->whereNumber('venta')->name('ventas.show');
     Route::get('/reservas', [VendedorReservationController::class, 'index'])->name('reservas.index');
     Route::get('/reservas/crear', [VendedorReservationController::class, 'create'])->name('reservas.create');
-    Route::post('/reservas', [VendedorReservationController::class, 'store'])->name('reservas.store');
+    Route::post('/reservas', [VendedorReservationController::class, 'store'])->middleware('commercial.once')->name('reservas.store');
     Route::get('/reservas/{reserva}', [VendedorReservationController::class, 'show'])->whereNumber('reserva')->name('reservas.show');
     Route::post('/reservas/{reserva}/pagos', [VendedorReservationController::class, 'storePayment'])->whereNumber('reserva')->name('reservas.payments.store');
     Route::post('/reservas/{reserva}/cancelar', [VendedorReservationController::class, 'cancel'])->whereNumber('reserva')->name('reservas.cancel');
@@ -163,7 +164,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/{section}/{resource}/inline', [SuperadminResourceController::class, 'storeInline'])->name('resources.inline');
     Route::get('/{section}/{resource}', [SuperadminResourceController::class, 'index'])->name('resources.index');
     Route::get('/{section}/{resource}/nuevo', [SuperadminResourceController::class, 'create'])->name('resources.create');
-    Route::post('/{section}/{resource}', [SuperadminResourceController::class, 'store'])->name('resources.store');
+    Route::post('/{section}/{resource}', [SuperadminResourceController::class, 'store'])->middleware('commercial.once')->name('resources.store');
     Route::get('/{section}/{resource}/{record}/editar', [SuperadminResourceController::class, 'edit'])->name('resources.edit');
     Route::match(['put', 'patch'], '/{section}/{resource}/{record}', [SuperadminResourceController::class, 'update'])->name('resources.update');
     Route::delete('/{section}/{resource}/{record}', [SuperadminResourceController::class, 'destroy'])->name('resources.destroy');

@@ -12,6 +12,18 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_reservation_payment_requires_login_and_preserves_the_bag_and_intended_url(): void
+    {
+        $bag = ['42' => ['variante_id' => 42, 'cantidad' => 2]];
+        $this->withSession(['carrito' => $bag])->get('/bolsa/pago')
+            ->assertRedirect('/login')->assertSessionHas('carrito', $bag)
+            ->assertSessionHas('url.intended', url('/bolsa/pago'));
+        $user = $this->createUser();
+        $this->post('/login', ['email' => $user->email, 'password' => 'password'])
+            ->assertRedirect('/bolsa/pago')->assertSessionHas('carrito', $bag);
+        $this->assertAuthenticatedAs($user);
+    }
+
     public function test_login_screen_can_be_rendered(): void
     {
         $response = $this->get('/login');

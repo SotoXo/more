@@ -35,9 +35,9 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->merge([
-            'nom_usu' => mb_strtoupper(trim((string) $request->input('nom_usu')), 'UTF-8'),
-            'app_usu' => mb_strtoupper(trim((string) $request->input('app_usu')), 'UTF-8'),
-            'apm_usu' => mb_strtoupper(trim((string) $request->input('apm_usu')), 'UTF-8'),
+            'nom_usu' => UserValidation::normalizeName((string) $request->input('nom_usu')),
+            'app_usu' => UserValidation::normalizeName((string) $request->input('app_usu')),
+            'apm_usu' => UserValidation::normalizeName((string) $request->input('apm_usu')),
             'tel_usu' => preg_replace('/\D+/', '', (string) $request->input('tel_usu')),
             'email' => mb_strtolower(trim((string) $request->input('email')), 'UTF-8'),
         ]);

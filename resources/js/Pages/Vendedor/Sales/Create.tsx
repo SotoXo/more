@@ -1,3 +1,6 @@
+import { commercialItemErrors, decimalAmount, reservationPayment } from '@/lib/commercialValidation';
+import { operationToken, completeOperation, renewOperation } from '@/lib/commercialOperation';
+import OperationRecovery from '@/Components/shop/OperationRecovery';
 import SuperadminBadge from '@/Components/Superadmin/SuperadminBadge';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import VendedorLayout from '@/Layouts/VendedorLayout';
@@ -32,6 +35,7 @@ type SaleItem = {
 };
 
 type SaleFormData = {
+    operation_id: string;
     customer_id: string;
     payment_method: string;
     amount_paid: string;
@@ -89,7 +93,8 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
     const flash = page.props.flash;
     const [search, setSearch] = useState('');
     const [clientNotice, setClientNotice] = useState<string | null>(null);
-    const { data, setData, post, processing, errors } = useForm<SaleFormData>({
+    const { data, setData, post, processing, errors, clearErrors } = useForm<SaleFormData>({
+        operation_id: operationToken(),
         customer_id: '',
         payment_method: 'efectivo',
         amount_paid: '0.00',
@@ -122,12 +127,10 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
     }, [data.sale_items, variantsById]);
 
     const requiresVoucher = ['qr', 'transferencia_bancaria'].includes(data.payment_method);
-    const hasInvalidItems = data.sale_items.some((item) => {
-        const variant = variantsById.get(item.variant_id);
-        const quantity = Number(item.quantity) || 0;
+    const itemErrors = commercialItemErrors(data.sale_items.map(item => ({ variantId: item.variant_id, quantity: item.quantity })), variantsById);
+    const hasInvalidItems = itemErrors.some(Boolean);
 
-        return !variant || quantity <= 0 || quantity > variant.stock;
-    });
+    const hasInvalidPayment = !Number.isFinite(decimalAmount(data.amount_paid)) || decimalAmount(data.amount_paid) !== totals.total || totals.total <= 0;
 
     useEffect(() => {
         setData('amount_paid', totals.total.toFixed(2));
@@ -172,7 +175,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
             return;
         }
 
-        if (hasInvalidItems) {
+        if (hasInvalidItems || hasInvalidPayment) {
             setClientNotice('Revisa las cantidades. No pueden superar el stock disponible.');
             return;
         }
@@ -182,7 +185,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
             return;
         }
 
-        post(submitAction, {
+        post(submitAction, { onSuccess: () => completeOperation(data.operation_id),
             forceFormData: true,
             preserveScroll: true,
         });
@@ -204,7 +207,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                             Nueva venta
                         </h1>
                         <p className="mt-3 text-sm leading-6 text-[color:var(--admin-muted)]">
-                            Los pagos registrados por vendedor se confirmaran automaticamente.
+                            Los pagos registrados por vendedor se confirmarán automáticamente.
                         </p>
                     </div>
                 </header>
@@ -219,6 +222,8 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                         ))}
                     </section>
                 )}
+
+                <OperationRecovery error={errors.operation_id} onRenew={() => { setData('operation_id', renewOperation(data.operation_id)); clearErrors('operation_id'); }} />
 
                 <form onSubmit={submit} className="space-y-6">
                     <section className="sa-panel rounded-2xl p-5">
@@ -297,7 +302,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                                                     <button
                                                         type="button"
                                                         onClick={() => addVariant(variant)}
-                                                        disabled={processing || variant.stock <= 0}
+                                                        disabled={processing || variant.stock <= 0 || Number(data.sale_items.find(item => item.variant_id === variant.id)?.quantity ?? 0) >= variant.stock}
                                                         className="sa-button-secondary h-9 px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                                                     >
                                                         <Plus size={14} />
@@ -333,7 +338,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                                         const variant = variantsById.get(item.variant_id);
                                         const quantity = Number(item.quantity) || 0;
                                         const lineTotal = (variant?.price ?? 0) * quantity;
-                                        const invalid = !variant || quantity <= 0 || quantity > variant.stock;
+                                        const invalid = !variant || !/^\d+$/.test(item.quantity) || !Number.isSafeInteger(quantity) || quantity <= 0 || quantity > variant.stock;
 
                                         return (
                                             <div key={item.variant_id} className="rounded-2xl border border-white/8 bg-[#0d141d] p-4">
@@ -357,6 +362,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                                                         <input
                                                             type="number"
                                                             min="1"
+                                                            aria-invalid={invalid}
                                                             max={variant?.stock ?? 1}
                                                             value={item.quantity}
                                                             onChange={(event) => updateQuantity(item.variant_id, event.target.value)}
@@ -389,12 +395,13 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                                         <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Monto pagado</span>
                                         <input
                                             type="number"
-                                            min="0.01"
+                                            min={totals.total} max={totals.total} aria-invalid={hasInvalidPayment}
                                             step="0.01"
                                             value={data.amount_paid}
                                             onChange={(event) => setData('amount_paid', event.target.value)}
                                             className="sa-input min-h-11 px-3 text-sm"
                                         />
+                                        {hasInvalidPayment && <p className="text-xs text-red-300" role="status">El pago debe coincidir con el total y tener hasta dos decimales.</p>}
                                     </label>
                                     {requiresVoucher && (
                                         <label className="space-y-2">
@@ -412,7 +419,7 @@ export default function Create({ options, submitAction }: SaleCreateProps) {
                                     </div>
                                     <button
                                         type="submit"
-                                        disabled={processing || data.sale_items.length === 0 || hasInvalidItems || (requiresVoucher && !data.voucher)}
+                                        disabled={processing || data.sale_items.length === 0 || hasInvalidItems || hasInvalidPayment || (requiresVoucher && !data.voucher)}
                                         className="sa-button-primary h-12 w-full text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         {processing ? 'Registrando venta' : 'Guardar venta'}

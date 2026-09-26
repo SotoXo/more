@@ -68,9 +68,9 @@ class ReservationService
     {
         return Validator::make($request->all(), [
             'cod_usuario_cliente_res' => ['required', 'integer', Rule::exists('users', 'id')],
-            'des_res' => ['nullable', 'numeric', 'min:0'],
+            'des_res' => ['nullable', 'numeric', 'min:0', 'regex:/^\d+(\.\d{1,2})?$/'],
             'obs_res' => ['nullable', 'string', 'max:1000'],
-            'monto_declarado_rpg' => ['required', 'numeric', 'min:0.01'],
+            'monto_declarado_rpg' => ['required', 'numeric', 'min:0.01', 'regex:/^\d+(\.\d{1,2})?$/'],
             'metodo_pago_rpg' => ['required', 'string', 'max:30', Rule::in(['qr', 'transferencia_bancaria'])],
             'comprobante_rpg' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'reservation_items' => ['required', 'array', 'min:1'],
@@ -79,7 +79,7 @@ class ReservationService
         ], [
             'cod_usuario_cliente_res.required' => 'Selecciona un cliente para la reserva.',
             'monto_declarado_rpg.required' => 'Ingresa el monto depositado.',
-            'metodo_pago_rpg.in' => 'Selecciona un mÃ©todo de pago vÃ¡lido.',
+            'metodo_pago_rpg.in' => 'Selecciona un método de pago válido.',
             'comprobante_rpg.required' => 'Sube el comprobante de pago.',
             'comprobante_rpg.mimes' => 'El comprobante debe ser una imagen JPG, PNG o WEBP.',
             'reservation_items.required' => 'Selecciona al menos una prenda.',
@@ -87,6 +87,9 @@ class ReservationService
             'reservation_items.*.cod_prenda_variantes_dre.required' => 'Selecciona una variante.',
             'reservation_items.*.can_dre.min' => 'La cantidad debe ser mayor a cero.',
         ])->after(function ($validator) use ($request) {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
             if (!$request->user()) {
                 $validator->errors()->add('auth', 'Debes iniciar sesión para finalizar la reserva.');
             }
@@ -124,7 +127,11 @@ class ReservationService
                 $subtotal += ((float) ($variant?->pve_prv ?? 0)) * $quantity;
             }
 
-            $discount = min((float) $request->input('des_res', 0), $subtotal);
+            $subtotal = round($subtotal, 2);
+            $discount = (float) $request->input('des_res', 0);
+            if (!is_finite($discount) || $discount < 0 || $discount > $subtotal) {
+                $validator->errors()->add('des_res', 'El descuento debe estar entre 0 y el subtotal.');
+            }
             $total = max(0, $subtotal - $discount);
             $minimum = round($total * 0.5, 2);
 
@@ -169,13 +176,13 @@ class ReservationService
                 ->pluck('cod_prendas_prv');
             $products = Prenda::query()
                 ->whereIn('id_prenda', $productIds)
-                ->lockForUpdate()
+                ->orderBy('id_prenda')->lockForUpdate()
                 ->get()
                 ->keyBy('id_prenda');
             $variants = PrendaVariante::query()
                 ->with('inventario')
                 ->whereIn('id_prenda_variante', $variantIds)
-                ->lockForUpdate()
+                ->orderBy('id_prenda_variante')->lockForUpdate()
                 ->get()
                 ->keyBy('id_prenda_variante');
 
@@ -197,8 +204,16 @@ class ReservationService
 
                 return ((float) ($variant?->pve_prv ?? 0)) * $item['quantity'];
             });
-            $discount = min((float) ($validated['des_res'] ?? 0), $subtotal);
+            $subtotal = round($subtotal, 2);
+            $discount = (float) ($validated['des_res'] ?? 0);
+            if (!is_finite($discount) || $discount < 0 || $discount > $subtotal) {
+                throw ValidationException::withMessages(['des_res' => 'El descuento debe estar entre 0 y el subtotal.']);
+            }
             $total = max(0, $subtotal - $discount);
+            $amount = (float) $validated['monto_declarado_rpg'];
+            if (!is_finite($amount) || $amount <= 0 || $amount < round($total * 0.5, 2) || $amount > round($total, 2)) {
+                throw ValidationException::withMessages(['monto_declarado_rpg' => 'El anticipo debe estar entre el 50% y el 100% del total y ser mayor a cero.']);
+            }
             $pickup = $this->pickup->reservationPayload($variants->pluck('inventario')->filter());
 
             $reservation = Reserva::query()->create([
@@ -286,7 +301,7 @@ class ReservationService
     public function addPayment(Request $request, Reserva $reservation): void
     {
         $validated = Validator::make($request->all(), [
-            'monto_declarado_rpg' => ['required', 'numeric', 'min:0.01'],
+            'monto_declarado_rpg' => ['required', 'numeric', 'min:0.01', 'regex:/^\d+(\.\d{1,2})?$/'],
             'metodo_pago_rpg' => ['required', 'string', 'max:30', Rule::in(['qr', 'transferencia_bancaria'])],
             'comprobante_rpg' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ])->validate();
@@ -702,13 +717,13 @@ class ReservationService
     {
         if (blank($method)) {
             throw ValidationException::withMessages([
-                'metodo_pago_final' => 'Selecciona el metodo de pago final.',
+                'metodo_pago_final' => 'Selecciona el método de pago final.',
             ]);
         }
 
         if (!in_array($method, ['efectivo', 'qr', 'transferencia_bancaria'], true)) {
             throw ValidationException::withMessages([
-                'metodo_pago_final' => 'Selecciona un metodo de pago final valido.',
+                'metodo_pago_final' => 'Selecciona un método de pago final válido.',
             ]);
         }
 

@@ -179,7 +179,7 @@ export default function ReservationShow({ reservation, items, payments, rules }:
                         <Detail label="Porcentaje pagado" value={reservation.paymentPercent} />
                         <Detail label="Vence" value={reservation.expiresAt} />
                         <Detail label="Disponible" value={reservation.availableAt} />
-                        <Detail label="Limite recojo" value={reservation.limitAt} />
+                        <Detail label="Límite recojo" value={reservation.limitAt} />
                         <Detail label="Recogida" value={reservation.pickedUpAt} />
                         <Detail label="Punto de recojo" value={reservation.pickupPoint} />
                         <Detail label="Origen stock" value={reservation.stockOrigin} />

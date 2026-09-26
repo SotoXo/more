@@ -62,7 +62,7 @@ class ReceiptService
             'details' => [
                 ['label' => 'Estado de pago', 'value' => $this->reservationPaymentLabel($reservation->est_pago_res)],
                 ['label' => 'Fecha disponible de recojo', 'value' => $this->date($reservation->fec_disponible_recojo_res)],
-                ['label' => 'Fecha limite de recojo', 'value' => $this->date($reservation->fec_limite_recojo_res)],
+                ['label' => 'Fecha límite de recojo', 'value' => $this->date($reservation->fec_limite_recojo_res)],
                 ['label' => 'Punto de recojo', 'value' => $reservation->punto_recojo_res ?: 'Recojo en tienda Mati Boutique'],
                 ['label' => 'Observacion', 'value' => $reservation->obs_pago_res ?: $latestConfirmedPayment?->obs_rpg ?: $reservation->obs_res ?: 'Sin observacion'],
             ],
@@ -119,7 +119,7 @@ class ReceiptService
                 ['label' => 'Total pagado', 'value' => (float) $sale->tot_ven],
             ],
             'details' => [
-                ['label' => 'Metodo de pago', 'value' => $this->paymentMethodLabel($latestPayment?->metodo_pago_vpg ?: $sale->mpa_ven)],
+                ['label' => 'Método de pago', 'value' => $this->paymentMethodLabel($latestPayment?->metodo_pago_vpg ?: $sale->mpa_ven)],
                 ['label' => 'Estado', 'value' => 'Venta confirmada'],
                 ['label' => 'Observacion', 'value' => $latestPayment?->obs_vpg ?: 'Sin observacion'],
             ],

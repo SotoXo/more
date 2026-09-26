@@ -51,8 +51,8 @@ export default function Product({
     const [addToCartPending, setAddToCartPending] = useState(false);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [selectedAction, setSelectedAction] = useState<'reservar' | 'comprar'>('reservar');
-    const [reservationQuantity, setReservationQuantity] = useState(1);
-    const [purchaseQuantity, setPurchaseQuantity] = useState(1);
+    const [reservationQuantity, setReservationQuantity] = useState<number | string>(1);
+    const [purchaseQuantity, setPurchaseQuantity] = useState<number | string>(1);
     const headingMeta =
         product.line ||
         [product.brand, product.style].filter(Boolean).join(' / ') ||
@@ -119,13 +119,15 @@ export default function Product({
         [availableVariants, selectedSize],
     );
 
+    const soldOut = !variants.some(variant => variant.stock > 0);
+    const validQuantity = (value: number | string, max: number) => /^\d+$/.test(String(value)) && Number.isSafeInteger(Number(value)) && Number(value) >= 1 && Number(value) <= max;
     const displayPrice = selectedVariant?.precio ?? product.price;
     const maxReservationQuantity = Math.max(0, selectedVariant?.stock ?? 0);
     const maxPurchaseQuantity = Math.max(0, selectedVariant?.stock ?? 0);
     const reservationUnitPrice = selectedVariant?.precio ?? product.price;
-    const reservationTotal = Number((reservationUnitPrice * reservationQuantity).toFixed(2));
+    const reservationTotal = Number((reservationUnitPrice * Number(reservationQuantity)).toFixed(2));
     const purchaseUnitPrice = selectedVariant?.precio ?? product.price;
-    const purchaseTotal = Number((purchaseUnitPrice * purchaseQuantity).toFixed(2));
+    const purchaseTotal = Number((purchaseUnitPrice * Number(purchaseQuantity)).toFixed(2));
     const displayAvailability = selectedVariant
         ? getAvailabilityFromStock(selectedVariant.stock)
         : product.availability;
@@ -153,7 +155,7 @@ export default function Product({
                 return 1;
             }
 
-            return Math.min(Math.max(1, current), selectedVariant.stock);
+            return Math.min(Math.max(1, Number(current)), selectedVariant.stock);
         });
 
         setPurchaseQuantity((current) => {
@@ -161,7 +163,7 @@ export default function Product({
                 return 1;
             }
 
-            return Math.min(Math.max(1, current), selectedVariant.stock);
+            return Math.min(Math.max(1, Number(current)), selectedVariant.stock);
         });
     }, [selectedVariant]);
 
@@ -211,7 +213,7 @@ export default function Product({
             return;
         }
 
-        if (reservationQuantity > maxReservationQuantity) {
+        if (!validQuantity(reservationQuantity, maxReservationQuantity)) {
             setStatusMessage('No hay stock suficiente para reservar esa cantidad.');
             return;
         }
@@ -222,7 +224,7 @@ export default function Product({
         try {
             const response = await axios.post('/api/carrito/agregar', {
                 variante_id: selectedVariant.id,
-                cantidad: reservationQuantity,
+                cantidad: Number(reservationQuantity),
             });
             window.dispatchEvent(
                 new CustomEvent('mati-boutique:reservation-bag-updated', {
@@ -255,12 +257,13 @@ export default function Product({
         setSelectedAction('comprar');
         setStatusMessage(null);
 
-        if (!selectedVariant || selectedVariant.stock <= 0) {
+        if (!selectedVariant || !validQuantity(purchaseQuantity, maxPurchaseQuantity)) {
             setStatusMessage('No hay stock suficiente para comprar esta prenda.');
             return;
         }
 
-        addPurchaseCartItem({
+        try {
+            addPurchaseCartItem({
             variantId: selectedVariant.id,
             productId: product.id,
             slug: product.slug,
@@ -271,9 +274,13 @@ export default function Product({
             size: selectedVariant.talla,
             sku: selectedVariant.sku,
             price: selectedVariant.precio,
-            quantity: purchaseQuantity,
+            quantity: Number(purchaseQuantity),
             stock: selectedVariant.stock,
-        });
+            });
+        } catch (error) {
+            setStatusMessage(error instanceof Error ? error.message : 'Revisa la cantidad del carrito.');
+            return;
+        }
 
         setStatusMessage('Prenda agregada al carrito.');
     }
@@ -445,6 +452,7 @@ export default function Product({
                                     ].map(([value, label]) => (
                                         <button
                                             key={value}
+                                            disabled={soldOut}
                                             type="button"
                                             onClick={() => {
                                                 setSelectedAction(value as 'reservar' | 'comprar');
@@ -461,7 +469,9 @@ export default function Product({
                                     ))}
                                 </div>
 
-                                {selectedAction === 'comprar' && (
+                                {soldOut && <div className="mt-5 rounded-xl border border-white/10 p-5"><p className="text-white">AGOTADO</p><p className="mt-2 text-sm text-stone-300">Este producto no tiene unidades disponibles.</p><Link href={shopRoutes.catalog} className="mt-4 inline-block underline">Volver al catálogo</Link></div>}
+                                {!soldOut && !validQuantity(selectedAction === 'comprar' ? purchaseQuantity : reservationQuantity, selectedVariant?.stock ?? 0) && <p className="mt-3 text-sm text-red-200" role="status">Ingresa una cantidad entera entre 1 y {selectedVariant?.stock ?? 0}.</p>}
+                                {!soldOut && selectedAction === 'comprar' && (
                                     <div className="mt-5 space-y-5 rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-5">
                                         <div>
                                             <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[rgb(223,184,166)]">
@@ -499,10 +509,10 @@ export default function Product({
                                                 type="number"
                                                 min="1"
                                                 max={maxPurchaseQuantity || 1}
+                                                aria-invalid={!validQuantity(purchaseQuantity, maxPurchaseQuantity)}
                                                 value={purchaseQuantity}
                                                 onChange={(event) => {
-                                                    const nextQuantity = Number(event.target.value || 1);
-                                                    setPurchaseQuantity(Math.max(1, Math.min(maxPurchaseQuantity || 1, nextQuantity)));
+                                                    setPurchaseQuantity(event.target.value);
                                                 }}
                                                 disabled={maxPurchaseQuantity <= 0}
                                                 className="w-full rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition focus:border-[rgb(223,184,166)]"
@@ -513,7 +523,7 @@ export default function Product({
                                             <button
                                                 type="button"
                                                 onClick={handleAddToPurchaseCart}
-                                                disabled={!selectedVariant || maxPurchaseQuantity <= 0}
+                                                disabled={!selectedVariant || !validQuantity(purchaseQuantity, maxPurchaseQuantity)}
                                                 className={`${primaryButtonClass} w-full justify-center sm:w-auto`}
                                             >
                                                 <ShoppingBag size={15} />
@@ -529,7 +539,7 @@ export default function Product({
                                     </div>
                                 )}
 
-                                {selectedAction === 'reservar' && (
+                                {!soldOut && selectedAction === 'reservar' && (
                                     <div className="mt-5 space-y-5 rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-5">
                                         <div>
                                             <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[rgb(223,184,166)]">
@@ -572,8 +582,8 @@ export default function Product({
                                                 <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-1 py-1">
                                                     <button
                                                         type="button"
-                                                        onClick={() => setReservationQuantity((current) => Math.max(1, current - 1))}
-                                                        disabled={reservationQuantity <= 1 || maxReservationQuantity <= 0}
+                                                        onClick={() => setReservationQuantity((current) => Math.max(1, Number(current) - 1))}
+                                                        disabled={Number(reservationQuantity) <= 1 || maxReservationQuantity <= 0}
                                                         className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
                                                         aria-label="Disminuir cantidad a reservar"
                                                     >
@@ -583,10 +593,10 @@ export default function Product({
                                                         type="number"
                                                         min="1"
                                                         max={maxReservationQuantity || 1}
+                                                        aria-invalid={!validQuantity(reservationQuantity, maxReservationQuantity)}
                                                         value={reservationQuantity}
                                                         onChange={(event) => {
-                                                            const nextQuantity = Number(event.target.value || 1);
-                                                            setReservationQuantity(Math.max(1, Math.min(maxReservationQuantity || 1, nextQuantity)));
+                                                            setReservationQuantity(event.target.value);
                                                         }}
                                                         disabled={maxReservationQuantity <= 0}
                                                         className="w-14 border-0 bg-transparent text-center text-sm text-white outline-none"
@@ -595,14 +605,14 @@ export default function Product({
                                                     <button
                                                         type="button"
                                                         onClick={() => {
-                                                            if (reservationQuantity >= maxReservationQuantity) {
+                                                            if (Number(reservationQuantity) >= maxReservationQuantity) {
                                                                 setStatusMessage('No hay stock suficiente para reservar esa cantidad.');
                                                                 return;
                                                             }
 
-                                                            setReservationQuantity((current) => Math.min(maxReservationQuantity, current + 1));
+                                                            setReservationQuantity((current) => Math.min(maxReservationQuantity, Number(current) + 1));
                                                         }}
-                                                        disabled={maxReservationQuantity <= 0}
+                                                        disabled={maxReservationQuantity <= 0 || Number(reservationQuantity) >= maxReservationQuantity || !validQuantity(reservationQuantity, maxReservationQuantity)}
                                                         className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
                                                         aria-label="Aumentar cantidad a reservar"
                                                     >
@@ -618,7 +628,7 @@ export default function Product({
                                                 onClick={handleAddToCart}
                                                 disabled={
                                                     !selectedVariant ||
-                                                    selectedVariant.stock <= 0 ||
+                                                    !validQuantity(reservationQuantity, maxReservationQuantity) ||
                                                     addToCartPending
                                                 }
                                                 className={`${primaryButtonClass} w-full sm:w-auto`}

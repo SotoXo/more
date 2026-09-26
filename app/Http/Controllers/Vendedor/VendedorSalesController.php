@@ -27,7 +27,7 @@ class VendedorSalesController extends Controller
 
         return redirect()
             ->route('vendedor.ventas.show', $sale)
-            ->with('success', 'Venta registrada. El pago quedo confirmado automaticamente.');
+            ->with('success', 'Venta registrada. El pago quedó confirmado automáticamente.');
     }
 
     public function show(Request $request, Venta $venta, VendedorSalesService $sales)

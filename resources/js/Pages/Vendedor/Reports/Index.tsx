@@ -416,7 +416,7 @@ export default function Index({
             <div className="space-y-6">
                 <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div className="max-w-4xl">
-                        <p className="text-sm font-semibold text-[color:var(--admin-accent)]">Analisis</p>
+                        <p className="text-sm font-semibold text-[color:var(--admin-accent)]">Análisis</p>
                         <h1 className="mt-2 text-2xl font-semibold text-[color:var(--admin-text)] sm:text-3xl">
                             Mis reportes
                         </h1>

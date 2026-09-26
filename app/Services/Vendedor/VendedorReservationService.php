@@ -108,9 +108,12 @@ class VendedorReservationService
                 ])
                 ->values();
 
+            $productIds = PrendaVariante::query()->whereIn('id_prenda_variante', $items->pluck('variant_id'))->pluck('cod_prendas_prv');
+            \App\Models\Prenda::query()->whereIn('id_prenda', $productIds)->orderBy('id_prenda')->lockForUpdate()->get();
             $variants = PrendaVariante::query()
                 ->with(['inventario', 'prenda.imagenes', 'color', 'talla'])
                 ->whereIn('id_prenda_variante', $items->pluck('variant_id'))
+                ->orderBy('id_prenda_variante')->lockForUpdate()
                 ->get()
                 ->keyBy('id_prenda_variante');
 
@@ -123,6 +126,9 @@ class VendedorReservationService
             }), 2);
             $total = $subtotal;
             $paid = round((float) $validated['amount_paid'], 2);
+            if ($paid <= 0 || $paid < round($total * 0.5, 2) || $paid > $total) {
+                throw ValidationException::withMessages(['amount_paid' => 'El anticipo debe estar entre el 50% y el 100% del total.']);
+            }
             $logistics = $this->pickup->reservationPayload($variants->pluck('inventario')->filter());
 
             $reservation = Reserva::query()->create([
@@ -473,7 +479,7 @@ class VendedorReservationService
         return Validator::make($request->all(), [
             'customer_id' => ['required', 'integer', Rule::exists('users', 'id')],
             'payment_method' => ['required', 'string', Rule::in(self::PAYMENT_METHODS)],
-            'amount_paid' => ['required', 'numeric', 'min:0.01'],
+            'amount_paid' => ['required', 'numeric', 'min:0.01', 'regex:/^\d+(\.\d{1,2})?$/'],
             'voucher' => [Rule::requiredIf(in_array($method, ['qr', 'transferencia_bancaria'], true)), 'nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:4096'],
             'note' => ['nullable', 'string', 'max:1000'],
             'reservation_items' => ['required', 'array', 'min:1'],
@@ -505,7 +511,7 @@ class VendedorReservationService
             foreach ($items as $variantId => $quantity) {
                 $variant = $variants->get((int) $variantId);
 
-                if (! $variant) {
+                if (! $variant || !$variant->est_prv || !$variant->prenda?->est_pre) {
                     $validator->errors()->add('reservation_items', 'Una variante seleccionada no existe.');
                     continue;
                 }
@@ -538,7 +544,7 @@ class VendedorReservationService
             }
 
             if ($paid < $minimum) {
-                $validator->errors()->add('amount_paid', 'El anticipo minimo para reservar es del 50% del total.');
+                $validator->errors()->add('amount_paid', 'El anticipo mínimo para reservar es del 50% del total.');
             }
 
             if ($paid > $total) {
@@ -554,7 +560,7 @@ class VendedorReservationService
 
         return Validator::make($request->all(), [
             'payment_method' => ['required', 'string', Rule::in(self::PAYMENT_METHODS)],
-            'amount_paid' => ['required', 'numeric', 'min:0.01'],
+            'amount_paid' => ['required', 'numeric', 'min:0.01', 'regex:/^\d+(\.\d{1,2})?$/'],
             'voucher' => [Rule::requiredIf(in_array($method, ['qr', 'transferencia_bancaria'], true)), 'nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:4096'],
             'note' => ['nullable', 'string', 'max:1000'],
         ], [
@@ -574,7 +580,7 @@ class VendedorReservationService
         foreach ($items as $item) {
             $variant = $variants->get($item['variant_id']);
 
-            if (! $variant) {
+            if (! $variant || !$variant->est_prv || !$variant->prenda?->est_pre) {
                 throw ValidationException::withMessages([
                     'reservation_items' => 'La variante seleccionada no existe.',
                 ]);

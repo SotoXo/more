@@ -69,7 +69,7 @@ export default function Index({ products, summary, filters, options }: ProductIn
             <div className="space-y-6">
                 <header className="max-w-4xl">
                     <p className="text-sm font-semibold text-[color:var(--admin-accent)]">
-                        Catalogo
+                        Catálogo
                     </p>
                     <h1 className="mt-2 text-2xl font-semibold text-[color:var(--admin-text)] sm:text-3xl">
                         Consultar prendas

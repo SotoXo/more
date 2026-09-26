@@ -1,3 +1,4 @@
+import { damagedProductNameError } from '@/lib/commercialValidation';
 import SuperadminBadge from '@/Components/Superadmin/SuperadminBadge';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import VendedorLayout from '@/Layouts/VendedorLayout';
@@ -84,6 +85,7 @@ export default function Create({
         [options.inventories],
     );
     const selectedInventory = inventoriesById.get(data.cod_inventario_pdr) ?? null;
+    const nameError = damagedProductNameError(data.nombre_prenda_pdr);
     const errorEntries = Object.entries(errors as Record<string, string>);
     const previews = useMemo(
         () => data.imagenes.map((file) => ({
@@ -119,6 +121,7 @@ export default function Create({
 
     const submit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (nameError) return;
 
         post(submitAction, {
             preserveScroll: true,
@@ -175,6 +178,8 @@ export default function Create({
                             <label className="space-y-2">
                                 <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Nombre de la prenda</span>
                                 <input
+                                    aria-invalid={Boolean(nameError)}
+                                    onBlur={() => setData('nombre_prenda_pdr', data.nombre_prenda_pdr.trim().replace(/\s+/g, ' '))}
                                     value={data.nombre_prenda_pdr}
                                     onChange={(event) => setData('nombre_prenda_pdr', event.target.value)}
                                     className="sa-input w-full"
@@ -182,6 +187,7 @@ export default function Create({
                                     disabled={processing}
                                     required
                                 />
+                                {nameError && <p className="text-xs text-red-300" role="status">{nameError}</p>}
                             </label>
 
                             <label className="space-y-2">
@@ -411,7 +417,7 @@ export default function Create({
                             </Link>
                             <button
                                 type="submit"
-                                disabled={processing}
+                                disabled={processing || Boolean(nameError)}
                                 className="sa-button-primary inline-flex items-center justify-center gap-2 px-5 py-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-70"
                             >
                                 {processing ? <ImagePlus size={15} /> : <Save size={15} />}

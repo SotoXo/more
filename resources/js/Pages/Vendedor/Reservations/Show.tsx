@@ -191,7 +191,7 @@ export default function Show({ reservation, items, payments, movements, options 
                         <Detail label="Estado logistico" value={reservation.logisticsStatus} />
                         <Detail label="Vence" value={reservation.expiresAt} />
                         <Detail label="Disponible" value={reservation.availableAt} />
-                        <Detail label="Limite recojo" value={reservation.limitAt} />
+                        <Detail label="Límite recojo" value={reservation.limitAt} />
                         <Detail label="Origen stock" value={reservation.stockOrigin} />
                         <Detail label="Total" value={reservation.total} />
                         <Detail label="Pagado" value={reservation.paid} />

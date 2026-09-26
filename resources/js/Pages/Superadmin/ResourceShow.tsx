@@ -226,7 +226,7 @@ export default function ResourceShow({
                 nextErrors[field.key] = field.key === 'monto_pago_final'
                     ? 'Ingresa el monto recibido.'
                     : field.key.includes('metodo')
-                    ? 'Selecciona el metodo de pago.'
+                    ? 'Selecciona el método de pago.'
                     : 'Completa este campo.';
             }
         }
@@ -244,7 +244,7 @@ export default function ResourceShow({
             }
 
             if (!actionValues.metodo_pago_final) {
-                nextErrors.metodo_pago_final = 'Selecciona el metodo de pago.';
+                nextErrors.metodo_pago_final = 'Selecciona el método de pago.';
             }
         }
 
@@ -300,7 +300,7 @@ export default function ResourceShow({
             }
 
             if (!finalPaymentData.metodo_pago_final) {
-                nextErrors.metodo_pago_final = 'Selecciona el metodo de pago.';
+                nextErrors.metodo_pago_final = 'Selecciona el método de pago.';
             }
 
             if (requiresFinalVoucher) {
@@ -535,7 +535,7 @@ export default function ResourceShow({
 
                                         <div className="space-y-2">
                                             <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">
-                                                Metodo de pago
+                                                Método de pago
                                             </p>
                                             <div className="grid gap-2 sm:grid-cols-3">
                                                 {finalPaymentMethods.map((method) => (
@@ -837,7 +837,7 @@ export default function ResourceShow({
                                             {field.key === 'monto_pago_final'
                                                 ? 'Monto recibido ahora'
                                                 : field.key === 'metodo_pago_final'
-                                                ? 'Metodo de pago final'
+                                                ? 'Método de pago final'
                                                 : field.label}
                                         </span>
 

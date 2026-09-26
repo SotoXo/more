@@ -99,7 +99,7 @@ class ReservationPaymentService
 
         if ($confirmedAmount < $minimum && $alreadyPaid <= 0) {
             throw ValidationException::withMessages([
-                'monto_confirmado_rpg' => 'El monto confirmado no alcanza el anticipo minimo del 50%.',
+                'monto_confirmado_rpg' => 'El monto confirmado no alcanza el anticipo mínimo del 50%.',
             ]);
         }
 

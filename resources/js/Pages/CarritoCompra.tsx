@@ -3,11 +3,12 @@ import {
     clearPurchaseCart,
     PurchaseCartItem,
     purchaseCartTotal,
+    purchaseQuantityError,
     readPurchaseCart,
     writePurchaseCart,
 } from '@/lib/purchaseCart';
 import { formatPrice, shopRoutes } from '@/lib/shop';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ShoppingBag, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -17,24 +18,25 @@ const serifStyle = {
 
 export default function CarritoCompra() {
     const [items, setItems] = useState<PurchaseCartItem[]>([]);
+    const [quantities, setQuantities] = useState<Record<number, string>>({});
 
     useEffect(() => {
         setItems(readPurchaseCart());
     }, []);
 
     const total = useMemo(() => purchaseCartTotal(items), [items]);
+    const hasInvalidQuantity = items.some(item => purchaseQuantityError(quantities[item.variantId] ?? item.quantity, item.stock));
 
     function persist(nextItems: PurchaseCartItem[]) {
         setItems(nextItems);
         writePurchaseCart(nextItems);
     }
 
-    function updateQuantity(variantId: number, quantity: number) {
-        persist(items.map((item) => (
-            item.variantId === variantId
-                ? { ...item, quantity: Math.max(1, Math.min(item.stock, quantity)) }
-                : item
-        )));
+    function updateQuantity(variantId: number, quantity: string) {
+        setQuantities(current => ({ ...current, [variantId]: quantity }));
+        const item = items.find(item => item.variantId === variantId);
+        if (!item || purchaseQuantityError(quantity, item.stock)) return;
+        persist(items.map(item => item.variantId === variantId ? { ...item, quantity: Number(quantity) } : item));
     }
 
     function removeItem(variantId: number) {
@@ -71,16 +73,16 @@ export default function CarritoCompra() {
                         <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/[0.03] px-6 py-16 text-center">
                             <ShoppingBag size={34} className="mx-auto text-stone-600" />
                             <p className="mt-6 text-3xl text-white" style={serifStyle}>
-                                Tu carrito esta vacio.
+                                Tu carrito está vacío.
                             </p>
                             <p className="mt-3 text-sm text-stone-400">
-                                Agrega prendas desde el catalogo para continuar con la compra.
+                                Agrega prendas desde el catálogo para continuar con la compra.
                             </p>
                             <Link
                                 href={shopRoutes.catalog}
                                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950"
                             >
-                                Explorar catalogo
+                                Explorar catálogo
                             </Link>
                         </div>
                     ) : (
@@ -125,10 +127,15 @@ export default function CarritoCompra() {
                                                 type="number"
                                                 min="1"
                                                 max={item.stock}
-                                                value={item.quantity}
-                                                onChange={(event) => updateQuantity(item.variantId, Number(event.target.value || 1))}
+                                                step="1"
+                                                aria-label={`Cantidad de ${item.name}`}
+                                                aria-invalid={Boolean(purchaseQuantityError(quantities[item.variantId] ?? item.quantity, item.stock))}
+                                                aria-describedby={`quantity-error-${item.variantId}`}
+                                                value={quantities[item.variantId] ?? item.quantity}
+                                                onChange={(event) => updateQuantity(item.variantId, event.target.value)}
                                                 className="w-24 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none focus:border-[rgb(223,184,166)]"
                                             />
+                                            <p id={`quantity-error-${item.variantId}`} className="max-w-52 text-sm text-red-200" role="status">{purchaseQuantityError(quantities[item.variantId] ?? item.quantity, item.stock)}</p>
                                             <p className="text-sm font-medium text-white">
                                                 {formatPrice(item.price * item.quantity)}
                                             </p>
@@ -163,12 +170,14 @@ export default function CarritoCompra() {
                                     <span className="text-stone-300">Total</span>
                                     <span className="text-xl font-semibold text-white">{formatPrice(total)}</span>
                                 </div>
-                                <Link
-                                    href={shopRoutes.checkout}
-                                    className="mt-6 inline-flex w-full justify-center rounded-full bg-white px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950"
+                                <button
+                                    type="button"
+                                    disabled={hasInvalidQuantity}
+                                    onClick={() => { if (!hasInvalidQuantity) router.get(shopRoutes.checkout); }}
+                                    className="mt-6 inline-flex w-full justify-center rounded-full bg-white px-5 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     Continuar con la compra
-                                </Link>
+                                </button>
                                 <button
                                     type="button"
                                     onClick={emptyCart}

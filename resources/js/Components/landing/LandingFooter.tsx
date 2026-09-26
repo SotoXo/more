@@ -1,8 +1,6 @@
 import { shopRoutes } from '@/lib/shop';
 import type { LandingUser } from '@/types/landing';
 import { Link } from '@inertiajs/react';
-import { ArrowRight } from 'lucide-react';
-import { FormEvent } from 'react';
 
 const shopLinks = [
     { label: 'Catálogo', href: shopRoutes.catalog },
@@ -29,10 +27,6 @@ export default function LandingFooter({ user }: { user: LandingUser }) {
             { label: 'Iniciar sesión', href: '/login' },
             { label: 'Crear cuenta', href: '/register' },
         ];
-
-    const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-    };
 
     return (
         <footer className="border-t border-white/10 bg-[#030407]">
@@ -114,29 +108,7 @@ export default function LandingFooter({ user }: { user: LandingUser }) {
                             )}
                         </nav>
 
-                        <form onSubmit={onSubmit} className="mt-8">
-                            <label
-                                htmlFor="footer-newsletter"
-                                className="block text-[0.68rem] uppercase tracking-[0.24em] text-stone-400"
-                            >
-                                Boletín
-                            </label>
-                            <div className="mt-3 flex overflow-hidden rounded-full border border-white/12 bg-black/30 focus-within:border-[rgba(181,122,109,0.36)]">
-                                <input
-                                    id="footer-newsletter"
-                                    type="email"
-                                    placeholder="Tu email"
-                                    className="min-w-0 flex-1 border-0 bg-transparent px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:outline-none focus:ring-0"
-                                />
-                                <button
-                                    type="submit"
-                                    aria-label="Suscribirme"
-                                    className="inline-flex w-12 items-center justify-center text-stone-100 hover:text-white"
-                                >
-                                    <ArrowRight size={18} />
-                                </button>
-                            </div>
-                        </form>
+                        <p className="mt-8 text-xs uppercase tracking-[0.18em] text-stone-400">Boletín · Próximamente</p>
                     </div>
                 </div>
 

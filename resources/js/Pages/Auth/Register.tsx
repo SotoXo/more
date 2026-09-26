@@ -199,7 +199,7 @@ export default function Register() {
         field: 'nom_usu' | 'app_usu' | 'apm_usu',
         maxLen: number,
     ) => {
-        const cleanVal = val.toUpperCase().replace(/[0-9]/g, '').slice(0, maxLen);
+        const cleanVal = val.normalize('NFC').toUpperCase().replace(/[^\p{Lu}\s]/gu, '').replace(/\s+/g, ' ').trimStart().slice(0, maxLen);
 
         setData(field, cleanVal);
 
@@ -310,6 +310,7 @@ export default function Register() {
                         id="nom_usu"
                         ref={nameRef}
                         name="nom_usu"
+                        onBlur={() => setData('nom_usu', data.nom_usu.trim())}
                         value={data.nom_usu}
                         className={`mt-1 block w-full ${authInputClass}`}
                         autoComplete="given-name"
@@ -341,6 +342,7 @@ export default function Register() {
                         id="app_usu"
                         ref={paternalLastNameRef}
                         name="app_usu"
+                        onBlur={() => setData('app_usu', data.app_usu.trim())}
                         value={data.app_usu}
                         className={`mt-1 block w-full ${authInputClass}`}
                         autoComplete="family-name"
@@ -371,6 +373,7 @@ export default function Register() {
                         id="apm_usu"
                         ref={maternalLastNameRef}
                         name="apm_usu"
+                        onBlur={() => setData('apm_usu', data.apm_usu.trim())}
                         value={data.apm_usu}
                         className={`mt-1 block w-full ${authInputClass}`}
                         autoComplete="additional-name"

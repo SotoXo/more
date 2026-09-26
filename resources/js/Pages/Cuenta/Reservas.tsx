@@ -119,7 +119,7 @@ function ReservaCard({ reserva, mode }: { reserva: Reserva; mode: 'active' | 'hi
                     ['Pagado', formatPrice(reserva.montoPagado)],
                     ['Saldo', formatPrice(reserva.saldo)],
                     ['Disponible desde', reserva.fechaDisponibleRecojo ?? 'Por confirmar'],
-                    ['Fecha limite de recojo', reserva.fechaLimiteRecojo ?? 'Por confirmar'],
+                    ['Fecha límite de recojo', reserva.fechaLimiteRecojo ?? 'Por confirmar'],
                     ['Punto de recojo', reserva.puntoRecojo ?? 'Recojo en tienda Mati Boutique'],
                 ].map(([label, value]) => (
                     <div key={label} className="rounded-[1.2rem] border border-white/8 bg-white/[0.02] p-4">
@@ -194,7 +194,7 @@ function CompraCard({ compra }: { compra: Pedido }) {
             <div className="mt-6 grid gap-3 md:grid-cols-3">
                 {[
                     ['Total', formatPrice(compra.total)],
-                    ['Metodo de pago', compra.pago ? compra.pago.replaceAll('_', ' ') : 'Sin metodo'],
+                    ['Método de pago', compra.pago ? compra.pago.replaceAll('_', ' ') : 'Sin metodo'],
                     ['Estado', compraLabel[compra.estado] ?? 'En seguimiento'],
                 ].map(([label, value]) => (
                     <div key={label} className="rounded-[1.2rem] border border-white/8 bg-white/[0.02] p-4">
@@ -299,7 +299,7 @@ function EmptyState({
                 href={shopRoutes.catalog}
                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950"
             >
-                Explorar catalogo
+                Explorar catálogo
             </Link>
         </div>
     );

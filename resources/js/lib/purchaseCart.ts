@@ -48,21 +48,30 @@ export function clearPurchaseCart(): void {
     writePurchaseCart([]);
 }
 
+export function purchaseQuantityError(value: string | number, stock: number): string | null {
+    return /^\d+$/.test(String(value)) && Number.isSafeInteger(Number(value)) && Number(value) >= 1 && Number(value) <= stock
+        ? null : `Ingresa una cantidad entera entre 1 y ${stock}.`;
+}
+
 export function addPurchaseCartItem(item: PurchaseCartItem): PurchaseCartItem[] {
     const items = readPurchaseCart();
     const index = items.findIndex((current) => current.variantId === item.variantId);
+
+    const quantity = item.quantity + (index >= 0 ? items[index].quantity : 0);
+    const error = purchaseQuantityError(item.quantity, item.stock) ?? purchaseQuantityError(quantity, item.stock);
+    if (error) throw new RangeError(`La cantidad solicitada, incluyendo el carrito, supera el stock o no es válida. ${error}`);
 
     if (index >= 0) {
         const current = items[index];
         items[index] = {
             ...current,
             ...item,
-            quantity: Math.min(current.quantity + item.quantity, item.stock),
+            quantity,
         };
     } else {
         items.push({
             ...item,
-            quantity: Math.min(Math.max(1, item.quantity), item.stock),
+            quantity,
         });
     }
 

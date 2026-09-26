@@ -158,7 +158,7 @@ class ReportQueryService
             ['key' => 'type', 'label' => 'Tipo'],
             ['key' => 'status', 'label' => 'Estado'],
             ['key' => 'logistics_status', 'label' => 'Estado logistico'],
-            ['key' => 'payment_method', 'label' => 'Metodo de pago'],
+            ['key' => 'payment_method', 'label' => 'Método de pago'],
             ['key' => 'sold_products', 'label' => 'Productos vendidos'],
             ['key' => 'total', 'label' => 'Total'],
             ['key' => 'date', 'label' => 'Fecha'],
@@ -403,7 +403,7 @@ class ReportQueryService
             'rankings' => [
                 ['title' => 'Productos mas vendidos', 'items' => $this->topSaleProducts($details)],
                 ['title' => 'Ventas por vendedor', 'items' => $this->salesBySeller($sales)],
-                ['title' => 'Ventas por metodo de pago', 'items' => $this->salesByPayment($sales)],
+                ['title' => 'Ventas por método de pago', 'items' => $this->salesByPayment($sales)],
             ],
             'tables' => [[
                 'title' => 'Ultimas ventas del filtro',
@@ -479,7 +479,7 @@ class ReportQueryService
             ],
             'tables' => [[
                 'title' => 'Reservas recientes',
-                'description' => 'Incluye estado vencido visual cuando una reserva vigente supera su fecha limite.',
+                'description' => 'Incluye estado vencido visual cuando una reserva vigente supera su fecha límite.',
                 'columns' => [
                     ['key' => 'customer', 'label' => 'Cliente'],
                     ['key' => 'responsible', 'label' => 'Responsable'],
@@ -739,8 +739,8 @@ class ReportQueryService
 
         return [
             'key' => 'catalog',
-            'title' => 'Catalogo',
-            'description' => 'Distribucion del catalogo y senales de interes de clientes desde favoritos.',
+            'title' => 'Catálogo',
+            'description' => 'Distribucion del catálogo y senales de interes de clientes desde favoritos.',
             'metrics' => [
                 ['label' => 'Prendas', 'value' => (string) $garments->count(), 'note' => 'Total de prendas registradas.', 'tone' => 'accent'],
                 ['label' => 'Favoritos', 'value' => (string) Favorito::query()->count(), 'note' => 'Productos guardados por clientes.', 'tone' => 'info'],
@@ -1294,7 +1294,7 @@ class ReportQueryService
             $this->dateFilter('date_from', 'Fecha inicio', $request),
             $this->dateFilter('date_to', 'Fecha fin', $request),
             $this->selectFilter('seller', 'Vendedor', $request, $this->userOptions('cod_usuario_vendedor_ven', Venta::class)),
-            $this->selectFilter('payment_method', 'Metodo de pago', $request, $this->paymentMethodOptions()),
+            $this->selectFilter('payment_method', 'Método de pago', $request, $this->paymentMethodOptions()),
             $this->selectFilter('sale_status', 'Estado de venta', $request, $this->distinctOptions(Venta::class, 'est_ven')),
             $this->selectFilter('reservation_status', 'Estado de reserva', $request, $this->reservationStatusOptions()),
             $this->selectFilter('customer', 'Cliente', $request, $this->userOptions('cod_usuario_cliente_res', Reserva::class)),

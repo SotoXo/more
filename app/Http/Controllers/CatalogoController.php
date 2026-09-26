@@ -129,39 +129,44 @@ class CatalogoController extends Controller
         ]);
     }
 
+    private function pieceCount(int $count): string
+    {
+        return $count . ($count === 1 ? ' pieza' : ' piezas');
+    }
+
     private function buildCollectionNavigationLinks(): array
     {
         return [
             [
                 'label' => 'Mujer',
                 'href' => route('shop.women'),
-                'meta' => $this->activeProductsCount(
+                'meta' => $this->pieceCount($this->activeProductsCount(
                     fn($query) => $query
                         ->whereIn('gen_pre', ['mujer', 'unisex'])
                         ->whereHas('categoria', fn($category) => $category->where('nom_cat', '!=', 'Accesorios'))
-                ) . ' piezas',
+                )),
             ],
             [
                 'label' => 'Hombre',
                 'href' => route('shop.men'),
-                'meta' => $this->activeProductsCount(
+                'meta' => $this->pieceCount($this->activeProductsCount(
                     fn($query) => $query
                         ->whereIn('gen_pre', ['hombre', 'unisex'])
                         ->whereHas('categoria', fn($category) => $category->where('nom_cat', '!=', 'Accesorios'))
-                ) . ' piezas',
+                )),
             ],
             [
                 'label' => 'Accesorios',
                 'href' => route('shop.accessories'),
-                'meta' => $this->activeProductsCount(
+                'meta' => $this->pieceCount($this->activeProductsCount(
                     fn($query) => $query
                         ->whereHas('categoria', fn($category) => $category->where('nom_cat', 'Accesorios'))
-                ) . ' piezas',
+                )),
             ],
             [
                 'label' => 'Novedades',
                 'href' => route('shop.new-in'),
-                'meta' => $this->activeProductsCount() . ' piezas',
+                'meta' => $this->pieceCount($this->activeProductsCount()),
             ],
         ];
     }
@@ -178,7 +183,7 @@ class CatalogoController extends Controller
                 return [
                     'label' => $marca->nom_mar,
                     'href' => $this->catalogUrl(['marca' => $marca->nom_mar]),
-                    'meta' => $count . ' piezas',
+                    'meta' => $this->pieceCount($count),
                     'count' => $count,
                 ];
             })
@@ -205,7 +210,7 @@ class CatalogoController extends Controller
                 );
 
                 return [
-                    'eyebrow' => $count . ' piezas',
+                    'eyebrow' => $this->pieceCount($count),
                     'title' => $categoria->nom_cat,
                     'description' => $categoria->des_cat ?: 'Una entrada abierta para seguir recorriendo la boutique.',
                     'image' => $this->representativeImage(
@@ -242,7 +247,7 @@ class CatalogoController extends Controller
                 return [
                     'eyebrow' => 'Temporada',
                     'title' => $temporada->nom_tem,
-                    'description' => $count . ' piezas dentro de esta edición.',
+                    'description' => $this->pieceCount($count) . ' dentro de esta edición.',
                     'image' => $this->representativeImage(
                         Prenda::where('est_pre', true)->where('cod_temporadas_pre', $temporada->id_temporada),
                         $index

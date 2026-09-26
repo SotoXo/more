@@ -39,7 +39,7 @@ export const vendedorNavGroups: SuperadminNavGroup[] = [
         ],
     },
     {
-        label: 'Catalogo',
+        label: 'Catálogo',
         items: [
             {
                 label: 'Consultar prendas',
@@ -62,7 +62,7 @@ export const vendedorNavGroups: SuperadminNavGroup[] = [
                 icon: PackageSearch,
             },
             {
-                label: 'Reportar prenda danada',
+                label: 'Reportar prenda dañada',
                 href: vendedorRoutes.prendasDaniadas,
                 icon: ShieldAlert,
             },
@@ -94,7 +94,7 @@ export const vendedorNavGroups: SuperadminNavGroup[] = [
         ],
     },
     {
-        label: 'Analisis',
+        label: 'Análisis',
         items: [
             {
                 label: 'Mis reportes',

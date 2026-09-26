@@ -1,10 +1,13 @@
+import { operationToken, completeOperation, renewOperation } from '@/lib/commercialOperation';
+import OperationRecovery from '@/Components/shop/OperationRecovery';
+import { reservationPayment, voucherError } from '@/lib/commercialValidation';
 import StoreLayout from '@/Components/shop/StoreLayout';
 import StorefrontImage from '@/Components/shop/StorefrontImage';
 import { ONLINE_PAYMENT_METHOD_OPTIONS, PAYMENT_METHODS } from '@/config/paymentMethods';
 import { formatPrice, shopRoutes } from '@/lib/shop';
 import type { CartItem } from '@/types';
 import type { LandingPageProps } from '@/types/landing';
-import { Link, useForm, usePage } from '@inertiajs/react';
+import { Link, router, useForm, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { ArrowLeft, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
@@ -18,6 +21,7 @@ type CheckoutStep = 'items' | 'summary' | 'payment';
 type CarritoProps = {
     items: CartItem[];
     subtotal: number;
+    initialStep?: CheckoutStep;
 };
 
 function CartItemRow({
@@ -85,7 +89,8 @@ function CartItemRow({
                             type="button"
                             onClick={() => onUpdate(item.variante_id, item.cantidad + 1)}
                             className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
-                            disabled={disabled}
+                            disabled={disabled || item.cantidad >= item.stock}
+                            title="Stock máximo disponible"
                             aria-label="Aumentar cantidad"
                         >
                             <Plus size={12} />
@@ -109,29 +114,30 @@ function SummaryLine({ label, value }: { label: string; value: string }) {
     );
 }
 
-export default function Carrito({ items }: CarritoProps) {
+export default function Carrito({ items, initialStep = 'items' }: CarritoProps) {
     const page = usePage<LandingPageProps>();
     const flash = page.props.flash;
     const [cartItems, setCartItems] = useState(items);
-    const [step, setStep] = useState<CheckoutStep>('items');
+    const [step, setStep] = useState<CheckoutStep>(initialStep);
     const [cartPending, setCartPending] = useState(false);
     const [cartError, setCartError] = useState<string | null>(null);
     const [clientError, setClientError] = useState<string | null>(null);
 
     const total = cartItems.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
-    const minimum = Number((total * 0.5).toFixed(2));
-    const maximum = Number(total.toFixed(2));
 
-    const { data, setData, post, processing, errors, reset } = useForm<{
+    const { data, setData, post, processing, errors, clearErrors, reset } = useForm<{
+        operation_id: string;
         monto_declarado_rpg: string;
         metodo_pago_rpg: string;
         comprobante_rpg: File | null;
     }>({
+        operation_id: operationToken(),
         monto_declarado_rpg: '',
         metodo_pago_rpg: PAYMENT_METHODS.qr.value,
         comprobante_rpg: null,
     });
-    const declaredAmount = Number(data.monto_declarado_rpg || 0);
+    const payment = reservationPayment(data.monto_declarado_rpg, total);
+    const { minimumPayment: minimum, maximumPayment: maximum } = payment;
 
     function visibleErrors() {
         return [
@@ -160,31 +166,17 @@ export default function Carrito({ items }: CarritoProps) {
             setStep('items');
             return;
         }
-        setStep('payment');
+        router.get('/bolsa/pago', {}, { preserveState: false });
     }
 
     function validatePaymentStep() {
-        const amount = Number(data.monto_declarado_rpg || 0);
-
-        if (!data.monto_declarado_rpg || amount <= 0) {
-            return 'Ingresa el monto depositado.';
-        }
-
-        if (amount < minimum) {
-            return 'El anticipo minimo para reservar es del 50% del total.';
-        }
-
-        if (amount > maximum) {
-            return 'El monto no puede ser mayor al total de la reserva.';
-        }
+        if (!payment.isPaymentValid) return payment.message;
 
         if (!ONLINE_PAYMENT_METHOD_OPTIONS.some((method) => method.value === data.metodo_pago_rpg)) {
-            return 'Selecciona un metodo de pago valido.';
+            return 'Selecciona un método de pago válido.';
         }
 
-        if (!data.comprobante_rpg) {
-            return 'Sube el comprobante de pago.';
-        }
+        if (voucherError(data.comprobante_rpg)) return voucherError(data.comprobante_rpg);
 
         return null;
     }
@@ -203,7 +195,7 @@ export default function Carrito({ items }: CarritoProps) {
         post('/bolsa/confirmar', {
             forceFormData: true,
             preserveScroll: true,
-            onSuccess: () => reset('monto_declarado_rpg', 'comprobante_rpg'),
+            onSuccess: () => { completeOperation(data.operation_id); reset('monto_declarado_rpg', 'comprobante_rpg'); },
             onError: () => setStep('payment'),
         });
     }
@@ -296,20 +288,20 @@ export default function Carrito({ items }: CarritoProps) {
                                 Aun no agregaste prendas para reservar.
                             </p>
                             <p className="mt-3 text-sm text-stone-400">
-                                Revisa el catalogo y agrega tus prendas favoritas.
+                                Revisa el catálogo y agrega tus prendas favoritas.
                             </p>
                             <Link
                                 href={shopRoutes.catalog}
                                 className="mt-8 inline-flex rounded-full bg-white px-6 py-3 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition hover:-translate-y-px hover:bg-stone-200"
                             >
-                                Ver catalogo
+                                Ver catálogo
                             </Link>
                         </div>
                     ) : (
                         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_380px]">
                             <div>
                                 <div className="mb-6 grid gap-3 text-[0.68rem] uppercase tracking-[0.18em] text-stone-400 sm:grid-cols-3">
-                                    <span className={step === 'items' ? 'text-white' : ''}>1. Seleccion</span>
+                                    <span className={step === 'items' ? 'text-white' : ''}>1. Selección</span>
                                     <span className={step === 'summary' ? 'text-white' : ''}>2. Resumen</span>
                                     <span className={step === 'payment' ? 'text-white' : ''}>3. Pago</span>
                                 </div>
@@ -376,7 +368,7 @@ export default function Carrito({ items }: CarritoProps) {
                                 )}
 
                                 {step === 'payment' && (
-                                    <form onSubmit={handleConfirm} className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-5">
+                                    <div><OperationRecovery error={errors.operation_id} onRenew={() => { setData('operation_id', renewOperation(data.operation_id)); clearErrors('operation_id'); }} /><form onSubmit={handleConfirm} className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-5">
                                         <h2 className="text-3xl text-white" style={serifStyle}>
                                             Pago de reserva
                                         </h2>
@@ -387,7 +379,7 @@ export default function Carrito({ items }: CarritoProps) {
                                         <div className="mt-6 grid gap-4">
                                             <label className="block space-y-2">
                                                 <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">
-                                                    Metodo de pago
+                                                    Método de pago
                                                 </span>
                                                 <select
                                                     value={data.metodo_pago_rpg}
@@ -445,7 +437,8 @@ export default function Carrito({ items }: CarritoProps) {
                                                 </span>
                                                 <input
                                                     type="number"
-                                                    min="0.01"
+                                                    min={minimum}
+                                                    aria-invalid={!payment.isPaymentValid}
                                                     max={maximum}
                                                     step="0.01"
                                                     value={data.monto_declarado_rpg}
@@ -456,16 +449,7 @@ export default function Carrito({ items }: CarritoProps) {
                                                     className="w-full rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition focus:border-white/30"
                                                     disabled={processing}
                                                 />
-                                                {declaredAmount > 0 && declaredAmount < minimum && (
-                                                    <p className="text-xs text-red-200">
-                                                        El anticipo minimo para reservar es del 50% del total.
-                                                    </p>
-                                                )}
-                                                {declaredAmount > maximum && (
-                                                    <p className="text-xs text-red-200">
-                                                        El monto no puede ser mayor al total de la reserva.
-                                                    </p>
-                                                )}
+                                                {payment.message && <p className="mt-2 text-xs text-red-300" role="status">{payment.message}</p>}
                                             </label>
 
                                             <label className="block space-y-2">
@@ -487,12 +471,12 @@ export default function Carrito({ items }: CarritoProps) {
 
                                         <button
                                             type="submit"
-                                            disabled={processing || cartPending}
+                                            disabled={processing || cartPending || Boolean(validatePaymentStep())}
                                             className="mt-8 w-full rounded-full bg-white py-4 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition hover:-translate-y-px hover:bg-stone-200 disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             {processing ? 'Procesando reserva...' : 'Enviar reserva a revisión'}
                                         </button>
-                                    </form>
+                                    </form></div>
                                 )}
                             </div>
 
@@ -504,8 +488,8 @@ export default function Carrito({ items }: CarritoProps) {
                                 <div className="mt-6 space-y-3">
                                     <SummaryLine label="Subtotal" value={formatPrice(total)} />
                                     <SummaryLine label="Total" value={formatPrice(total)} />
-                                    <SummaryLine label="Anticipo minimo requerido" value={formatPrice(minimum)} />
-                                    <SummaryLine label="Monto maximo permitido" value={formatPrice(maximum)} />
+                                    <SummaryLine label="Anticipo mínimo requerido" value={formatPrice(minimum)} />
+                                    <SummaryLine label="Monto máximo permitido" value={formatPrice(maximum)} />
                                 </div>
 
                                 <div className="mt-6 border-t border-white/10 pt-6">
@@ -537,7 +521,7 @@ export default function Carrito({ items }: CarritoProps) {
                                         disabled={cartPending || processing}
                                         className="mt-8 w-full rounded-full bg-white py-4 text-[0.72rem] uppercase tracking-[0.22em] text-slate-950 transition hover:-translate-y-px hover:bg-stone-200 disabled:cursor-not-allowed disabled:opacity-60"
                                     >
-                                        Continuar con la reserva
+                                        Continuar al pago
                                     </button>
                                 )}
 
@@ -561,7 +545,7 @@ export default function Carrito({ items }: CarritoProps) {
                                     href={shopRoutes.catalog}
                                     className="mt-4 block text-center text-[0.7rem] uppercase tracking-[0.2em] text-stone-400 transition hover:text-white"
                                 >
-                                    Seguir viendo catalogo
+                                    Seguir viendo catálogo
                                 </Link>
                             </aside>
                         </div>

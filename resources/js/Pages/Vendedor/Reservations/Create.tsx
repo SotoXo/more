@@ -1,3 +1,6 @@
+import { commercialItemErrors, decimalAmount, reservationPayment } from '@/lib/commercialValidation';
+import { operationToken, completeOperation, renewOperation } from '@/lib/commercialOperation';
+import OperationRecovery from '@/Components/shop/OperationRecovery';
 import SuperadminBadge from '@/Components/Superadmin/SuperadminBadge';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import VendedorLayout from '@/Layouts/VendedorLayout';
@@ -32,6 +35,7 @@ type ReservationItem = {
 };
 
 type ReservationFormData = {
+    operation_id: string;
     customer_id: string;
     payment_method: string;
     amount_paid: string;
@@ -94,7 +98,8 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
     const flash = page.props.flash;
     const [search, setSearch] = useState('');
     const [clientNotice, setClientNotice] = useState<string | null>(null);
-    const { data, setData, post, processing, errors } = useForm<ReservationFormData>({
+    const { data, setData, post, processing, errors, clearErrors } = useForm<ReservationFormData>({
+        operation_id: operationToken(),
         customer_id: '',
         payment_method: 'efectivo',
         amount_paid: '0.00',
@@ -123,19 +128,16 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
 
         return {
             total,
-            minimum: total * rules.minimumPaymentRate,
+            minimum: Math.round(total * rules.minimumPaymentRate * 100) / 100,
         };
     }, [data.reservation_items, rules.minimumPaymentRate, variantsById]);
 
-    const amount = Number(data.amount_paid) || 0;
-    const requiresVoucher = ['qr', 'transferencia_bancaria'].includes(data.payment_method);
-    const hasInvalidItems = data.reservation_items.some((item) => {
-        const variant = variantsById.get(item.variant_id);
-        const quantity = Number(item.quantity) || 0;
 
-        return !variant || quantity <= 0 || quantity > variant.stock;
-    });
-    const hasInvalidPayment = totals.total <= 0 || amount < totals.minimum || amount > totals.total;
+    const requiresVoucher = ['qr', 'transferencia_bancaria'].includes(data.payment_method);
+    const itemErrors = commercialItemErrors(data.reservation_items.map(item => ({ variantId: item.variant_id, quantity: item.quantity })), variantsById);
+    const hasInvalidItems = itemErrors.some(Boolean);
+    const payment = reservationPayment(data.amount_paid, totals.total);
+    const hasInvalidPayment = !payment.isPaymentValid;
 
     useEffect(() => {
         setData('amount_paid', totals.minimum > 0 ? totals.minimum.toFixed(2) : '0.00');
@@ -200,7 +202,7 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
             return;
         }
 
-        post(submitAction, {
+        post(submitAction, { onSuccess: () => completeOperation(data.operation_id),
             forceFormData: true,
             preserveScroll: true,
         });
@@ -221,7 +223,7 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                         Nueva reserva
                     </h1>
                     <p className="mt-3 text-sm leading-6 text-[color:var(--admin-muted)]">
-                        Los pagos registrados por vendedor se confirmaran automaticamente.
+                        Los pagos registrados por vendedor se confirmarán automáticamente.
                     </p>
                 </header>
 
@@ -235,6 +237,8 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                         ))}
                     </section>
                 )}
+
+                <OperationRecovery error={errors.operation_id} onRenew={() => { setData('operation_id', renewOperation(data.operation_id)); clearErrors('operation_id'); }} />
 
                 <form onSubmit={submit} className="space-y-6">
                     <section className="sa-panel rounded-2xl p-5">
@@ -323,7 +327,7 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                                                     <button
                                                         type="button"
                                                         onClick={() => addVariant(variant)}
-                                                        disabled={processing || variant.stock <= 0}
+                                                        disabled={processing || variant.stock <= 0 || Number(data.reservation_items.find(item => item.variant_id === variant.id)?.quantity ?? 0) >= variant.stock}
                                                         className="sa-button-secondary h-9 px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                                                     >
                                                         <Plus size={14} />
@@ -359,7 +363,7 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                                         const variant = variantsById.get(item.variant_id);
                                         const quantity = Number(item.quantity) || 0;
                                         const lineTotal = (variant?.price ?? 0) * quantity;
-                                        const invalid = !variant || quantity <= 0 || quantity > variant.stock;
+                                        const invalid = !variant || !/^\d+$/.test(item.quantity) || !Number.isSafeInteger(quantity) || quantity <= 0 || quantity > variant.stock;
 
                                         return (
                                             <div key={item.variant_id} className="rounded-2xl border border-white/8 bg-[#0d141d] p-4">
@@ -383,6 +387,7 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                                                         <input
                                                             type="number"
                                                             min="1"
+                                                            aria-invalid={invalid}
                                                             max={variant?.stock ?? 1}
                                                             value={item.quantity}
                                                             onChange={(event) => updateQuantity(item.variant_id, event.target.value)}
@@ -412,19 +417,20 @@ export default function Create({ options, rules, submitAction }: ReservationCrea
                                         <span className="text-2xl font-semibold text-[color:var(--admin-text)]">{money.format(totals.total)}</span>
                                     </div>
                                     <div className="flex items-center justify-between gap-4">
-                                        <span className="text-sm text-[color:var(--admin-muted)]">Anticipo minimo</span>
+                                        <span className="text-sm text-[color:var(--admin-muted)]">Anticipo mínimo</span>
                                         <span className="text-base font-semibold text-[color:var(--admin-text)]">{money.format(totals.minimum)}</span>
                                     </div>
                                     <label className="space-y-2">
                                         <span className="text-xs font-semibold text-[color:var(--admin-muted)]">Monto pagado</span>
                                         <input
                                             type="number"
-                                            min="0.01"
+                                            min={payment.minimumPayment} max={payment.maximumPayment} aria-invalid={hasInvalidPayment}
                                             step="0.01"
                                             value={data.amount_paid}
                                             onChange={(event) => setData('amount_paid', event.target.value)}
                                             className="sa-input min-h-11 px-3 text-sm"
                                         />
+                                        {hasInvalidPayment && <p className="text-xs text-red-300" role="status">{payment.message}</p>}
                                     </label>
                                     {requiresVoucher && (
                                         <label className="space-y-2">

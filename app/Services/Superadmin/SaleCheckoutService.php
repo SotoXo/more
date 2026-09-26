@@ -37,14 +37,14 @@ class SaleCheckoutService
             'sale_items.*.variante_id' => ['required', 'integer', Rule::exists('prenda_variantes', 'id_prenda_variante')],
             'sale_items.*.cantidad' => ['required', 'integer', 'min:1'],
             'metodo_pago' => ['required', 'string', Rule::in(['qr', 'transferencia_bancaria'])],
-            'monto_declarado' => ['required', 'numeric', 'min:0.01'],
+            'monto_declarado' => ['required', 'numeric', 'min:0.01', 'regex:/^\d+(\.\d{1,2})?$/'],
             'comprobante' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ], [
             'sale_items.required' => 'Agrega al menos una prenda al carrito.',
             'sale_items.*.variante_id.required' => 'Selecciona una variante para comprar.',
             'sale_items.*.cantidad.required' => 'Ingresa la cantidad.',
             'sale_items.*.cantidad.min' => 'La cantidad debe ser mayor a cero.',
-            'metodo_pago.required' => 'Selecciona el metodo de pago.',
+            'metodo_pago.required' => 'Selecciona el método de pago.',
             'metodo_pago.in' => 'La compra online solo permite QR o transferencia bancaria.',
             'monto_declarado.required' => 'Ingresa el monto pagado.',
             'monto_declarado.min' => 'Para completar la compra debes pagar el 100% del total.',
@@ -79,11 +79,14 @@ class SaleCheckoutService
                 ])
                 ->values();
 
+            $productIds = PrendaVariante::query()->whereIn('id_prenda_variante', $items->pluck('variant_id'))->pluck('cod_prendas_prv');
+            \App\Models\Prenda::query()->whereIn('id_prenda', $productIds)->orderBy('id_prenda')->lockForUpdate()->get();
             $variants = PrendaVariante::query()
                 ->with('prenda')
                 ->where('est_prv', true)
                 ->whereHas('prenda', fn ($query) => $query->where('est_pre', true))
                 ->whereIn('id_prenda_variante', $items->pluck('variant_id'))
+                ->orderBy('id_prenda_variante')->lockForUpdate()
                 ->get()
                 ->keyBy('id_prenda_variante');
 

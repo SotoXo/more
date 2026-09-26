@@ -110,9 +110,12 @@ class VendedorSalesService
                     ])
                     ->values();
 
+                $productIds = PrendaVariante::query()->whereIn('id_prenda_variante', $items->pluck('variant_id'))->pluck('cod_prendas_prv');
+                \App\Models\Prenda::query()->whereIn('id_prenda', $productIds)->orderBy('id_prenda')->lockForUpdate()->get();
                 $variants = PrendaVariante::query()
                     ->with(['inventario', 'prenda.imagenes', 'color', 'talla'])
                     ->whereIn('id_prenda_variante', $items->pluck('variant_id'))
+                    ->orderBy('id_prenda_variante')->lockForUpdate()
                     ->get()
                     ->keyBy('id_prenda_variante');
 
@@ -336,7 +339,7 @@ class VendedorSalesService
         return Validator::make($request->all(), [
             'customer_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
             'payment_method' => ['required', 'string', Rule::in(self::PAYMENT_METHODS)],
-            'amount_paid' => ['required', 'numeric', 'min:0.01'],
+            'amount_paid' => ['required', 'numeric', 'min:0.01', 'regex:/^\d+(\.\d{1,2})?$/'],
             'voucher' => [Rule::requiredIf(in_array($method, ['qr', 'transferencia_bancaria'], true)), 'nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:4096'],
             'sale_items' => ['required', 'array', 'min:1'],
             'sale_items.*.variant_id' => ['required', 'integer', Rule::exists('prenda_variantes', 'id_prenda_variante')],
@@ -362,7 +365,7 @@ class VendedorSalesService
             foreach ($items as $variantId => $quantity) {
                 $variant = $variants->get((int) $variantId);
 
-                if (! $variant) {
+                if (! $variant || !$variant->est_prv || !$variant->prenda?->est_pre) {
                     $validator->errors()->add('sale_items', 'Una variante seleccionada no existe.');
                     continue;
                 }
@@ -399,7 +402,7 @@ class VendedorSalesService
         foreach ($items as $item) {
             $variant = $variants->get($item['variant_id']);
 
-            if (! $variant) {
+            if (! $variant || !$variant->est_prv || !$variant->prenda?->est_pre) {
                 throw ValidationException::withMessages([
                     'sale_items' => 'La variante seleccionada no existe.',
                 ]);

@@ -68,9 +68,10 @@ function FilterGroup({
                         <button
                             key={item}
                             type="button"
+                            aria-pressed={active}
                             onClick={() => onToggle(item)}
                             className={[
-                                'rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
+                                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
                                 active
                                     ? 'more-pill-active'
                                     : 'more-pill text-stone-200 hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]',
@@ -196,9 +197,10 @@ export default function ShopFiltersPanel({
                                 <button
                                     key={option.value}
                                     type="button"
+                                    aria-pressed={active}
                                     onClick={() => onPriceChange(option.value)}
                                     className={[
-                                        'flex w-full items-center justify-between rounded-[1.2rem] border px-4 py-3 text-left text-sm transition duration-300',
+                                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white flex w-full items-center justify-between rounded-[1.2rem] border px-4 py-3 text-left text-sm transition duration-300',
                                         active
                                             ? 'border-[rgba(181,122,109,0.28)] bg-[rgba(181,122,109,0.12)] text-white'
                                             : 'border-white/10 bg-black/20 text-stone-200 hover:border-[rgba(181,122,109,0.22)] hover:bg-[rgba(181,122,109,0.07)]',
@@ -230,9 +232,10 @@ export default function ShopFiltersPanel({
                                 <button
                                     key={option}
                                     type="button"
+                                    aria-pressed={active}
                                     onClick={() => onAvailabilityChange(option)}
                                     className={[
-                                        'rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
+                                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
                                         active
                                             ? 'more-pill-active'
                                             : 'more-pill text-stone-200 hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]',

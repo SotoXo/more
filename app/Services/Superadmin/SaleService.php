@@ -3,6 +3,7 @@
 namespace App\Services\Superadmin;
 
 use App\Models\DetalleVenta;
+use App\Models\Prenda;
 use App\Models\PrendaVariante;
 use App\Models\User;
 use App\Models\Venta;
@@ -75,8 +76,8 @@ class SaleService
         return Validator::make($request->all(), [
             'cod_usuario_cliente_ven' => ['nullable', 'integer', Rule::exists('users', 'id')],
             'tiv_ven' => ['required', 'string', Rule::in(['fisica', 'online', 'otro'])],
-            'mpa_ven' => ['required', 'string', 'max:30'],
-            'des_ven' => ['nullable', 'numeric', 'min:0'],
+            'mpa_ven' => ['required', 'string', Rule::in(['efectivo', 'qr', 'tarjeta', 'transferencia', 'otro'])],
+            'des_ven' => ['nullable', 'numeric', 'min:0', 'regex:/^\d+(\.\d{1,2})?$/'],
             'sale_items' => ['required', 'array', 'min:1'],
             'sale_items.*.cod_prenda_variantes_dve' => ['required', 'integer', Rule::exists('prenda_variantes', 'id_prenda_variante')],
             'sale_items.*.can_dve' => ['required', 'integer', 'min:1'],
@@ -85,6 +86,9 @@ class SaleService
             'sale_items.*.cod_prenda_variantes_dve.required' => 'Selecciona una variante.',
             'sale_items.*.can_dve.min' => 'La cantidad debe ser mayor a cero.',
         ])->after(function ($validator) use ($request) {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
             if ($request->input('tiv_ven') === 'online' && !in_array($request->input('mpa_ven'), ['qr', 'transferencia_bancaria'], true)) {
                 $validator->errors()->add('mpa_ven', 'La venta online solo permite QR o transferencia bancaria.');
             }
@@ -133,18 +137,38 @@ class SaleService
                 ])
                 ->values();
 
+            $variantIds = $items->pluck('variant_id');
+            $productIds = PrendaVariante::query()->whereIn('id_prenda_variante', $variantIds)->pluck('cod_prendas_prv');
+            $products = Prenda::query()->whereIn('id_prenda', $productIds)
+                ->orderBy('id_prenda')->lockForUpdate()->get()->keyBy('id_prenda');
             $variants = PrendaVariante::query()
-                ->with('inventario')
-                ->whereIn('id_prenda_variante', $items->pluck('variant_id'))
-                ->get()
-                ->keyBy('id_prenda_variante');
+                ->with(['inventario' => fn ($query) => $query->lockForUpdate()])
+                ->whereIn('id_prenda_variante', $variantIds)
+                ->orderBy('id_prenda_variante')->lockForUpdate()
+                ->get()->keyBy('id_prenda_variante');
+
+            foreach ($items as $item) {
+                $variant = $variants->get($item['variant_id']);
+                $product = $variant ? $products->get($variant->cod_prendas_prv) : null;
+                if (!$variant || !$variant->est_prv || !$product?->est_pre) {
+                    throw ValidationException::withMessages(['sale_items' => 'La prenda o variante seleccionada ya no está activa para ventas.']);
+                }
+                if ($item['quantity'] < 1 || !$variant->inventario || $variant->inventario->cdi_inv < $item['quantity']) {
+                    throw ValidationException::withMessages(['sale_items' => 'La cantidad debe ser positiva y no superar el stock disponible.']);
+                }
+                $variant->setRelation('prenda', $product);
+            }
 
             $subtotal = $items->sum(function (array $item) use ($variants) {
                 $variant = $variants->get($item['variant_id']);
 
                 return ((float) ($variant?->pve_prv ?? 0)) * $item['quantity'];
             });
-            $discount = min((float) ($validated['des_ven'] ?? 0), $subtotal);
+            $subtotal = round($subtotal, 2);
+            $discount = (float) ($validated['des_ven'] ?? 0);
+            if (!is_finite($discount) || $discount < 0 || $discount > $subtotal) {
+                throw ValidationException::withMessages(['des_ven' => 'El descuento debe estar entre 0 y el subtotal.']);
+            }
             $isOnlineReview = ($validated['tiv_ven'] ?? null) === 'online';
 
             if ($isOnlineReview) {

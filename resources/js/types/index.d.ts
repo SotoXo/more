@@ -21,6 +21,7 @@ export type PageProps<
 
 // ─── Cart item (session-based) ──────────────────────────────
 export interface CartItem {
+    stock: number;
     variante_id: number;
     prenda_id: number;
     cantidad: number;

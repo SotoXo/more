@@ -14,7 +14,7 @@ import {
     LogOut,
     Menu,
     Package,
-    Search,
+    LayoutGrid,
     ShoppingBag,
     User2,
     X,
@@ -240,7 +240,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             <div className="mt-0.5 hidden items-center gap-2 md:flex">
                                 <span className="h-px w-6 bg-[linear-gradient(90deg,rgba(223,184,166,0.9),transparent)]" />
                                 <span className="text-[0.6rem] uppercase tracking-[0.28em] text-stone-400">
-                                    Catalogo, compras y reservas
+                                    Catálogo, compras y reservas
                                 </span>
                             </div>
                         </div>
@@ -273,7 +273,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                             aria-label="Ver catálogo"
                             className={iconButtonClass}
                         >
-                            <Search size={16} />
+                            <LayoutGrid size={16} />
                         </Link>
 
                         <Link
@@ -363,7 +363,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                     Mati Boutique
                                 </p>
                                 <p className="mt-2 text-[0.68rem] uppercase tracking-[0.2em] text-stone-400">
-                                    Catalogo, compras y reservas
+                                    Catálogo, compras y reservas
                                 </p>
                             </div>
 
@@ -392,7 +392,7 @@ export default function LandingHeader({ user }: { user: LandingUser }) {
                                     className={iconButtonClass}
                                     aria-label="Ver catálogo"
                                 >
-                                    <Search size={16} />
+                                    <LayoutGrid size={16} />
                                 </Link>
                                 <Link
                                     href={user ? '/cuenta/favoritos' : '/login'}

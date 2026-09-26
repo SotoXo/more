@@ -607,8 +607,10 @@ class DamagedProductService
 
     private function validateCreation(Request $request): array
     {
+        $request->merge(['nombre_prenda_pdr' => app(\App\Services\Superadmin\Resources\AdminFormattingService::class)->normalizeNullableText($request->input('nombre_prenda_pdr'))]);
+
         $validated = $request->validate([
-            'nombre_prenda_pdr' => ['required', 'string', 'max:180'],
+            'nombre_prenda_pdr' => ['required', 'string', 'max:180', \App\Support\DamagedProductName::RULE],
             'descripcion_prenda_pdr' => ['nullable', 'string', 'max:5000'],
             'cod_prenda_pdr' => ['nullable', 'integer', 'exists:prendas,id_prenda'],
             'cod_prenda_variante_pdr' => ['nullable', 'integer', 'exists:prenda_variantes,id_prenda_variante'],

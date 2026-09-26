@@ -52,6 +52,64 @@ class CriticalReservationCheckoutP1Test extends TestCase
         parent::tearDown();
     }
 
+    public function test_admin_sale_rejects_inactive_product_variant_and_excess_discount_before_writes(): void
+    {
+        [$product, $variant, $inventory] = $this->createProductWithInventory(true, true, 5, 0);
+        $user = $this->createUser('superadmin');
+        $request = Request::create('/superadmin/comercial/ventas', 'POST');
+        $request->setUserResolver(fn () => $user);
+        $payload = ['tiv_ven' => 'fisica', 'mpa_ven' => 'efectivo', 'des_ven' => 0,
+            'sale_items' => [['cod_prenda_variantes_dve' => $variant->id_prenda_variante, 'can_dve' => 1]]];
+        $service = app(\App\Services\Superadmin\SaleService::class);
+        $variant->update(['est_prv' => false]);
+        $this->assertValidationFailure(fn () => $service->createSale($request, $payload), 'sale_items');
+        $variant->update(['est_prv' => true]);
+        $product->update(['est_pre' => false]);
+        $this->assertValidationFailure(fn () => $service->createSale($request, $payload), 'sale_items');
+        $product->update(['est_pre' => true]);
+        foreach ([-1, 100.01, 999999] as $discount) {
+            $this->assertValidationFailure(fn () => $service->createSale($request, [...$payload, 'des_ven' => $discount]), 'des_ven');
+        }
+        $payload['sale_items'][0]['can_dve'] = 6;
+        $this->assertValidationFailure(fn () => $service->createSale($request, $payload), 'sale_items');
+        $this->assertSame(5, $inventory->fresh()->cdi_inv);
+        $this->assertSame(0, $inventory->fresh()->cre_inv);
+        foreach (['ventas', 'detalle_ventas', 'venta_pagos', 'inventario_movimientos'] as $table) {
+            $this->assertDatabaseCount($table, 0);
+        }
+    }
+
+    public function test_reservation_rechecks_discount_and_payment_against_locked_price(): void
+    {
+        [, $variant, $inventory] = $this->createProductWithInventory(true, true, 5, 0);
+        $variant->update(['pve_prv' => 150]);
+        $customer = $this->createUser('cliente');
+        $request = Request::create('/bolsa/confirmar', 'POST');
+        $request->setUserResolver(fn () => $customer);
+        $payload = ['cod_usuario_cliente_res' => $customer->id, 'des_res' => 0,
+            'monto_declarado_rpg' => 75, 'metodo_pago_rpg' => 'qr',
+            'reservation_items' => [['cod_prenda_variantes_dre' => $variant->id_prenda_variante, 'can_dre' => 1]]];
+        foreach ([-1, 150.01, 999999] as $discount) {
+            $this->assertValidationFailure(fn () => $this->reservationService()->createReservation($request, [...$payload, 'des_res' => $discount]), 'des_res');
+        }
+        foreach ([-1, 0, 74.99, 150.01] as $amount) {
+            $this->assertValidationFailure(fn () => $this->reservationService()->createReservation($request, [...$payload, 'monto_declarado_rpg' => $amount]), 'monto_declarado_rpg');
+        }
+        $request->files->set('comprobante_rpg', UploadedFile::fake()->image('QA_TEST_anticipo.jpg'));
+        foreach (['', '1e10', '12,34', 'abc', '123abc', '@@@', '   ', '74.99', '0', '-1', '150.01'] as $amount) {
+            $request->replace([...$payload, 'monto_declarado_rpg' => $amount]);
+            $this->assertValidationFailure(fn () => $this->reservationService()->validateCreate($request), 'monto_declarado_rpg');
+        }
+        foreach (['75', '150', '000075'] as $amount) {
+            $request->replace([...$payload, 'monto_declarado_rpg' => $amount]);
+            $this->assertSame($amount, $this->reservationService()->validateCreate($request)['monto_declarado_rpg']);
+        }
+        $this->assertSame(5, $inventory->fresh()->cdi_inv);
+        foreach (['reservas', 'detalle_reservas', 'reserva_pagos', 'inventario_movimientos'] as $table) {
+            $this->assertDatabaseCount($table, 0);
+        }
+    }
+
     public function test_active_variant_and_product_with_stock_can_be_added_to_reservation_cart(): void
     {
         [, $variant] = $this->createProductWithInventory(true, true, 5, 0);
@@ -119,6 +177,7 @@ class CriticalReservationCheckoutP1Test extends TestCase
         $product->update(['est_pre' => false]);
 
         $this->actingAs($customer)->post('/bolsa/confirmar', [
+            'operation_id' => (string) \Illuminate\Support\Str::uuid(),
             'monto_declarado_rpg' => 100,
             'metodo_pago_rpg' => 'qr',
             'comprobante_rpg' => UploadedFile::fake()->image('reserva.jpg'),
@@ -586,6 +645,7 @@ class CriticalReservationCheckoutP1Test extends TestCase
 
     private function createTestSchema(): void
     {
+        (require database_path('migrations/2026_09_10_000001_create_commercial_operations_table.php'))->up();
         Schema::create('roles', function (Blueprint $table) {
             $table->id('id_rol');
             $table->string('nom_rol');

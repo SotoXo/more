@@ -1,3 +1,6 @@
+import { operationToken, completeOperation, renewOperation } from '@/lib/commercialOperation';
+import OperationRecovery from '@/Components/shop/OperationRecovery';
+import { commercialItemErrors, decimalAmount, discountError, reservationPayment, voucherError } from '@/lib/commercialValidation';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import SuperadminLayout from '@/Components/Superadmin/SuperadminLayout';
 import SuperadminPageHeader from '@/Components/Superadmin/SuperadminPageHeader';
@@ -25,6 +28,7 @@ type SaleItem = {
 };
 
 type SaleFormData = {
+    operation_id: string;
     cod_usuario_cliente_ven: string;
     tiv_ven: string;
     mpa_ven: string;
@@ -57,7 +61,8 @@ function blankItem(): SaleItem {
 export default function SaleCreate({ meta, breadcrumbs, options, submitAction }: SaleCreateProps) {
     const page = usePage<LandingPageProps>();
     const flash = page.props.flash;
-    const { data, setData, post, processing, errors } = useForm<SaleFormData>({
+    const { data, setData, post, processing, errors, clearErrors } = useForm<SaleFormData>({
+        operation_id: operationToken(),
         cod_usuario_cliente_ven: '',
         tiv_ven: 'fisica',
         mpa_ven: 'efectivo',
@@ -73,13 +78,13 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
         ? ONLINE_PAYMENT_METHOD_OPTIONS
         : options.paymentMethods;
     const totals = useMemo(() => {
-        const subtotal = data.sale_items.reduce((sum, item) => {
+        const subtotal = Math.round(data.sale_items.reduce((sum, item) => {
             const variant = variantsById.get(item.cod_prenda_variantes_dve);
             const quantity = Number(item.can_dve) || 0;
 
             return sum + ((variant?.price ?? 0) * quantity);
-        }, 0);
-        const discount = Math.min(Math.max(Number(data.des_ven) || 0, 0), subtotal);
+        }, 0) * 100) / 100;
+        const discount = decimalAmount(data.des_ven);
 
         return {
             subtotal,
@@ -87,6 +92,10 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
             total: Math.max(0, subtotal - discount),
         };
     }, [data.des_ven, data.sale_items, variantsById]);
+
+    const itemErrors = commercialItemErrors(data.sale_items.map(item => ({ variantId: item.cod_prenda_variantes_dve, quantity: item.can_dve })), variantsById);
+    const discountMessage = discountError(data.des_ven, totals.subtotal);
+    const formInvalid = itemErrors.some(Boolean) || Boolean(discountMessage) || !options.types.some(option => option.value === data.tiv_ven) || !visiblePaymentMethods.some(option => option.value === data.mpa_ven);
 
     const updateItem = (index: number, field: keyof SaleItem, value: string) => {
         setData('sale_items', data.sale_items.map((item, currentIndex) => (
@@ -105,7 +114,8 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
 
     const submit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        post(submitAction, {
+        if (formInvalid) return;
+        post(submitAction, { onSuccess: () => completeOperation(data.operation_id),
             preserveScroll: true,
         });
     };
@@ -116,9 +126,9 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
                 <SuperadminPageHeader
                     eyebrow={meta.sectionLabel}
                     title="Nueva venta"
-                    description="Registra ventas presenciales o deja ventas online en revisión antes de descontar inventario."
+                    description="Registra ventas presenciales con pago confirmado y descuento de inventario."
                     breadcrumbs={breadcrumbs}
-                    actions={[{ label: 'Volver al modulo', href: meta.indexHref, kind: 'ghost' }]}
+                    actions={[{ label: 'Volver al módulo', href: meta.indexHref, kind: 'ghost' }]}
                 />
 
                 <SuperadminFlashNotice success={flash?.success} error={flash?.error} />
@@ -135,6 +145,8 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
                         </ul>
                     </section>
                 )}
+
+                <OperationRecovery error={errors.operation_id} onRenew={() => { setData('operation_id', renewOperation(data.operation_id)); clearErrors('operation_id'); }} />
 
                 <form onSubmit={submit} className="space-y-5">
                     <section className="sa-panel rounded-[1.6rem] p-6">
@@ -182,7 +194,7 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
                                 </select>
                             </label>
                             <label className="space-y-2">
-                                <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Metodo de pago</span>
+                                <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Método de pago</span>
                                 <select className="sa-input w-full" value={data.mpa_ven} onChange={(event) => setData('mpa_ven', event.target.value)} disabled={processing}>
                                     {visiblePaymentMethods.map((method) => (
                                         <option key={method.value} value={method.value}>{method.label}</option>
@@ -218,7 +230,7 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
                                 const variant = variantsById.get(item.cod_prenda_variantes_dve);
                                 const quantity = Number(item.can_dve) || 0;
                                 const lineTotal = (variant?.price ?? 0) * quantity;
-                                const stockWarning = variant && (!variant.hasInventory || variant.stock < quantity);
+                                const stockWarning = itemErrors[index];
 
                                 return (
                                     <div key={index} className="grid gap-3 rounded-[1.2rem] border border-white/8 bg-[#0d141d] p-4 lg:grid-cols-[minmax(0,1fr)_8rem_8rem_8rem_3rem] lg:items-end">
@@ -239,7 +251,7 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
                                             </select>
                                             {stockWarning && (
                                                 <p className="text-xs text-[rgb(245,208,210)]">
-                                                    No hay stock suficiente para esta variante.
+                                                    {stockWarning}
                                                 </p>
                                             )}
                                         </label>
@@ -248,6 +260,8 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
                                             <input
                                                 type="number"
                                                 min="1"
+                                                max={variant?.stock ?? 0}
+                                                aria-invalid={Boolean(itemErrors[index])}
                                                 step="1"
                                                 className="sa-input w-full"
                                                 value={item.can_dve}
@@ -291,10 +305,12 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
                                     min="0"
                                     step="0.01"
                                     className="sa-input w-full"
-                                    value={data.des_ven}
+                                    max={totals.subtotal} aria-invalid={Boolean(discountMessage)} value={data.des_ven}
                                     onChange={(event) => setData('des_ven', event.target.value)}
                                     disabled={processing}
                                 />
+                                <p className="text-xs text-stone-300">Máximo: Bs {totals.subtotal.toFixed(2)}</p>
+                                {discountMessage && <p className="text-xs text-red-300" role="status">{discountMessage}</p>}
                             </label>
                             <div>
                                 <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Descuento aplicado</p>
@@ -312,7 +328,7 @@ export default function SaleCreate({ meta, breadcrumbs, options, submitAction }:
                             <Link href={meta.indexHref} className="sa-button-ghost px-5 py-3 text-center text-[0.72rem] uppercase tracking-[0.18em]">
                                 Cancelar
                             </Link>
-                            <button type="submit" disabled={processing} className="sa-button-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-70">
+                            <button type="submit" disabled={processing || formInvalid} className="sa-button-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-70">
                                 {processing ? 'Registrando' : 'Registrar venta'}
                             </button>
                         </div>

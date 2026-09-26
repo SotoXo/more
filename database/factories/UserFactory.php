@@ -25,7 +25,13 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'nom_usu' => 'QA TEST',
+            'app_usu' => 'PEREZ',
+            'apm_usu' => 'LOPEZ',
+            'tel_usu' => '70000000',
+            'est_usu' => true,
+            'fec_usu' => now(),
+            'cod_roles_usu' => \App\Models\Role::firstOrCreate(['nom_rol' => 'cliente'], ['est_rol' => true, 'fec_rol' => now()])->id_rol,
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

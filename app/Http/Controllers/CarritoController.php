@@ -12,11 +12,20 @@ class CarritoController extends Controller
 {
     private const SESSION_KEY = 'carrito';
 
-    public function index()
+    public function index(Request $request)
     {
         $items = $this->getCartItems();
+        $variants = PrendaVariante::with(['inventario', 'prenda'])
+            ->whereIn('id_prenda_variante', array_column($items, 'variante_id'))->get()->keyBy('id_prenda_variante');
+        $items = array_map(function (array $item) use ($variants) {
+            $variant = $variants->get($item['variante_id']);
+            $item['stock'] = $variant?->est_prv && $variant?->prenda?->est_pre
+                ? max(0, (int) $variant?->inventario?->cdi_inv) : 0;
+            return $item;
+        }, $items);
 
         return Inertia::render('Carrito', [
+            'initialStep' => $request->routeIs('carrito.pago') ? 'payment' : 'items',
             'items'    => $items,
             'subtotal' => collect($items)->sum(fn($i) => $i['precio'] * $i['cantidad']),
             'paymentMethods' => $this->onlinePaymentMethods(),

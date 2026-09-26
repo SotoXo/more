@@ -1,3 +1,6 @@
+import { operationToken, completeOperation, renewOperation } from '@/lib/commercialOperation';
+import OperationRecovery from '@/Components/shop/OperationRecovery';
+import { commercialItemErrors, decimalAmount, discountError, reservationPayment, voucherError } from '@/lib/commercialValidation';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import SuperadminLayout from '@/Components/Superadmin/SuperadminLayout';
 import SuperadminPageHeader from '@/Components/Superadmin/SuperadminPageHeader';
@@ -20,6 +23,7 @@ type ReservationItem = {
     can_dre: string;
 };
 type ReservationFormData = {
+    operation_id: string;
     cod_usuario_cliente_res: string;
     des_res: string;
     monto_declarado_rpg: string;
@@ -47,7 +51,8 @@ function blankItem(): ReservationItem {
 export default function ReservationCreate({ meta, breadcrumbs, options, submitAction }: ReservationCreateProps) {
     const page = usePage<LandingPageProps>();
     const flash = page.props.flash;
-    const { data, setData, post, processing, errors } = useForm<ReservationFormData>({
+    const { data, setData, post, processing, errors, clearErrors } = useForm<ReservationFormData>({
+        operation_id: operationToken(),
         cod_usuario_cliente_res: '',
         des_res: '0',
         monto_declarado_rpg: '',
@@ -61,16 +66,22 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
         [options.variants],
     );
     const totalUnits = data.reservation_items.reduce((sum, item) => sum + (Number(item.can_dre) || 0), 0);
-    const subtotal = data.reservation_items.reduce((sum, item) => {
+    const subtotal = Math.round(data.reservation_items.reduce((sum, item) => {
         const variant = variantsById.get(item.cod_prenda_variantes_dre);
         return sum + ((variant?.price ?? 0) * (Number(item.can_dre) || 0));
-    }, 0);
-    const discount = Math.min(Number(data.des_res) || 0, subtotal);
+    }, 0) * 100) / 100;
+    const discount = decimalAmount(data.des_res);
     const total = Math.max(0, subtotal - discount);
-    const minimum = total * 0.5;
+    const payment = reservationPayment(data.monto_declarado_rpg, total);
+    const minimum = payment.minimumPayment;
     const hasDeposit = data.reservation_items.some((item) => variantsById.get(item.cod_prenda_variantes_dre)?.location === 'DEPOSITO');
-    const pickupLabel = hasDeposit ? 'Disponible en 3 dias' : 'Disponible hoy';
+    const pickupLabel = hasDeposit ? 'Disponible en 3 días' : 'Disponible hoy';
     const money = (value: number) => new Intl.NumberFormat('es-BO', { style: 'currency', currency: 'BOB' }).format(value).replace('BOB', 'Bs');
+
+    const itemErrors = commercialItemErrors(data.reservation_items.map(item => ({ variantId: item.cod_prenda_variantes_dre, quantity: item.can_dre })), variantsById);
+    const discountMessage = discountError(data.des_res, subtotal);
+    const proofMessage = voucherError(data.comprobante_rpg);
+    const formInvalid = itemErrors.some(Boolean) || Boolean(discountMessage) || !payment.isPaymentValid || Boolean(proofMessage) || !options.customers.some(option => option.value === data.cod_usuario_cliente_res) || !options.paymentMethods.some(option => option.value === data.metodo_pago_rpg);
 
     const updateItem = (index: number, field: keyof ReservationItem, value: string) => {
         setData('reservation_items', data.reservation_items.map((item, currentIndex) => (
@@ -89,7 +100,8 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
 
     const submit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        post(submitAction, { preserveScroll: true, forceFormData: true });
+        if (formInvalid) return;
+        post(submitAction, { onSuccess: () => completeOperation(data.operation_id), preserveScroll: true, forceFormData: true });
     };
 
     return (
@@ -100,7 +112,7 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
                     title="Nueva reserva"
                     description="Separa stock temporalmente moviendo disponible a reservado."
                     breadcrumbs={breadcrumbs}
-                    actions={[{ label: 'Volver al modulo', href: meta.indexHref, kind: 'ghost' }]}
+                    actions={[{ label: 'Volver al módulo', href: meta.indexHref, kind: 'ghost' }]}
                 />
 
                 <SuperadminFlashNotice success={flash?.success} error={flash?.error} />
@@ -117,6 +129,8 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
                         </ul>
                     </section>
                 )}
+
+                <OperationRecovery error={errors.operation_id} onRenew={() => { setData('operation_id', renewOperation(data.operation_id)); clearErrors('operation_id'); }} />
 
                 <form onSubmit={submit} className="space-y-5">
                     <section className="sa-panel rounded-[1.6rem] p-6">
@@ -188,7 +202,7 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
                             {data.reservation_items.map((item, index) => {
                                 const variant = variantsById.get(item.cod_prenda_variantes_dre);
                                 const quantity = Number(item.can_dre) || 0;
-                                const stockWarning = variant && (!variant.hasInventory || variant.stock < quantity);
+                                const stockWarning = itemErrors[index];
 
                                 return (
                                     <div key={index} className="grid gap-3 rounded-[1.2rem] border border-white/8 bg-[#0d141d] p-4 lg:grid-cols-[minmax(0,1fr)_8rem_8rem_8rem_3rem] lg:items-end">
@@ -209,7 +223,7 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
                                             </select>
                                             {stockWarning && (
                                                 <p className="text-xs text-[rgb(245,208,210)]">
-                                                    No hay stock suficiente para esta variante.
+                                                    {stockWarning}
                                                 </p>
                                             )}
                                         </label>
@@ -218,6 +232,8 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
                                             <input
                                                 type="number"
                                                 min="1"
+                                                max={variant?.stock ?? 0}
+                                                aria-invalid={Boolean(itemErrors[index])}
                                                 step="1"
                                                 className="sa-input w-full"
                                                 value={item.can_dre}
@@ -260,27 +276,27 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
                             </div>
                             <label className="space-y-2">
                                 <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Descuento</span>
-                                <input type="number" min="0" step="0.01" className="sa-input w-full" value={data.des_res} onChange={(event) => setData('des_res', event.target.value)} disabled={processing} />
+                                <input type="number" min="0" step="0.01" className="sa-input w-full" max={subtotal} aria-invalid={Boolean(discountMessage)} value={data.des_res} onChange={(event) => setData('des_res', event.target.value)} disabled={processing} />
+                                <p className="text-xs text-stone-300">Máximo: Bs {subtotal.toFixed(2)}</p>
+                                {discountMessage && <p className="text-xs text-red-300" role="status">{discountMessage}</p>}
                             </label>
                             <div>
                                 <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Total</p>
                                 <p className="mt-3 text-xl text-white">{money(total)}</p>
                             </div>
                             <div>
-                                <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Anticipo minimo requerido</p>
+                                <p className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Anticipo mínimo requerido</p>
                                 <p className="mt-3 text-xl text-white">{money(minimum)}</p>
                             </div>
                         </div>
                         <div className="mt-5 grid gap-4 md:grid-cols-3">
                             <label className="space-y-2">
                                 <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Monto declarado</span>
-                                <input type="number" min="0.01" step="0.01" className="sa-input w-full" value={data.monto_declarado_rpg} onChange={(event) => setData('monto_declarado_rpg', event.target.value)} disabled={processing} />
-                                {Number(data.monto_declarado_rpg || 0) > 0 && Number(data.monto_declarado_rpg || 0) < minimum && (
-                                    <p className="text-xs text-[rgb(245,208,210)]">El anticipo minimo para reservar es del 50% del total.</p>
-                                )}
+                                <input type="number" min={payment.minimumPayment} max={payment.maximumPayment} aria-invalid={!payment.isPaymentValid} step="0.01" className="sa-input w-full" value={data.monto_declarado_rpg} onChange={(event) => setData('monto_declarado_rpg', event.target.value)} disabled={processing} />
+                                {payment.message && <p className="text-xs text-red-300" role="status">{payment.message}</p>}
                             </label>
                             <label className="space-y-2">
-                                <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Metodo de pago</span>
+                                <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Método de pago</span>
                                 <select className="sa-input w-full" value={data.metodo_pago_rpg} onChange={(event) => setData('metodo_pago_rpg', event.target.value)} disabled={processing}>
                                     {options.paymentMethods.map((method) => (
                                         <option key={method.value} value={method.value}>{method.label}</option>
@@ -290,11 +306,12 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
                             <label className="space-y-2">
                                 <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Comprobante de pago</span>
                                 <input type="file" accept="image/jpeg,image/png,image/webp" className="sa-input w-full" onChange={(event) => setData('comprobante_rpg', event.target.files?.[0] ?? null)} disabled={processing} />
+                                {proofMessage && <p className="text-xs text-red-300">{proofMessage}</p>}
                             </label>
                         </div>
                         <div className="mt-5 rounded-[1.2rem] border border-white/8 bg-[#0d141d] p-4 text-sm text-stone-300">
                             <p>Punto de recojo: Recojo en tienda Mati Boutique.</p>
-                            <p className="mt-1">Si alguna prenda esta en deposito, toda la reserva queda disponible en 3 dias y el limite se calcula 30 dias despues.</p>
+                            <p className="mt-1">Si alguna prenda está en depósito, toda la reserva queda disponible en 3 días y el límite se calcula 30 días después.</p>
                         </div>
                     </section>
 
@@ -303,7 +320,7 @@ export default function ReservationCreate({ meta, breadcrumbs, options, submitAc
                             <Link href={meta.indexHref} className="sa-button-ghost px-5 py-3 text-center text-[0.72rem] uppercase tracking-[0.18em]">
                                 Cancelar
                             </Link>
-                            <button type="submit" disabled={processing} className="sa-button-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-70">
+                            <button type="submit" disabled={processing || formInvalid} className="sa-button-primary px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-70">
                                 {processing ? 'Registrando' : 'Registrar reserva'}
                             </button>
                         </div>

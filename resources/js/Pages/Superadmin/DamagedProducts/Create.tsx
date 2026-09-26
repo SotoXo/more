@@ -1,3 +1,4 @@
+import { damagedProductNameError } from '@/lib/commercialValidation';
 import SuperadminBadge from '@/Components/Superadmin/SuperadminBadge';
 import SuperadminFlashNotice from '@/Components/Superadmin/SuperadminFlashNotice';
 import SuperadminLayout from '@/Components/Superadmin/SuperadminLayout';
@@ -96,6 +97,7 @@ export default function DamagedProductsCreate({
         [options.inventories],
     );
     const selectedInventory = inventoriesById.get(data.cod_inventario_pdr) ?? null;
+    const nameError = damagedProductNameError(data.nombre_prenda_pdr);
     const errorEntries = Object.entries(errors as Record<string, string>);
     const quantity = Math.max(1, Number(data.cantidad_pdr) || 1);
     const shouldDiscountStock = selectedInventory && data.afecta_inventario_pdr === '1';
@@ -124,6 +126,7 @@ export default function DamagedProductsCreate({
 
     const submit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (nameError) return;
 
         post(submitAction, {
             preserveScroll: true,
@@ -169,12 +172,15 @@ export default function DamagedProductsCreate({
                             <label className="space-y-2">
                                 <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Nombre de la prenda</span>
                                 <input
+                                    aria-invalid={Boolean(nameError)}
+                                    onBlur={() => setData('nombre_prenda_pdr', data.nombre_prenda_pdr.trim().replace(/\s+/g, ' '))}
                                     value={data.nombre_prenda_pdr}
                                     onChange={(event) => setData('nombre_prenda_pdr', event.target.value)}
                                     className="sa-input w-full"
                                     maxLength={180}
                                     disabled={processing}
                                 />
+                                {nameError && <p className="text-xs text-red-300" role="status">{nameError}</p>}
                             </label>
 
                             <label className="space-y-2">
@@ -449,7 +455,7 @@ export default function DamagedProductsCreate({
                             </Link>
                             <button
                                 type="submit"
-                                disabled={processing}
+                                disabled={processing || Boolean(nameError)}
                                 className="sa-button-primary inline-flex items-center justify-center gap-2 px-5 py-3 text-[0.72rem] uppercase tracking-[0.18em] disabled:cursor-not-allowed disabled:opacity-70"
                             >
                                 {processing ? <ImagePlus size={15} /> : <Save size={15} />}

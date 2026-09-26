@@ -151,7 +151,7 @@ class AuditController extends Controller
             [
                 'label' => 'Actualizaciones',
                 'value' => (string) AuditLog::query()->where('accion_aul', 'updated')->count(),
-                'note' => 'Registros con antes y despues.',
+                'note' => 'Registros con antes y después.',
                 'tone' => 'warning',
             ],
             [

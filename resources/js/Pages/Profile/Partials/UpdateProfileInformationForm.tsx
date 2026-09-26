@@ -19,7 +19,10 @@ export default function UpdateProfileInformation({
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
-            name: user.name,
+            nom_usu: user.nom_usu ?? '',
+            app_usu: user.app_usu ?? '',
+            apm_usu: user.apm_usu ?? '',
+            tel_usu: user.tel_usu ?? '',
             email: user.email,
         });
 
@@ -42,21 +45,20 @@ export default function UpdateProfileInformation({
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel htmlFor="name" value="Nombre" />
-
-                    <TextInput
-                        id="name"
-                        className="mt-1 block w-full"
-                        value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                        isFocused
-                        autoComplete="name"
-                    />
-
-                    <InputError className="mt-2" message={errors.name} />
-                </div>
+                {([
+                    ['nom_usu', 'Nombre'], ['app_usu', 'Apellido paterno'],
+                    ['apm_usu', 'Apellido materno'], ['tel_usu', 'Teléfono'],
+                ] as const).map(([field, label]) => (
+                    <div key={field}>
+                        <InputLabel htmlFor={field} value={label} />
+                        <TextInput id={field} className="mt-1 block w-full" value={data[field]}
+                            onChange={(event) => setData(field, field === 'tel_usu'
+                                ? event.target.value : event.target.value.toUpperCase())}
+                            required={field !== 'apm_usu'} maxLength={field === 'tel_usu' ? 8 : 100}
+                            aria-invalid={Boolean(errors[field])} />
+                        <InputError className="mt-2" message={errors[field]} />
+                    </div>
+                ))}
 
                 <div>
                     <InputLabel htmlFor="email" value="Correo electrónico" />

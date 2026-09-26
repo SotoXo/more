@@ -27,7 +27,7 @@ class VendedorReservationController extends Controller
 
         return redirect()
             ->route('vendedor.reservas.show', $reservation)
-            ->with('success', 'Reserva registrada. El pago quedo confirmado automaticamente.');
+            ->with('success', 'Reserva registrada. El pago quedó confirmado automáticamente.');
     }
 
     public function show(Request $request, Reserva $reserva, VendedorReservationService $reservations)

@@ -8,6 +8,11 @@ use Illuminate\Validation\Rules\Password;
 
 class UserValidation
 {
+    public static function normalizeName(string $value): string
+    {
+        return mb_strtoupper(preg_replace('/\s+/u', ' ', trim($value)), 'UTF-8');
+    }
+
     public static function registrationRules(): array
     {
         return [
