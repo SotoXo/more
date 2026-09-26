@@ -61,15 +61,23 @@ class CatalogoController extends Controller
 
     private function renderCollection(string $collectionKey, $prendas, Request $request)
     {
-        $products = ProductMapper::toShopProductArray($prendas);
+        $products = ProductMapper::toShopProductArray($prendas->getCollection());
         $products = ProductMapper::attachFavoriteState($products, auth()->user());
-        $filterOptions = ProductMapper::filterOptions($products);
+        $filterOptions = $this->catalogService->filterOptions($request, $collectionKey);
 
         return Inertia::render('Shop/Collection', [
             'collection'    => $collectionKey,
             'products'      => $products,
             'filterOptions' => $filterOptions,
             'initialFilters' => $this->catalogService->initialFilters($request),
+            'initialSort' => $this->catalogService->initialSort($request, $collectionKey),
+            'pagination' => [
+                'total' => $prendas->total(),
+                'currentPage' => $prendas->currentPage(),
+                'lastPage' => $prendas->lastPage(),
+                'previousPageUrl' => $prendas->previousPageUrl(),
+                'nextPageUrl' => $prendas->nextPageUrl(),
+            ],
         ]);
     }
 
@@ -90,6 +98,7 @@ class CatalogoController extends Controller
         $railQuery = ProductMapper::withRelations(
             Prenda::where('est_pre', true)
         );
+        $this->catalogService->availableProducts($railQuery);
         $this->catalogService->applySeasonOrdering($railQuery);
 
         if ($mode === 'editorial') {
@@ -140,7 +149,7 @@ class CatalogoController extends Controller
             [
                 'label' => 'Mujer',
                 'href' => route('shop.women'),
-                'meta' => $this->pieceCount($this->activeProductsCount(
+                'meta' => $this->pieceCount($this->availableProductsCount(
                     fn($query) => $query
                         ->whereIn('gen_pre', ['mujer', 'unisex'])
                         ->whereHas('categoria', fn($category) => $category->where('nom_cat', '!=', 'Accesorios'))
@@ -149,7 +158,7 @@ class CatalogoController extends Controller
             [
                 'label' => 'Hombre',
                 'href' => route('shop.men'),
-                'meta' => $this->pieceCount($this->activeProductsCount(
+                'meta' => $this->pieceCount($this->availableProductsCount(
                     fn($query) => $query
                         ->whereIn('gen_pre', ['hombre', 'unisex'])
                         ->whereHas('categoria', fn($category) => $category->where('nom_cat', '!=', 'Accesorios'))
@@ -158,7 +167,7 @@ class CatalogoController extends Controller
             [
                 'label' => 'Accesorios',
                 'href' => route('shop.accessories'),
-                'meta' => $this->pieceCount($this->activeProductsCount(
+                'meta' => $this->pieceCount($this->availableProductsCount(
                     fn($query) => $query
                         ->whereHas('categoria', fn($category) => $category->where('nom_cat', 'Accesorios'))
                 )),
@@ -166,7 +175,7 @@ class CatalogoController extends Controller
             [
                 'label' => 'Novedades',
                 'href' => route('shop.new-in'),
-                'meta' => $this->pieceCount($this->activeProductsCount()),
+                'meta' => $this->pieceCount($this->availableProductsCount()),
             ],
         ];
     }
@@ -176,7 +185,7 @@ class CatalogoController extends Controller
         return Marca::where('est_mar', true)
             ->get(['id_marca', 'nom_mar'])
             ->map(function ($marca) {
-                $count = $this->activeProductsCount(
+                $count = $this->availableProductsCount(
                     fn($query) => $query->where('cod_marcas_pre', $marca->id_marca)
                 );
 
@@ -205,7 +214,7 @@ class CatalogoController extends Controller
             ->whereNull('cod_categoria_padre_cat')
             ->get(['id_categoria', 'nom_cat', 'des_cat'])
             ->map(function ($categoria, $index) {
-                $count = $this->activeProductsCount(
+                $count = $this->availableProductsCount(
                     fn($query) => $query->where('cod_categorias_pre', $categoria->id_categoria)
                 );
 
@@ -240,7 +249,7 @@ class CatalogoController extends Controller
         return Temporada::where('est_tem', true)
             ->get(['id_temporada', 'nom_tem'])
             ->map(function ($temporada, $index) {
-                $count = $this->activeProductsCount(
+                $count = $this->availableProductsCount(
                     fn($query) => $query->where('cod_temporadas_pre', $temporada->id_temporada)
                 );
 
@@ -300,7 +309,7 @@ class CatalogoController extends Controller
             ->map(function ($temporada) {
                 return [
                     'title' => $temporada->nom_tem,
-                    'count' => $this->activeProductsCount(
+                    'count' => $this->availableProductsCount(
                         fn($query) => $query->where('cod_temporadas_pre', $temporada->id_temporada)
                     ),
                 ];
@@ -313,7 +322,7 @@ class CatalogoController extends Controller
             ->all();
     }
 
-    private function activeProductsCount(?callable $scope = null): int
+    private function availableProductsCount(?callable $scope = null): int
     {
         $query = Prenda::where('est_pre', true);
 
@@ -321,12 +330,13 @@ class CatalogoController extends Controller
             $scope($query);
         }
 
-        return $query->count();
+        return $this->catalogService->availableProducts($query)->count();
     }
 
     private function representativeImage($query, int $index): string
     {
         $productQuery = ProductMapper::withRelations($query);
+        $this->catalogService->availableProducts($productQuery);
         $this->catalogService->applySeasonOrdering($productQuery);
         $product = $productQuery->first();
 

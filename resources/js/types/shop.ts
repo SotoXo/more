@@ -74,6 +74,7 @@ export type ShopFilterState = {
     locations: string[];
     price: PriceFilterKey;
     availability: 'all' | ShopAvailability;
+    hideSoldOut: boolean;
 };
 
 export type ShopFilterOptions = {
@@ -123,4 +124,12 @@ export type ShopCuratedRailContent = {
     eyebrow: string;
     title: string;
     description: string;
+};
+
+export type ShopPagination = {
+    total: number;
+    currentPage: number;
+    lastPage: number;
+    previousPageUrl: string | null;
+    nextPageUrl: string | null;
 };

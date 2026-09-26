@@ -21,6 +21,7 @@ type ShopFiltersPanelProps = {
     onToggle: (group: MultiFilterKey, value: string) => void;
     onPriceChange: (value: PriceFilterKey) => void;
     onAvailabilityChange: (value: 'all' | ShopAvailability) => void;
+    onHideSoldOutChange: (value: boolean) => void;
     onClear: () => void;
     onClose?: () => void;
     className?: string;
@@ -92,6 +93,7 @@ export default function ShopFiltersPanel({
     onToggle,
     onPriceChange,
     onAvailabilityChange,
+    onHideSoldOutChange,
     onClear,
     onClose,
     className = '',
@@ -219,6 +221,15 @@ export default function ShopFiltersPanel({
                 </div>
                 <div className="more-divider" />
 
+                <div>
+                    <label className="flex cursor-pointer items-center gap-3 rounded-[1.2rem] border border-white/10 bg-black/20 px-4 py-3 text-sm text-stone-200">
+                        <input type="checkbox" checked={filters.hideSoldOut} onChange={(event) => onHideSoldOutChange(event.target.checked)}
+                            className="h-4 w-4 rounded border-white/30 bg-transparent text-[rgb(223,184,166)] focus:ring-[rgb(223,184,166)]" />
+                        <span className="text-[0.7rem] uppercase tracking-[0.18em]">Ocultar agotados</span>
+                    </label>
+                    <p className="mt-2 text-xs text-stone-400">Al desactivarlo, las prendas agotadas aparecen al final.</p>
+                </div>
+                <div className="more-divider" />
                 <div>
                     <p className="text-[0.7rem] uppercase tracking-[0.24em] text-stone-300">
                         Disponibilidad

@@ -4,23 +4,19 @@ import StoreLayout from '@/Components/shop/StoreLayout';
 import StorefrontImage from '@/Components/shop/StorefrontImage';
 import ShopToolbar, { type ShopViewMode } from '@/Components/shop/ShopToolbar';
 import { collectionPresentation } from '@/data/storefront';
-import {
-    createDefaultFilters,
-    filterProducts,
-    shopRoutes,
-    sortProducts,
-} from '@/lib/shop';
+import { createDefaultFilters, shopRoutes } from '@/lib/shop';
 import type {
     ShopCollectionKey,
     ShopFilterOptions,
     ShopFilterState,
     ShopProduct,
     ShopSortKey,
+    ShopPagination,
 } from '@/types/shop';
 import { motion } from 'framer-motion';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ArrowRight, ChevronRight } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 type MultiFilterKey = keyof Pick<
     ShopFilterState,
@@ -43,32 +39,21 @@ type CollectionProps = {
     products: ShopProduct[];
     filterOptions: ShopFilterOptions;
     initialFilters: ShopFilterState;
+    initialSort: ShopSortKey;
+    pagination: ShopPagination;
 };
 
 export default function Collection({
     collection,
     products,
     filterOptions,
-    initialFilters,
+    initialFilters: filters,
+    initialSort: sort,
+    pagination,
 }: CollectionProps) {
     const config = collectionPresentation[collection];
-    const [filters, setFilters] = useState<ShopFilterState>(initialFilters);
-    const [sort, setSort] = useState<ShopSortKey>(
-        collection === 'novedades' ? 'newest' : 'recommended',
-    );
     const [viewMode, setViewMode] = useState<ShopViewMode>('amplia');
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-
-    useEffect(() => {
-        setFilters(initialFilters);
-        setSort(collection === 'novedades' ? 'newest' : 'recommended');
-        setIsMobileFiltersOpen(false);
-    }, [collection, initialFilters]);
-
-    const filteredProducts = useMemo(
-        () => sortProducts(filterProducts(products, filters), sort),
-        [filters, products, sort],
-    );
 
     const secondaryHref =
         collection === 'catalogo' ? shopRoutes.newIn : shopRoutes.catalog;
@@ -79,15 +64,42 @@ export default function Collection({
             ? 'grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-4'
             : 'grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3';
 
-    function toggleFilter(group: MultiFilterKey, value: string) {
-        setFilters((current) => {
-            const selected = current[group];
-            const nextValues = selected.includes(value)
-                ? selected.filter((item) => item !== value)
-                : [...selected, value];
-
-            return { ...current, [group]: nextValues };
+    function navigate(nextFilters: ShopFilterState, nextSort: ShopSortKey = sort) {
+        const params = new URLSearchParams(window.location.search);
+        const keys = ['categoria', 'talla', 'color', 'temporada', 'edicion', 'marca', 'ubicacion', 'sucursal', 'precio', 'disponibilidad', 'mostrar_agotados', 'orden', 'page'];
+        keys.forEach((key) => { params.delete(key); params.delete(`${key}[]`); });
+        const groups: Array<[string, string[]]> = [
+            ['categoria', nextFilters.categories], ['talla', nextFilters.sizes],
+            ['color', nextFilters.colors], ['temporada', nextFilters.styles],
+            ['marca', nextFilters.brands], ['ubicacion', nextFilters.locations],
+        ];
+        groups.forEach(([key, values]) => values.forEach((value) => params.append(`${key}[]`, value)));
+        if (nextFilters.price !== 'all') params.set('precio', nextFilters.price);
+        if (nextFilters.availability !== 'all') params.set('disponibilidad', nextFilters.availability);
+        if (!nextFilters.hideSoldOut) params.set('mostrar_agotados', '1');
+        if (nextSort !== (collection === 'novedades' ? 'newest' : 'recommended')) params.set('orden', nextSort);
+        const query = params.toString();
+        router.get(`${window.location.pathname}${query ? `?${query}` : ''}`, {}, {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
         });
+    }
+
+    function toggleFilter(group: MultiFilterKey, value: string) {
+        const selected = filters[group];
+        const nextValues = selected.includes(value)
+            ? selected.filter((item) => item !== value)
+            : [...selected, value];
+        navigate({ ...filters, [group]: nextValues });
+    }
+
+    function changeAvailability(value: ShopFilterState['availability']) {
+        navigate({ ...filters, availability: value, hideSoldOut: value === 'Agotado' ? false : filters.hideSoldOut });
+    }
+
+    function changeHideSoldOut(value: boolean) {
+        navigate({ ...filters, hideSoldOut: value, availability: value && filters.availability === 'Agotado' ? 'all' : filters.availability });
     }
 
     return (
@@ -131,7 +143,7 @@ export default function Collection({
 
                                 <div className="mt-8 flex max-w-full flex-wrap items-center gap-3">
                                     <span className="more-pill-active rounded-full px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em]">
-                                        {products.length} {products.length === 1 ? 'producto' : 'productos'}
+                                        {pagination.total} {pagination.total === 1 ? 'producto' : 'productos'}
                                     </span>
                                     {config.highlights.map((item) => (
                                         <span
@@ -178,19 +190,10 @@ export default function Collection({
                                     filters={filters}
                                     options={filterOptions}
                                     onToggle={toggleFilter}
-                                    onPriceChange={(value) =>
-                                        setFilters((current) => ({
-                                            ...current,
-                                            price: value,
-                                        }))
-                                    }
-                                    onAvailabilityChange={(value) =>
-                                        setFilters((current) => ({
-                                            ...current,
-                                            availability: value,
-                                        }))
-                                    }
-                                    onClear={() => setFilters(createDefaultFilters())}
+                                    onPriceChange={(value) => navigate({ ...filters, price: value })}
+                                    onAvailabilityChange={changeAvailability}
+                                    onHideSoldOutChange={changeHideSoldOut}
+                                    onClear={() => navigate(createDefaultFilters())}
                                 />
                             </div>
                         </aside>
@@ -198,17 +201,17 @@ export default function Collection({
                         <div className="space-y-8">
                             <ShopToolbar
                                 title={config.title}
-                                resultCount={filteredProducts.length}
+                                resultCount={pagination.total}
                                 sort={sort}
                                 viewMode={viewMode}
-                                onSortChange={setSort}
+                                onSortChange={(value) => navigate(filters, value)}
                                 onViewModeChange={setViewMode}
                                 onOpenFilters={() => setIsMobileFiltersOpen(true)}
                             />
 
-                            {filteredProducts.length > 0 ? (
+                            {products.length > 0 ? (
                                 <div className={gridClass}>
-                                    {filteredProducts.map((product) => (
+                                    {products.map((product) => (
                                         <ProductCard key={product.slug} product={product} />
                                     ))}
                                 </div>
@@ -221,16 +224,20 @@ export default function Collection({
                                         No encontramos esa combinación.
                                     </p>
                                     <p className="mt-4 text-sm text-stone-300">
-                                        Limpia los filtros para ver más productos disponibles.
+                                        {filters.hideSoldOut ? 'No hay prendas disponibles con estos filtros. Puedes mostrar agotadas o limpiar los filtros.' : 'No hay prendas con estos filtros. Prueba otra combinación.'}
                                     </p>
-                                    <button
-                                        type="button"
-                                        onClick={() => setFilters(createDefaultFilters())}
-                                        className={`${secondaryButtonClass} mt-6`}
-                                    >
-                                        Limpiar filtros
-                                    </button>
+                                    <div className="mt-6 flex flex-wrap justify-center gap-3">
+                                        {filters.hideSoldOut && <button type="button" onClick={() => changeHideSoldOut(false)} className={secondaryButtonClass}>Mostrar agotadas</button>}
+                                        <button type="button" onClick={() => navigate(createDefaultFilters())} className={secondaryButtonClass}>Limpiar filtros</button>
+                                    </div>
                                 </div>
+                            )}
+                            {pagination.lastPage > 1 && (
+                                <nav className="flex items-center justify-center gap-4 text-sm text-stone-300" aria-label="Páginas del catálogo">
+                                    {pagination.previousPageUrl ? <Link href={pagination.previousPageUrl} preserveScroll className={secondaryButtonClass}>Anterior</Link> : <span className="opacity-40">Anterior</span>}
+                                    <span>Página {pagination.currentPage} de {pagination.lastPage}</span>
+                                    {pagination.nextPageUrl ? <Link href={pagination.nextPageUrl} preserveScroll className={secondaryButtonClass}>Siguiente</Link> : <span className="opacity-40">Siguiente</span>}
+                                </nav>
                             )}
                         </div>
                     </div>
@@ -244,19 +251,10 @@ export default function Collection({
                             filters={filters}
                             options={filterOptions}
                             onToggle={toggleFilter}
-                            onPriceChange={(value) =>
-                                setFilters((current) => ({
-                                    ...current,
-                                    price: value,
-                                }))
-                            }
-                            onAvailabilityChange={(value) =>
-                                setFilters((current) => ({
-                                    ...current,
-                                    availability: value,
-                                }))
-                            }
-                            onClear={() => setFilters(createDefaultFilters())}
+                            onPriceChange={(value) => navigate({ ...filters, price: value })}
+                            onAvailabilityChange={changeAvailability}
+                            onHideSoldOutChange={changeHideSoldOut}
+                            onClear={() => navigate(createDefaultFilters())}
                             onClose={() => setIsMobileFiltersOpen(false)}
                         />
                     </div>

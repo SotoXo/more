@@ -28,7 +28,7 @@ export default function ProductCard({
     const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
     const meta = [product.brand, product.style].filter(Boolean).join(' / ');
     const hoverImage = product.gallery.find((image) => image !== product.image);
-    const hasStock = (product.totalStock ?? 0) > 0 || product.availability !== 'Agotado';
+    const hasStock = (product.totalStock ?? 0) > 0;
     const availabilityLabel = formatAvailabilityLabel(product.availability);
     const productBadges = [
         product.isNew ? 'Nuevo' : null,

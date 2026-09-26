@@ -61,6 +61,7 @@ export function createDefaultFilters(): ShopFilterState {
         locations: [],
         price: 'all',
         availability: 'all',
+        hideSoldOut: true,
     };
 }
 
@@ -102,7 +103,7 @@ export function formatAvailabilityLabel(availability: ShopAvailability) {
     }
 
     if (availability === 'Agotado') {
-        return 'Sin stock';
+        return 'Agotado';
     }
 
     return availability;

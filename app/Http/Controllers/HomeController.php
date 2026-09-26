@@ -35,6 +35,7 @@ class HomeController extends Controller
         $novedadesPrendas = ProductMapper::withRelations(
             Prenda::where('est_pre', true)
         );
+        $this->catalogService->availableProducts($novedadesPrendas);
         $this->catalogService->applySeasonOrdering($novedadesPrendas);
         $novedadesPrendas = $novedadesPrendas->limit(8)->get();
 
@@ -44,6 +45,7 @@ class HomeController extends Controller
         $seleccionPrendas = ProductMapper::withRelations(
             Prenda::where('est_pre', true)
         );
+        $this->catalogService->availableProducts($seleccionPrendas);
         $this->catalogService->applySeasonOrdering($seleccionPrendas);
         $seleccionPrendas = $seleccionPrendas->skip(8)->limit(8)->get();
 
