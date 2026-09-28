@@ -965,3 +965,167 @@ textarea:focus-visible {
 .sa-shell[data-admin-theme="light"] [class*="border-white"] {
     border-color: var(--admin-border) !important;
 }
+
+/* The catalog ambience is viewport-bound, so scrolling never exposes an overlay edge. */
+.season-background,
+.season-objects {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none !important;
+}
+
+.season-background { z-index: 0; }
+.season-objects { z-index: 20; }
+
+.season-background__layer,
+.season-objects__scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+}
+
+.season-background__layer {
+    transition: opacity 1100ms ease;
+}
+
+.season-background__layer[data-active="true"] {
+    opacity: 1;
+    transition-delay: 120ms;
+}
+
+.season-objects__scene {
+    transition: opacity 900ms ease;
+}
+
+.season-objects__scene[data-active="true"] {
+    opacity: 1;
+    transition-delay: 260ms;
+}
+
+.season-object {
+    position: absolute;
+    display: block;
+    left: var(--season-left);
+    top: var(--season-top);
+    width: calc(var(--season-size) * var(--season-size-scale, 1));
+    height: calc(var(--season-size) * var(--season-size-scale, 1));
+    opacity: calc(var(--season-opacity) * var(--season-opacity-scale, 1));
+    transform-origin: center;
+    animation: season-enter 1100ms ease-out var(--season-enter-delay) both;
+}
+
+.season-objects__scene[data-entrance="carnival"] .season-object {
+    animation: season-carnival-enter 1200ms cubic-bezier(0.16, 1, 0.3, 1) var(--season-enter-delay) both;
+}
+
+.season-object--back { filter: blur(1.5px); }
+
+.season-object__glyph,
+.season-object__glyph svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.season-object__glyph[data-motion="float"] {
+    animation: season-float var(--season-duration) ease-in-out var(--season-delay) infinite alternate;
+}
+
+.season-object__glyph[data-motion="rise"] {
+    animation: season-rise var(--season-duration) ease-in-out var(--season-delay) infinite alternate;
+}
+
+.season-object__glyph[data-motion="fall"] {
+    animation: season-fall var(--season-duration) ease-in-out var(--season-delay) infinite alternate;
+}
+
+.season-object__glyph[data-motion="drift"] {
+    animation: season-drift var(--season-duration) ease-in-out var(--season-delay) infinite alternate;
+}
+
+.season-object__glyph[data-motion="spinDrift"] {
+    animation: season-spin-drift var(--season-duration) ease-in-out var(--season-delay) infinite alternate;
+}
+
+.season-object__glyph[data-motion="glow"] {
+    animation: season-glow var(--season-duration) ease-in-out var(--season-delay) infinite;
+}
+
+@keyframes season-enter {
+    from { opacity: 0; transform: translate3d(-7px, -20px, 0) rotate(-7deg); }
+    to { opacity: calc(var(--season-opacity) * var(--season-opacity-scale, 1)); transform: translate3d(0, 0, 0) rotate(0); }
+}
+
+@keyframes season-carnival-enter {
+    from { opacity: 0; transform: translate3d(18px, -72px, 0) rotate(-25deg); }
+    to { opacity: calc(var(--season-opacity) * var(--season-opacity-scale, 1)); transform: translate3d(0, 0, 0) rotate(0); }
+}
+
+@keyframes season-float {
+    from { transform: translate3d(-8px, 8px, 0) rotate(-7deg); }
+    to { transform: translate3d(12px, -16px, 0) rotate(8deg); }
+}
+
+@keyframes season-rise {
+    from { transform: translate3d(7px, 10px, 0) rotate(7deg); }
+    to { transform: translate3d(-13px, -28px, 0) rotate(-12deg); }
+}
+
+@keyframes season-fall {
+    from { transform: translate3d(-9px, -18px, 0) rotate(-11deg); }
+    to { transform: translate3d(13px, 25px, 0) rotate(11deg); }
+}
+
+@keyframes season-drift {
+    from { transform: translate3d(-13px, 4px, 0) rotate(-9deg); }
+    to { transform: translate3d(15px, -10px, 0) rotate(9deg); }
+}
+
+@keyframes season-spin-drift {
+    from { transform: translate3d(-10px, -15px, 0) rotate(-17deg); }
+    to { transform: translate3d(16px, 23px, 0) rotate(17deg); }
+}
+
+@keyframes season-glow {
+    0%, 100% { transform: scale(0.76); opacity: 0.5; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+
+.season-catalog-hero {
+    transition: border-color 850ms ease;
+}
+
+.season-context {
+    border: 1px solid var(--season-border);
+    background: var(--season-tint);
+    color: var(--season-accent);
+    transition: border-color 850ms ease, background-color 850ms ease, color 850ms ease, opacity 850ms ease;
+}
+
+@media (max-width: 1023px) {
+    .season-object[data-tier="desktop"] { display: none; }
+}
+
+@media (max-width: 639px) {
+    .season-object[data-tier="tablet"] { display: none; }
+    .season-objects {
+        --season-size-scale: 0.8;
+        --season-opacity-scale: 0.85;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .season-background__layer,
+    .season-objects__scene,
+    .season-catalog-hero,
+    .season-context {
+        transition-duration: 200ms;
+        transition-delay: 0ms;
+    }
+    .season-object,
+    .season-object__glyph {
+        animation: none !important;
+        transform: none !important;
+    }
+}

@@ -1,4 +1,5 @@
 import { formatAvailabilityLabel, priceFilterOptions } from '@/lib/shop';
+import { seasonThemeForName } from '@/lib/seasonTheme';
 import type {
     PriceFilterKey,
     ShopAvailability,
@@ -6,6 +7,7 @@ import type {
     ShopFilterState,
 } from '@/types/shop';
 import { RotateCcw, X } from 'lucide-react';
+import type { CSSProperties } from 'react';
 
 type MultiFilterKey =
     | 'categories'
@@ -46,13 +48,16 @@ function FilterGroup({
     items,
     selectedValues,
     onToggle,
+    seasonal = false,
 }: {
     title: string;
     items: string[];
     selectedValues: string[];
     onToggle: (value: string) => void;
+    seasonal?: boolean;
 }) {
-    if (items.length === 0) {
+    const visibleItems = Array.from(new Set([...items, ...selectedValues]));
+    if (visibleItems.length === 0) {
         return null;
     }
 
@@ -62,8 +67,10 @@ function FilterGroup({
                 {title}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-                {items.map((item) => {
+                {visibleItems.map((item) => {
                     const active = selectedValues.includes(item);
+                    const season = seasonal ? seasonThemeForName(item) : null;
+                    const Icon = season?.icon;
 
                     return (
                         <button
@@ -72,12 +79,18 @@ function FilterGroup({
                             aria-pressed={active}
                             onClick={() => onToggle(item)}
                             className={[
-                                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
+                                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white cursor-pointer inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
                                 active
-                                    ? 'more-pill-active'
+                                    ? (season ? 'season-context' : 'more-pill-active')
                                     : 'more-pill text-stone-200 hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]',
                             ].join(' ')}
+                            style={active && season ? {
+                                '--season-border': season.border,
+                                '--season-tint': season.tint,
+                                '--season-accent': season.accent,
+                            } as CSSProperties : undefined}
                         >
+                            {Icon && <Icon size={13} strokeWidth={1.5} aria-hidden="true" />}
                             {item}
                         </button>
                     );
@@ -117,7 +130,7 @@ export default function ShopFiltersPanel({
                         Refinar catálogo
                     </h3>
                     <p className="mt-3 max-w-xs text-sm leading-6 text-stone-300">
-                        Encuentra prendas por categoría, talla, color, marca o estilo.
+                        Encuentra prendas por categoría, talla, color, temporada o marca.
                     </p>
                 </div>
 
@@ -136,7 +149,7 @@ export default function ShopFiltersPanel({
             <button
                 type="button"
                 onClick={onClear}
-                className="mt-5 inline-flex items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-stone-300 transition hover:text-[rgb(223,184,166)]"
+                className="mt-5 inline-flex cursor-pointer items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-stone-300 transition hover:text-[rgb(223,184,166)]"
             >
                 <RotateCcw size={14} />
                 Limpiar filtros
@@ -166,7 +179,8 @@ export default function ShopFiltersPanel({
                 />
                 <div className="more-divider" />
                 <FilterGroup
-                    title="Estilo"
+                    title="Temporada"
+                    seasonal
                     items={options.styles}
                     selectedValues={filters.styles}
                     onToggle={(value) => onToggle('styles', value)}
@@ -202,7 +216,7 @@ export default function ShopFiltersPanel({
                                     aria-pressed={active}
                                     onClick={() => onPriceChange(option.value)}
                                     className={[
-                                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white flex w-full items-center justify-between rounded-[1.2rem] border px-4 py-3 text-left text-sm transition duration-300',
+                                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white flex w-full cursor-pointer items-center justify-between rounded-[1.2rem] border px-4 py-3 text-left text-sm transition duration-300',
                                         active
                                             ? 'border-[rgba(181,122,109,0.28)] bg-[rgba(181,122,109,0.12)] text-white'
                                             : 'border-white/10 bg-black/20 text-stone-200 hover:border-[rgba(181,122,109,0.22)] hover:bg-[rgba(181,122,109,0.07)]',
@@ -246,7 +260,7 @@ export default function ShopFiltersPanel({
                                     aria-pressed={active}
                                     onClick={() => onAvailabilityChange(option)}
                                     className={[
-                                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
+                                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-white cursor-pointer rounded-full border px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] transition duration-300',
                                         active
                                             ? 'more-pill-active'
                                             : 'more-pill text-stone-200 hover:border-[rgba(181,122,109,0.24)] hover:bg-[rgba(181,122,109,0.08)]',

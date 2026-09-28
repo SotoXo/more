@@ -2,18 +2,22 @@ import LandingFooter from '@/Components/landing/LandingFooter';
 import LandingHeader from '@/Components/landing/LandingHeader';
 import type { LandingPageProps } from '@/types/landing';
 import { Head, usePage } from '@inertiajs/react';
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 
 type StoreLayoutProps = PropsWithChildren<{
     title: string;
+    ambience?: ReactNode;
 }>;
 
-export default function StoreLayout({ title, children }: StoreLayoutProps) {
+export default function StoreLayout({ title, ambience, children }: StoreLayoutProps) {
     const page = usePage();
     const user = (page.props as unknown as LandingPageProps).auth?.user ?? null;
+    const layoutClassName = ambience
+        ? 'more-store-bg relative isolate min-h-screen overflow-x-clip text-white'
+        : 'more-store-bg relative min-h-screen overflow-x-hidden text-white';
 
     return (
-        <div className="more-store-bg relative min-h-screen overflow-x-hidden text-white">
+        <div className={layoutClassName}>
             <Head title={title} />
 
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -21,11 +25,17 @@ export default function StoreLayout({ title, children }: StoreLayoutProps) {
                 <div className="absolute inset-x-0 top-28 h-px bg-[linear-gradient(90deg,transparent,rgba(223,184,166,0.2),transparent)]" />
             </div>
 
+            {ambience}
+
             <LandingHeader user={user} />
 
             <main className="pb-24 pt-28 sm:pt-32">{children}</main>
 
-            <LandingFooter user={user} />
+            {ambience ? (
+                <div className="relative z-30"><LandingFooter user={user} /></div>
+            ) : (
+                <LandingFooter user={user} />
+            )}
         </div>
     );
 }

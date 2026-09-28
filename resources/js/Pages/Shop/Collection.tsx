@@ -1,10 +1,12 @@
 import ShopFiltersPanel from '@/Components/shop/ShopFiltersPanel';
+import SeasonAtmosphere from '@/Components/shop/SeasonAtmosphere';
 import ProductCard from '@/Components/shop/ProductCard';
 import StoreLayout from '@/Components/shop/StoreLayout';
 import StorefrontImage from '@/Components/shop/StorefrontImage';
 import ShopToolbar, { type ShopViewMode } from '@/Components/shop/ShopToolbar';
 import { collectionPresentation } from '@/data/storefront';
 import { createDefaultFilters, shopRoutes } from '@/lib/shop';
+import { seasonThemeForSelection } from '@/lib/seasonTheme';
 import type {
     ShopCollectionKey,
     ShopFilterOptions,
@@ -13,10 +15,10 @@ import type {
     ShopSortKey,
     ShopPagination,
 } from '@/types/shop';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Link, router } from '@inertiajs/react';
 import { ArrowRight, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 
 type MultiFilterKey = keyof Pick<
     ShopFilterState,
@@ -52,6 +54,13 @@ export default function Collection({
     pagination,
 }: CollectionProps) {
     const config = collectionPresentation[collection];
+    const [pendingSelection, setPendingSelection] = useState<{ filters: ShopFilterState; sort: ShopSortKey } | null>(null);
+    const navigationSequence = useRef(0);
+    const activeFilters = pendingSelection?.filters ?? filters;
+    const activeSort = pendingSelection?.sort ?? sort;
+    const seasonTheme = seasonThemeForSelection(activeFilters.styles);
+    const reduceMotion = useReducedMotion();
+    const SeasonIcon = seasonTheme?.icon;
     const [viewMode, setViewMode] = useState<ShopViewMode>('amplia');
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
@@ -64,10 +73,14 @@ export default function Collection({
             ? 'grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-4'
             : 'grid gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3';
 
-    function navigate(nextFilters: ShopFilterState, nextSort: ShopSortKey = sort) {
+    function navigate(nextFilters: ShopFilterState, nextSort: ShopSortKey = activeSort) {
+        const requestSequence = ++navigationSequence.current;
+        setPendingSelection({ filters: nextFilters, sort: nextSort });
         const params = new URLSearchParams(window.location.search);
-        const keys = ['categoria', 'talla', 'color', 'temporada', 'edicion', 'marca', 'ubicacion', 'sucursal', 'precio', 'disponibilidad', 'mostrar_agotados', 'orden', 'page'];
-        keys.forEach((key) => { params.delete(key); params.delete(`${key}[]`); });
+        const keys = new Set(['categoria', 'talla', 'color', 'temporada', 'edicion', 'marca', 'ubicacion', 'sucursal', 'precio', 'disponibilidad', 'mostrar_agotados', 'orden', 'page']);
+        Array.from(params.keys()).forEach((key) => {
+            if (keys.has(key.replace(/\[.*$/, ''))) params.delete(key);
+        });
         const groups: Array<[string, string[]]> = [
             ['categoria', nextFilters.categories], ['talla', nextFilters.sizes],
             ['color', nextFilters.colors], ['temporada', nextFilters.styles],
@@ -82,37 +95,50 @@ export default function Collection({
         router.get(`${window.location.pathname}${query ? `?${query}` : ''}`, {}, {
             preserveScroll: true,
             preserveState: true,
-            replace: true,
+            onFinish: () => {
+                if (navigationSequence.current === requestSequence) {
+                    setPendingSelection(null);
+                }
+            },
         });
     }
 
     function toggleFilter(group: MultiFilterKey, value: string) {
-        const selected = filters[group];
+        const selected = activeFilters[group];
         const nextValues = selected.includes(value)
             ? selected.filter((item) => item !== value)
             : [...selected, value];
-        navigate({ ...filters, [group]: nextValues });
+        navigate({ ...activeFilters, [group]: nextValues });
     }
 
     function changeAvailability(value: ShopFilterState['availability']) {
-        navigate({ ...filters, availability: value, hideSoldOut: value === 'Agotado' ? false : filters.hideSoldOut });
+        const availability = activeFilters.availability === value ? 'all' : value;
+        navigate({ ...activeFilters, availability, hideSoldOut: availability === 'Agotado' ? false : activeFilters.hideSoldOut });
+    }
+
+    function changePrice(value: ShopFilterState['price']) {
+        navigate({ ...activeFilters, price: activeFilters.price === value ? 'all' : value });
     }
 
     function changeHideSoldOut(value: boolean) {
-        navigate({ ...filters, hideSoldOut: value, availability: value && filters.availability === 'Agotado' ? 'all' : filters.availability });
+        navigate({ ...activeFilters, hideSoldOut: value, availability: value && activeFilters.availability === 'Agotado' ? 'all' : activeFilters.availability });
     }
 
     return (
-        <StoreLayout title={`Mati Boutique | ${config.title}`}>
-            <section className="px-3 sm:px-6 lg:px-8">
+        <StoreLayout
+            title={`Mati Boutique | ${config.title}`}
+            ambience={<SeasonAtmosphere season={seasonTheme?.key ?? null} />}
+        >
+            <section className="relative z-10 px-3 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <motion.div
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="more-panel relative overflow-hidden rounded-[1.45rem] p-4 sm:rounded-[2rem] sm:p-5 lg:p-6"
+                        className="more-panel season-catalog-hero relative overflow-hidden rounded-[1.45rem] p-4 sm:rounded-[2rem] sm:p-5 lg:p-6"
+                        style={seasonTheme ? { borderColor: seasonTheme.border } : undefined}
                     >
-                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">
+                        <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">
                             <div className="flex min-h-[260px] min-w-0 flex-col justify-between p-3 sm:min-h-[320px] sm:p-5 lg:min-h-[360px] lg:p-6">
                                 <div>
                                     <div className="flex flex-wrap items-center gap-2 text-[0.68rem] uppercase tracking-[0.22em] text-stone-300">
@@ -127,6 +153,26 @@ export default function Collection({
                                     <p className="mt-7 text-[0.68rem] uppercase tracking-[0.24em] text-stone-300 sm:mt-8 sm:text-[0.7rem] sm:tracking-[0.28em]">
                                         {config.eyebrow}
                                     </p>
+                                    <AnimatePresence initial={false}>
+                                        {seasonTheme && (
+                                            <motion.span
+                                                key={seasonTheme.key}
+                                                initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
+                                                transition={{ duration: reduceMotion ? 0 : 0.7 }}
+                                                className="season-context mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.2em]"
+                                                style={{
+                                                    '--season-border': seasonTheme.border,
+                                                    '--season-tint': seasonTheme.tint,
+                                                    '--season-accent': seasonTheme.accent,
+                                                } as CSSProperties}
+                                            >
+                                                {SeasonIcon && <SeasonIcon size={14} strokeWidth={1.5} aria-hidden="true" />}
+                                                Colección de {seasonTheme.label}
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
                                     <h1
                                         className="mt-4 max-w-full break-words text-4xl leading-[0.94] text-white sm:text-6xl lg:max-w-3xl lg:text-[5.4rem] lg:leading-[0.9]"
                                         style={serifStyle}
@@ -181,16 +227,16 @@ export default function Collection({
                 </div>
             </section>
 
-            <section className="pt-14 sm:pt-16">
+            <section className="relative z-10 pt-14 sm:pt-16">
                 <div className={sectionShell}>
                     <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
                         <aside className="hidden lg:block">
                             <div className="sticky top-28">
                                 <ShopFiltersPanel
-                                    filters={filters}
+                                    filters={activeFilters}
                                     options={filterOptions}
                                     onToggle={toggleFilter}
-                                    onPriceChange={(value) => navigate({ ...filters, price: value })}
+                                    onPriceChange={changePrice}
                                     onAvailabilityChange={changeAvailability}
                                     onHideSoldOutChange={changeHideSoldOut}
                                     onClear={() => navigate(createDefaultFilters())}
@@ -202,9 +248,9 @@ export default function Collection({
                             <ShopToolbar
                                 title={config.title}
                                 resultCount={pagination.total}
-                                sort={sort}
+                                sort={activeSort}
                                 viewMode={viewMode}
-                                onSortChange={(value) => navigate(filters, value)}
+                                onSortChange={(value) => navigate(activeFilters, value)}
                                 onViewModeChange={setViewMode}
                                 onOpenFilters={() => setIsMobileFiltersOpen(true)}
                             />
@@ -248,10 +294,10 @@ export default function Collection({
                 <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#05070b]/90 px-4 py-24 backdrop-blur-xl lg:hidden">
                     <div className="mx-auto max-w-lg pb-8">
                         <ShopFiltersPanel
-                            filters={filters}
+                            filters={activeFilters}
                             options={filterOptions}
                             onToggle={toggleFilter}
-                            onPriceChange={(value) => navigate({ ...filters, price: value })}
+                            onPriceChange={changePrice}
                             onAvailabilityChange={changeAvailability}
                             onHideSoldOutChange={changeHideSoldOut}
                             onClear={() => navigate(createDefaultFilters())}
