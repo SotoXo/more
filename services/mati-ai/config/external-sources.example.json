@@ -1,0 +1,45 @@
+[
+  {
+    "id": "catalogo-autorizado",
+    "name": "Catálogo importado por el administrador",
+    "adapter": "manual",
+    "source_type": "supplier",
+    "enabled": false,
+    "domains": [],
+    "terms_approved": false,
+    "terms_url": null,
+    "reviewed_at": null,
+    "rights_status": "unknown",
+    "rights_evidence": null,
+    "products": []
+  },
+  {
+    "id": "html-autorizado",
+    "name": "Plantilla para un dominio autorizado",
+    "adapter": "html",
+    "source_type": "official_brand",
+    "enabled": false,
+    "domains": [],
+    "terms_approved": false,
+    "terms_url": null,
+    "reviewed_at": null,
+    "rights_status": "unknown",
+    "rights_evidence": null,
+    "search_url": null,
+    "min_interval_seconds": 1,
+    "max_pages": 3,
+    "selectors": {
+      "product_links": "a.product-link",
+      "title": "h1",
+      "brand": "[itemprop=brand]",
+      "model_code": "[itemprop=mpn]",
+      "gtin": "[itemprop=gtin13]",
+      "description": "[itemprop=description]",
+      "images": "[itemprop=image]",
+      "price": "[itemprop=price]",
+      "currency": "[itemprop=priceCurrency]",
+      "availability": "[itemprop=availability]",
+      "canonical": "link[rel=canonical]"
+    }
+  }
+]

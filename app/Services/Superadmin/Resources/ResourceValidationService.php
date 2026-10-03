@@ -88,6 +88,11 @@ class ResourceValidationService
             'catalogo.prendas' => [
                 'nom_pre' => ['required', 'string', 'max:150', 'regex:/^[\p{L}\p{N}\s\-_.]+$/u'],
                 'des_pre' => ['nullable', 'string'],
+                'modelo_pre' => ['nullable', 'string', 'max:150'],
+                'ai_run_ids' => ['sometimes', 'array', 'max:50'],
+                'ai_run_ids.*' => ['uuid', 'distinct'],
+                'ai_image_tokens' => ['sometimes', 'array', 'max:20'],
+                'ai_image_tokens.*' => ['uuid', 'distinct'],
                 'cod_categorias_pre' => ['required', 'integer', Rule::exists('categorias', 'id_categoria')],
                 'cod_marcas_pre' => ['required', 'integer', Rule::exists('marcas', 'id_marca')],
                 'cod_temporadas_pre' => ['required', 'integer', Rule::exists('temporadas', 'id_temporada')],
@@ -102,7 +107,7 @@ class ResourceValidationService
                 'material_rows' => ['sometimes', 'array'],
                 'material_rows.*.cod_material' => ['required', 'integer', 'distinct', Rule::exists('materiales', 'id_material')],
                 'material_rows.*.porcentaje' => ['nullable', 'numeric', 'gt:0', 'lte:100', 'regex:/^\d{1,3}(\.\d{1,2})?$/'],
-                'imagen_principal' => [$record ? 'nullable' : 'required', 'file', 'image', 'max:6144'],
+                'imagen_principal' => [$record ? 'nullable' : 'required_without:ai_image_tokens', 'file', 'image', 'max:6144'],
                 'fue_igp' => ['nullable', 'string', 'max:50'],
                 'existing_images' => ['nullable', 'array'],
                 'existing_images.*.id' => ['required', 'integer', Rule::exists('imagenes_prenda', 'id_imagen_prenda')],
@@ -491,11 +496,22 @@ class ResourceValidationService
                 $hasPrimaryGallery = $newGalleryImages
                     ->contains(fn ($image) => filter_var($image['pri_igp'] ?? false, FILTER_VALIDATE_BOOL));
 
-                if (!$request->hasFile('imagen_principal') && $remainingExistingImages->isEmpty() && $newGalleryImages->isEmpty()) {
+                $hasPreparedImage = false;
+                foreach ((array) $request->input('ai_image_tokens', []) as $token) {
+                    if (!is_string($token) || !\Illuminate\Support\Str::isUuid($token)) continue;
+                    try {
+                        app(\App\Services\AI\AiPublicationService::class)->approvedRun($token, (int) $request->user()?->getAuthIdentifier());
+                        $hasPreparedImage = true;
+                    } catch (\Throwable) {
+                        $validator->errors()->add('ai_image_tokens', 'La imagen preparada caducó o no está aprobada. Vuelve a prepararla o utiliza una imagen propia.');
+                    }
+                }
+
+                if (!$request->hasFile('imagen_principal') && !$hasPreparedImage && $remainingExistingImages->isEmpty() && $newGalleryImages->isEmpty()) {
                     $validator->errors()->add('imagen_principal', 'Debes registrar una imagen principal para la prenda.');
                 }
 
-                if (!$request->hasFile('imagen_principal') && !$hasPrimaryExisting && !$hasPrimaryGallery) {
+                if (!$request->hasFile('imagen_principal') && !$hasPreparedImage && !$hasPrimaryExisting && !$hasPrimaryGallery) {
                     $validator->errors()->add('imagen_principal', 'Define una imagen principal para identificar la prenda.');
                 }
             });

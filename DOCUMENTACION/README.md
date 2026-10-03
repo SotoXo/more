@@ -18,6 +18,7 @@ La documentación está escrita con base en la estructura real del proyecto: rut
 10. [Categorías y sugerencia de tallas en superadmin](10_categorias_tallas_superadmin.md)
 11. [Temporadas en superadmin](11_temporadas_superadmin.md)
 12. [Colores en superadmin](12_colores_superadmin.md)
+13. [Registro inteligente de prendas: resumen y funcionamiento](49_registro_inteligente_ia.md)
 
 ## Alcance documentado
 
@@ -27,6 +28,7 @@ La documentación cubre:
 - Panel superadmin: dashboard, seguridad, catálogo, inventario, comercial, reportes, logs y perfil.
 - Modelo de datos: usuarios, roles, prendas, variantes, imágenes, inventario, ventas, reservas y favoritos.
 - Reglas de acceso, validaciones, restricciones de eliminación y protección de roles críticos.
+- Registro inteligente de prendas: análisis de fotos, barcode/QR, etiquetas, coincidencias, fuentes externas y revisión humana.
 - Estado real de madurez por módulo.
 
 ## Criterio de lectura

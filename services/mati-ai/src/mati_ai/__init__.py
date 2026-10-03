@@ -1,2 +1,6 @@
+"""Mati Boutique image analysis; Laravel retains all commercial authority."""
+
+
 def main() -> None:
-    print("Hello from mati-ai!")
+    from mati_ai.main import serve
+    serve()

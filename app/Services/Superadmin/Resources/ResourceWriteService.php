@@ -143,6 +143,7 @@ class ResourceWriteService
             'catalogo.prendas' => [
                 'nom_pre' => $this->formatting->normalizeUpper($validated['nom_pre']),
                 'des_pre' => $this->formatting->normalizeNullableText($validated['des_pre'] ?? null),
+                ...(Schema::hasColumn('prendas', 'modelo_pre') && array_key_exists('modelo_pre', $validated) ? ['modelo_pre' => $this->formatting->normalizeNullableText($validated['modelo_pre'])] : []),
                 'cod_categorias_pre' => (int) $validated['cod_categorias_pre'],
                 'cod_marcas_pre' => filled($validated['cod_marcas_pre'] ?? null) ? (int) $validated['cod_marcas_pre'] : null,
                 'cod_temporadas_pre' => filled($validated['cod_temporadas_pre'] ?? null) ? (int) $validated['cod_temporadas_pre'] : null,

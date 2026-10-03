@@ -164,6 +164,20 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::post('/comercial/ventas/{venta}/entregar', [SuperadminSalePickupController::class, 'markDelivered'])->name('sales.pickup.deliver');
     Route::put('/catalogo/categorias/{categoria}/complementos', [CategoryComplementController::class, 'update'])
         ->whereNumber('categoria')->name('categories.complements.update');
+    Route::prefix('ai')->name('ai.')->middleware('throttle:30,1')->group(function () {
+        Route::get('/capabilities', [\App\Http\Controllers\Superadmin\AiController::class, 'capabilities'])->name('capabilities');
+        foreach (['analyze', 'barcode', 'label'] as $operation) {
+            Route::post('/'.$operation, [\App\Http\Controllers\Superadmin\AiController::class, 'image'])
+                ->defaults('operation', $operation)->name($operation);
+        }
+        Route::post('/match', [\App\Http\Controllers\Superadmin\AiController::class, 'match'])->name('match');
+        Route::post('/external-search', [\App\Http\Controllers\Superadmin\AiController::class, 'externalSearch'])->name('external-search');
+        Route::post('/prepare-publication', [\App\Http\Controllers\Superadmin\AiController::class, 'preparePublication'])->name('prepare-publication');
+        Route::post('/feedback', [\App\Http\Controllers\Superadmin\AiController::class, 'feedback'])->name('feedback');
+        Route::get('/external-reference/{run}/{candidate}/{image}', [\App\Http\Controllers\Superadmin\AiController::class, 'externalReference'])
+            ->whereUuid('run')->whereNumber('candidate')->whereNumber('image')->name('external-reference');
+        Route::get('/prepared-images/{token}', [\App\Http\Controllers\Superadmin\AiController::class, 'preparedImage'])->whereUuid('token')->name('prepared-image');
+    });
     Route::post('/{section}/{resource}/inline', [SuperadminResourceController::class, 'storeInline'])->name('resources.inline');
     Route::get('/{section}/{resource}', [SuperadminResourceController::class, 'index'])->name('resources.index');
     Route::get('/{section}/{resource}/nuevo', [SuperadminResourceController::class, 'create'])->name('resources.create');

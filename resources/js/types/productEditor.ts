@@ -1,0 +1,40 @@
+export type ProductVariantRow = {
+    id: string;
+    sku_prv: string;
+    cod_colores_prv: string;
+    tip_pal_prv: 'dominante' | 'equilibrada';
+    colores_adicionales: string[];
+    cod_tallas_prv: string;
+    cob_prv: string;
+    pve_prv: string;
+    cos_prv: string;
+    stock_inicial: string;
+    ubi_inv: string;
+    est_prv: boolean;
+    remove: boolean;
+};
+
+export type ExistingImageRow = { id: string; url_igp: string; rut_igp: string; ord_igp: string; pri_igp: boolean; fue_igp: string; variant_label?: string | null; remove: boolean };
+export type NewGalleryImageRow = { archivo: File | null; ord_igp: string; pri_igp: boolean; fue_igp: string };
+export type ProductEditorForm = {
+    patron_ids: string[];
+    textura_ids: string[];
+    material_rows: { cod_material: string; porcentaje: string }[];
+    nom_pre: string;
+    des_pre: string;
+    modelo_pre: string;
+    cod_categorias_pre: string;
+    cod_marcas_pre: string;
+    cod_temporadas_pre: string;
+    gen_pre: string;
+    prb_pre: string;
+    est_pre: boolean;
+    usa_variantes: boolean;
+    imagen_principal: File | null;
+    fue_igp: string;
+    existing_images: ExistingImageRow[];
+    gallery_images: NewGalleryImageRow[];
+    variant_rows: ProductVariantRow[];
+    ai_run_ids: string[];
+    ai_image_tokens: string[];
+};

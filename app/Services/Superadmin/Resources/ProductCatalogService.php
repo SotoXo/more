@@ -45,13 +45,21 @@ class ProductCatalogService
 
                 $this->syncProductAttributes($product, $validated);
                 $this->syncProductVariants($product, $validated['variant_rows'] ?? []);
-                $this->images->replaceOrCreatePrimaryProductImage(
-                    $product,
-                    $validated['imagen_principal'],
-                    $validated['fue_igp'] ?? 'catalogo',
-                    $createdPaths,
-                );
+                if (!empty($validated['imagen_principal'])) {
+                    $this->images->replaceOrCreatePrimaryProductImage(
+                        $product,
+                        $validated['imagen_principal'],
+                        $validated['fue_igp'] ?? 'catalogo',
+                        $createdPaths,
+                    );
+                }
                 $this->images->createProductGalleryImages($product, $validated['gallery_images'] ?? [], $createdPaths);
+                if (!empty($validated['ai_image_tokens'])) {
+                    app(\App\Services\AI\AiPublicationService::class)->attach(
+                        $product, $validated['ai_image_tokens'], (int) $request->user()->getAuthIdentifier(), $createdPaths,
+                    );
+                }
+                app(\App\Services\AI\AiReviewService::class)->attachSafelyToProduct($product, $validated, $request->user()?->getAuthIdentifier());
                 $this->images->ensurePrimaryImage((int) $product->id_prenda);
 
                 return $product;
@@ -71,7 +79,7 @@ class ProductCatalogService
         $deleteAfterSuccess = [];
 
         try {
-            DB::transaction(function () use ($product, $payload, $validated, &$createdPaths, &$deleteAfterSuccess) {
+            DB::transaction(function () use ($request, $product, $payload, $validated, &$createdPaths, &$deleteAfterSuccess) {
                 $product->update($payload);
                 $this->syncProductAttributes($product, $validated);
 
@@ -89,6 +97,12 @@ class ProductCatalogService
                     );
                 }
 
+                if (!empty($validated['ai_image_tokens'])) {
+                    app(\App\Services\AI\AiPublicationService::class)->attach(
+                        $product, $validated['ai_image_tokens'], (int) $request->user()->getAuthIdentifier(), $createdPaths,
+                    );
+                }
+                app(\App\Services\AI\AiReviewService::class)->attachSafelyToProduct($product, $validated, $request->user()?->getAuthIdentifier());
                 $this->images->ensurePrimaryImage((int) $product->id_prenda);
             });
         } catch (\Throwable $exception) {
@@ -673,6 +687,9 @@ class ProductCatalogService
         return [
             'nom_pre' => $record?->nom_pre ?? '',
             'des_pre' => $record?->des_pre ?? '',
+            'modelo_pre' => $record?->modelo_pre ?? '',
+            'ai_run_ids' => [],
+            'ai_image_tokens' => [],
             'cod_categorias_pre' => (string) ($record?->cod_categorias_pre ?? ''),
             'cod_marcas_pre' => (string) ($record?->cod_marcas_pre ?? ''),
             'cod_temporadas_pre' => (string) ($record?->cod_temporadas_pre ?? $this->defaultSeasonId()),

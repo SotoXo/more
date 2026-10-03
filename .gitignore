@@ -26,3 +26,16 @@ Thumbs.db
 # Database backups (no versionar dumps con datos reales)
 *.sql
 /backups/
+
+# Python AI runtime, weights and local source agreements
+/services/mati-ai/.venv/
+/services/mati-ai/**/__pycache__/
+/services/mati-ai/.pytest_cache/
+/services/mati-ai/.ruff_cache/
+/services/mati-ai/.mypy_cache/
+/services/mati-ai/.coverage
+/services/mati-ai/htmlcov/
+/services/mati-ai/.cache/
+/services/mati-ai/models/
+/services/mati-ai/config/external-sources.json
+*.py[cod]

@@ -1,3 +1,6 @@
+import { preparedImageUrl } from '@/lib/garmentAssistant';
+import GarmentIntelligentAssistant from '@/Components/Superadmin/GarmentIntelligentAssistant';
+import type { ProductEditorForm, ProductVariantRow, ExistingImageRow, NewGalleryImageRow } from '@/types/productEditor';
 import SuperadminBadge from '@/Components/Superadmin/SuperadminBadge';
 import SuperadminComboboxField from '@/Components/Superadmin/SuperadminComboboxField';
 import ProductColorPicker from '@/Components/Superadmin/ProductColorPicker';
@@ -13,11 +16,6 @@ import { Link, useForm, usePage } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, Check, ImagePlus, Layers3, Palette, Plus, Sparkles, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 
-type ProductVariantRow = { id: string; sku_prv: string; cod_colores_prv: string; tip_pal_prv: 'dominante' | 'equilibrada'; colores_adicionales: string[]; cod_tallas_prv: string; cob_prv: string; pve_prv: string; cos_prv: string; stock_inicial: string; ubi_inv: string; est_prv: boolean; remove: boolean; };
-type ExistingImageRow = { id: string; url_igp: string; rut_igp: string; ord_igp: string; pri_igp: boolean; fue_igp: string; variant_label?: string | null; remove: boolean; };
-type NewGalleryImageRow = { archivo: File | null; ord_igp: string; pri_igp: boolean; fue_igp: string; };
-type MaterialRow = { cod_material: string; porcentaje: string };
-type ProductEditorForm = { patron_ids: string[]; textura_ids: string[]; material_rows: MaterialRow[]; nom_pre: string; des_pre: string; cod_categorias_pre: string; cod_marcas_pre: string; cod_temporadas_pre: string; gen_pre: string; prb_pre: string; est_pre: boolean; usa_variantes: boolean; imagen_principal: File | null; fue_igp: string; existing_images: ExistingImageRow[]; gallery_images: NewGalleryImageRow[]; variant_rows: ProductVariantRow[]; };
 type InlineCatalogKey = 'categories' | 'brands' | 'colors' | 'sizes' | 'seasons';
 type ProductStepId = 'base' | 'image' | 'type' | 'commercial' | 'variants' | 'review';
 type InlineTarget = { type: 'product'; field: 'cod_categorias_pre' | 'cod_marcas_pre' | 'cod_temporadas_pre' } | { type: 'variant'; field: 'cod_colores_prv' | 'cod_tallas_prv'; rowIndex: number };
@@ -88,6 +86,7 @@ function variantIssue(row?: ProductVariantRow | null) {
     return null;
 }
 function variantIsComplete(row?: ProductVariantRow | null) { return !variantIssue(row); }
+function normalizeEditorData(data: ProductEditorForm): ProductEditorForm { return { ...data, modelo_pre: data.modelo_pre ?? '', ai_run_ids: data.ai_run_ids ?? [], ai_image_tokens: data.ai_image_tokens ?? [] }; }
 function filenameLabel(path: string) { return path.split('/').pop() ?? path; }
 
 export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, submit, stateAction, editor, options, initialData }: ProductCreateProps) {
@@ -113,7 +112,7 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const [colorInsight, setColorInsight] = useState<ColorInsight | null>(null);
     const [pickedColorSample, setPickedColorSample] = useState<PickedColorSample | null>(null);
     const galleryPreviewUrls = useRef<Record<number, string>>({});
-    const { data, setData, post, put, transform, processing, errors } = useForm<ProductEditorForm>(initialData);
+    const { data, setData, post, put, transform, processing, errors } = useForm<ProductEditorForm>(normalizeEditorData(initialData));
 
     const steps = useMemo<ProductStep[]>(() => {
         const base: ProductStep[] = [
@@ -158,9 +157,9 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const suggestedSizeLabels = useMemo(() => (exactProfileSizes.length > 0 ? exactProfileSizes.map((option) => option.label) : sizeProfile.values), [exactProfileSizes, sizeProfile.values]);
     const sizeFallbackMessage = exactProfileSizes.length === 0 ? 'No hay tallas recomendadas exactas para esta categoría. Puedes elegir una talla disponible.' : null;
     const orderedColorOptions = useMemo(() => prioritizeOptions(sortOptions('colors', optionSets.colors), colorInsight?.suggestedColor ? [colorInsight.suggestedColor.value] : []), [colorInsight, optionSets.colors]);
-    const hasPrimaryImage = useMemo(() => Boolean(data.imagen_principal || data.existing_images.some((image) => !image.remove && image.pri_igp) || primaryPreview), [data.existing_images, data.imagen_principal, primaryPreview]);
-    const currentPrimaryLabel = useMemo(() => { if (data.imagen_principal) return data.imagen_principal.name; const existingPrimary = data.existing_images.find((image) => !image.remove && image.pri_igp); if (existingPrimary) return filenameLabel(existingPrimary.rut_igp); return editor.currentPrimaryLabel ?? null; }, [data.existing_images, data.imagen_principal, editor.currentPrimaryLabel]);
-    const galleryCount = useMemo(() => data.existing_images.filter((image) => !image.remove).length + data.gallery_images.filter((image) => image.archivo).length + (data.imagen_principal ? 1 : 0), [data.existing_images, data.gallery_images, data.imagen_principal]);
+    const hasPrimaryImage = useMemo(() => Boolean(data.imagen_principal || data.ai_image_tokens.length > 0 || data.existing_images.some((image) => !image.remove && image.pri_igp) || primaryPreview), [data.existing_images, data.imagen_principal, data.ai_image_tokens, primaryPreview]);
+    const currentPrimaryLabel = useMemo(() => { if (data.imagen_principal) return data.imagen_principal.name; const existingPrimary = data.existing_images.find((image) => !image.remove && image.pri_igp); if (existingPrimary) return filenameLabel(existingPrimary.rut_igp); if (data.ai_image_tokens.length > 0) return 'Imagen externa aprobada'; return data.existing_images.length ? null : editor.currentPrimaryLabel ?? null; }, [data.existing_images, data.imagen_principal, data.ai_image_tokens, editor.currentPrimaryLabel]);
+    const galleryCount = useMemo(() => data.existing_images.filter((image) => !image.remove).length + data.gallery_images.filter((image) => image.archivo).length + (data.imagen_principal ? 1 : 0) + data.ai_image_tokens.length, [data.existing_images, data.gallery_images, data.imagen_principal, data.ai_image_tokens]);
     const summary = useMemo(() => ({ variants: activeVariantRows.length, stock: activeVariantRows.reduce((total, row) => total + (Number(row.stock_inicial) || 0), 0), price: resolvedBasePrice, images: galleryCount }), [activeVariantRows, galleryCount, resolvedBasePrice]);
     const colorHint = colorInsight ? `Familia sugerida: ${colorInsight.family?.label ?? 'Sin familia'} · tono sugerido: ${colorInsight.suggestedColor?.label ?? 'Revisar manualmente'}` : undefined;
     const selectedCommercialColor = useMemo(() => optionSets.colors.find((option) => option.value === activeVariantRows[0]?.cod_colores_prv) ?? null, [activeVariantRows, optionSets.colors]);
@@ -172,9 +171,9 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
     const inlineTitle = inlineDrawer ? { categories: 'Otra categoría', brands: 'Otra marca', colors: 'Seleccionar color', sizes: 'Otra talla', seasons: 'Otra temporada' }[inlineDrawer.resource] : '';
     const inlineDescription = inlineDrawer ? { categories: 'Registra la categoría y vuelve al formulario con esa opción seleccionada.', brands: 'Registra la marca y vuelve a la ficha de la prenda.', colors: 'Captura o selecciona el color específico de la prenda. Si ya existe, se reutiliza; si no, se crea y queda seleccionado.', sizes: 'Agrega la talla sin salir del registro de la prenda.', seasons: 'Registra una temporada nueva solo si la prenda no corresponde a las ya disponibles.' }[inlineDrawer.resource] : '';
 
-    useEffect(() => { setData(initialData); setSelectedSizeSegment(predominantSizeSegment(initialData.variant_rows, options.sizes)); setPrimaryPreview(editor.currentPrimaryUrl ?? null); }, [editor.currentPrimaryUrl, initialData, options.sizes, setData]);
+    useEffect(() => { setData(normalizeEditorData(initialData)); setSelectedSizeSegment(predominantSizeSegment(initialData.variant_rows, options.sizes)); setPrimaryPreview(editor.currentPrimaryUrl ?? null); }, [editor.currentPrimaryUrl, initialData, options.sizes, setData]);
     useEffect(() => () => { Object.values(galleryPreviewUrls.current).forEach((url) => URL.revokeObjectURL(url)); }, []);
-    useEffect(() => { if (!data.imagen_principal) { const currentPrimary = data.existing_images.find((image) => !image.remove && image.pri_igp); setPrimaryPreview(currentPrimary?.url_igp ?? editor.currentPrimaryUrl ?? null); return; } const objectUrl = URL.createObjectURL(data.imagen_principal); setPrimaryPreview(objectUrl); return () => URL.revokeObjectURL(objectUrl); }, [data.existing_images, data.imagen_principal, editor.currentPrimaryUrl]);
+    useEffect(() => { if (!data.imagen_principal) { const currentPrimary = data.existing_images.find((image) => !image.remove && image.pri_igp); setPrimaryPreview(currentPrimary?.url_igp ?? preparedImageUrl(data.ai_image_tokens[0]) ?? (data.existing_images.length ? null : editor.currentPrimaryUrl ?? null)); return; } const objectUrl = URL.createObjectURL(data.imagen_principal); setPrimaryPreview(objectUrl); return () => URL.revokeObjectURL(objectUrl); }, [data.existing_images, data.imagen_principal, data.ai_image_tokens, editor.currentPrimaryUrl]);
     useEffect(() => { if (mode !== 'create' || data.cod_temporadas_pre) return; const permanentSeason = optionSets.seasons.find((option) => normalizeText(option.label).startsWith('PERMANENTE')); if (permanentSeason) setData('cod_temporadas_pre', permanentSeason.value); }, [data.cod_temporadas_pre, mode, optionSets.seasons, setData]);
     useEffect(() => { if (availableSuggestedSizes.length !== 1) return; const firstIndex = data.variant_rows.findIndex((row) => !row.remove); if (firstIndex === -1 || data.variant_rows[firstIndex].cod_tallas_prv) return; setData('variant_rows', data.variant_rows.map((row, rowIndex) => rowIndex === firstIndex ? { ...row, cod_tallas_prv: availableSuggestedSizes[0].value } : row)); }, [availableSuggestedSizes, data.variant_rows, setData]);
     useEffect(() => { setPickedColorSample(null); setColorInsight(null); }, [primaryPreview]);
@@ -396,6 +395,14 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                     })}
                 </div>
                 {stepError && <div className="rounded-[1.3rem] border border-[rgba(183,108,112,0.28)] bg-[rgba(183,108,112,0.1)] px-4 py-3 text-sm text-[rgb(245,208,210)]">{stepError}</div>}
+                <GarmentIntelligentAssistant
+                    key={String(page.props.auth.user?.id ?? 'anonymous') + ':' + submit.action}
+                    feedbackStorageKey={String(page.props.auth.user?.id ?? 'anonymous') + ':' + submit.action}
+                    form={data}
+                    catalogs={{ categories: optionSets.categories, brands: optionSets.brands, colors: optionSets.colors, sizes: optionSets.sizes, patterns: options.patterns, categoryProfiles, sizeSegment: selectedSizeSegment }}
+                    primaryPreview={primaryPreview}
+                    updateForm={(updater) => setData(updater)}
+                />
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {currentStep === 'base' && (
                         <section className="sa-panel rounded-[1.6rem] p-5">
@@ -424,6 +431,13 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                     <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Descripción</span>
                                     <textarea value={data.des_pre} onChange={(event) => setData('des_pre', event.target.value)} className="sa-input min-h-28 w-full resize-none" placeholder="Descripción breve opcional." />
                                     {errors.des_pre && <p className="text-sm text-rose-300">{errors.des_pre}</p>}
+                                </label>
+
+                                <label className="space-y-2 md:col-span-2">
+                                    <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Modelo / código de proveedor</span>
+                                    <input value={data.modelo_pre} onChange={(event) => setData('modelo_pre', event.target.value)} className="sa-input w-full" maxLength={150} placeholder="Modelo visible en etiqueta o catálogo del proveedor" />
+                                    <p className="text-sm text-stone-400">Referencia opcional de la prenda. El SKU de Mati se genera por separado.</p>
+                                    {errors.modelo_pre && <p className="text-sm text-rose-300">{errors.modelo_pre}</p>}
                                 </label>
 
                                 <SuperadminComboboxField

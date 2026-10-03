@@ -1,0 +1,6 @@
+# Optional host access for local development only.
+# docker compose -f compose.yaml -f compose.ai-dev.yaml --profile ai up -d mati-ai
+services:
+    mati-ai:
+        ports:
+            - '127.0.0.1:8001:8000'

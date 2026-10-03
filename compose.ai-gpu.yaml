@@ -1,0 +1,13 @@
+# Optional NVIDIA Container Toolkit/WSL GPU override; one visual worker.
+# docker compose -f compose.yaml -f compose.ai-gpu.yaml --profile ai up -d mati-ai
+services:
+    mati-ai:
+        environment:
+            MATI_AI_DEVICE: cuda
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: 1
+                          capabilities: [gpu]

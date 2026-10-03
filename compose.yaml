@@ -24,6 +24,29 @@ services:
         depends_on:
             - pgsql
             - redis
+    mati-ai:
+        profiles: [ai]
+        build:
+            context: './services/mati-ai'
+        environment:
+            MATI_AI_TOKEN: '${MATI_AI_TOKEN:-}'
+            MATI_AI_MODEL_PROVIDER: '${MATI_AI_MODEL_PROVIDER:-siglip}'
+            MATI_AI_VISION_MODEL: '${MATI_AI_VISION_MODEL:-}'
+            MATI_AI_MODEL_REVISION: '${MATI_AI_MODEL_REVISION:-main}'
+            MATI_AI_DEVICE: '${MATI_AI_DEVICE:-auto}'
+            MATI_AI_LOCAL_FILES_ONLY: 'true'
+            MATI_AI_OCR_DOWNLOAD_ENABLED: 'false'
+            MATI_AI_EXTERNAL_SOURCES_FILE: '${MATI_AI_EXTERNAL_SOURCES_FILE:-/app/config/external-sources.example.json}'
+        volumes:
+            - 'mati-ai-cache:/cache'
+            - './services/mati-ai/config:/app/config:ro'
+        networks:
+            - sail
+        restart: unless-stopped
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL
     pgsql:
         image: 'postgres:18-alpine'
         ports:
@@ -71,4 +94,6 @@ volumes:
     sail-pgsql:
         driver: local
     sail-redis:
+        driver: local
+    mati-ai-cache:
         driver: local
