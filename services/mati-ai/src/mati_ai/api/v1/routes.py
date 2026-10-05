@@ -7,7 +7,14 @@ from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 
 from mati_ai.api.dependencies import require_service_token
+from mati_ai.contracts.colorimetry import COLORIMETRY_VERSION, GarmentColorimetry
+from mati_ai.contracts.compatibility import (
+    COMPATIBILITY_RULES_VERSION,
+    GarmentCompatibilityRequest,
+)
+from mati_ai.compatibility.engine import evaluate_compatibility
 from mati_ai.contracts.common import envelope
+from mati_ai.contracts.embedding import Embedding
 from mati_ai.contracts.identification import MatchRequest
 from mati_ai.contracts.vision import CatalogValue
 from mati_ai.core.errors import PipelineError
@@ -80,6 +87,8 @@ def capabilities(request: Request):
         {
             "operations": [
                 "garments.analyze",
+                "garments.compatibility",
+                "garments.embedding",
                 "identification.barcode",
                 "identification.label",
                 "products.match",
@@ -92,11 +101,40 @@ def capabilities(request: Request):
                 "model_id": settings.model_id,
                 "local_files_only": settings.local_files_only,
                 "loaded": request.app.state.model_manager._model is not None,
+                **request.app.state.model_manager.capabilities_metadata(),
             },
             "ocr": {
                 "provider": "easyocr",
                 "enabled": settings.ocr_enabled,
                 "device": "cpu",
+                **request.app.state.ocr_provider.capabilities_metadata(),
+            },
+            "colorimetry": {
+                "enabled": True,
+                "scope": "observed_geometric_foreground",
+                "version": COLORIMETRY_VERSION,
+                "perceptual_space": "CIELAB_D65",
+                "distance_metric": "CIEDE2000",
+                "segmentation": "geometric_foreground_heuristic",
+                "target_garment_identity_verified": False,
+                "automatic_catalog_assignment": False,
+                "commercial_color_status": "insufficient_evidence",
+                "catalog_authority": "laravel",
+                "score_kind": "heuristic_uncalibrated",
+                "original_image_modified": False,
+            },
+            "color_compatibility": {
+                "enabled": True,
+                "scope": "garment_pairs_only",
+                "rules_version": COMPATIBILITY_RULES_VERSION,
+                "input": "existing_garment_colorimetry",
+                "score_kind": "heuristic_ranking_signal",
+                "score_range": [0, 100],
+                "harmonies": [
+                    "monochromatic", "analogous", "complementary",
+                    "split_complementary", "triadic", "neutrals",
+                    "neutral_accent", "light_dark_contrast",
+                ],
             },
             "barcode_symbologies": [
                 "EAN-13",
@@ -133,18 +171,32 @@ def analyze_pipeline(
         "validation", lambda: validate_image(raw, request.app.state.settings)
     )
     quality = measure("quality", lambda: assess_quality(image.image))
-    palette = measure("color", lambda: extract_colors(image.image, colors))
+    color_result = measure("color", lambda: extract_colors(image.image, colors))
+    # Keep the v1 colors object while exposing the richer, independently versioned result.
+    colorimetry = GarmentColorimetry.model_validate(
+        color_result.pop("colorimetry")
+    ).model_dump(mode="json")
+    palette = color_result
     codes = measure("barcode", lambda: decode_codes(image.image))
     data = {
         "image": image.metadata,
         "quality": quality,
         "colors": palette,
+        "colorimetry": colorimetry,
         "codes": codes["codes"],
         "classification": {"top_k": [], "abstained": True},
         "attributes": {"pattern": None},
     }
-    warnings = quality["warnings"] + palette["warnings"]
+    warnings = list(
+        dict.fromkeys(
+            quality["warnings"] + palette["warnings"] + colorimetry["warnings"]
+        )
+    )
     abstentions = []
+    if colorimetry["commercial_color_status"] == "insufficient_evidence":
+        abstentions.append("COLORIMETRY_INSUFFICIENT_EVIDENCE")
+    elif colorimetry["status"] == "partial":
+        abstentions.append("COLORIMETRY_PARTIAL_EVIDENCE")
     model = None
     try:
         prompts = category_prompts(categories) + pattern_prompts(patterns)
@@ -162,11 +214,9 @@ def analyze_pipeline(
         }
         timings.update(result["metrics"])
         if include_embedding:
-            data["embedding"] = {
-                "values": result["embedding"],
-                "model_id": model["model_id"],
-                "model_revision": model["model_revision"],
-            }
+            data["embedding"] = Embedding.model_validate(
+                result["embedding_metadata"]
+            ).model_dump(mode="json")
         if data["classification"]["abstained"]:
             abstentions.append("CATEGORY_LOW_MARGIN_OR_SIMILARITY")
         warnings.append("VISUAL_SCORES_ARE_NOT_CALIBRATED_PROBABILITIES")
@@ -201,6 +251,71 @@ async def analyze(request: Request):
         str(form.get("include_embedding", "false")).lower() in ("true", "1"),
     )
 
+
+@router.post("/garments/compatibility")
+def garment_compatibility(request: Request, payload: GarmentCompatibilityRequest):
+    """Evaluate two existing garment palettes without image or model inference."""
+    if payload.request_id and not request.headers.get("x-request-id"):
+        request.state.request_id = payload.request_id
+    started = time.perf_counter()
+    data = evaluate_compatibility(
+        payload.garment_a,
+        payload.garment_b,
+        rules_version=payload.rules_version,
+        pattern_a=payload.pattern_a,
+        pattern_b=payload.pattern_b,
+    ).model_dump(mode="json")
+    return envelope(
+        request,
+        data,
+        status=data["status"],
+        warnings=data["warnings"],
+        abstentions=(
+            ["COMPATIBILITY_INSUFFICIENT_EVIDENCE"]
+            if data["compatibility_score"] is None
+            else []
+        ),
+        model={
+            "model_id": "deterministic_garment_color_compatibility",
+            "model_revision": data["rules_version"],
+        },
+        timing_ms={
+            "compatibility": round((time.perf_counter() - started) * 1000, 3)
+        },
+    )
+
+
+@router.post("/garments/embedding")
+async def image_embedding(request: Request):
+    """Generate only the image vector; Laravel performs persistent retrieval."""
+    _, raw = await upload(request)
+
+    def process():
+        started = time.perf_counter()
+        validated = validate_image(raw, request.app.state.settings)
+        validation_ms = round((time.perf_counter() - started) * 1000, 3)
+        result = request.app.state.model_manager.embed_image(validated.image)
+        embedding = Embedding.model_validate(result["embedding_metadata"]).model_dump(mode="json")
+        return envelope(
+            request,
+            {
+                "image": validated.metadata,
+                "embedding": embedding,
+                "inference": {
+                    "device": result["device"],
+                    "vram_peak_mb": result["vram_peak_mb"],
+                },
+            },
+            model=result["model"],
+            warnings=["VISUAL_SIMILARITY_DOES_NOT_PROVE_IDENTITY"],
+            timing_ms={
+                "validation": validation_ms,
+                **result["metrics"],
+                "total": round((time.perf_counter() - started) * 1000, 3),
+            },
+        )
+
+    return await run_in_threadpool(process)
 
 @router.post("/identification/barcode")
 async def barcode(request: Request):
@@ -290,3 +405,4 @@ async def publication(request: Request):
         )
 
     return await run_in_threadpool(process)
+

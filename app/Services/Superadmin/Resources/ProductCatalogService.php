@@ -33,11 +33,11 @@ class ProductCatalogService
     ) {
     }
 
-    public function createProductRecord(Request $request, array $payload, array $validated): Prenda
+    public function createProductRecord(Request $request, array $payload, array $validated, bool $attachAiReview = true): Prenda
     {
         $createdPaths = [];
         try {
-            return DB::transaction(function () use ($request, $payload, $validated, &$createdPaths) {
+            return DB::transaction(function () use ($request, $payload, $validated, $attachAiReview, &$createdPaths) {
                 $product = Prenda::query()->create([
                     ...$payload,
                     'cod_usuario_registra_pre' => $request->user()->getAuthIdentifier(),
@@ -59,7 +59,9 @@ class ProductCatalogService
                         $product, $validated['ai_image_tokens'], (int) $request->user()->getAuthIdentifier(), $createdPaths,
                     );
                 }
-                app(\App\Services\AI\AiReviewService::class)->attachSafelyToProduct($product, $validated, $request->user()?->getAuthIdentifier());
+                if ($attachAiReview) {
+                    app(\App\Services\AI\AiReviewService::class)->attachSafelyToProduct($product, $validated, $request->user()?->getAuthIdentifier());
+                }
                 $this->images->ensurePrimaryImage((int) $product->id_prenda);
 
                 return $product;

@@ -1,11 +1,6 @@
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
-
-class Embedding(BaseModel):
-    model_config = ConfigDict(allow_inf_nan=False)
-    values: list[float] = Field(max_length=2048)
-    model_id: str = Field(max_length=200)
-    model_revision: str = Field(max_length=120)
+from mati_ai.contracts.embedding import Embedding
 
 
 class MatchItem(BaseModel):
@@ -31,3 +26,5 @@ class MatchRequest(BaseModel):
     query: MatchItem
     candidates: list[MatchItem] = Field(default_factory=list, max_length=250)
     limit: int = Field(default=10, ge=1, le=50)
+
+

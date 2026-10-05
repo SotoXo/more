@@ -1,0 +1,807 @@
+{
+    "generated_at": "2026-10-04T14:43:23+00:00",
+    "transaction_read_only": "on",
+    "postgres_version": "PostgreSQL 18.3 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "extensions": [
+        {
+            "extname": "plpgsql",
+            "extversion": "1.0"
+        }
+    ],
+    "tables": {
+        "prendas": {
+            "exists": true,
+            "count": 134
+        },
+        "prenda_variantes": {
+            "exists": true,
+            "count": 134
+        },
+        "imagenes_prenda": {
+            "exists": true,
+            "count": 134
+        },
+        "categorias": {
+            "exists": true,
+            "count": 11
+        },
+        "marcas": {
+            "exists": true,
+            "count": 12
+        },
+        "colores": {
+            "exists": true,
+            "count": 56
+        },
+        "patrones": {
+            "exists": true,
+            "count": 10
+        },
+        "ai_runs": {
+            "exists": false,
+            "count": null
+        },
+        "ai_suggestions": {
+            "exists": false,
+            "count": null
+        },
+        "ai_human_reviews": {
+            "exists": false,
+            "count": null
+        },
+        "ai_model_versions": {
+            "exists": false,
+            "count": null
+        },
+        "ai_product_embeddings": {
+            "exists": false,
+            "count": null
+        }
+    },
+    "pending_ai_migrations": [
+        "2026_09_28_000001_create_catalog_ai_tables",
+        "2026_10_03_000001_create_ai_product_embeddings_table"
+    ],
+    "prendas_modelo_pre_exists": false,
+    "commercial_snapshot_sha256": "68b7050be96007dba2c27976f1f15ebad0ed34652791899f85c93e88f2788868",
+    "taxonomies": {
+        "categories": [
+            {
+                "id_categoria": 1,
+                "nom_cat": "ABRIGOS",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 2,
+                "nom_cat": "BLAZERS",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 3,
+                "nom_cat": "CAMISAS",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 4,
+                "nom_cat": "BLUSAS",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 5,
+                "nom_cat": "VESTIDOS",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 6,
+                "nom_cat": "FALDAS",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 7,
+                "nom_cat": "PANTALONES",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 8,
+                "nom_cat": "POLOS Y KNITWEAR",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 9,
+                "nom_cat": "ACCESORIOS",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 10,
+                "nom_cat": "CONJUNTOS",
+                "est_cat": true
+            },
+            {
+                "id_categoria": 11,
+                "nom_cat": "POLERA",
+                "est_cat": true
+            }
+        ],
+        "brands": [
+            {
+                "id_marca": 1,
+                "nom_mar": "ZARA",
+                "est_mar": true
+            },
+            {
+                "id_marca": 2,
+                "nom_mar": "BERSHKA",
+                "est_mar": true
+            },
+            {
+                "id_marca": 3,
+                "nom_mar": "STRADIVARIUS",
+                "est_mar": true
+            },
+            {
+                "id_marca": 4,
+                "nom_mar": "RALPH LAUREN",
+                "est_mar": true
+            },
+            {
+                "id_marca": 5,
+                "nom_mar": "HUGO BOSS",
+                "est_mar": true
+            },
+            {
+                "id_marca": 6,
+                "nom_mar": "MASSIMO DUTTI",
+                "est_mar": true
+            },
+            {
+                "id_marca": 7,
+                "nom_mar": "MANGO",
+                "est_mar": true
+            },
+            {
+                "id_marca": 8,
+                "nom_mar": "PULL&BEAR",
+                "est_mar": true
+            },
+            {
+                "id_marca": 9,
+                "nom_mar": "RESERVED",
+                "est_mar": true
+            },
+            {
+                "id_marca": 10,
+                "nom_mar": "COS",
+                "est_mar": true
+            },
+            {
+                "id_marca": 11,
+                "nom_mar": "PATITO",
+                "est_mar": true
+            },
+            {
+                "id_marca": 12,
+                "nom_mar": "PREMIER",
+                "est_mar": true
+            }
+        ],
+        "colors": [
+            {
+                "id_color": 1,
+                "nom_col": "NEGRO",
+                "hex_col": "#111111",
+                "fam_col": "NEGRO",
+                "hex_dom_col": "#111111",
+                "est_col": true
+            },
+            {
+                "id_color": 2,
+                "nom_col": "BLANCO",
+                "hex_col": "#F7F6F2",
+                "fam_col": "BLANCO",
+                "hex_dom_col": "#F7F6F2",
+                "est_col": true
+            },
+            {
+                "id_color": 3,
+                "nom_col": "CREMA",
+                "hex_col": "#F2E8D8",
+                "fam_col": "BLANCO",
+                "hex_dom_col": "#F7F6F2",
+                "est_col": true
+            },
+            {
+                "id_color": 4,
+                "nom_col": "BEIGE",
+                "hex_col": "#D8C3A5",
+                "fam_col": "BEIGE",
+                "hex_dom_col": "#D8C3A5",
+                "est_col": true
+            },
+            {
+                "id_color": 5,
+                "nom_col": "CAMEL",
+                "hex_col": "#B88956",
+                "fam_col": "CAMEL",
+                "hex_dom_col": "#B88956",
+                "est_col": true
+            },
+            {
+                "id_color": 6,
+                "nom_col": "GRIS",
+                "hex_col": "#8A8F98",
+                "fam_col": "GRIS",
+                "hex_dom_col": "#8A8F98",
+                "est_col": true
+            },
+            {
+                "id_color": 7,
+                "nom_col": "AZUL MARINO",
+                "hex_col": "#1F2A44",
+                "fam_col": "AZUL",
+                "hex_dom_col": "#1F2A44",
+                "est_col": true
+            },
+            {
+                "id_color": 8,
+                "nom_col": "CELESTE",
+                "hex_col": "#A9C7E8",
+                "fam_col": "AZUL",
+                "hex_dom_col": "#6F9FD8",
+                "est_col": true
+            },
+            {
+                "id_color": 9,
+                "nom_col": "VERDE OLIVA",
+                "hex_col": "#66704A",
+                "fam_col": "VERDE",
+                "hex_dom_col": "#66704A",
+                "est_col": true
+            },
+            {
+                "id_color": 10,
+                "nom_col": "MARRÓN",
+                "hex_col": "#6F4E37",
+                "fam_col": "MARRON",
+                "hex_dom_col": "#6F4E37",
+                "est_col": true
+            },
+            {
+                "id_color": 11,
+                "nom_col": "BORGONA",
+                "hex_col": "#6F1D2C",
+                "fam_col": "ROJO",
+                "hex_dom_col": "#8A2332",
+                "est_col": true
+            },
+            {
+                "id_color": 12,
+                "nom_col": "ROSA PALO",
+                "hex_col": "#D8A7B1",
+                "fam_col": "ROSA",
+                "hex_dom_col": "#D28FA0",
+                "est_col": true
+            },
+            {
+                "id_color": 13,
+                "nom_col": "AZUL PETROLEO",
+                "hex_col": "#18378B",
+                "fam_col": "AZUL",
+                "hex_dom_col": "#1D4ED8",
+                "est_col": true
+            },
+            {
+                "id_color": 14,
+                "nom_col": "AMARILLO",
+                "hex_col": "#F5DC1E",
+                "fam_col": "AMARILLO",
+                "hex_dom_col": "#EAB308",
+                "est_col": true
+            },
+            {
+                "id_color": 17,
+                "nom_col": "NEGRO CARBON",
+                "hex_col": "#252525",
+                "fam_col": "NEGRO",
+                "hex_dom_col": "#111111",
+                "est_col": true
+            },
+            {
+                "id_color": 18,
+                "nom_col": "ROJO VINO",
+                "hex_col": "#7C1818",
+                "fam_col": "ROJO",
+                "hex_dom_col": "#B91C1C",
+                "est_col": false
+            },
+            {
+                "id_color": 19,
+                "nom_col": "BLANCO HUESO",
+                "hex_col": "#F4F0E8",
+                "fam_col": "BLANCO",
+                "hex_dom_col": "#F7F6F2",
+                "est_col": true
+            },
+            {
+                "id_color": 20,
+                "nom_col": "MARFIL",
+                "hex_col": "#FFF8E7",
+                "fam_col": "BLANCO",
+                "hex_dom_col": "#F7F6F2",
+                "est_col": true
+            },
+            {
+                "id_color": 21,
+                "nom_col": "ARENA",
+                "hex_col": "#CDBA96",
+                "fam_col": "BEIGE",
+                "hex_dom_col": "#D8C3A5",
+                "est_col": true
+            },
+            {
+                "id_color": 22,
+                "nom_col": "TAUPE",
+                "hex_col": "#8B7D74",
+                "fam_col": "BEIGE",
+                "hex_dom_col": "#D8C3A5",
+                "est_col": true
+            },
+            {
+                "id_color": 23,
+                "nom_col": "CAQUI",
+                "hex_col": "#A69F72",
+                "fam_col": "BEIGE",
+                "hex_dom_col": "#D8C3A5",
+                "est_col": true
+            },
+            {
+                "id_color": 24,
+                "nom_col": "GRIS CLARO",
+                "hex_col": "#C8CDD2",
+                "fam_col": "GRIS",
+                "hex_dom_col": "#8A8F98",
+                "est_col": true
+            },
+            {
+                "id_color": 25,
+                "nom_col": "GRIS OSCURO",
+                "hex_col": "#4B5059",
+                "fam_col": "GRIS",
+                "hex_dom_col": "#8A8F98",
+                "est_col": true
+            },
+            {
+                "id_color": 26,
+                "nom_col": "ROJO",
+                "hex_col": "#E53935",
+                "fam_col": "ROJO",
+                "hex_dom_col": "#E53935",
+                "est_col": true
+            },
+            {
+                "id_color": 27,
+                "nom_col": "ROJO CARMÍN",
+                "hex_col": "#B31B34",
+                "fam_col": "ROJO",
+                "hex_dom_col": "#E53935",
+                "est_col": true
+            },
+            {
+                "id_color": 28,
+                "nom_col": "TERRACOTA",
+                "hex_col": "#C96B4B",
+                "fam_col": "ROJO",
+                "hex_dom_col": "#E53935",
+                "est_col": true
+            },
+            {
+                "id_color": 29,
+                "nom_col": "CORAL",
+                "hex_col": "#FF7F6A",
+                "fam_col": "ROJO",
+                "hex_dom_col": "#E53935",
+                "est_col": true
+            },
+            {
+                "id_color": 30,
+                "nom_col": "NARANJA",
+                "hex_col": "#F57C00",
+                "fam_col": "NARANJA",
+                "hex_dom_col": "#F57C00",
+                "est_col": true
+            },
+            {
+                "id_color": 31,
+                "nom_col": "NARANJA QUEMADO",
+                "hex_col": "#C65D16",
+                "fam_col": "NARANJA",
+                "hex_dom_col": "#F57C00",
+                "est_col": true
+            },
+            {
+                "id_color": 32,
+                "nom_col": "DURAZNO",
+                "hex_col": "#F7B38A",
+                "fam_col": "NARANJA",
+                "hex_dom_col": "#F57C00",
+                "est_col": true
+            },
+            {
+                "id_color": 33,
+                "nom_col": "AMARILLO PASTEL",
+                "hex_col": "#F7E89B",
+                "fam_col": "AMARILLO",
+                "hex_dom_col": "#F5DC1E",
+                "est_col": true
+            },
+            {
+                "id_color": 34,
+                "nom_col": "MOSTAZA",
+                "hex_col": "#C49A20",
+                "fam_col": "AMARILLO",
+                "hex_dom_col": "#F5DC1E",
+                "est_col": true
+            },
+            {
+                "id_color": 35,
+                "nom_col": "VERDE MENTA",
+                "hex_col": "#98D8AA",
+                "fam_col": "VERDE",
+                "hex_dom_col": "#009B77",
+                "est_col": true
+            },
+            {
+                "id_color": 36,
+                "nom_col": "VERDE SALVIA",
+                "hex_col": "#9CAF88",
+                "fam_col": "VERDE",
+                "hex_dom_col": "#009B77",
+                "est_col": true
+            },
+            {
+                "id_color": 37,
+                "nom_col": "VERDE ESMERALDA",
+                "hex_col": "#009B77",
+                "fam_col": "VERDE",
+                "hex_dom_col": "#009B77",
+                "est_col": true
+            },
+            {
+                "id_color": 38,
+                "nom_col": "VERDE BOTELLA",
+                "hex_col": "#205B45",
+                "fam_col": "VERDE",
+                "hex_dom_col": "#009B77",
+                "est_col": true
+            },
+            {
+                "id_color": 39,
+                "nom_col": "VERDE BOSQUE",
+                "hex_col": "#244D35",
+                "fam_col": "VERDE",
+                "hex_dom_col": "#009B77",
+                "est_col": true
+            },
+            {
+                "id_color": 40,
+                "nom_col": "VERDE LIMA",
+                "hex_col": "#A4C639",
+                "fam_col": "VERDE",
+                "hex_dom_col": "#009B77",
+                "est_col": true
+            },
+            {
+                "id_color": 41,
+                "nom_col": "AZUL CIELO",
+                "hex_col": "#64B5F6",
+                "fam_col": "AZUL",
+                "hex_dom_col": "#2447D8",
+                "est_col": true
+            },
+            {
+                "id_color": 42,
+                "nom_col": "AZUL TURQUESA",
+                "hex_col": "#20B2AA",
+                "fam_col": "AZUL",
+                "hex_dom_col": "#2447D8",
+                "est_col": true
+            },
+            {
+                "id_color": 43,
+                "nom_col": "AZUL REY",
+                "hex_col": "#2447D8",
+                "fam_col": "AZUL",
+                "hex_dom_col": "#2447D8",
+                "est_col": true
+            },
+            {
+                "id_color": 44,
+                "nom_col": "AZUL ELÉCTRICO",
+                "hex_col": "#0066FF",
+                "fam_col": "AZUL",
+                "hex_dom_col": "#2447D8",
+                "est_col": true
+            },
+            {
+                "id_color": 45,
+                "nom_col": "LAVANDA",
+                "hex_col": "#B39DDB",
+                "fam_col": "MORADO",
+                "hex_dom_col": "#6A1B9A",
+                "est_col": true
+            },
+            {
+                "id_color": 46,
+                "nom_col": "LILA",
+                "hex_col": "#C8A2C8",
+                "fam_col": "MORADO",
+                "hex_dom_col": "#6A1B9A",
+                "est_col": true
+            },
+            {
+                "id_color": 47,
+                "nom_col": "VIOLETA",
+                "hex_col": "#8F3FB0",
+                "fam_col": "MORADO",
+                "hex_dom_col": "#6A1B9A",
+                "est_col": true
+            },
+            {
+                "id_color": 48,
+                "nom_col": "MORADO",
+                "hex_col": "#6A1B9A",
+                "fam_col": "MORADO",
+                "hex_dom_col": "#6A1B9A",
+                "est_col": true
+            },
+            {
+                "id_color": 49,
+                "nom_col": "CIRUELA",
+                "hex_col": "#673957",
+                "fam_col": "MORADO",
+                "hex_dom_col": "#6A1B9A",
+                "est_col": true
+            },
+            {
+                "id_color": 50,
+                "nom_col": "ROSA BEBÉ",
+                "hex_col": "#F6C9D8",
+                "fam_col": "ROSA",
+                "hex_dom_col": "#F48FB1",
+                "est_col": true
+            },
+            {
+                "id_color": 51,
+                "nom_col": "ROSA",
+                "hex_col": "#F48FB1",
+                "fam_col": "ROSA",
+                "hex_dom_col": "#F48FB1",
+                "est_col": true
+            },
+            {
+                "id_color": 52,
+                "nom_col": "ROSA FUERTE",
+                "hex_col": "#E75480",
+                "fam_col": "ROSA",
+                "hex_dom_col": "#F48FB1",
+                "est_col": true
+            },
+            {
+                "id_color": 53,
+                "nom_col": "FUCSIA",
+                "hex_col": "#E91E63",
+                "fam_col": "ROSA",
+                "hex_dom_col": "#F48FB1",
+                "est_col": true
+            },
+            {
+                "id_color": 54,
+                "nom_col": "MAGENTA",
+                "hex_col": "#C2185B",
+                "fam_col": "ROSA",
+                "hex_dom_col": "#F48FB1",
+                "est_col": true
+            },
+            {
+                "id_color": 55,
+                "nom_col": "MARRÓN CLARO",
+                "hex_col": "#A87652",
+                "fam_col": "MARRON",
+                "hex_dom_col": "#6F4E37",
+                "est_col": true
+            },
+            {
+                "id_color": 56,
+                "nom_col": "CHOCOLATE",
+                "hex_col": "#4E2E23",
+                "fam_col": "MARRON",
+                "hex_dom_col": "#6F4E37",
+                "est_col": true
+            },
+            {
+                "id_color": 57,
+                "nom_col": "DORADO",
+                "hex_col": "#C9A227",
+                "fam_col": "DORADO",
+                "hex_dom_col": "#C9A227",
+                "est_col": true
+            },
+            {
+                "id_color": 58,
+                "nom_col": "PLATEADO",
+                "hex_col": "#B5BAC3",
+                "fam_col": "PLATEADO",
+                "hex_dom_col": "#B5BAC3",
+                "est_col": true
+            }
+        ],
+        "patterns": [
+            {
+                "id_patron": 1,
+                "nom_pat": "LISO",
+                "est_pat": true
+            },
+            {
+                "id_patron": 2,
+                "nom_pat": "RAYAS",
+                "est_pat": true
+            },
+            {
+                "id_patron": 3,
+                "nom_pat": "CUADROS",
+                "est_pat": true
+            },
+            {
+                "id_patron": 4,
+                "nom_pat": "ESTAMPADO",
+                "est_pat": true
+            },
+            {
+                "id_patron": 5,
+                "nom_pat": "FLORAL",
+                "est_pat": true
+            },
+            {
+                "id_patron": 6,
+                "nom_pat": "GEOMÉTRICO",
+                "est_pat": true
+            },
+            {
+                "id_patron": 7,
+                "nom_pat": "CAMUFLAJE",
+                "est_pat": true
+            },
+            {
+                "id_patron": 8,
+                "nom_pat": "ANIMAL PRINT",
+                "est_pat": true
+            },
+            {
+                "id_patron": 9,
+                "nom_pat": "DEGRADADO",
+                "est_pat": true
+            },
+            {
+                "id_patron": 10,
+                "nom_pat": "OTRO",
+                "est_pat": true
+            }
+        ]
+    },
+    "commercial_orphans": {
+        "images_without_product": 0,
+        "variants_without_product": 0,
+        "images_with_mismatched_variant": 0
+    },
+    "manifest_sha256": "f24d4901949a70769df86f8b85fce7ee85d5ed5e0b90c1bb57e8b77c07c61c5e",
+    "dataset_summary": {
+        "catalog_products": 134,
+        "catalog_images": 134,
+        "eligible_images": 134,
+        "eligible_classification_images": 134,
+        "eligible_color_proxy_images": 134,
+        "eligible_primary_index_images": 134,
+        "unique_sha_images": 131,
+        "duplicate_sha_groups": [
+            [
+                2,
+                5
+            ],
+            [
+                10,
+                11
+            ],
+            [
+                14,
+                15
+            ]
+        ],
+        "category_image_distribution": {
+            "POLOS Y KNITWEAR": 22,
+            "PANTALONES": 16,
+            "POLERA": 17,
+            "CAMISAS": 20,
+            "ABRIGOS": 13,
+            "VESTIDOS": 18,
+            "BLAZERS": 10,
+            "BLUSAS": 8,
+            "FALDAS": 7,
+            "CONJUNTOS": 3
+        },
+        "brand_image_distribution": {
+            "ZARA": 26,
+            "BERSHKA": 15,
+            "PATITO": 1,
+            "COS": 15,
+            "STRADIVARIUS": 14,
+            "MANGO": 14,
+            "MASSIMO DUTTI": 14,
+            "PULL&BEAR": 14,
+            "HUGO BOSS": 12,
+            "RALPH LAUREN": 9
+        },
+        "color_image_distribution": {
+            "BEIGE": 10,
+            "CAMEL": 4,
+            "AMARILLO": 2,
+            "AZUL PETROLEO": 3,
+            "VERDE OLIVA": 8,
+            "NEGRO CARBON": 2,
+            "CIRUELA": 2,
+            "AMARILLO PASTEL": 1,
+            "NEGRO": 15,
+            "TAUPE": 6,
+            "CAQUI": 1,
+            "CHOCOLATE": 5,
+            "GRIS": 6,
+            "CREMA": 6,
+            "BORGONA": 6,
+            "BLANCO": 6,
+            "BLANCO HUESO": 5,
+            "MARRÓN": 6,
+            "MORADO": 1,
+            "ROJO": 3,
+            "AZUL MARINO": 10,
+            "CELESTE": 7,
+            "ROSA BEBÉ": 2,
+            "ROSA PALO": 2,
+            "GRIS CLARO": 1,
+            "VERDE BOTELLA": 1,
+            "AZUL CIELO": 1,
+            "AZUL REY": 4,
+            "FUCSIA": 1,
+            "ARENA": 1,
+            "VERDE BOSQUE": 1,
+            "ROJO CARMÍN": 1,
+            "VERDE SALVIA": 2,
+            "MARRÓN CLARO": 1,
+            "VERDE MENTA": 1
+        },
+        "pattern_image_distribution": [],
+        "duplicate_sha_label_conflicts": [
+            {
+                "image_ids": [
+                    2,
+                    5
+                ],
+                "category_ids": [
+                    7,
+                    11
+                ]
+            }
+        ]
+    },
+    "commercial_snapshot_after_sha256": "68b7050be96007dba2c27976f1f15ebad0ed34652791899f85c93e88f2788868",
+    "commercial_snapshot_unchanged": true,
+    "pgvector_available_extensions": [],
+    "actual_safe_config": {
+        "app_env": "local",
+        "db_driver": "pgsql",
+        "ai_enabled": true,
+        "ai_token_present": false,
+        "ai_url": "http://mati-ai:8000",
+        "ai_timeout_seconds": 30,
+        "ai_vectors_enabled": true,
+        "queue_default": "database",
+        "transaction_read_only": "on"
+    }
+}

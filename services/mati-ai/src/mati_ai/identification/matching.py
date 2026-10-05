@@ -1,6 +1,7 @@
 from difflib import SequenceMatcher
 from typing import Any
 
+from mati_ai.contracts.embedding import compatible_embeddings
 from mati_ai.contracts.identification import MatchItem
 from mati_ai.identification.codes import valid_gtin
 from mati_ai.identification.normalization import normalized
@@ -37,10 +38,7 @@ def rank_matches(
                 query.image_sha256 == candidate.image_sha256
             )
         if query.embedding and candidate.embedding:
-            if (query.embedding.model_id, query.embedding.model_revision) == (
-                candidate.embedding.model_id,
-                candidate.embedding.model_revision,
-            ):
+            if compatible_embeddings(query.embedding, candidate.embedding):
                 score = cosine_similarity(
                     query.embedding.values, candidate.embedding.values
                 )
@@ -91,3 +89,4 @@ def rank_matches(
         )
     ranked.sort(key=lambda item: item["score"], reverse=True)
     return ranked[:limit]
+

@@ -12,6 +12,8 @@ class MatiAiClient
     private const PATHS = [
         'capabilities' => '/api/v1/capabilities',
         'analyze' => '/api/v1/garments/analyze',
+        'compatibility' => '/api/v1/garments/compatibility',
+        'embedding' => '/api/v1/garments/embedding',
         'barcode' => '/api/v1/identification/barcode',
         'label' => '/api/v1/identification/label',
         'match' => '/api/v1/products/match',
@@ -23,6 +25,7 @@ class MatiAiClient
     public function request(string $operation, array $payload = [], ?string $image = null, ?string $requestId = null): array
     {
         $requestId ??= (string) Str::uuid();
+        $colorCatalog = is_array($payload['colors'] ?? null) ? $payload['colors'] : [];
         $start = microtime(true);
         $result = $this->fallback($requestId, 'SERVICE_UNAVAILABLE');
         try {
@@ -54,7 +57,9 @@ class MatiAiClient
             } elseif (!$this->validResponse($body, $requestId, $operation)) {
                 $result = $this->fallback($requestId, 'INVALID_RESPONSE');
             } else {
-                $result = $body;
+                $result = $operation === 'analyze'
+                    ? app(ColorimetryCatalogGuard::class)->normalize($body, $colorCatalog)
+                    : $body;
             }
         } catch (ConnectionException) {
             $result = $this->fallback($requestId, 'CONNECTION_TIMEOUT');
@@ -88,6 +93,14 @@ class MatiAiClient
             && match ($operation) {
                 'capabilities' => is_array(data_get($body, 'data.operations')),
                 'analyze' => is_array(data_get($body, 'data.quality')) && is_array(data_get($body, 'data.colors')) && is_array(data_get($body, 'data.classification.top_k')),
+                'compatibility' => data_get($body, 'data.status') === $body['status']
+                    && $this->validCompatibilityResponse($body['data']),
+                'embedding' => is_array(data_get($body, 'data.image'))
+                    && is_array(data_get($body, 'data.embedding.values'))
+                    && is_int(data_get($body, 'data.embedding.dimension'))
+                    && is_string(data_get($body, 'data.embedding.model_id'))
+                    && is_string(data_get($body, 'data.embedding.model_revision'))
+                    && is_string(data_get($body, 'data.embedding.pipeline_version')),
                 'barcode' => is_array(data_get($body, 'data.codes')),
                 'label' => is_string(data_get($body, 'data.raw_text')) && is_string(data_get($body, 'data.normalized_text')),
                 'match' => is_array(data_get($body, 'data.matches')),
@@ -96,6 +109,50 @@ class MatiAiClient
                 'prepare-publication' => is_array(data_get($body, 'data.derivatives')) && count($body['data']['derivatives']) > 0,
                 default => false,
             };
+    }
+
+    private function validCompatibilityResponse(array $data): bool
+    {
+        if (($data['version'] ?? null) !== GarmentCompatibilityService::RULES_VERSION
+            || ($data['rules_version'] ?? null) !== GarmentCompatibilityService::RULES_VERSION
+            || ($data['score_kind'] ?? null) !== 'heuristic_ranking_signal'
+            || !in_array($data['status'] ?? null, ['completed', 'partial', 'insufficient_evidence'], true)
+            || !array_key_exists('compatibility_score', $data)
+            || !is_array($data['components'] ?? null)
+            || !is_array($data['evidence'] ?? null)) {
+            return false;
+        }
+
+        $score = $data['compatibility_score'];
+        if ($data['status'] === 'insufficient_evidence') {
+            if ($score !== null) return false;
+        } elseif (!$this->validCompatibilityScore($score)) {
+            return false;
+        }
+        foreach (['temperature', 'lightness', 'hue', 'contrast'] as $component) {
+            if (!array_key_exists($component, $data['components'])
+                || ($data['components'][$component] !== null
+                    && !$this->validCompatibilityScore($data['components'][$component]))) {
+                return false;
+            }
+        }
+        foreach (['harmony_types', 'explanations', 'warnings'] as $field) {
+            if (!is_array($data[$field] ?? null) || !array_is_list($data[$field])) return false;
+            foreach ($data[$field] as $value) {
+                if (!is_string($value)) return false;
+            }
+        }
+
+        return !array_diff($data['harmony_types'], [
+            'monochromatic', 'analogous', 'complementary', 'split_complementary',
+            'triadic', 'neutrals', 'neutral_accent', 'light_dark_contrast',
+        ]);
+    }
+
+    private function validCompatibilityScore(mixed $value): bool
+    {
+        return (is_int($value) || is_float($value))
+            && is_finite((float) $value) && $value >= 0 && $value <= 100;
     }
 
     public function fallback(string $requestId, string $code): array

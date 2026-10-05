@@ -1,0 +1,3168 @@
+diff --git a/.env.example b/.env.example
+index f6017f8..ff9b863 100644
+--- a/.env.example
++++ b/.env.example
+@@ -77,3 +77,7 @@ MATI_AI_URL=http://mati-ai:8000
+ MATI_AI_TOKEN=
+ MATI_AI_TIMEOUT=30
+ MATI_AI_CONNECT_TIMEOUT=3
++
++# Exact image-vector search stays in PostgreSQL with pgvector.
++MATI_AI_VECTOR_ENABLED=true
++MATI_AI_DUPLICATE_SIMILARITY=0.98
+diff --git a/app/Console/Commands/IndexMatiAiCatalog.php b/app/Console/Commands/IndexMatiAiCatalog.php
+index 01c8532..d0dd108 100644
+--- a/app/Console/Commands/IndexMatiAiCatalog.php
++++ b/app/Console/Commands/IndexMatiAiCatalog.php
+@@ -5,75 +5,134 @@
+ use App\Models\AiRun;
+ use App\Models\ImagenPrenda;
+ use App\Services\AI\AiReviewService;
+-use App\Services\AI\CatalogAiService;
++use App\Services\AI\CatalogEmbeddingStore;
+ use App\Services\AI\CatalogImageReader;
+ use App\Services\AI\MatiAiClient;
+ use Illuminate\Console\Command;
+ use Illuminate\Support\Facades\DB;
+ use Illuminate\Support\Facades\Log;
+ use Illuminate\Support\Facades\Schema;
++use Illuminate\Support\Str;
+ 
+ class IndexMatiAiCatalog extends Command
+ {
+     protected $signature = 'mati-ai:index-catalog
+-        {--limit=100 : Máximo de portadas locales a procesar}
++        {--limit=100 : Máximo de imágenes o ejecuciones a procesar}
++        {--batch-size=25 : Cantidad de registros leídos en cada lote}
+         {--after-id=0 : Procesar imágenes posteriores a este ID}
+-        {--force : Registrar también entradas con el mismo hash e identidad de embedding}';
+-    protected $description = 'Indexa portadas locales para similitud visual sin cambiar productos ni aplicar sugerencias.';
++        {--from-runs : Reutilizar embeddings reales de ai_runs sin ejecutar inferencia}
++        {--after-run-id= : Reanudar después de este UUID de ai_runs}
++        {--force : Actualizar la fila canónica existente de la misma imagen e identidad}';
++    protected $description = 'Indexa embeddings reales del catálogo en pgvector sin aplicar sugerencias ni cambiar productos.';
+ 
+-    public function handle(MatiAiClient $client, CatalogAiService $catalog, CatalogImageReader $reader, AiReviewService $reviews): int
++    public function handle(MatiAiClient $client, CatalogImageReader $reader, AiReviewService $reviews, CatalogEmbeddingStore $store): int
+     {
+-        if (!config('mati_ai.enabled') || blank(config('mati_ai.token'))) {
+-            $this->error('Configura MATI_AI_ENABLED y MATI_AI_TOKEN antes de indexar.');
++        $limit = filter_var($this->option('limit'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 10000]]);
++        $batchSize = filter_var($this->option('batch-size'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 500]]);
++        $after = filter_var($this->option('after-id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
++        if ($limit === false || $batchSize === false || $after === false) {
++            $this->error('--limit debe estar entre 1 y 10000; --batch-size entre 1 y 500; --after-id debe ser un entero no negativo.');
++            return self::INVALID;
++        }
++        $fromRuns = (bool) $this->option('from-runs');
++        $afterRunId = $this->option('after-run-id');
++        if (($afterRunId && !$fromRuns) || ($fromRuns && $after > 0)) {
++            $this->error('Usa --after-id con imágenes y --after-run-id con --from-runs.');
++            return self::INVALID;
++        }
++        if (!$store->available() || !Schema::hasTable('ai_runs')) {
++            $this->error('El almacenamiento vectorial no está disponible. Requiere PostgreSQL con pgvector, las migraciones IA y MATI_AI_VECTOR_ENABLED.');
+             return self::FAILURE;
+         }
+-        if (!Schema::hasTable('ai_runs')) {
+-            $this->error('Aplica primero la migración IA.');
++        if (!$fromRuns && (!config('mati_ai.enabled') || blank(config('mati_ai.token')))) {
++            $this->error('Configura MATI_AI_ENABLED y MATI_AI_TOKEN antes de generar embeddings de imágenes.');
+             return self::FAILURE;
+         }
+-        $limit = filter_var($this->option('limit'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 10000]]);
+-        $after = filter_var($this->option('after-id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+-        if ($limit === false || $after === false) {
+-            $this->error('--limit debe estar entre 1 y 10000 y --after-id debe ser un entero no negativo.');
+-            return self::INVALID;
++
++        $runCursor = null;
++        if ($afterRunId) {
++            if (!is_string($afterRunId) || !Str::isUuid($afterRunId) || !($runCursor = AiRun::find($afterRunId))) {
++                $this->error('--after-run-id debe identificar una ejecución existente.');
++                return self::INVALID;
++            }
+         }
+-        $taxonomies = $catalog->taxonomies();
+-        $images = ImagenPrenda::where('pri_igp', true)->whereHas('prenda')->where('rut_igp', 'like', 'productos/%')
+-            ->where('id_imagen_prenda', '>', $after)->orderBy('id_imagen_prenda')->limit($limit)->get();
+-        $indexed = $skipped = $failed = 0;
+-        foreach ($images as $image) {
+-            try {
+-                $bytes = $reader->read($image);
+-                $hash = hash('sha256', $bytes);
+-                $result = $client->request('analyze', [...$taxonomies, 'include_embedding' => true], $bytes);
+-                $embedding = data_get($result, 'data.embedding');
+-                if (isset($result['error']) || !is_array($embedding) || empty($embedding['values'])
+-                    || empty($embedding['model_id']) || empty($embedding['model_revision'])) {
+-                    $failed++;
+-                    $this->warn('Imagen '.$image->id_imagen_prenda.': embedding no disponible.');
+-                    continue;
++        $indexed = $skipped = $failed = $processed = 0;
++        while ($processed < $limit) {
++            if ($fromRuns) {
++                $query = AiRun::whereNotNull('prenda_id')->whereNotNull('embedding');
++                if ($runCursor) {
++                    $query->where(function ($query) use ($runCursor) {
++                        $query->where('created_at', '>', $runCursor->created_at)
++                            ->orWhere(fn ($sameTime) => $sameTime->where('created_at', $runCursor->created_at)->where('id', '>', $runCursor->id));
++                    });
+                 }
+-                // Compare the real returned embedding identity; never substitute a fabricated vector.
+-                $existing = AiRun::where('prenda_id', $image->cod_prendas_igp)->where('input_hash', $hash)
+-                    ->whereNotNull('embedding')->get()->contains(fn ($run) =>
+-                        data_get($run->embedding, 'model_id') === $embedding['model_id']
+-                        && data_get($run->embedding, 'model_revision') === $embedding['model_revision']);
+-                if ($existing && !$this->option('force')) {
+-                    $skipped++;
+-                    continue;
++                $entries = $query->orderBy('created_at')->orderBy('id')->limit(min($batchSize, $limit - $processed))->get();
++            } else {
++                $entries = ImagenPrenda::where('pri_igp', true)
++                    ->whereHas('prenda', fn ($query) => $query->where('est_pre', true))
++                    ->where('rut_igp', 'like', 'productos/%')->where('id_imagen_prenda', '>', $after)
++                    ->orderBy('id_imagen_prenda')->limit(min($batchSize, $limit - $processed))->get();
++            }
++            if ($entries->isEmpty()) break;
++            foreach ($entries as $entry) {
++                $processed++;
++                // Advance for every inspected record, including failures, and print the cursor.
++                if ($fromRuns) $runCursor = $entry;
++                else $after = (int) $entry->id_imagen_prenda;
++                try {
++                    if ($fromRuns) {
++                        // An old run must never be relinked to a replaced image at the same ID.
++                        $imageId = data_get($entry->input_metadata, 'image_id');
++                        if ($imageId !== null) {
++                            $image = ImagenPrenda::whereKey($imageId)->where('cod_prendas_igp', $entry->prenda_id)->first();
++                            if (!$image || !is_string($entry->input_hash)
++                                || !hash_equals(strtolower($entry->input_hash), hash('sha256', $reader->read($image)))) {
++                                throw new \InvalidArgumentException('EMBEDDING_IMAGE_CONTENT_CHANGED');
++                            }
++                        }
++                        // storeRun enforces recorded hash, pinned identity and actual dimensions.
++                        $stored = $store->storeRun($entry, null, ['indexed_from_existing_run' => true], (bool) $this->option('force'));
++                        if (!$stored) throw new \RuntimeException('EMBEDDING_NOT_STORED');
++                    } else {
++                        $bytes = $reader->read($entry);
++                        $hash = hash('sha256', $bytes);
++                        $result = $client->request('embedding', [], $bytes);
++                        $embedding = data_get($result, 'data.embedding');
++                        if (isset($result['error']) || !is_array($embedding) || !is_array($result['model'] ?? null)) {
++                            throw new \RuntimeException('EMBEDDING_NOT_AVAILABLE');
++                        }
++                        // Validate real output before checking the complete canonical identity.
++                        $store->prepare($embedding, $result['model']);
++                        if (!$this->option('force') && $store->existingForProduct((int) $entry->cod_prendas_igp, $hash, $embedding, $result['model'])) {
++                            $skipped++;
++                            continue;
++                        }
++                        $stored = DB::transaction(function () use ($reviews, $store, $result, $hash, $entry) {
++                            $run = $reviews->persist('index-catalog', $result, null, [
++                                'sha256' => $hash, 'image_id' => (int) $entry->id_imagen_prenda,
++                                'original_preserved' => true,
++                            ]);
++                            $run->update(['prenda_id' => $entry->cod_prendas_igp]);
++                            $stored = $store->storeRun($run, (int) $entry->id_imagen_prenda, [], (bool) $this->option('force'));
++                            if (!$stored) throw new \RuntimeException('EMBEDDING_NOT_STORED');
++                            return $stored;
++                        });
++                    }
++                    if ($stored->wasRecentlyCreated || $this->option('force')) $indexed++;
++                    else $skipped++;
++                } catch (\Throwable $exception) {
++                    $failed++;
++                    $context = $fromRuns ? ['run_id' => $entry->id] : ['image_id' => $entry->id_imagen_prenda];
++                    Log::warning('mati_ai.catalog_index_failed', $context);
++                    $label = $fromRuns ? 'Ejecución '.$entry->id : 'Imagen '.$entry->id_imagen_prenda;
++                    $reason = $exception instanceof \InvalidArgumentException ? ' ('.$exception->getMessage().')' : '';
++                    $this->warn($label.': no se pudo indexar'.$reason.'.');
+                 }
+-                DB::transaction(function () use ($reviews, $result, $hash, $image) {
+-                    $run = $reviews->persist('index-catalog', $result, null, ['sha256' => $hash, 'image_id' => $image->id_imagen_prenda]);
+-                    $run->update(['prenda_id' => $image->cod_prendas_igp]);
+-                });
+-                $indexed++;
+-            } catch (\Throwable) {
+-                $failed++;
+-                Log::warning('mati_ai.catalog_index_failed', ['image_id' => $image->id_imagen_prenda]);
+-                $this->warn('Imagen '.$image->id_imagen_prenda.': no se pudo indexar.');
+             }
++            $this->line('Procesadas: '.$processed.'. Cursor: '.($fromRuns ? '--after-run-id='.$runCursor->id : '--after-id='.$after).'.');
+         }
+-        $this->info('Indexadas: '.$indexed.'. Ya indexadas: '.$skipped.'. No disponibles: '.$failed.'.');
++        $this->info('Indexadas o actualizadas: '.$indexed.'. Ya indexadas: '.$skipped.'. No disponibles: '.$failed.'.');
++        $this->line('Las coincidencias visuales requieren revisión humana; este comando no modifica el catálogo comercial.');
+         return $failed > 0 ? self::FAILURE : self::SUCCESS;
+     }
+ }
+diff --git a/app/Http/Controllers/Superadmin/AiController.php b/app/Http/Controllers/Superadmin/AiController.php
+index 4a7dd34..67d8b20 100644
+--- a/app/Http/Controllers/Superadmin/AiController.php
++++ b/app/Http/Controllers/Superadmin/AiController.php
+@@ -7,6 +7,7 @@
+ use App\Models\AiSuggestion;
+ use App\Models\ImagenPrenda;
+ use App\Services\AI\CatalogImageReader;
++use App\Services\AI\CatalogEmbeddingStore;
+ use App\Services\AI\AiPublicationService;
+ use App\Services\AI\AiReviewService;
+ use App\Services\AI\CatalogAiService;
+@@ -47,19 +48,120 @@ public function image(Request $request, string $operation)
+             'image' => ['nullable', 'required_without:existing_image_id', 'prohibited_with:existing_image_id', 'file', 'mimes:jpg,jpeg,png,webp', 'max:'.config('mati_ai.max_image_kb')],
+             'existing_image_id' => ['nullable', 'required_without:image', 'prohibited_with:image', 'integer', 'min:1'],
+         ]);
+-        $bytes = !empty($data['existing_image_id'])
+-            ? app(CatalogImageReader::class)->read(ImagenPrenda::findOrFail($data['existing_image_id']))
++        $existingImage = !empty($data['existing_image_id']) ? ImagenPrenda::findOrFail($data['existing_image_id']) : null;
++        $bytes = $existingImage
++            ? app(CatalogImageReader::class)->read($existingImage)
+             : $request->file('image')->getContent();
+         $taxonomies = $this->catalog->taxonomies();
+         $result = $this->client->request($operation, [...$taxonomies, 'include_embedding' => true], $bytes);
+         if (!isset($result['error'])) {
+             $query = $this->queryFromResult($result);
+             $result = $this->withInternalMatches($result, $query);
+-            if ($operation === 'analyze') $result['data']['duplicates'] = $this->catalog->duplicates(hash('sha256', $bytes));
++            if ($operation === 'analyze') {
++                $result['data']['duplicates'] = $this->catalog->duplicates(hash('sha256', $bytes));
++                $result = $this->withVisualSimilarities($result, $existingImage?->cod_prendas_igp, hash('sha256', $bytes));
++            }
+         }
+-        return $this->record($operation, $result, $actor, $taxonomies, ['sha256' => hash('sha256', $bytes)]);
++        return $this->record($operation, $result, $actor, $taxonomies, [
++            'sha256' => hash('sha256', $bytes), 'image_id' => $existingImage?->id_imagen_prenda,
++            'prenda_id' => $existingImage?->cod_prendas_igp,
++        ]);
++    }
++
++    public function similar(Request $request, CatalogEmbeddingStore $vectors)
++    {
++        $actor = $this->actor($request);
++        $data = $request->validate([
++            'image' => ['nullable', 'required_without:existing_image_id', 'prohibited_with:existing_image_id', 'file', 'mimes:jpg,jpeg,png,webp', 'max:'.config('mati_ai.max_image_kb')],
++            'existing_image_id' => ['nullable', 'required_without:image', 'prohibited_with:image', 'integer', 'min:1'],
++            'limit' => ['nullable', 'integer', 'min:1', 'max:'.config('mati_ai.vectors.max_limit', 30)],
++        ]);
++        if (!$vectors->available()) {
++            $result = $this->localResult();
++            $result['status'] = 'degraded';
++            $result['warnings'] = ['VECTOR_STORE_UNAVAILABLE'];
++            $result['data'] = ['visual_similarities' => [], 'vector_search' => [
++                'status' => 'unavailable', 'metric' => 'cosine', 'exact' => true, 'total_candidates' => 0,
++            ]];
++            return response()->json($result);
++        }
++        $image = !empty($data['existing_image_id']) ? ImagenPrenda::findOrFail($data['existing_image_id']) : null;
++        $bytes = $image ? app(CatalogImageReader::class)->read($image) : $request->file('image')->getContent();
++        $result = $this->client->request('embedding', [], $bytes);
++        $result = $this->withVisualSimilarities(
++            $result, $image?->cod_prendas_igp, hash('sha256', $bytes),
++            (int) ($data['limit'] ?? config('mati_ai.vectors.default_limit', 12)),
++        );
++        // Search audits retain identity/results, not a duplicate copy of the query vector.
++        unset($result['data']['embedding']);
++        return $this->record('similar', $result, $actor, $this->catalog->taxonomies(), [
++            'sha256' => hash('sha256', $bytes), 'query_image_id' => $image?->id_imagen_prenda,
++        ]);
++    }
++
++    public function catalogImage(Request $request, ImagenPrenda $image)
++    {
++        $this->actor($request);
++        abort_unless($image->prenda?->est_pre, 404);
++        $bytes = app(CatalogImageReader::class)->read($image);
++        $mime = getimagesizefromstring($bytes)['mime'];
++        return response($bytes, 200, [
++            'Content-Type' => $mime, 'Cache-Control' => 'private, no-store',
++            'X-Content-Type-Options' => 'nosniff',
++            'Content-Disposition' => 'inline; filename="prenda"',
++        ]);
+     }
+ 
++    private function withVisualSimilarities(array $result, ?int $excludePrenda, string $hash, ?int $limit = null): array
++    {
++        $embedding = data_get($result, 'data.embedding');
++        $result['data']['visual_similarities'] = [];
++        $result['data']['vector_search'] = ['status' => 'no_embedding', 'metric' => 'cosine', 'exact' => true, 'total_candidates' => 0];
++        if (!is_array($embedding) || empty($embedding['values'])) {
++            $result['warnings'][] = 'IMAGE_EMBEDDING_UNAVAILABLE';
++            return $result;
++        }
++        try {
++            $search = app(CatalogEmbeddingStore::class)->search($embedding, [
++                'limit' => $limit ?? config('mati_ai.vectors.default_limit', 12),
++                'exclude_prenda_id' => $excludePrenda, 'content_hash' => $hash,
++            ], $result['model'] ?? []);
++            $warnings = $search['warnings'] ?? [];
++            $status = ($search['status'] ?? '') === 'degraded' ? 'unavailable'
++                : (($search['total_candidates'] ?? 0) > 0 ? 'completed'
++                    : (in_array('VECTOR_COMPATIBLE_INDEX_EMPTY', $warnings, true) ? 'incompatible' : 'empty'));
++            $result['data']['vector_search'] = [
++                'status' => $status, 'metric' => 'cosine', 'exact' => true,
++                'total_candidates' => $search['total_candidates'] ?? 0,
++                'total_indexed' => $search['total_indexed'] ?? 0,
++                'dimension' => $search['dimensions'] ?? null,
++                'model_id' => $search['model_id'] ?? null, 'model_revision' => $search['model_revision'] ?? null,
++                'pipeline_version' => $search['pipeline_version'] ?? null,
++                'embedding_version' => $search['embedding_version'] ?? null,
++                'preprocess_version' => $search['preprocess_version'] ?? null,
++            ];
++            $result['data']['visual_similarities'] = array_map(function ($match) {
++                $prendaId = (int) $match['prenda_id'];
++                $imageId = !empty($match['image_id']) ? (int) $match['image_id'] : null;
++                return [
++                    'prenda_id' => $prendaId, 'image_id' => $imageId, 'title' => $match['title'],
++                    'image_url' => $imageId ? route('superadmin.ai.catalog-image', ['image' => $imageId], false) : null,
++                    'href' => '/superadmin/catalogo/prendas/'.$prendaId,
++                    'similarity_score' => $match['similarity_score'], 'distance' => $match['distance'],
++                    'possible_duplicate' => $match['possible_duplicate'] ?? false,
++                    'duplicate_evidence' => $match['duplicate_evidence'] ?? [],
++                ];
++            }, $search['matches'] ?? []);
++            $result['warnings'] = array_values(array_unique([...($result['warnings'] ?? []), ...$warnings]));
++            if ($status === 'unavailable' && $result['status'] === 'completed') $result['status'] = 'partial';
++        } catch (\Throwable) {
++            Log::warning('mati_ai.vector_search_failed', ['request_id' => $result['request_id']]);
++            $result['data']['vector_search']['status'] = 'unavailable';
++            $result['warnings'][] = 'VECTOR_SEARCH_UNAVAILABLE';
++            if ($result['status'] === 'completed') $result['status'] = 'partial';
++        }
++        return $result;
++    }
+     private function queryFromResult(array $result): array
+     {
+         $codes = data_get($result, 'data.codes', []);
+@@ -294,6 +396,10 @@ private function record(string $operation, array $result, int $actor, array $tax
+     {
+         try {
+             $run = $this->reviews->persist($operation, $result, $actor, $input);
++            if (!empty($input['prenda_id']) && !empty($input['image_id']) && $run->embedding) {
++                $run->update(['prenda_id' => (int) $input['prenda_id']]);
++                $this->reviews->indexSavedEmbeddingSafely($run, (int) $input['image_id']);
++            }
+             $suggestions = $this->reviews->suggestions($run, $taxonomies);
+             $result['data'] = $suggestions['data'];
+             $result['suggestions'] = $suggestions['suggestions'];
+diff --git a/app/Services/AI/AiReviewService.php b/app/Services/AI/AiReviewService.php
+index 0402057..8508ad4 100644
+--- a/app/Services/AI/AiReviewService.php
++++ b/app/Services/AI/AiReviewService.php
+@@ -5,6 +5,7 @@
+ use App\Models\AiHumanReview;
+ use App\Models\AiRun;
+ use App\Models\AiSuggestion;
++use App\Models\ImagenPrenda;
+ use App\Models\Prenda;
+ use Illuminate\Support\Facades\DB;
+ use Illuminate\Support\Facades\Log;
+@@ -55,9 +56,30 @@ public function suggestions(AiRun $run, array $taxonomies): array
+                 $add('category', $entry['id'], $entry['name'], 'vision', $item['similarity_score'] ?? null);
+             }
+         }
+-        foreach ([data_get($data, 'colors.dominant_color'), ...data_get($data, 'colors.secondary_colors', [])] as $item) {
+-            if ($item && ($entry = $map('colors', $item['catalog_id'] ?? null))) {
+-                $add('color', $entry['id'], $entry['name'], 'color_lab', $item['confidence_score'] ?? null);
++        if (is_array($data['colorimetry'] ?? null)) {
++            $colorimetry = $data['colorimetry'];
++            $seenColors = [];
++            foreach ($colorimetry['palette'] ?? [] as $item) {
++                $id = $item['catalog_color_id'] ?? null;
++                if ($id === null || isset($seenColors[(string) $id])
++                    || data_get($item, 'evidence.catalog_match_accepted') !== true
++                    || !($entry = $map('colors', $id))) continue;
++                $seenColors[(string) $id] = true;
++                $role = data_get($colorimetry, 'primary_color.hex') === $item['hex'] ? 'primary'
++                    : (collect($colorimetry['accent_colors'] ?? [])->contains('hex', $item['hex']) ? 'accent' : 'secondary');
++                $add('color', $entry['id'], $entry['name'], 'colorimetry', $item['confidence_score'] ?? null, [
++                    ...$item, 'color_role' => $role,
++                    'foreground_confidence' => $colorimetry['foreground_confidence'],
++                    'colorimetry_version' => $colorimetry['version'],
++                    'colorimetry_warnings' => $colorimetry['warnings'],
++                    'human_review_required' => true,
++                ]);
++            }
++        } else {
++            foreach ([data_get($data, 'colors.dominant_color'), ...data_get($data, 'colors.secondary_colors', [])] as $item) {
++                if ($item && ($entry = $map('colors', $item['catalog_id'] ?? null))) {
++                    $add('color', $entry['id'], $entry['name'], 'color_lab', $item['confidence_score'] ?? null);
++                }
+             }
+         }
+         foreach (['brand' => 'brands', 'size' => 'sizes'] as $field => $kind) {
+@@ -108,6 +130,35 @@ public function attachSafelyToProduct(Prenda $product, array $validated, ?int $a
+         }
+     }
+ 
++    public function indexSavedEmbeddingSafely(AiRun $run, ?int $imageId = null): void
++    {
++        if (!$run->prenda_id || !$run->embedding || !is_string($run->input_hash)
++            || !preg_match('/^[a-f0-9]{64}$/i', $run->input_hash)) return;
++        try {
++            // A vector failure must not roll back the commercial save or its review audit.
++            DB::transaction(function () use ($run, $imageId) {
++                $store = app(CatalogEmbeddingStore::class);
++                if (!$store->available()) return;
++                $images = ImagenPrenda::where('cod_prendas_igp', $run->prenda_id)
++                    ->when($imageId, fn ($query) => $query->whereKey($imageId))
++                    ->orderBy('pri_igp', 'desc')->orderBy('id_imagen_prenda')->get();
++                foreach ($images as $image) {
++                    try {
++                        $bytes = app(CatalogImageReader::class)->read($image);
++                    } catch (\Throwable) {
++                        continue;
++                    }
++                    // Link only the exact analyzed bytes which actually survived the save.
++                    if (!hash_equals(strtolower($run->input_hash), hash('sha256', $bytes))) continue;
++                    $store->storeRun($run, (int) $image->id_imagen_prenda, ['saved_image_hash_verified' => true]);
++                    return;
++                }
++            });
++        } catch (\Throwable) {
++            Log::warning('mati_ai.saved_embedding_failed', ['run_id' => $run->id, 'prenda_id' => $run->prenda_id]);
++        }
++    }
++
+     public function recordFeedback(AiSuggestion $suggestion, array $data, int $actor): void
+     {
+         DB::transaction(function () use ($suggestion, $data, $actor) {
+@@ -142,6 +193,7 @@ public function attachToProduct(Prenda $product, array $validated, ?int $actor):
+             $run->update(['prenda_id' => $product->id_prenda, 'input_metadata' => [
+                 ...($run->input_metadata ?? []), 'saved_variant_ids' => $variantIds,
+             ]]);
++            $this->indexSavedEmbeddingSafely($run);
+             foreach ($run->suggestions as $suggestion) {
+                 $reviews = $suggestion->reviews()->where('reviewer_id', $actor)->where('stage', 'form')->latest('id')->get()
+                     ->unique(fn ($review) => in_array($suggestion->field, ['color', 'size', 'gtin'], true) ? ($review->variant_index ?? 0) : 'product');
+diff --git a/app/Services/AI/CatalogAiService.php b/app/Services/AI/CatalogAiService.php
+index a3f3633..2441ee6 100644
+--- a/app/Services/AI/CatalogAiService.php
++++ b/app/Services/AI/CatalogAiService.php
+@@ -2,7 +2,6 @@
+ 
+ namespace App\Services\AI;
+ 
+-use App\Models\AiRun;
+ use App\Models\Categoria;
+ use App\Models\Color;
+ use App\Models\ImagenPrenda;
+@@ -20,7 +19,12 @@ public function taxonomies(): array
+         return [
+             'categories' => Categoria::where('est_cat', true)->get()->map(fn ($v) => ['id' => $v->id_categoria, 'name' => $v->nom_cat])->all(),
+             'brands' => Marca::where('est_mar', true)->get()->map(fn ($v) => ['id' => $v->id_marca, 'name' => $v->nom_mar])->all(),
+-            'colors' => Color::where('est_col', true)->get()->map(fn ($v) => ['id' => $v->id_color, 'name' => $v->nom_col, 'hex' => $v->hex_dom_col ?: $v->hex_col])->all(),
++            'colors' => Color::where('est_col', true)->orderBy('ord_col')->orderBy('id_color')->get()->map(fn ($v) => [
++                'id' => $v->id_color, 'name' => $v->nom_col,
++                // Match the exact commercial shade; the family swatch is separate evidence.
++                'hex' => $v->hex_col,
++                'family' => $v->fam_col, 'family_hex' => $v->hex_dom_col,
++            ])->all(),
+             'sizes' => Talla::where('est_tal', true)->get()->map(fn ($v) => ['id' => $v->id_talla, 'name' => $v->nom_tal])->all(),
+             'patterns' => Patron::where('est_pat', true)->get()->map(fn ($v) => ['id' => $v->id_patron, 'name' => $v->nom_pat])->all(),
+         ];
+@@ -54,11 +58,24 @@ public function candidates(array $query): array
+         })->limit(100)->get();
+         $soft = (clone $base)->when(filled($query['category_id'] ?? null), fn ($q) => $q->whereHas('prenda', fn ($p) => $p->where('cod_categorias_pre', $query['category_id'])))
+             ->limit(config('mati_ai.candidate_limit', 100))->get();
+-        return $exact->concat($soft)->unique('id_prenda_variante')->map(function ($v) {
+-            $embedding = Schema::hasTable('ai_runs') ? AiRun::where('prenda_id', $v->cod_prendas_prv)->whereNotNull('embedding')->latest()->value('embedding') : null;
+-            if (is_string($embedding)) {
+-                $embedding = json_decode($embedding, true);
++        $vectors = app(CatalogEmbeddingStore::class);
++        $queryEmbedding = $query['embedding'] ?? null;
++        $useVectors = is_array($queryEmbedding) && $vectors->available();
++        $embeddings = [];
++        return $exact->concat($soft)->unique('id_prenda_variante')->map(function ($v) use ($vectors, $queryEmbedding, $useVectors, &$embeddings) {
++            $productId = (int) $v->cod_prendas_prv;
++            if (!array_key_exists($productId, $embeddings)) {
++                $embeddings[$productId] = null;
++                if ($useVectors) {
++                    try {
++                        $embeddings[$productId] = $vectors->latestCompatibleForProduct($productId, $queryEmbedding)?->toEmbedding();
++                    } catch (\Throwable) {
++                        // Text and exact-code matching remain usable if vectors are unavailable.
++                        $embeddings[$productId] = null;
++                    }
++                }
+             }
++            $embedding = $embeddings[$productId];
+             return [
+                 'candidate_id' => (string) $v->id_prenda_variante,
+                 'prenda_id' => $v->cod_prendas_prv,
+diff --git a/app/Services/AI/MatiAiClient.php b/app/Services/AI/MatiAiClient.php
+index d7c17aa..f040bf5 100644
+--- a/app/Services/AI/MatiAiClient.php
++++ b/app/Services/AI/MatiAiClient.php
+@@ -12,6 +12,7 @@ class MatiAiClient
+     private const PATHS = [
+         'capabilities' => '/api/v1/capabilities',
+         'analyze' => '/api/v1/garments/analyze',
++        'embedding' => '/api/v1/garments/embedding',
+         'barcode' => '/api/v1/identification/barcode',
+         'label' => '/api/v1/identification/label',
+         'match' => '/api/v1/products/match',
+@@ -23,6 +24,7 @@ class MatiAiClient
+     public function request(string $operation, array $payload = [], ?string $image = null, ?string $requestId = null): array
+     {
+         $requestId ??= (string) Str::uuid();
++        $colorCatalog = is_array($payload['colors'] ?? null) ? $payload['colors'] : [];
+         $start = microtime(true);
+         $result = $this->fallback($requestId, 'SERVICE_UNAVAILABLE');
+         try {
+@@ -54,7 +56,9 @@ public function request(string $operation, array $payload = [], ?string $image =
+             } elseif (!$this->validResponse($body, $requestId, $operation)) {
+                 $result = $this->fallback($requestId, 'INVALID_RESPONSE');
+             } else {
+-                $result = $body;
++                $result = $operation === 'analyze'
++                    ? app(ColorimetryCatalogGuard::class)->normalize($body, $colorCatalog)
++                    : $body;
+             }
+         } catch (ConnectionException) {
+             $result = $this->fallback($requestId, 'CONNECTION_TIMEOUT');
+@@ -88,6 +92,12 @@ private function validResponse(mixed $body, string $requestId, string $operation
+             && match ($operation) {
+                 'capabilities' => is_array(data_get($body, 'data.operations')),
+                 'analyze' => is_array(data_get($body, 'data.quality')) && is_array(data_get($body, 'data.colors')) && is_array(data_get($body, 'data.classification.top_k')),
++                'embedding' => is_array(data_get($body, 'data.image'))
++                    && is_array(data_get($body, 'data.embedding.values'))
++                    && is_int(data_get($body, 'data.embedding.dimension'))
++                    && is_string(data_get($body, 'data.embedding.model_id'))
++                    && is_string(data_get($body, 'data.embedding.model_revision'))
++                    && is_string(data_get($body, 'data.embedding.pipeline_version')),
+                 'barcode' => is_array(data_get($body, 'data.codes')),
+                 'label' => is_string(data_get($body, 'data.raw_text')) && is_string(data_get($body, 'data.normalized_text')),
+                 'match' => is_array(data_get($body, 'data.matches')),
+diff --git a/compose.yaml b/compose.yaml
+index d04ed10..644c6d1 100644
+--- a/compose.yaml
++++ b/compose.yaml
+@@ -48,7 +48,11 @@ services:
+         cap_drop:
+             - ALL
+     pgsql:
+-        image: 'postgres:18-alpine'
++        build:
++            context: './database/pgsql'
++            args:
++                PGVECTOR_VERSION: '0.8.7'
++        image: 'mati-postgres:18-alpine-pgvector-0.8.7'
+         ports:
+             - '${FORWARD_DB_PORT:-5432}:5432'
+         environment:
+diff --git a/config/mati_ai.php b/config/mati_ai.php
+index e9be022..6af6fb6 100644
+--- a/config/mati_ai.php
++++ b/config/mati_ai.php
+@@ -9,4 +9,12 @@
+     'max_image_kb' => 6144,
+     'candidate_limit' => 100,
+     'prepared_ttl_hours' => 24,
++    'vectors' => [
++        'enabled' => env('MATI_AI_VECTOR_ENABLED', true),
++        'default_limit' => 12,
++        'max_limit' => 30,
++        'max_dimensions' => 16000,
++        // Heuristic candidate flag; similarity is never an identity probability.
++        'duplicate_similarity_threshold' => (float) env('MATI_AI_DUPLICATE_SIMILARITY', 0.98),
++    ],
+ ];
+diff --git a/resources/js/Components/Superadmin/GarmentIntelligentAssistant.tsx b/resources/js/Components/Superadmin/GarmentIntelligentAssistant.tsx
+index efcd445..915551d 100644
+--- a/resources/js/Components/Superadmin/GarmentIntelligentAssistant.tsx
++++ b/resources/js/Components/Superadmin/GarmentIntelligentAssistant.tsx
+@@ -1,12 +1,12 @@
+ import axios from 'axios';
+ import { useEffect, useRef, useState } from 'react';
+-import { Check, ExternalLink, Loader2, Sparkles, X } from 'lucide-react';
++import { Check, ExternalLink, Loader2, Search, Sparkles, X } from 'lucide-react';
+ import type { ProductEditorForm } from '@/types/productEditor';
+ import {
+     aiFieldLabels, aiReviewKey, aiWarningText, applyAiSuggestion, compatibleSuggestionBatch, currentSuggestionValue,
+     existingAnalysisImageId, externalReferencePreviewUrl, preparedImageUrl,
+     imageRightsAllowPublication, queueAiReview, readAiReviewQueue, safeExternalUrl, suggestionIssue, suggestionValue,
+-    variantSuggestionFields, wouldReplaceValue, type AiCatalogs, type AiReviewDecision, type AiSuggestion,
++    variantSuggestionFields, visualSimilarityImageUrl, visualSimilarityScoreText, wouldReplaceValue, type AiCatalogs, type AiReviewDecision, type AiSuggestion,
+ } from '@/lib/garmentAssistant';
+ 
+ type Warning = string | { code?: string; message?: string };
+@@ -18,8 +18,32 @@ type ExternalCandidate = {
+     warnings?: Warning[]; suggestions?: AiSuggestion[];
+ };
+ type PaletteColor = { hex: string; percentage: number; catalog_name?: string | null; confidence_score?: number; };
++type ColorLevel = 'low' | 'medium' | 'high' | 'unknown';
++type ColorTemperature = 'warm' | 'cool' | 'neutral' | 'warm_neutral' | 'cool_neutral' | 'unknown';
++type ColorFamily = 'black' | 'white' | 'gray' | 'beige_cream' | 'brown' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'violet' | 'pink' | 'metallic' | 'multicolor';
++type ColorimetryColor = {
++    rgb: [number, number, number]; hex: string; lab: [number, number, number]; percentage: number;
++    catalog_color_id: string | number | null; catalog_color_name: string | null; delta_e: number | null;
++    confidence_score: number; evidence: Record<string, unknown>; family: ColorFamily | null; descriptive_name: string;
++};
++type Colorimetry = {
++    status: 'completed' | 'partial' | 'insufficient_evidence'; foreground_confidence: number;
++    primary_color: ColorimetryColor | null; secondary_colors: ColorimetryColor[]; accent_colors: ColorimetryColor[]; palette: ColorimetryColor[];
++    temperature: ColorTemperature; lightness: ColorLevel; chroma: ColorLevel; saturation: ColorLevel; neutrality: ColorLevel;
++    internal_contrast: ColorLevel; color_variety: 'monochrome' | 'bicolor' | 'multicolor' | 'unknown';
++    dominant_family: ColorFamily | null; warnings: Warning[];
++};
+ type Code = { symbology: string; raw_value: string; normalized_value: string; checksum_valid: boolean | null; contains_url?: boolean; warnings?: Warning[] };
+ type PreparedImage = { token: string; url: string; name: string };
++type VisualSimilarity = {
++    prenda_id: string | number; image_id: string | number | null; title: string; image_url: string | null; href: string;
++    similarity_score: number | null; distance: number | null; possible_duplicate: boolean;
++    duplicate_evidence?: string[] | Record<string, unknown> | null;
++};
++type VectorSearch = {
++    status: 'completed' | 'empty' | 'unavailable' | 'incompatible' | 'no_embedding'; total_candidates?: number;
++    dimension?: number; model_id?: string; model_revision?: string; pipeline_version?: string; metric?: string; exact?: boolean;
++};
+ type AiResponse = {
+     request_id: string; run_id?: string | number; status: string; suggestions?: AiSuggestion[];
+     warnings?: Warning[]; abstentions?: Warning[];
+@@ -27,30 +51,111 @@ type AiResponse = {
+     timing_ms?: Record<string, number>;
+     data: {
+         internal_matches?: InternalMatch[]; external_search_allowed?: boolean;
++        visual_similarities?: VisualSimilarity[]; vector_search?: VectorSearch;
+         candidates?: ExternalCandidate[]; codes?: Code[]; duplicates?: InternalMatch[];
+         raw_text?: string; model_code_candidate?: string | null; sku_candidate?: string | null;
+         gtin_candidates?: string[]; brand_candidate?: { name?: string } | null; size_candidate?: { name?: string } | null;
+         composition?: { material: string; percentage: number }[];
+         quality?: { status?: string; width?: number; height?: number; blur_score?: number; contrast?: number; warnings?: Warning[] };
+         colors?: { palette?: PaletteColor[]; warnings?: Warning[] };
++        colorimetry?: Colorimetry;
+         attributes?: { pattern?: { name?: string; similarity_score?: number; warnings?: Warning[] } | null; warnings?: Warning[] };
+         warnings?: Warning[];
+         image?: { width?: number; height?: number };
+         prepared_image?: PreparedImage;
+     };
+ };
+-type Result = { operation: string; response: AiResponse };
++type Result = { operation: string; response: AiResponse; analysisImageKey?: File | string | null };
+ type Review = AiReviewDecision;
+ type Props = { form: ProductEditorForm; catalogs: AiCatalogs; primaryPreview: string | null; feedbackStorageKey: string; updateForm: (updater: (current: ProductEditorForm) => ProductEditorForm) => void };
+-const labels: Record<string, string> = { analyze: 'Análisis de imagen', barcode: 'Código / QR', label: 'Etiqueta', match: 'Catálogo interno', 'external-search': 'Fuentes externas', 'prepare-publication': 'Preparación de imagen' };
++const labels: Record<string, string> = { analyze: 'Análisis de imagen', similar: 'Búsqueda de prendas similares', barcode: 'Código / QR', label: 'Etiqueta', match: 'Catálogo interno', 'external-search': 'Fuentes externas', 'prepare-publication': 'Preparación de imagen' };
+ const button = 'sa-button-secondary inline-flex items-center justify-center gap-2 px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50';
+ const box = 'rounded-xl border border-white/10 p-4';
+ function warningText(warning: Warning): string { return aiWarningText(warning); }
+ function reviewKey(suggestionId: string | number, index?: number): string { return aiReviewKey({ suggestion_id: suggestionId, variant_index: index }); }
+-const sourceLabels: Record<string, string> = { vision: 'Análisis visual', color_lab: 'Color de la fotografía', label_ocr: 'Lectura de etiqueta', barcode: 'Lectura del código', external: 'Fuente externa' };
++const sourceLabels: Record<string, string> = { vision: 'Análisis visual', color_lab: 'Coincidencia de color', colorimetry: 'Coincidencia de color', garment_colorimetry: 'Coincidencia de color', label_ocr: 'Lectura de etiqueta', barcode: 'Lectura del código', external: 'Fuente externa' };
+ const rightsLabels: Record<string, string> = { owned: 'Propia', licensed: 'Con licencia', provider_authorized: 'Autorizada por proveedor', public_domain: 'Dominio público', unknown: 'Sin autorización confirmada', prohibited: 'Publicación prohibida' };
+ const statusLabels: Record<string, string> = { completed: 'Completado', partial: 'Parcial', failed: 'No disponible' };
++const temperatureLabels: Record<ColorTemperature, string> = { warm: 'Cálida', cool: 'Fría', neutral: 'Neutra', warm_neutral: 'Cálida / neutra', cool_neutral: 'Fría / neutra', unknown: 'Por determinar' };
++const lightnessLabels: Record<ColorLevel, string> = { low: 'Oscura', medium: 'Media', high: 'Clara', unknown: 'Por determinar' };
++const levelLabels: Record<ColorLevel, string> = { low: 'Baja', medium: 'Media', high: 'Alta', unknown: 'Por determinar' };
++const contrastLabels: Record<ColorLevel, string> = { low: 'Bajo', medium: 'Medio', high: 'Alto', unknown: 'Por determinar' };
++const varietyLabels: Record<Colorimetry['color_variety'], string> = { monochrome: 'Un color predominante', bicolor: 'Bicolor', multicolor: 'Multicolor', unknown: 'Por determinar' };
++const familyLabels: Record<ColorFamily, string> = { black: 'Negros', white: 'Blancos', gray: 'Grises', beige_cream: 'Beige / crema', brown: 'Marrones', red: 'Rojos', orange: 'Naranjas', yellow: 'Amarillos', green: 'Verdes', blue: 'Azules', violet: 'Violetas', pink: 'Rosados', metallic: 'Metalizados', multicolor: 'Multicolor' };
++function colorName(color: ColorimetryColor): string { return color.descriptive_name || (color.family && familyLabels[color.family]) || 'Tono observado'; }
++function colorPercentage(value: number): string { return Number.isFinite(value) ? Math.round(Math.max(0, Math.min(1, value)) * 100) + ' % aprox.' : 'Proporción por determinar'; }
++function ColorimetrySummary({ colorimetry, catalogs }: { colorimetry: Colorimetry; catalogs: AiCatalogs }) {
++    const primary = colorimetry.primary_color;
++    const palette = colorimetry.palette ?? [];
++    const commercialColor = (color: ColorimetryColor) => color.catalog_color_id == null ? undefined
++        : catalogs.colors.find((item) => item.value === String(color.catalog_color_id) && item.active !== false);
++    const properties: [string, string | null | undefined][] = [
++        ['Temperatura', temperatureLabels[colorimetry.temperature]], ['Luminosidad', lightnessLabels[colorimetry.lightness]],
++        ['Saturación', levelLabels[colorimetry.saturation]], ['Contraste', contrastLabels[colorimetry.internal_contrast]],
++        ['Variedad', varietyLabels[colorimetry.color_variety]],
++        ['Familia de color', colorimetry.dominant_family && familyLabels[colorimetry.dominant_family]],
++    ];
++    return <section className={box} aria-label="Colorimetría de la prenda">
++        <h3 className="text-sm text-white">Colores de la prenda</h3>
++        <div className="mt-3 rounded-lg bg-white/5 p-3">
++            <p className="text-xs text-stone-400">Color principal</p>
++            <p className="mt-1 text-base text-stone-100">{primary ? colorName(primary) : palette.length ? 'Sin un único dominante fiable' : 'Por determinar'}</p>
++            {primary && <p className="mt-1 text-xs text-stone-400">{commercialColor(primary) ? 'Color del catálogo: ' + commercialColor(primary)?.label : 'Sin coincidencia comercial fiable.'}</p>}
++        </div>
++        {palette.length > 0 ? <div className="mt-4">
++            <p className="text-xs text-stone-400">Paleta</p>
++            <div className="mt-2 flex flex-wrap gap-3">{palette.map((color, index) => {
++                const catalog = commercialColor(color);
++                const role = primary?.hex === color.hex ? 'Principal'
++                    : colorimetry.accent_colors?.some((accent) => accent.hex === color.hex) ? 'Acento' : 'Secundario';
++                return <div key={color.hex + ':' + index} className="flex items-center gap-2 rounded-lg bg-white/5 p-3">
++                    <span className="h-8 w-8 shrink-0 rounded-full border border-white/20" style={{ backgroundColor: /^#[0-9a-f]{6}$/i.test(color.hex) ? color.hex : undefined }} aria-hidden="true" />
++                    <div>
++                        <p className="text-xs text-stone-200">{colorName(color)}</p>
++                        <p className="mt-1 text-xs text-stone-400">{role} · {colorPercentage(color.percentage)}</p>
++                        <p className="mt-1 text-xs text-stone-400">{catalog ? 'Catálogo: ' + catalog.label : 'Sin coincidencia comercial fiable'}</p>
++                    </div>
++                </div>;
++            })}</div>
++        </div> : <p className="mt-3 text-sm text-amber-200">No hay evidencia suficiente para obtener una paleta fiable. Prueba una foto de la prenda centrada, con fondo uniforme y luz natural indirecta.</p>}
++        <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{properties.map(([label, value]) => <div key={label}>
++            <dt className="text-xs text-stone-400">{label}</dt><dd className="mt-1 text-sm text-stone-200">{value && value !== 'Por determinar' ? value : colorimetry.status === 'partial' ? 'Por revisar' : 'Por determinar'}</dd>
++        </div>)}</dl>
++        <p className="mt-3 text-xs leading-5 text-stone-400">Estimaciones de la fotografía. La luz y el fondo pueden alterar el tono observado; compáralo con la prenda. Aplica los colores del catálogo desde las sugerencias para la variante seleccionada.</p>
++        {colorimetry.warnings?.map((warning, index) => <p key={index} className="mt-2 text-xs text-amber-200">{warningText(warning)}</p>)}
++    </section>;
++}
+ function scoreText(score?: number): string { return typeof score === 'number' && Number.isFinite(score) ? score.toFixed(3) + ' · puntuación de coincidencia' : 'Coincidencia sin puntuación'; }
++function VisualSimilarityResults({ response }: { response: AiResponse }) {
++    const items = (response.data.visual_similarities ?? []).filter((item, index, all) =>
++        all.findIndex((candidate) => String(candidate.prenda_id) === String(item.prenda_id)) === index);
++    const warnings = [...(response.warnings ?? []), ...(response.abstentions ?? []), ...(response.data.warnings ?? [])]
++        .map(warningText).filter((warning, index, all) => all.indexOf(warning) === index);
++    const emptyMessages: Record<VectorSearch['status'], string> = {
++        completed: 'No se encontraron prendas comparables para esta fotografía.',
++        empty: 'Todavía no hay prendas preparadas para comparar por fotografía.',
++        unavailable: 'La búsqueda visual no está disponible en este momento. Puedes continuar manualmente.',
++        incompatible: 'Las prendas disponibles todavía no se pueden comparar con esta fotografía.',
++        no_embedding: 'No se pudo preparar esta fotografía para la comparación. Prueba otra foto o continúa manualmente.',
++    };
++    return <section className={box} aria-label="Prendas similares por fotografía">
++        <h3 className="text-sm text-white">Prendas similares por fotografía</h3>
++        <p className="mt-2 text-xs leading-5 text-stone-400">La puntuación mide parecido visual; no es un porcentaje de certeza ni confirma que sea la misma prenda. Revisa cada candidata antes de decidir.</p>
++        {items.length ? <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{items.map((item) => {
++            const imageUrl = visualSimilarityImageUrl(item.image_url);
++            const href = /^\/superadmin\/catalogo\/prendas\/[1-9]\d*$/.test(item.href) ? item.href : null;
++            return <article key={item.prenda_id} className="rounded-lg border border-white/10 bg-[#0a1016] p-3">
++                {imageUrl ? <img src={imageUrl} alt={item.title} loading="lazy" className="h-36 w-full rounded-lg bg-white/5 object-contain" />
++                    : <div className="flex h-36 items-center justify-center rounded-lg bg-white/5 text-xs text-stone-400">Sin imagen disponible</div>}
++                <h4 className="mt-3 break-words text-sm text-white">{item.title}</h4>
++                <p className="mt-2 text-xs text-stone-400">{visualSimilarityScoreText(item.similarity_score)}</p>
++                {item.possible_duplicate && <p className="mt-2 text-xs text-amber-200">Posible duplicado: compara las fotos y los datos del catálogo.</p>}
++                {href && <a href={href} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs text-[#bfa786]">Revisar prenda <ExternalLink size={12} aria-hidden="true" /></a>}
++            </article>;
++        })}</div> : <p className="mt-3 text-sm text-stone-300">{emptyMessages[response.data.vector_search?.status ?? 'completed'] || emptyMessages.unavailable}</p>}
++        {warnings.map((warning, index) => <p key={index} className="mt-2 text-xs text-amber-200">{warning}</p>)}
++    </section>;
++}
+ 
+ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPreview, feedbackStorageKey, updateForm }: Props) {
+     const [capture, setCapture] = useState<{ barcode: File | null; label: File | null }>({ barcode: null, label: null });
+@@ -94,9 +199,12 @@ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPre
+     const queryKey = JSON.stringify(searchPayload);
+     const latestInternal = [...results].reverse().find((result) => result.response.data.internal_matches)?.response.data.internal_matches;
+     const suggestions = results.filter((result) => result.operation !== 'external-search').flatMap((result) => result.response.suggestions ?? []);
++    const latestColorimetry = [...results].reverse().find((result) => result.operation === 'analyze' && result.analysisImageKey === analysisImageKey)?.response.data.colorimetry;
++    const latestSimilar = [...results].reverse().find((result) => result.operation === 'similar' && result.analysisImageKey === analysisImageKey);
+     const topSuggestions = [...results].reverse().filter((result) => result.operation !== 'external-search')
+         .flatMap((result) => result.response.suggestions ?? [])
+-        .filter((suggestion, index, items) => items.findIndex((item) => item.field === suggestion.field) === index);
++        .filter((suggestion, index, items) => items.findIndex((item) => item.field === suggestion.field) === index)
++        .filter((suggestion) => suggestion.field !== 'color' || !latestColorimetry || latestColorimetry.primary_color != null);
+ 
+     function selectFile(kind: 'main' | 'barcode' | 'label', file: File | null) {
+         if (file && (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 6 * 1024 * 1024)) {
+@@ -174,7 +282,7 @@ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPre
+                 { timeout: 65000, signal: controller.signal, headers: { Accept: 'application/json' } });
+             if (!response || !response.data || typeof response.data !== 'object' || typeof response.status !== 'string' || response.status === 'failed') throw new Error('INVALID_RESPONSE');
+             if (response.run_id != null) updateForm((current) => ({ ...current, ai_run_ids: Array.from(new Set([...(current.ai_run_ids ?? []), String(response.run_id)])) }));
+-            setResults((current) => [...current, { operation, response }].slice(-8));
++            setResults((current) => [...current, { operation, response, analysisImageKey: operation === 'analyze' || operation === 'similar' ? imageAtRequest : undefined }].slice(-8));
+             if (operation === 'analyze' && response.run_id != null && imageAtRequest === analysisImageRef.current) { setAnalysisRun(String(response.run_id)); setCheckedQuery(null); }
+             if (operation === 'match') { setCheckedQuery(checkedKey ?? null); setExternalAllowed(response.data.external_search_allowed === true); }
+             if (operation === 'barcode' || operation === 'label') {
+@@ -197,15 +305,16 @@ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPre
+             if (axios.isCancel(caught)) return;
+             setError(axios.isAxiosError(caught) && caught.response?.status === 422
+                 ? 'Revisa el archivo o los datos de búsqueda. El servicio no pudo validar esta entrada.'
+-                : 'No fue posible obtener sugerencias automáticas. Puedes continuar y guardar la prenda manualmente.');
++                : operation === 'similar' ? 'No fue posible buscar prendas similares. Puedes continuar y guardar la ficha manualmente.'
++                    : 'No fue posible obtener sugerencias automáticas. Puedes continuar y guardar la prenda manualmente.');
+         } finally { if (abort.current === controller) { abort.current = null; setBusy(null); } }
+     }
+-    function analyzeImage(operation: 'analyze' | 'barcode' | 'label') {
+-        const image = operation === 'analyze' ? form.imagen_principal : capture[operation];
+-        if (!image && operation === 'analyze' && existingImageId) {
++    function analyzeImage(operation: 'analyze' | 'similar' | 'barcode' | 'label') {
++        const image = operation === 'analyze' || operation === 'similar' ? form.imagen_principal : capture[operation];
++        if (!image && (operation === 'analyze' || operation === 'similar') && existingImageId) {
+             void request(operation, { existing_image_id: existingImageId }); return;
+         }
+-        if (!image) { setError('Selecciona una fotografía para analizar.'); return; }
++        if (!image) { setError('Selecciona una fotografía de la prenda.'); return; }
+         const payload = new FormData(); payload.append('image', image); void request(operation, payload);
+     }
+     function suggestionCard(suggestion: AiSuggestion) {
+@@ -241,6 +350,8 @@ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPre
+                     {form.imagen_principal && <p className="mt-2 break-all text-xs text-stone-400">{form.imagen_principal.name}</p>}
+                     {!form.imagen_principal && existingImageId && <p className="mt-2 text-xs text-stone-400">Puedes analizar la portada guardada de esta prenda.</p>}
+                     <button type="button" disabled={Boolean(busy) || (!form.imagen_principal && !existingImageId)} onClick={() => analyzeImage('analyze')} className={button + ' mt-3'}>Analizar imagen</button>
++                    <button type="button" disabled={Boolean(busy) || (!form.imagen_principal && !existingImageId)} onClick={() => analyzeImage('similar')} className={button + ' mt-3'}><Search size={14} aria-hidden="true" />Buscar similares</button>
++                    <p className="mt-2 text-xs leading-5 text-stone-400">Busca prendas parecidas del catálogo con esta fotografía. Puedes revisar coincidencias sin modificar la ficha.</p>
+                 </div>
+                 {(['barcode', 'label'] as const).map((kind) => <div key={kind} className={box}>
+                     <h3 className="text-sm text-white">{kind === 'barcode' ? 'Escanear código / QR' : 'Analizar etiqueta'}</h3>
+@@ -272,6 +383,7 @@ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPre
+                 {error && <p className={box + ' bg-amber-300/5 text-sm text-amber-100'}>{error}</p>}
+                 {pendingReviews.length > 0 && <div className={box + ' text-sm text-amber-100'}>{sendingReviews ? 'Registrando' : 'Hay'} {pendingReviews.length} decisiones pendientes de registrar. El guardado manual sigue disponible.<button type="button" disabled={sendingReviews} className="ml-2 underline disabled:opacity-50" onClick={() => void flushReviews()}>Reintentar registro</button></div>}
+             </div>
++            {latestSimilar && <VisualSimilarityResults response={latestSimilar.response} />}
+             {latestInternal && <div className={box}>
+                 <h3 className="text-sm text-white">Coincidencias internas / posibles duplicados</h3>
+                 {latestInternal.length === 0 ? <p className="mt-2 text-sm text-stone-400">Sin coincidencias internas con esta evidencia.</p>
+@@ -280,7 +392,7 @@ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPre
+             </div>}
+             {(suggestions.length > 0 || results.some((result) => result.response.data.candidates?.length)) && <label className="block max-w-md text-xs text-stone-400">Variante que recibirá color, talla y código<select value={variantIndex} onChange={(event) => { setVariantIndex(Number(event.target.value)); setReplacement(null); }} className="sa-input mt-2 w-full">{form.variant_rows.map((row, index) => !row.remove && <option key={row.id || index} value={index}>Variante {index + 1}{row.sku_prv ? ' · ' + row.sku_prv : ''}</option>)}</select></label>}
+             {suggestions.length > 0 && <div className="space-y-3">
+-                <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-sm text-white">Sugerencias para revisar</h3><p className="mt-1 text-xs text-stone-400">Aplicar todos conserva los campos ya informados.</p></div><button type="button" onClick={() => applyCompatible(topSuggestions)} className={button}><Check size={14} />Aplicar todos los campos compatibles</button></div>
++                <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-sm text-white">Sugerencias para revisar</h3><p className="mt-1 text-xs text-stone-400">Aplicar todos conserva los campos ya informados.{latestColorimetry && !latestColorimetry.primary_color ? ' Revisa y aplica cada color individualmente: no hay un único dominante fiable.' : ''}</p></div><button type="button" onClick={() => applyCompatible(topSuggestions)} className={button}><Check size={14} />Aplicar todos los campos compatibles</button></div>
+                 <div className="grid gap-3 md:grid-cols-2">{suggestions.map(suggestionCard)}</div>
+             </div>}
+             {replacement && <div role="alert" className={box + ' bg-amber-300/10'}>
+@@ -291,7 +403,7 @@ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPre
+                 }}>Reemplazar este valor</button><button type="button" className="sa-button-ghost px-3 py-2 text-sm" onClick={() => setReplacement(null)}>Conservar mi valor</button></div>
+             </div>}
+ 
+-            {results.map(({ operation, response }, resultIndex) => <div key={response.request_id || resultIndex} className="space-y-3">
++            {results.filter((result) => result.operation !== 'similar').map(({ operation, response }, resultIndex) => <div key={response.request_id || resultIndex} className="space-y-3">
+                 {response.data.codes?.map((code, index) => <div key={index} className={box}>
+                     <p className="text-xs text-stone-400">{code.symbology} · checksum {code.checksum_valid === true ? 'válido' : code.checksum_valid === false ? 'inválido: revisar' : 'sin validar / no aplica'}</p>
+                     <p className="mt-1 break-all font-mono text-sm text-white">{code.normalized_value || code.raw_value}</p>
+@@ -307,7 +419,8 @@ export default function GarmentIntelligentAssistant({ form, catalogs, primaryPre
+                 ] as const).map(([label, value]) => value ? <div key={label}><dt className="text-xs text-stone-400">{label}</dt><dd className="mt-1 break-all text-stone-200">{value}</dd></div> : null)}</dl>{response.data.composition?.length ? <p className="mt-3 text-sm text-stone-200">{response.data.composition.map((item) => item.percentage + '% ' + item.material).join(' · ')}</p> : null}<p className="mt-2 text-xs text-stone-400">Confirma la composición en Materiales después de revisar la etiqueta original.</p></details>}
+                 {response.data.quality && <div className={box}><h3 className="text-sm text-white">Calidad de imagen</h3><p className="mt-2 text-xs text-stone-300">{response.data.quality.status === 'acceptable' ? 'Calidad aceptable' : 'Revisar calidad'} · {response.data.quality.width ?? response.data.image?.width} × {response.data.quality.height ?? response.data.image?.height} px{typeof response.data.quality.blur_score === 'number' ? ' · nitidez técnica ' + response.data.quality.blur_score.toFixed(1) : ''}{typeof response.data.quality.contrast === 'number' ? ' · contraste ' + response.data.quality.contrast.toFixed(1) : ''}</p>{response.data.quality.warnings?.map((warning, index) => <p key={index} className="mt-2 text-xs text-amber-200">{warningText(warning)}</p>)}</div>}
+ 
+-                {response.data.colors?.palette?.length ? <div className={box}><h3 className="text-sm text-white">Paleta de la fotografía</h3><div className="mt-3 flex flex-wrap gap-3">{response.data.colors.palette.map((color, index) => <div key={color.hex + index} className="flex items-center gap-2 rounded-lg bg-white/5 p-3"><span className="h-8 w-8 rounded-full border border-white/20" style={{ backgroundColor: /^#[0-9a-f]{6}$/i.test(color.hex) ? color.hex : undefined }} aria-hidden="true" /><div><p className="text-xs text-stone-200">{index === 0 ? 'Dominante: ' : ''}{color.catalog_name || color.hex}</p><p className="mt-1 text-xs text-stone-400">{Math.round(color.percentage * 100)} % de la muestra</p></div></div>)}</div><p className="mt-2 text-xs text-stone-400">La proporción describe la fotografía; comprueba los colores sobre la prenda.</p>{response.data.colors.warnings?.map((warning, index) => <p key={index} className="mt-2 text-xs text-amber-200">{warningText(warning)}</p>)}</div> : null}
++                {response.data.colorimetry ? <ColorimetrySummary colorimetry={response.data.colorimetry} catalogs={catalogs} /> : null}
++                {!response.data.colorimetry && response.data.colors?.palette?.length ? <div className={box}><h3 className="text-sm text-white">Paleta de la fotografía</h3><div className="mt-3 flex flex-wrap gap-3">{response.data.colors.palette.map((color, index) => <div key={color.hex + index} className="flex items-center gap-2 rounded-lg bg-white/5 p-3"><span className="h-8 w-8 rounded-full border border-white/20" style={{ backgroundColor: /^#[0-9a-f]{6}$/i.test(color.hex) ? color.hex : undefined }} aria-hidden="true" /><div><p className="text-xs text-stone-200">{index === 0 ? 'Dominante: ' : ''}{color.catalog_name || color.hex}</p><p className="mt-1 text-xs text-stone-400">{Math.round(color.percentage * 100)} % de la muestra</p></div></div>)}</div><p className="mt-2 text-xs text-stone-400">La proporción describe la fotografía; comprueba los colores sobre la prenda.</p>{response.data.colors.warnings?.map((warning, index) => <p key={index} className="mt-2 text-xs text-amber-200">{warningText(warning)}</p>)}</div> : null}
+                 {response.data.attributes?.pattern && <div className={box}><h3 className="text-sm text-white">Patrón visual posible</h3><p className="mt-2 text-sm text-stone-200">{response.data.attributes.pattern.name}</p>{response.data.attributes.pattern.warnings?.map((warning, index) => <p key={index} className="mt-2 text-xs text-amber-200">{warningText(warning)}</p>)}</div>}
+                 {response.data.duplicates?.length ? <div className={box}><h3 className="text-sm text-amber-200">Esta imagen ya aparece en el catálogo</h3>{response.data.duplicates.map((match, index) => <p key={match.id ?? index} className="mt-2 text-sm text-stone-300">{match.title ?? 'Imagen duplicada'}{match.href?.startsWith('/superadmin/') && <a href={match.href} target="_blank" rel="noopener noreferrer" className="ml-2 underline">Revisar</a>}</p>)}</div> : null}
+                 {response.data.candidates && <div className="space-y-3"><h3 className="text-sm text-white">Candidatos externos</h3>{response.data.candidates.length === 0 && <p className="text-sm text-stone-400">No hay candidatos en las fuentes disponibles. Puedes continuar con los datos propios.</p>}<div className="grid gap-4 md:grid-cols-2">{response.data.candidates.map((candidate, candidateIndex) => {
+diff --git a/resources/js/lib/garmentAssistant.ts b/resources/js/lib/garmentAssistant.ts
+index 3997cb7..213b523 100644
+--- a/resources/js/lib/garmentAssistant.ts
++++ b/resources/js/lib/garmentAssistant.ts
+@@ -161,10 +161,38 @@ export function externalReferencePreviewUrl(value?: string): string | null {
+     return value && /^\/superadmin\/ai\/external-reference\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/\d+\/\d+$/i.test(value) ? value : null;
+ }
+ 
++export function visualSimilarityImageUrl(value?: string | null): string | null {
++    return value && /^\/superadmin\/ai\/catalog-image\/[1-9]\d*$/.test(value) ? value : null;
++}
++
++export function visualSimilarityScoreText(score?: number | null): string {
++    return typeof score === 'number' && Number.isFinite(score) && score >= -1 && score <= 1
++        ? score.toFixed(3) + ' · similitud visual' : 'Similitud visual sin puntuación';
++}
+ export type AiWarning = string | { code?: string; message?: string };
+ 
+ const warningMessages: Record<string, string> = {
+     BACKGROUND_MAY_AFFECT_COLOR: 'El fondo puede alterar el color detectado. Comprueba el tono en la prenda.',
++    BACKGROUND_INTERFERENCE: 'No se pudo separar la prenda del fondo con suficiente fiabilidad. Usa una foto centrada sobre un fondo uniforme.',
++    FOREGROUND_TOO_SMALL: 'La prenda ocupa poco espacio en la foto. Acerca el encuadre para distinguir sus colores.',
++    MULTIPLE_FOREGROUND_REGIONS: 'Hay varias zonas que podrían pertenecer a objetos distintos. Fotografía una sola prenda para mejorar el análisis.',
++    GARMENT_MAY_BE_CROPPED: 'La prenda puede estar cortada por el encuadre. Los colores describen solo la parte visible.',
++    COLOR_OVEREXPOSURE_SUSPECTED: 'La luz puede haber aclarado demasiado los colores. Revisa una foto sin zonas quemadas.',
++    COLOR_UNDEREXPOSURE_SUSPECTED: 'La foto está demasiado oscura para identificar con fiabilidad el tono comercial.',
++    COLOR_CHANNEL_CLIPPING: 'La imagen perdió detalle en algunos tonos por la exposición. Revisa el color con luz uniforme.',
++    WARM_LIGHTING_SUSPECTED: 'La iluminación parece muy cálida y puede volver los tonos más amarillos. Comprueba el color de la prenda.',
++    COOL_LIGHTING_SUSPECTED: 'La iluminación parece muy fría y puede volver los tonos más azules. Comprueba el color de la prenda.',
++    WHITE_BALANCE_SUSPECTED: 'La iluminación puede estar alterando el equilibrio de los colores. No hay un tono comercial confirmado.',
++    NO_SINGLE_DOMINANT_COLOR: 'La prenda presenta varios colores sin un único dominante fiable. Conserva y revisa la paleta completa.',
++    PALETTE_COVERAGE_LOW: 'La paleta resume solo parte de los colores visibles. Los porcentajes son aproximados.',
++    CATALOG_MATCH_AMBIGUOUS: 'Varios colores del catálogo son parecidos al tono observado. Elige el color comercial manualmente.',
++    CATALOG_COLOR_UNMATCHED: 'Algún tono observado no coincide suficientemente con los colores disponibles en el catálogo.',
++    CATALOG_REFERENCE_APPROXIMATE: 'Alguna referencia de color del catálogo es aproximada. Confirma el tono antes de aplicarlo.',
++    METALLIC_FINISH_NOT_VERIFIABLE: 'La fotografía no permite confirmar un acabado metalizado. Revisa el material y el brillo de la prenda.',
++    COLOR_PROPERTIES_UNCERTAIN: 'La calidad o la iluminación impiden describir con fiabilidad las propiedades de color.',
++    COLORIMETRY_INSUFFICIENT_EVIDENCE: 'No hay evidencia suficiente para analizar los colores de la prenda con fiabilidad. Puedes elegirlos manualmente o volver a fotografiarla.',
++    COLORIMETRY_PARTIAL_EVIDENCE: 'El análisis de color es parcial. Revisa la paleta y los avisos antes de elegir un color del catálogo.',
++    COLORIMETRY_INVALID_RESPONSE: 'No se pudo interpretar la colorimetría. Revisa los colores manualmente.',
+     CATEGORY_LOW_MARGIN_OR_SIMILARITY: 'No hay suficiente diferencia entre las categorías sugeridas. Elige la categoría manualmente.',
+     VISUAL_MODEL_UNAVAILABLE_MANUAL_ENTRY_AVAILABLE: 'El análisis visual no está disponible. Puedes continuar completando los datos manualmente.',
+     MODEL_UNAVAILABLE: 'El análisis visual no está disponible en este momento.',
+@@ -185,6 +213,14 @@ const warningMessages: Record<string, string> = {
+     MODEL_CODE_CONFLICT: 'El modelo del candidato no coincide con el modelo buscado.',
+     MODEL_CONFLICT: 'El modelo del candidato no coincide con el modelo buscado.',
+     EMBEDDING_MODEL_MISMATCH: 'Estas imágenes se analizaron con modelos distintos y no se compararon visualmente.',
++    VECTOR_STORE_UNAVAILABLE: 'La búsqueda visual no está disponible en este momento. Puedes continuar con el registro manual.',
++    VECTOR_INDEX_EMPTY: 'Todavía no hay prendas preparadas para comparar por fotografía. Puedes buscar en el catálogo o completar la ficha manualmente.',
++    VECTOR_COMPATIBLE_INDEX_EMPTY: 'Las prendas disponibles todavía no se pueden comparar con esta foto. Requieren un análisis compatible.',
++    VECTOR_SEARCH_UNAVAILABLE: 'No fue posible consultar prendas similares. Puedes continuar y guardar la ficha manualmente.',
++    IMAGE_EMBEDDING_UNAVAILABLE: 'No se pudo preparar la fotografía para compararla. Prueba otra foto o continúa manualmente.',
++    NO_SIMILAR_PRODUCTS_ABOVE_THRESHOLD: 'No se encontraron prendas con suficiente parecido visual. Puedes buscar por código o continuar manualmente.',
++    VISUAL_SIMILARITY_DOES_NOT_CONFIRM_IDENTITY: 'El parecido visual no confirma que sea la misma prenda. Revisa las fotos y los datos del catálogo.',
++    NO_COMPATIBLE_CATALOG_EMBEDDINGS: 'Las prendas disponibles todavía no se pueden comparar con esta foto. Requieren un análisis compatible.',
+     NO_EXTERNAL_SOURCES_CONFIGURED: 'Todavía no hay fuentes externas configuradas para consultar.',
+     SOURCE_NOT_CONFIGURED: 'Esta fuente externa no está configurada para consulta.',
+     INSUFFICIENT_SEARCH_EVIDENCE: 'Escribe un código, modelo o texto de etiqueta para orientar la búsqueda.',
+diff --git a/routes/web.php b/routes/web.php
+index c560980..dac7ef5 100644
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -170,6 +170,9 @@
+             Route::post('/'.$operation, [\App\Http\Controllers\Superadmin\AiController::class, 'image'])
+                 ->defaults('operation', $operation)->name($operation);
+         }
++        Route::post('/similar', [\App\Http\Controllers\Superadmin\AiController::class, 'similar'])->name('similar');
++        Route::get('/catalog-image/{image}', [\App\Http\Controllers\Superadmin\AiController::class, 'catalogImage'])
++            ->whereNumber('image')->name('catalog-image');
+         Route::post('/match', [\App\Http\Controllers\Superadmin\AiController::class, 'match'])->name('match');
+         Route::post('/external-search', [\App\Http\Controllers\Superadmin\AiController::class, 'externalSearch'])->name('external-search');
+         Route::post('/prepare-publication', [\App\Http\Controllers\Superadmin\AiController::class, 'preparePublication'])->name('prepare-publication');
+diff --git a/services/mati-ai/README.md b/services/mati-ai/README.md
+index e098eb6..22c7e78 100644
+--- a/services/mati-ai/README.md
++++ b/services/mati-ai/README.md
+@@ -29,6 +29,13 @@ ## Contrato y límites
+ 
+ Las fuentes externas permanecen desactivadas hasta configurar dominios, permiso de uso, términos revisados y un adaptador. Consultar la guía antes de habilitarlas. Las URLs QR solo son datos y no se visitan automáticamente.
+ 
++## Colorimetría de prendas
++
++El análisis existente evoluciona con `data.colorimetry`, conservando `data.colors` y el contrato HTTP v1. La fase de colorimetría introdujo `registration-1.1.0`; la fase vectorial actual utiliza `registration-1.2.0`. El algoritmo tiene su propia versión `garment-colorimetry-1.0.0`. `capabilities` identifica la capacidad, su ámbito exclusivo de prendas, CIELAB y CIEDE2000.
++
++La extracción determinista usa una máscara conservadora de primer plano, una paleta perceptual y propiedades cromáticas con evidencia de fondo/iluminación. Una separación insegura produce abstención y avisos; no genera IDs comerciales. Laravel proporciona los colores activos con su HEX específico, conserva la autoridad del catálogo y guarda el resultado en las tablas IA existentes.
++
++Guía de esta fase y limitaciones: [03_colorimetria_prendas.md](../../DOCUMENTACION/IA/IMPLEMENTACION/03_colorimetria_prendas.md). Los originales no se modifican. Esta fase no incorpora análisis de personas, outfits, recomendaciones, tendencias ni VTO. La validación de la entrega queda pendiente del administrador.
+ ## Medición opcional por el administrador
+ 
+ Después de preparar los pesos, el administrador puede medir imágenes reales de su entorno:
+@@ -55,3 +62,10 @@ # Solo con pesos preparados y aceptación explícita del administrador:
+ ```
+ 
+ Estos comandos no se ejecutaron al cerrar esta entrega, por instrucción del usuario. Los tests escritos no equivalen a una validación final. El test de integración real tiene un marcador separado; las mediciones de producción requieren fotografías y hardware del entorno de destino.
++## Embeddings persistentes y pgvector
++
++PostgreSQL sigue siendo la base principal; Laravel instala la extensión `vector`, persiste `ai_product_embeddings` y ejecuta búsquedas coseno exactas. FastAPI no recibe credenciales PostgreSQL: su nuevo `POST /api/v1/garments/embedding` devuelve únicamente el embedding de la imagen y su identidad completa. React utiliza Laravel mediante `POST /superadmin/ai/similar`.
++
++La dimensión del checkpoint SigLIP preparado es 768, constatada leyendo sus pesos locales sin inferencia. Cada vector generado declara su longitud real; la tabla permite espacios versionados con distintas dimensiones y comprueba `vector_dims(embedding) = dimensions`. Se exige revisión inmutable del modelo y coincidencia de modelo, revisión, pipeline, dimensión y perfil de preprocesado para comparar.
++
++`mati-ai:index-catalog` incorpora lotes, reanudación, actualización idempotente y recuperación de JSON históricos con `--from-runs`. No se añaden índices HNSW. Instalación, comandos que debe ejecutar el administrador, consulta, archivos, limitaciones y estado de entrega: [04_embeddings_pgvector.md](../../DOCUMENTACION/IA/IMPLEMENTACION/04_embeddings_pgvector.md).
+diff --git a/services/mati-ai/src/mati_ai/api/v1/routes.py b/services/mati-ai/src/mati_ai/api/v1/routes.py
+index 1e75e4b..17d7738 100644
+--- a/services/mati-ai/src/mati_ai/api/v1/routes.py
++++ b/services/mati-ai/src/mati_ai/api/v1/routes.py
+@@ -7,7 +7,9 @@ from starlette.concurrency import run_in_threadpool
+ from starlette.datastructures import UploadFile
+ 
+ from mati_ai.api.dependencies import require_service_token
++from mati_ai.contracts.colorimetry import COLORIMETRY_VERSION, GarmentColorimetry
+ from mati_ai.contracts.common import envelope
++from mati_ai.contracts.embedding import Embedding
+ from mati_ai.contracts.identification import MatchRequest
+ from mati_ai.contracts.vision import CatalogValue
+ from mati_ai.core.errors import PipelineError
+@@ -80,6 +82,7 @@ def capabilities(request: Request):
+         {
+             "operations": [
+                 "garments.analyze",
++                "garments.embedding",
+                 "identification.barcode",
+                 "identification.label",
+                 "products.match",
+@@ -92,12 +95,24 @@ def capabilities(request: Request):
+                 "model_id": settings.model_id,
+                 "local_files_only": settings.local_files_only,
+                 "loaded": request.app.state.model_manager._model is not None,
++                **request.app.state.model_manager.capabilities_metadata(),
+             },
+             "ocr": {
+                 "provider": "easyocr",
+                 "enabled": settings.ocr_enabled,
+                 "device": "cpu",
+             },
++            "colorimetry": {
++                "enabled": True,
++                "scope": "garments_only",
++                "version": COLORIMETRY_VERSION,
++                "perceptual_space": "CIELAB_D65",
++                "distance_metric": "CIEDE2000",
++                "segmentation": "deterministic_conservative",
++                "catalog_authority": "laravel",
++                "score_kind": "heuristic_uncalibrated",
++                "original_image_modified": False,
++            },
+             "barcode_symbologies": [
+                 "EAN-13",
+                 "EAN-8",
+@@ -133,18 +148,32 @@ def analyze_pipeline(
+         "validation", lambda: validate_image(raw, request.app.state.settings)
+     )
+     quality = measure("quality", lambda: assess_quality(image.image))
+-    palette = measure("color", lambda: extract_colors(image.image, colors))
++    color_result = measure("color", lambda: extract_colors(image.image, colors))
++    # Keep the v1 colors object while exposing the richer, independently versioned result.
++    colorimetry = GarmentColorimetry.model_validate(
++        color_result.pop("colorimetry")
++    ).model_dump(mode="json")
++    palette = color_result
+     codes = measure("barcode", lambda: decode_codes(image.image))
+     data = {
+         "image": image.metadata,
+         "quality": quality,
+         "colors": palette,
++        "colorimetry": colorimetry,
+         "codes": codes["codes"],
+         "classification": {"top_k": [], "abstained": True},
+         "attributes": {"pattern": None},
+     }
+-    warnings = quality["warnings"] + palette["warnings"]
++    warnings = list(
++        dict.fromkeys(
++            quality["warnings"] + palette["warnings"] + colorimetry["warnings"]
++        )
++    )
+     abstentions = []
++    if colorimetry["status"] == "insufficient_evidence":
++        abstentions.append("COLORIMETRY_INSUFFICIENT_EVIDENCE")
++    elif colorimetry["status"] == "partial":
++        abstentions.append("COLORIMETRY_PARTIAL_EVIDENCE")
+     model = None
+     try:
+         prompts = category_prompts(categories) + pattern_prompts(patterns)
+@@ -162,11 +191,9 @@ def analyze_pipeline(
+         }
+         timings.update(result["metrics"])
+         if include_embedding:
+-            data["embedding"] = {
+-                "values": result["embedding"],
+-                "model_id": model["model_id"],
+-                "model_revision": model["model_revision"],
+-            }
++            data["embedding"] = Embedding.model_validate(
++                result["embedding_metadata"]
++            ).model_dump(mode="json")
+         if data["classification"]["abstained"]:
+             abstentions.append("CATEGORY_LOW_MARGIN_OR_SIMILARITY")
+         warnings.append("VISUAL_SCORES_ARE_NOT_CALIBRATED_PROBABILITIES")
+@@ -202,6 +229,38 @@ async def analyze(request: Request):
+     )
+ 
+ 
++@router.post("/garments/embedding")
++async def image_embedding(request: Request):
++    """Generate only the image vector; Laravel performs persistent retrieval."""
++    _, raw = await upload(request)
++
++    def process():
++        started = time.perf_counter()
++        validated = validate_image(raw, request.app.state.settings)
++        validation_ms = round((time.perf_counter() - started) * 1000, 3)
++        result = request.app.state.model_manager.embed_image(validated.image)
++        embedding = Embedding.model_validate(result["embedding_metadata"]).model_dump(mode="json")
++        return envelope(
++            request,
++            {
++                "image": validated.metadata,
++                "embedding": embedding,
++                "inference": {
++                    "device": result["device"],
++                    "vram_peak_mb": result["vram_peak_mb"],
++                },
++            },
++            model=result["model"],
++            warnings=["VISUAL_SIMILARITY_DOES_NOT_PROVE_IDENTITY"],
++            timing_ms={
++                "validation": validation_ms,
++                **result["metrics"],
++                "total": round((time.perf_counter() - started) * 1000, 3),
++            },
++        )
++
++    return await run_in_threadpool(process)
++
+ @router.post("/identification/barcode")
+ async def barcode(request: Request):
+     _, raw = await upload(request)
+@@ -290,3 +349,4 @@ async def publication(request: Request):
+         )
+ 
+     return await run_in_threadpool(process)
++
+diff --git a/services/mati-ai/src/mati_ai/contracts/common.py b/services/mati-ai/src/mati_ai/contracts/common.py
+index 9dcc300..6445701 100644
+--- a/services/mati-ai/src/mati_ai/contracts/common.py
++++ b/services/mati-ai/src/mati_ai/contracts/common.py
+@@ -3,7 +3,7 @@ from typing import Any, Literal
+ from fastapi import Request
+ from pydantic import BaseModel, Field
+ 
+-PIPELINE_VERSION = "registration-1.0.0"
++PIPELINE_VERSION = "registration-1.2.0"
+ Status = Literal["completed", "partial", "insufficient_evidence", "degraded", "failed"]
+ 
+ 
+diff --git a/services/mati-ai/src/mati_ai/contracts/identification.py b/services/mati-ai/src/mati_ai/contracts/identification.py
+index d758a8f..60ad291 100644
+--- a/services/mati-ai/src/mati_ai/contracts/identification.py
++++ b/services/mati-ai/src/mati_ai/contracts/identification.py
+@@ -1,11 +1,6 @@
+ from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+ 
+-
+-class Embedding(BaseModel):
+-    model_config = ConfigDict(allow_inf_nan=False)
+-    values: list[float] = Field(max_length=2048)
+-    model_id: str = Field(max_length=200)
+-    model_revision: str = Field(max_length=120)
++from mati_ai.contracts.embedding import Embedding
+ 
+ 
+ class MatchItem(BaseModel):
+@@ -31,3 +26,5 @@ class MatchRequest(BaseModel):
+     query: MatchItem
+     candidates: list[MatchItem] = Field(default_factory=list, max_length=250)
+     limit: int = Field(default=10, ge=1, le=50)
++
++
+diff --git a/services/mati-ai/src/mati_ai/contracts/vision.py b/services/mati-ai/src/mati_ai/contracts/vision.py
+index 6827ac6..0fa9f97 100644
+--- a/services/mati-ai/src/mati_ai/contracts/vision.py
++++ b/services/mati-ai/src/mati_ai/contracts/vision.py
+@@ -7,6 +7,8 @@ class CatalogValue(BaseModel):
+     name: str = Field(min_length=1, max_length=160)
+     aliases: list[str] = Field(default_factory=list, max_length=8)
+     hex: str | None = Field(default=None, pattern=r"^#?[0-9a-fA-F]{6}$")
++    family: str | None = Field(default=None, max_length=160)
++    family_hex: str | None = Field(default=None, pattern=r"^#?[0-9a-fA-F]{6}$")
+ 
+ 
+ class CategoryPrediction(BaseModel):
+diff --git a/services/mati-ai/src/mati_ai/core/model_manager.py b/services/mati-ai/src/mati_ai/core/model_manager.py
+index 16a0f70..a89cf99 100644
+--- a/services/mati-ai/src/mati_ai/core/model_manager.py
++++ b/services/mati-ai/src/mati_ai/core/model_manager.py
+@@ -1,16 +1,23 @@
++import math
+ import threading
+ import time
+-from typing import Any
++from pathlib import Path
++from typing import Any, Callable
+ 
+ from PIL import Image
+ 
+ from mati_ai.contracts.common import PIPELINE_VERSION
++from mati_ai.contracts.embedding import (
++    EMBEDDING_VERSION,
++    PREPROCESS_VERSION,
++    resolved_revision,
++)
+ from mati_ai.core.config import Settings
+ from mati_ai.core.errors import PipelineError
+ 
+ 
+ class ModelManager:
+-    """One cached visual model per worker; lock bounds both loading and inference."""
++    """One cached visual model per worker; lock bounds loading and inference."""
+ 
+     def __init__(self, settings: Settings):
+         self.settings = settings
+@@ -18,18 +25,106 @@ class ModelManager:
+         self._processor: Any = None
+         self._lock = threading.Lock()
+         self._failed_until = 0.0
++        self._generated_dimension: int | None = None
++        self._cached_config_metadata: dict | None = None
+         self.device = "cpu"
+-        self.revision = settings.model_revision
++        self.revision: str | None = None
+         self.load_ms = 0.0
+ 
+     @property
+     def identity(self) -> dict:
+         return {
+             "model_id": self.settings.model_id,
+-            "model_revision": self.revision,
++            "model_revision": self.revision or "unresolved",
+             "pipeline_version": PIPELINE_VERSION,
+         }
+ 
++    def _revision(self, config: Any) -> str | None:
++        revision = resolved_revision(getattr(config, "_commit_hash", None))
++        if revision is not None:
++            return revision
++        try:
++            from huggingface_hub import try_to_load_from_cache
++
++            location = try_to_load_from_cache(
++                self.settings.model_id,
++                "config.json",
++                revision=self.settings.model_revision,
++            )
++            if isinstance(location, str):
++                candidate = resolved_revision(Path(location).parent.name)
++                if candidate:
++                    return candidate
++        except Exception:  # noqa: BLE001 - cache metadata is optional, no download
++            pass
++        # A pinned revision passed to from_pretrained names the exact artifact.
++        return resolved_revision(self.settings.model_revision)
++
++    @staticmethod
++    def _config_dimension(config: Any) -> int | None:
++        model_type = getattr(config, "model_type", None)
++        if model_type == "clip":
++            dimension = getattr(config, "projection_dim", None)
++        elif model_type in ("siglip", "siglip2"):
++            vision = getattr(config, "vision_config", None)
++            dimension = getattr(vision, "hidden_size", None)
++        else:
++            return None
++        return int(dimension) if isinstance(dimension, int) and dimension > 0 else None
++
++    def capabilities_metadata(self) -> dict:
++        """Read configured cache metadata; never load weights or download assets."""
++        if self._model is not None:
++            dimension = self._generated_dimension
++            source = "generated_vector" if dimension is not None else "loaded_model_config"
++            if dimension is None:
++                projection = getattr(self._model, "visual_projection", None)
++                dimension = getattr(projection, "out_features", None)
++                if dimension is None:
++                    vision = getattr(self._model, "vision_model", None)
++                    probe = getattr(getattr(vision, "head", None), "probe", None)
++                    dimension = int(probe.shape[-1]) if probe is not None else self._config_dimension(self._model.config)
++            metadata = {
++                "model_revision": self.revision,
++                "embedding_dimension": int(dimension) if dimension is not None else None,
++                "embedding_dimension_source": source if dimension is not None else None,
++            }
++        else:
++            if self._cached_config_metadata is None:
++                metadata = {
++                    "model_revision": None,
++                    "embedding_dimension": None,
++                    "embedding_dimension_source": None,
++                }
++                try:
++                    from transformers import AutoConfig
++
++                    config = AutoConfig.from_pretrained(
++                        self.settings.model_id,
++                        revision=self.settings.model_revision,
++                        local_files_only=True,
++                        trust_remote_code=False,
++                    )
++                    dimension = self._config_dimension(config)
++                    metadata = {
++                        "model_revision": self._revision(config),
++                        "embedding_dimension": dimension,
++                        "embedding_dimension_source": "cached_model_config" if dimension is not None else None,
++                    }
++                except Exception:  # noqa: BLE001 - absent cache means unknown, not a guess
++                    pass
++                self._cached_config_metadata = metadata
++            metadata = dict(self._cached_config_metadata)
++        return {
++            **metadata,
++            "configured_model_revision": self.settings.model_revision,
++            "pipeline_version": PIPELINE_VERSION,
++            "embedding_version": EMBEDDING_VERSION,
++            "preprocess_version": PREPROCESS_VERSION,
++            "normalization": "l2",
++            "dimension_runtime_verified": self._generated_dimension is not None,
++        }
++
+     def _load(self) -> None:
+         if self._model is not None:
+             return
+@@ -54,6 +149,13 @@ class ModelManager:
+             }
+             processor = AutoProcessor.from_pretrained(self.settings.model_id, **options)
+             model = AutoModel.from_pretrained(self.settings.model_id, **options)
++            revision = self._revision(model.config)
++            if revision is None:
++                raise PipelineError(
++                    "MODEL_REVISION_UNRESOLVED",
++                    "No se pudo identificar una revisión inmutable del modelo visual.",
++                    503,
++                )
+             try:
+                 model = model.to(self.device).eval()
+             except (RuntimeError, torch.cuda.OutOfMemoryError):
+@@ -61,13 +163,15 @@ class ModelManager:
+                 model = model.to("cpu").eval()
+                 if torch.cuda.is_available():
+                     torch.cuda.empty_cache()
++            # Publish the cache only once both components and identity are ready.
++            self.revision = revision
+             self._processor, self._model = processor, model
+-            self.revision = (
+-                getattr(model.config, "_commit_hash", None)
+-                or self.settings.model_revision
+-            )
+             self.load_ms = round((time.perf_counter() - start) * 1000, 3)
+-        except Exception:  # noqa: BLE001 - isolate third-party/runtime failures at the service boundary
++        except PipelineError:
++            self._model = self._processor = None
++            self._failed_until = time.monotonic() + self.settings.model_retry_seconds
++            raise
++        except Exception:  # noqa: BLE001 - isolate third-party/runtime failures
+             self._model = self._processor = None
+             self._failed_until = time.monotonic() + self.settings.model_retry_seconds
+             raise PipelineError(
+@@ -77,67 +181,141 @@ class ModelManager:
+                 True,
+             ) from None
+ 
++    def _run(self, inputs: Any, forward: Callable) -> Any:
++        """Run the selected visual operation with the existing CPU fallback."""
++        import torch
++
++        with torch.inference_mode():
++            try:
++                return forward(inputs)
++            except (RuntimeError, torch.cuda.OutOfMemoryError):
++                if self.device != "cuda":
++                    raise
++                self._model = self._model.to("cpu")
++                self.device = "cpu"
++                inputs = inputs.to("cpu")
++                torch.cuda.empty_cache()
++                return forward(inputs)
++
++    @staticmethod
++    def _normalized_vectors(features: Any):
++        import torch
++
++        if (
++            not isinstance(features, torch.Tensor)
++            or features.ndim != 2
++            or features.shape[0] < 1
++            or not 1 <= features.shape[-1] <= 2048
++        ):
++            raise PipelineError("INVALID_VISUAL_EMBEDDING", "El modelo devolvió un vector visual inválido.", 503)
++        vectors = features.float()
++        norms = torch.linalg.vector_norm(vectors, ord=2, dim=-1)
++        if not bool(torch.isfinite(vectors).all()) or not bool(torch.isfinite(norms).all()) or bool((norms <= 0).any()):
++            raise PipelineError("INVALID_VISUAL_EMBEDDING", "El vector visual no contiene evidencia numérica válida.", 503)
++        return torch.nn.functional.normalize(vectors, p=2, dim=-1)
++
++    def _embedding_metadata(self, vector: Any) -> dict:
++        values = vector.detach().cpu().tolist()
++        dimension = len(values)
++        norm = math.sqrt(math.fsum(value * value for value in values))
++        if resolved_revision(self.revision) is None or not math.isclose(norm, 1.0, rel_tol=1e-4, abs_tol=1e-5):
++            raise PipelineError("INVALID_VISUAL_EMBEDDING", "El embedding visual no tiene identidad o normalización verificable.", 503)
++        self._generated_dimension = dimension
++        return {
++            "values": values,
++            "dimension": dimension,
++            **self.identity,
++            "embedding_version": EMBEDDING_VERSION,
++            "preprocess_version": PREPROCESS_VERSION,
++            "normalization": "l2",
++            "normalized": True,
++            "norm": norm,
++            "dimension_source": "generated_vector",
++        }
++
++    def _metrics(self, started: float) -> dict:
++        import torch
++
++        if self.device == "cuda":
++            torch.cuda.synchronize()
++        return {
++            "metrics": {
++                "model_load": self.load_ms,
++                "inference": round((time.perf_counter() - started) * 1000, 3),
++            },
++            "device": self.device,
++            "vram_peak_mb": round(torch.cuda.max_memory_allocated() / 1024**2, 2) if self.device == "cuda" else 0.0,
++        }
++
+     def infer(self, image: Image.Image, prompts: list[str]) -> dict:
+         if not self._lock.acquire(timeout=self.settings.inference_lock_timeout):
+-            raise PipelineError(
+-                "GPU_BUSY", "El modelo está ocupado. Intente nuevamente.", 503, True
+-            )
++            raise PipelineError("GPU_BUSY", "El modelo está ocupado. Intente nuevamente.", 503, True)
+         try:
+             self._load()
+             import torch
+ 
+-            start = time.perf_counter()
++            started = time.perf_counter()
+             inputs = self._processor(
+-                text=prompts,
+-                images=image,
+-                padding="max_length",
+-                truncation=True,
+-                return_tensors="pt",
++                text=prompts, images=image, padding="max_length",
++                truncation=True, return_tensors="pt",
+             ).to(self.device)
+             if self.device == "cuda":
+                 torch.cuda.reset_peak_memory_stats()
+-            with torch.inference_mode():
+-                try:
+-                    output = self._model(**inputs)
+-                except (RuntimeError, torch.cuda.OutOfMemoryError):
+-                    if self.device != "cuda":
+-                        raise
+-                    # Release the single visual model's CUDA allocation before CPU fallback.
+-                    self._model = self._model.to("cpu")
+-                    self.device = "cpu"
+-                    inputs = inputs.to("cpu")
+-                    torch.cuda.empty_cache()
+-                    output = self._model(**inputs)
+-            vectors = torch.nn.functional.normalize(
+-                output.image_embeds.float(), p=2, dim=-1
+-            )
+-            texts = torch.nn.functional.normalize(
+-                output.text_embeds.float(), p=2, dim=-1
+-            )
++            output = self._run(inputs, lambda batch: self._model(**batch))
++            vectors = self._normalized_vectors(output.image_embeds)
++            texts = self._normalized_vectors(output.text_embeds)
+             similarities = (vectors @ texts.T)[0].detach().cpu().tolist()
+-            if self.device == "cuda":
+-                torch.cuda.synchronize()
++            embedding = self._embedding_metadata(vectors[0])
+             return {
+                 "similarities": similarities,
+-                "embedding": vectors[0].detach().cpu().tolist(),
++                "embedding": embedding["values"],
++                "embedding_metadata": embedding,
+                 "model": self.identity,
+-                "metrics": {
+-                    "model_load": self.load_ms,
+-                    "inference": round((time.perf_counter() - start) * 1000, 3),
+-                },
+-                "device": self.device,
+-                "vram_peak_mb": round(torch.cuda.max_memory_allocated() / 1024**2, 2)
+-                if self.device == "cuda"
+-                else 0.0,
++                **self._metrics(started),
+             }
+         except PipelineError:
+             raise
+-        except Exception:  # noqa: BLE001 - isolate third-party/runtime failures at the service boundary
++        except Exception:  # noqa: BLE001 - third-party/runtime boundary
+             raise PipelineError(
+-                "MODEL_UNAVAILABLE",
+-                "No fue posible completar la inferencia visual.",
+-                503,
+-                True,
++                "MODEL_UNAVAILABLE", "No fue posible completar la inferencia visual.", 503, True
++            ) from None
++        finally:
++            self._lock.release()
++
++    def embed_image(self, image: Image.Image) -> dict:
++        """Same projected image space as infer(), with no text classification."""
++        if not self._lock.acquire(timeout=self.settings.inference_lock_timeout):
++            raise PipelineError("GPU_BUSY", "El modelo está ocupado. Intente nuevamente.", 503, True)
++        try:
++            self._load()
++            import torch
++
++            started = time.perf_counter()
++            inputs = self._processor(images=image, return_tensors="pt").to(self.device)
++            if self.device == "cuda":
++                torch.cuda.reset_peak_memory_stats()
++            output = self._run(inputs, lambda batch: self._model.get_image_features(**batch))
++            # Transformers 4 returned a tensor; Transformers 5 returns pooled
++            # model outputs (CLIP's pooler already includes visual_projection).
++            if isinstance(output, torch.Tensor):
++                features = output
++            else:
++                features = getattr(output, "pooler_output", None)
++                if features is None and isinstance(output, tuple) and len(output) >= 2:
++                    features = output[1]
++            vectors = self._normalized_vectors(features)
++            embedding = self._embedding_metadata(vectors[0])
++            return {
++                "embedding": embedding["values"],
++                "embedding_metadata": embedding,
++                "model": self.identity,
++                **self._metrics(started),
++            }
++        except PipelineError:
++            raise
++        except Exception:  # noqa: BLE001 - third-party/runtime boundary
++            raise PipelineError(
++                "MODEL_UNAVAILABLE", "No fue posible obtener el embedding visual.", 503, True
+             ) from None
+         finally:
+             self._lock.release()
+diff --git a/services/mati-ai/src/mati_ai/identification/matching.py b/services/mati-ai/src/mati_ai/identification/matching.py
+index 2fec69f..9738c2f 100644
+--- a/services/mati-ai/src/mati_ai/identification/matching.py
++++ b/services/mati-ai/src/mati_ai/identification/matching.py
+@@ -1,6 +1,7 @@
+ from difflib import SequenceMatcher
+ from typing import Any
+ 
++from mati_ai.contracts.embedding import compatible_embeddings
+ from mati_ai.contracts.identification import MatchItem
+ from mati_ai.identification.codes import valid_gtin
+ from mati_ai.identification.normalization import normalized
+@@ -37,10 +38,7 @@ def rank_matches(
+                 query.image_sha256 == candidate.image_sha256
+             )
+         if query.embedding and candidate.embedding:
+-            if (query.embedding.model_id, query.embedding.model_revision) == (
+-                candidate.embedding.model_id,
+-                candidate.embedding.model_revision,
+-            ):
++            if compatible_embeddings(query.embedding, candidate.embedding):
+                 score = cosine_similarity(
+                     query.embedding.values, candidate.embedding.values
+                 )
+@@ -91,3 +89,4 @@ def rank_matches(
+         )
+     ranked.sort(key=lambda item: item["score"], reverse=True)
+     return ranked[:limit]
++
+diff --git a/services/mati-ai/src/mati_ai/vision/color.py b/services/mati-ai/src/mati_ai/vision/color.py
+index 2364e8d..830517f 100644
+--- a/services/mati-ai/src/mati_ai/vision/color.py
++++ b/services/mati-ai/src/mati_ai/vision/color.py
+@@ -1,3 +1,9 @@
++"""Garment-only color observations; Laravel remains the catalog authority.
++
++The original image is never changed. Segmentation, palette and confidence are
++deterministic heuristics, not calibrated probabilities or material recognition.
++"""
++
+ import re
+ import unicodedata
+ from typing import Any
+@@ -6,105 +12,495 @@ import cv2
+ import numpy as np
+ from PIL import Image
+ 
++from mati_ai.contracts.colorimetry import COLORIMETRY_VERSION
+ from mati_ai.contracts.vision import CatalogValue
++from mati_ai.vision.color_distance import delta_e_2000
++from mati_ai.vision.segmentation import MIN_FOREGROUND_CONFIDENCE, foreground_mask
++
++CATALOG_MAX_DELTA_E = 10.0
++CATALOG_MIN_MARGIN = 2.0
++CATALOG_MIN_CONFIDENCE = 0.55
++MAX_PALETTE_COLORS = 8
++MIN_PALETTE_SHARE = 0.015
++SIGNIFICANT_COLOR_SHARE = 0.12
+ 
++# Only approximate references for legacy catalog rows without an exact HEX.
++# They never authorize a commercial ID. Runtime references come from Laravel.
+ FALLBACK_HEX = {
+-    "NEGRO": "000000",
+-    "BLANCO": "ffffff",
+-    "BEIGE": "d9c5a0",
+-    "AZUL": "2454a0",
+-    "ROJO": "c62828",
+-    "VERDE": "38804c",
+-    "AMARILLO": "f1d144",
+-    "GRIS": "808080",
+-    "ROSA": "ed9cb3",
+-    "MORADO": "803d99",
+-    "MARRON": "805532",
+-    "CAFE": "805532",
+-    "NARANJA": "e78534",
+-    "CELESTE": "85c5e5",
+-    "CREMA": "fff0ca",
++    "NEGRO": "111111", "BLANCO": "f7f6f2", "BEIGE": "d8c3a5",
++    "CAMEL": "b88956", "AZUL": "2447d8", "AZUL MARINO": "1f2a44",
++    "ROJO": "e53935", "VERDE": "009b77", "VERDE OLIVA": "66704a",
++    "AMARILLO": "f5dc1e", "GRIS": "8a8f98", "ROSA": "f48fb1",
++    "ROSA PALO": "d8a7b1", "MORADO": "6a1b9a", "MARRON": "6f4e37",
++    "CAFE": "6f4e37", "NARANJA": "f57c00", "CELESTE": "a9c7e8",
++    "CREMA": "f2e8d8", "BORGONA": "6f1d2c",
++}
++FAMILY_ALIASES = {
++    "NEGRO": "black", "BLANCO": "white", "GRIS": "gray",
++    "BEIGE": "beige_cream", "CREMA": "beige_cream", "CAMEL": "brown",
++    "MARRON": "brown", "CAFE": "brown", "ROJO": "red", "NARANJA": "orange",
++    "AMARILLO": "yellow", "VERDE": "green", "AZUL": "blue",
++    "MORADO": "violet", "VIOLETA": "violet", "ROSA": "pink",
++    "ROSADO": "pink", "DORADO": "metallic", "PLATEADO": "metallic",
++    "METALIZADO": "metallic", "MULTICOLOR": "multicolor",
++}
++FAMILY_NAMES = {
++    "black": "negro", "white": "blanco", "gray": "gris",
++    "beige_cream": "beige / crema", "brown": "marrón", "red": "rojo",
++    "orange": "naranja", "yellow": "amarillo", "green": "verde",
++    "blue": "azul", "violet": "violeta", "pink": "rosado",
++    "metallic": "metalizado", "multicolor": "multicolor",
+ }
+ 
+ 
+-def _rgb(value: CatalogValue):
+-    name = "".join(
+-        c
+-        for c in unicodedata.normalize("NFKD", value.name.upper())
+-        if not unicodedata.combining(c)
++def _name(value: str) -> str:
++    normalized = "".join(
++        character for character in unicodedata.normalize("NFKD", value.upper())
++        if not unicodedata.combining(character)
+     )
+-    color = value.hex or FALLBACK_HEX.get(name)
++    return " ".join(normalized.split())
++
++
++def _rgb(value: CatalogValue) -> list[int] | None:
++    color = value.hex or FALLBACK_HEX.get(_name(value.name))
+     if not color or not re.fullmatch(r"#?[0-9a-fA-F]{6}", color):
+         return None
+-    return [int(color.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4)]
++    return [int(color.lstrip("#")[index:index + 2], 16) for index in (0, 2, 4)]
+ 
+ 
+-def extract_colors(image: Image.Image, catalog: list[CatalogValue]) -> dict:
+-    preview = image.copy()
+-    preview.thumbnail((160, 160))
+-    rgb = np.asarray(preview).astype(np.float32) / 255
+-    lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB)
+-    border = np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]])
+-    background = np.median(border, axis=0)
+-    uniform = float(np.median(np.linalg.norm(border - background, axis=1))) < 7
+-    mask = np.linalg.norm(lab - background, axis=2) > 12
+-    fraction = float(mask.mean())
+-    foreground = uniform and 0.12 < fraction < 0.94
+-    pixels = lab[mask] if foreground else lab.reshape(-1, 3)
+-    # Deterministic Lab quantization avoids stochastic clustering and excessive thread overhead.
+-    bins = np.floor(pixels / np.array([10, 12, 12])).astype(int)
+-    _, inverse, counts = np.unique(
+-        bins, axis=0, return_inverse=True, return_counts=True
+-    )
+-    clusters = []
+-    for index in counts.argsort()[::-1][:5]:
+-        center = pixels[inverse == index].mean(axis=0)
+-        converted = cv2.cvtColor(
+-            center.reshape(1, 1, 3).astype(np.float32), cv2.COLOR_LAB2RGB
+-        )[0, 0]
+-        rgb_value = np.clip(np.rint(converted * 255), 0, 255).astype(int)
+-        clusters.append((center, rgb_value, float(counts[index] / len(pixels))))
+-    refs = [(entry, _rgb(entry)) for entry in catalog]
+-    refs = [
+-        (
+-            entry,
+-            cv2.cvtColor(
+-                np.array(color, np.float32).reshape(1, 1, 3) / 255, cv2.COLOR_RGB2LAB
+-            )[0, 0],
++def _family(lab: np.ndarray, catalog_color: CatalogValue | None = None) -> str:
++    lightness, a, b = (float(value) for value in lab)
++    chroma = float(np.hypot(a, b))
++    hue = float(np.degrees(np.arctan2(b, a)) % 360)
++    if catalog_color is not None:
++        name = _name(catalog_color.name)
++        commercial_family = FAMILY_ALIASES.get(_name(catalog_color.family or ""))
++        # CREMA/MARFIL remain perceptual cream even if the commercial family is BLANCO.
++        if any(word in name for word in ("CREMA", "MARFIL", "HUESO")) and b > 4:
++            return "beige_cream"
++        if commercial_family and commercial_family not in ("metallic", "multicolor"):
++            return commercial_family
++    if lightness < 23 and chroma < 16:
++        return "black"
++    if lightness >= 88 and chroma <= 9:
++        return "white"
++    if chroma <= 8:
++        return "gray"
++    if lightness >= 62 and chroma <= 32 and 35 <= hue <= 105:
++        return "beige_cream"
++    if lightness < 62 and chroma <= 52 and 30 <= hue <= 95:
++        return "brown"
++    if a > 10 and ((lightness >= 55 and (hue >= 330 or hue < 25)) or (hue >= 325 and b < 0)):
++        return "pink"
++    if hue < 35 or hue >= 345:
++        return "red"
++    if hue < 75:
++        return "orange"
++    if hue < 110:
++        return "yellow"
++    if hue < 195:
++        return "green"
++    if hue < 295:
++        return "blue"
++    return "violet"
++
++
++def _temperature(lab: np.ndarray) -> str:
++    _, a, b = (float(value) for value in lab)
++    chroma = float(np.hypot(a, b))
++    if chroma < 5:
++        return "neutral"
++    if chroma < 30:
++        if b > 5 and a > -8:
++            return "warm_neutral"
++        if b < -5:
++            return "cool_neutral"
++        return "neutral"
++    hue = float(np.degrees(np.arctan2(b, a)) % 360)
++    return "warm" if hue <= 125 or hue >= 345 else "cool"
++
++
++def _level(value: float, low: float, high: float) -> str:
++    return "low" if value < low else "high" if value >= high else "medium"
++
++
++def _description(center: np.ndarray, family: str, reliable: bool) -> str:
++    if not reliable:
++        return FAMILY_NAMES[family] + " observado; iluminación por revisar"
++    lightness = float(center[0])
++    chroma = float(np.hypot(center[1], center[2]))
++    hue = float(np.degrees(np.arctan2(center[2], center[1])) % 360)
++    if family == "blue" and lightness < 35:
++        return "azul marino"
++    if family == "red" and lightness < 45 and (hue < 35 or hue > 335):
++        return "rojo vino"
++    if family == "green" and 95 <= hue <= 145 and lightness < 65 and chroma < 45:
++        return "verde oliva"
++    if family == "pink" and chroma < 35 and lightness >= 55:
++        return "rosa palo"
++    if family == "beige_cream":
++        return "crema" if lightness >= 86 and chroma < 20 else "beige cálido" if center[2] > 5 else "beige"
++    name = FAMILY_NAMES[family]
++    if family not in ("black", "white"):
++        if lightness >= 72:
++            name += " claro"
++        elif lightness < 38:
++            name += " oscuro"
++        else:
++            name += " medio"
++    if family not in ("black", "white", "gray", "brown"):
++        if chroma < 25:
++            name += " apagado"
++        elif chroma >= 50:
++            name += " intenso"
++    return name
++
++
++def _illumination(rgb: np.ndarray, mask: np.ndarray, segmentation: dict) -> tuple[dict, list[str]]:
++    pixels = rgb[mask]
++    # Without a valid garment mask, exposure belongs to the whole image only.
++    if not len(pixels):
++        return {
++            "reliable": False, "confidence_score": 0.0,
++            "white_balance_reference": "unavailable", "white_balance_corrected": False,
++            "shadow_clipped_fraction": None, "highlight_clipped_fraction": None,
++            "channel_clipped_fraction": None, "background_lab": segmentation.get("background_lab"),
++            "reference_chroma": None,
++        }, []
++    shadow_fraction = float(np.mean(np.all(pixels <= 4, axis=1)))
++    highlight_fraction = float(np.mean(np.all(pixels >= 250, axis=1)))
++    channel_fraction = float(np.mean(np.any(pixels >= 254, axis=1) | np.all(pixels <= 1, axis=1)))
++    warnings = []
++    if shadow_fraction >= 0.40:
++        warnings.append("COLOR_UNDEREXPOSURE_SUSPECTED")
++    if highlight_fraction >= 0.40:
++        warnings.append("COLOR_OVEREXPOSURE_SUSPECTED")
++    if channel_fraction >= 0.35:
++        warnings.append("COLOR_CHANNEL_CLIPPING")
++    background = np.array(segmentation["background_lab"], dtype=float)
++    reference_chroma = float(np.hypot(background[1], background[2]))
++    # A light, near-neutral uniform border is only a possible reference. We
++    # cannot prove it was physically white/gray, so cast is reported as suspicion.
++    possible_reference = background[0] >= 70 and reference_chroma <= 22 and abs(background[1]) <= 10
++    if possible_reference and background[2] > 9:
++        warnings.extend(["WARM_LIGHTING_SUSPECTED", "WHITE_BALANCE_SUSPECTED"])
++    elif possible_reference and background[2] < -9:
++        warnings.extend(["COOL_LIGHTING_SUSPECTED", "WHITE_BALANCE_SUSPECTED"])
++    reliable = not warnings
++    evidence = {
++        "reliable": reliable,
++        "confidence_score": 0.90 if reliable else 0.45,
++        "white_balance_reference": "unverified_uniform_border" if possible_reference else "unavailable",
++        "white_balance_corrected": False,
++        "background_lab": [round(float(value), 3) for value in background],
++        "reference_chroma": round(reference_chroma, 3),
++        "shadow_clipped_fraction": round(shadow_fraction, 4),
++        "highlight_clipped_fraction": round(highlight_fraction, 4),
++        "channel_clipped_fraction": round(channel_fraction, 4),
++        "exposure_interpretation": "clipping_can_also_be_intrinsic_black_white_or_intense_fabric",
++    }
++    return evidence, list(dict.fromkeys(warnings))
++
++
++def _clusters(pixels: np.ndarray) -> list[dict]:
++    # Weighted histogram modes initialize perceptual clusters deterministically.
++    bins = np.floor(pixels / np.array([6, 8, 8])).astype(np.int16)
++    _, inverse, counts = np.unique(bins, axis=0, return_inverse=True, return_counts=True)
++    sums = np.zeros((len(counts), 3), dtype=np.float64)
++    np.add.at(sums, inverse, pixels)
++    nodes = sums / counts[:, None]
++    seeds = []
++    for index in np.argsort(-counts, kind="stable"):
++        if not seeds or float(np.min(delta_e_2000(nodes[index], np.asarray(seeds)))) >= 12:
++            seeds.append(nodes[index])
++        if len(seeds) == MAX_PALETTE_COLORS:
++            break
++    centers = np.asarray(seeds)
++    # Reassign all bins, not just the most frequent ones. No RGB distance or
++    # random K-means seeds are used; Lab centroid updates approximate each group.
++    for _ in range(5):
++        assignments = np.argmin(delta_e_2000(nodes[:, None, :], centers[None, :, :]), axis=1)
++        updated = []
++        for index in range(len(centers)):
++            selected = assignments == index
++            if selected.any():
++                updated.append(np.average(nodes[selected], axis=0, weights=counts[selected]))
++        centers = np.asarray(updated)
++    assignments = np.argmin(delta_e_2000(nodes[:, None, :], centers[None, :, :]), axis=1)
++    pixel_assignments = assignments[inverse]
++    groups = []
++    for index, center in enumerate(centers):
++        group = pixels[pixel_assignments == index]
++        if not len(group):
++            continue
++        percentage = len(group) / len(pixels)
++        if percentage < MIN_PALETTE_SHARE:
++            continue
++        center = group.mean(axis=0)
++        rgb = cv2.cvtColor(center.reshape(1, 1, 3).astype(np.float32), cv2.COLOR_LAB2RGB)[0, 0]
++        groups.append({
++            "center": center,
++            "rgb": np.clip(np.rint(rgb * 255), 0, 255).astype(int).tolist(),
++            "percentage": percentage,
++            "pixel_count": len(group),
++            "spread": float(np.percentile(delta_e_2000(group, center), 90)),
++        })
++    return sorted(groups, key=lambda group: (-group["pixel_count"], *group["rgb"]))
++
++
++def _references(catalog: list[CatalogValue]) -> list[tuple[CatalogValue, np.ndarray, str]]:
++    references = []
++    for value in catalog:
++        color = _rgb(value)
++        if color is None:
++            continue
++        lab = cv2.cvtColor(np.array(color, np.float32).reshape(1, 1, 3) / 255, cv2.COLOR_RGB2LAB)[0, 0]
++        references.append((value, lab, "catalog_hex" if value.hex else "name_fallback"))
++    return references
++
++
++def _palette_element(group: dict, references: list, foreground: float, illumination: dict) -> tuple[dict[str, Any], list[str]]:
++    center = group["center"]
++    compactness = max(0.35, 1 - group["spread"] / 30)
++    confidence = float(foreground * illumination["confidence_score"] * compactness)
++    candidate, distance, margin, reference_source = None, None, None, None
++    warnings = []
++    accepted = False
++    reason = "no_catalog_reference"
++    if references:
++        ranked = sorted(
++            [(entry, float(delta_e_2000(center, lab)), source) for entry, lab, source in references],
++            key=lambda value: value[1],
+         )
+-        for entry, color in refs
+-        if color is not None
+-    ]
+-    palette: list[dict[str, Any]] = []
+-    for center, color, percentage in clusters:
+-        candidate, distance = None, None
+-        if refs:
+-            candidate, ref = min(
+-                refs, key=lambda pair: float(np.linalg.norm(pair[1] - center))
++        candidate, distance, reference_source = ranked[0]
++        margin = ranked[1][1] - distance if len(ranked) > 1 else None
++        metallic = _name(candidate.family or "") in ("DORADO", "PLATEADO", "METALIZADO") or _name(candidate.name) in ("DORADO", "PLATEADO")
++        if not illumination["reliable"]:
++            reason = "illumination_uncertain"
++        elif reference_source != "catalog_hex":
++            reason = "approximate_reference"
++            warnings.append("CATALOG_REFERENCE_APPROXIMATE")
++        elif metallic:
++            reason = "metallic_finish_not_observable_from_swatch"
++            warnings.append("METALLIC_FINISH_NOT_VERIFIABLE")
++        elif distance > CATALOG_MAX_DELTA_E:
++            reason = "distance_exceeds_threshold"
++            warnings.append("CATALOG_COLOR_UNMATCHED")
++        elif (margin is None or margin < CATALOG_MIN_MARGIN) and distance > 2:
++            reason = "nearest_catalog_references_ambiguous"
++            warnings.append("CATALOG_MATCH_AMBIGUOUS")
++        elif confidence < CATALOG_MIN_CONFIDENCE or group["spread"] > 14:
++            reason = "cluster_color_evidence_insufficient"
++            warnings.append("CATALOG_COLOR_UNMATCHED")
++        else:
++            reason, accepted = "exact_reference_within_thresholds", True
++    else:
++        warnings.append("CATALOG_COLOR_UNMATCHED")
++    family = _family(center, candidate if accepted else None)
++    color = group["rgb"]
++    catalog_id = candidate.id if accepted and candidate is not None else None
++    catalog_name = candidate.name if accepted and candidate is not None else None
++    value = {
++        "hex": "#" + "".join(f"{component:02x}" for component in color),
++        "rgb": color,
++        "lab": [round(float(component), 3) for component in center],
++        "percentage": round(group["percentage"], 6),
++        "family": family,
++        "descriptive_name": _description(center, family, illumination["reliable"]),
++        "catalog_color_id": catalog_id,
++        "catalog_color_name": catalog_name,
++        "delta_e": round(distance, 3) if distance is not None else None,
++        "confidence_score": round(confidence, 3),
++        "source": "lab_quantization",
++        "evidence": {
++            "method": "weighted_lab_histogram_ciede2000",
++            "confidence_kind": "heuristic_uncalibrated",
++            "pixel_count": group["pixel_count"],
++            "cluster_delta_e_p90": round(group["spread"], 3),
++            "foreground_confidence": foreground,
++            "illumination_reliable": illumination["reliable"],
++            "catalog_match_accepted": accepted,
++            "catalog_match_reason": reason,
++            "catalog_reference_source": reference_source,
++            "catalog_match_margin_delta_e": round(margin, 3) if margin is not None else None,
++            "catalog_match_confidence_score": round(confidence * max(0, 1 - (distance or 0) / 15), 3) if accepted else 0.0,
++            "nearest_catalog_color_name": candidate.name if candidate is not None else None,
++            "delta_e_formula": "CIEDE2000",
++            "catalog_max_delta_e": CATALOG_MAX_DELTA_E,
++            "catalog_min_margin_delta_e": CATALOG_MIN_MARGIN,
++            "catalog_min_confidence": CATALOG_MIN_CONFIDENCE,
++        },
++        # Compatibility aliases; values always match the additive contract.
++        "catalog_id": catalog_id,
++        "catalog_name": catalog_name,
++        "distance_delta_e": round(distance, 3) if distance is not None else None,
++    }
++    return value, warnings
++
++
++def _distinct_color(left: dict, right: dict) -> bool:
++    first, second = np.array(left["lab"]), np.array(right["lab"])
++    if float(delta_e_2000(first, second)) < 15:
++        return False
++    c1, c2 = float(np.hypot(*first[1:])), float(np.hypot(*second[1:]))
++    if max(c1, c2) < 14:
++        return abs(first[0] - second[0]) >= 35
++    if min(c1, c2) < 10:
++        return max(c1, c2) >= 25 or abs(first[0] - second[0]) >= 40
++    hue1 = float(np.degrees(np.arctan2(first[2], first[1])) % 360)
++    hue2 = float(np.degrees(np.arctan2(second[2], second[1])) % 360)
++    hue_difference = abs((hue1 - hue2 + 180) % 360 - 180)
++    # Avoid interpreting shadows of the same textile as additional colors.
++    return hue_difference >= 30 or (abs(c1 - c2) >= 24 and abs(first[0] - second[0]) <= 12)
++
++
++def _properties(pixels: np.ndarray, rgb: np.ndarray, palette: list[dict], reliable: bool) -> dict:
++    lightness = float(np.mean(pixels[:, 0]))
++    chroma_values = np.hypot(pixels[:, 1], pixels[:, 2])
++    chroma = float(np.mean(chroma_values))
++    saturation = float(np.mean(cv2.cvtColor(rgb.reshape(-1, 1, 3).astype(np.float32) / 255, cv2.COLOR_RGB2HSV)[:, 0, 1]))
++    hues = np.mod(np.degrees(np.arctan2(pixels[:, 2], pixels[:, 1])), 360)
++    neutral_pixels = (chroma_values <= 12) | ((chroma_values <= 30) & (hues >= 35) & (hues <= 100))
++    neutrality = float(np.mean(neutral_pixels))
++    dominant_groups = []
++    for entry in palette:
++        if entry["percentage"] < SIGNIFICANT_COLOR_SHARE:
++            continue
++        if all(_distinct_color(entry, group) for group in dominant_groups):
++            dominant_groups.append(entry)
++    variety = "monochrome" if len(dominant_groups) <= 1 else "bicolor" if len(dominant_groups) == 2 else "multicolor"
++    contrast = 0.0
++    for left in palette:
++        for right in palette:
++            contrast += left["percentage"] * right["percentage"] * float(delta_e_2000(np.array(left["lab"]), np.array(right["lab"])))
++    l10, l90 = (float(value) for value in np.percentile(pixels[:, 0], [10, 90]))
++    temperatures: dict[str, float] = {}
++    families: dict[str, float] = {}
++    for entry in palette:
++        temperature = _temperature(np.array(entry["lab"]))
++        temperatures[temperature] = temperatures.get(temperature, 0.0) + entry["percentage"]
++        families[entry["family"]] = families.get(entry["family"], 0.0) + entry["percentage"]
++    temperature = max(temperatures, key=temperatures.get)
++    dominant_family = max(families, key=families.get)
++    if variety == "multicolor":
++        dominant_family = "multicolor"
++    # Opposing substantial temperatures have no reliable categorical majority.
++    warm = temperatures.get("warm", 0) + temperatures.get("warm_neutral", 0)
++    cool = temperatures.get("cool", 0) + temperatures.get("cool_neutral", 0)
++    if warm >= 0.25 and cool >= 0.25 and abs(warm - cool) < 0.20:
++        temperature = "unknown"
++    return {
++        "temperature": temperature if reliable else "unknown",
++        "lightness": _level(lightness, 35, 70) if reliable else "unknown",
++        "chroma": _level(chroma, 25, 50) if reliable else "unknown",
++        "saturation": _level(saturation, 0.25, 0.60) if reliable else "unknown",
++        "neutrality": _level(neutrality, 0.35, 0.70) if reliable else "unknown",
++        "internal_contrast": _level(max(contrast, (l90 - l10) / 2), 8, 20) if reliable else "unknown",
++        "color_variety": variety if reliable else "unknown",
++        "dominant_family": dominant_family if reliable else None,
++        "metrics": {
++            "mean_lightness_l": round(lightness, 3),
++            "mean_chroma_c": round(chroma, 3),
++            "mean_hsv_saturation": round(saturation, 4),
++            "neutral_pixel_fraction": round(neutrality, 4),
++            "lightness_p10_p90_range": round(l90 - l10, 3),
++            "internal_contrast_delta_e": round(contrast, 3),
++            "significant_color_group_count": len(dominant_groups),
++            "palette_color_count": len(palette),
++            "temperature_shares": {key: round(value, 6) for key, value in temperatures.items()},
++            "family_shares": {key: round(value, 6) for key, value in families.items()},
++        },
++    }
++
++
++def extract_colors(image: Image.Image, catalog: list[CatalogValue]) -> dict:
++    """Evolve the existing palette contract with additive garment colorimetry."""
++    preview = image.convert("RGB").copy()
++    preview.thumbnail((256, 256), Image.Resampling.LANCZOS)
++    rgb = np.asarray(preview)
++    # OpenCV float input 0..1 yields real Lab, not its uint8 encoding.
++    lab = cv2.cvtColor(rgb.astype(np.float32) / 255, cv2.COLOR_RGB2LAB)
++    mask, foreground, segmentation, warnings = foreground_mask(lab)
++    illumination, lighting_warnings = _illumination(rgb, mask, segmentation)
++    warnings.extend(lighting_warnings)
++    colorimetry = {
++        "version": COLORIMETRY_VERSION,
++        "status": "insufficient_evidence",
++        "foreground_confidence": foreground,
++        "palette": [], "primary_color": None,
++        "secondary_colors": [], "accent_colors": [],
++        "temperature": "unknown", "lightness": "unknown", "chroma": "unknown",
++        "saturation": "unknown", "neutrality": "unknown",
++        "internal_contrast": "unknown", "color_variety": "unknown",
++        "dominant_family": None, "warnings": [], "coverage": 0.0, "metrics": {},
++        "evidence": {
++            "segmentation": segmentation, "illumination": illumination,
++            "color_space": "CIELAB_D65_from_sRGB",
++            "comparison_metric": "CIEDE2000",
++            "original_modified": False,
++            "white_balance_corrected": False,
++            "properties_scope": "observed_garment_pixels_only",
++            "confidence_kind": "heuristic_uncalibrated",
++            "thresholds_version": COLORIMETRY_VERSION,
++        },
++    }
++    if foreground < MIN_FOREGROUND_CONFIDENCE or not mask.any():
++        warnings.extend(["BACKGROUND_INTERFERENCE", "BACKGROUND_MAY_AFFECT_COLOR", "COLOR_PROPERTIES_UNCERTAIN"])
++    else:
++        palette = []
++        references = _references(catalog)
++        groups = _clusters(lab[mask])
++        for group in groups:
++            entry, catalog_warnings = _palette_element(group, references, foreground, illumination)
++            palette.append(entry)
++            warnings.extend(catalog_warnings)
++        coverage = round(min(1.0, sum(group["percentage"] for group in groups)), 6)
++        if not palette:
++            warnings.append("COLOR_PROPERTIES_UNCERTAIN")
++        else:
++            reliable = bool(illumination["reliable"] and coverage >= 0.85)
++            if coverage < 0.85:
++                warnings.append("PALETTE_COVERAGE_LOW")
++            if not reliable:
++                warnings.append("COLOR_PROPERTIES_UNCERTAIN")
++            properties = _properties(lab[mask], rgb[mask], palette, reliable)
++            top = palette[0]
++            next_share = palette[1]["percentage"] if len(palette) > 1 else 0.0
++            primary = top if top["percentage"] >= 0.55 and top["percentage"] - next_share >= 0.15 else None
++            if primary is None:
++                warnings.append("NO_SINGLE_DOMINANT_COLOR")
++            accent = [
++                entry for entry in palette
++                if entry is not primary and entry["percentage"] < SIGNIFICANT_COLOR_SHARE
++                and float(delta_e_2000(np.array(entry["lab"]), np.array(top["lab"]))) >= 15
++            ]
++            secondary = [
++                entry for entry in palette
++                if entry is not primary and all(entry is not item for item in accent)
++            ]
++            colorimetry.update(properties)
++            colorimetry.update({
++                "status": "completed" if reliable else "partial",
++                "palette": palette, "primary_color": primary,
++                "secondary_colors": secondary, "accent_colors": accent, "coverage": coverage,
++            })
++            colorimetry["evidence"]["property_confidence_score"] = round(
++                foreground * illumination["confidence_score"] * coverage, 3
+             )
+-            distance = float(np.linalg.norm(ref - center))
+-            if distance > 45:
+-                candidate = None
+-        palette.append(
+-            {
+-                "hex": "#" + "".join(f"{v:02x}" for v in color),
+-                "percentage": round(percentage, 4),
+-                "catalog_id": candidate.id if candidate else None,
+-                "catalog_name": candidate.name if candidate else None,
+-                "distance_delta_e": round(distance, 3)
+-                if distance is not None
+-                else None,
+-                "confidence_score": round(
+-                    max(0, 1 - (distance or 0) / 60) * (0.85 if foreground else 0.55), 3
+-                ),
+-                "source": "lab_quantization",
+-            }
+-        )
++            colorimetry["evidence"]["percentages_basis"] = "all_accepted_interior_foreground_pixels"
++            colorimetry["evidence"]["percentage_kind"] = "visible_image_area_approximation"
++            colorimetry["evidence"]["palette_max_colors"] = MAX_PALETTE_COLORS
++    warnings = list(dict.fromkeys(warnings))
++    colorimetry["warnings"] = warnings
++    palette = colorimetry["palette"]
+     return {
+-        "dominant_color": palette[0] if palette else None,
+-        "secondary_colors": palette[1:],
++        "dominant_color": colorimetry["primary_color"],
++        "secondary_colors": [entry for entry in palette if entry is not colorimetry["primary_color"]],
+         "palette": palette,
+-        "foreground_confidence": 0.8 if foreground else 0.35,
+-        "warnings": [] if foreground else ["BACKGROUND_MAY_AFFECT_COLOR"],
+-        "coverage": round(sum(item["percentage"] for item in palette), 4),
++        "foreground_confidence": foreground,
++        "warnings": warnings,
++        "coverage": colorimetry["coverage"],
++        "colorimetry": colorimetry,
+     }
++
++
+diff --git a/app/Models/AiProductEmbedding.php b/app/Models/AiProductEmbedding.php
+new file mode 100644
+index 0000000..7db69b4
+--- /dev/null
++++ b/app/Models/AiProductEmbedding.php
+@@ -0,0 +1,45 @@
++<?php
++
++namespace App\Models;
++
++use Illuminate\Database\Eloquent\Model;
++
++class AiProductEmbedding extends Model
++{
++    protected $guarded = [];
++    protected $hidden = ['embedding'];
++    protected $casts = [
++        'metadata' => 'array', 'dimensions' => 'integer',
++        'norm' => 'float', 'input_norm' => 'float',
++    ];
++
++    public function prenda()
++    {
++        return $this->belongsTo(Prenda::class, 'prenda_id', 'id_prenda');
++    }
++
++    public function image()
++    {
++        return $this->belongsTo(ImagenPrenda::class, 'image_id', 'id_imagen_prenda');
++    }
++
++    public function sourceRun()
++    {
++        return $this->belongsTo(AiRun::class, 'source_run_id');
++    }
++
++    /** Internal only: the native vector is deliberately hidden from serialized UI data. */
++    public function toEmbedding(): array
++    {
++        return [
++            'values' => json_decode((string) $this->getRawOriginal('embedding'), true, 512, JSON_THROW_ON_ERROR),
++            'dimension' => $this->dimensions, 'dimensions' => $this->dimensions,
++            'model_id' => data_get($this->metadata, 'model_id'),
++            'model_revision' => data_get($this->metadata, 'model_revision'),
++            'pipeline_version' => data_get($this->metadata, 'pipeline_version'),
++            'embedding_version' => $this->embedding_version,
++            'preprocess_version' => $this->preprocess_version,
++            'normalization' => $this->normalization, 'normalized' => true, 'norm' => $this->norm,
++        ];
++    }
++}
+diff --git a/app/Services/AI/CatalogEmbeddingStore.php b/app/Services/AI/CatalogEmbeddingStore.php
+new file mode 100644
+index 0000000..43b3362
+--- /dev/null
++++ b/app/Services/AI/CatalogEmbeddingStore.php
+@@ -0,0 +1,330 @@
++<?php
++
++namespace App\Services\AI;
++
++use App\Models\AiProductEmbedding;
++use App\Models\AiRun;
++use App\Models\ImagenPrenda;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Log;
++use Illuminate\Support\Facades\Schema;
++use InvalidArgumentException;
++
++class CatalogEmbeddingStore
++{
++    public function available(): bool
++    {
++        if (!config('mati_ai.vectors.enabled', true)) return false;
++        try {
++            if (DB::connection()->getDriverName() !== 'pgsql') return false;
++            return DB::transaction(function () {
++                if (!Schema::hasTable('ai_product_embeddings') || !Schema::hasTable('ai_model_versions')) return false;
++                $extension = DB::selectOne("SELECT EXISTS (SELECT 1 FROM pg_extension WHERE extname='vector') AS installed");
++                return in_array($extension->installed, [true, 1, '1', 't'], true);
++            });
++        } catch (\Throwable) {
++            return false;
++        }
++    }
++
++    /**
++     * A real vector determines its dimensions. Model, revision, pipeline and feature geometry
++     * must agree; equal dimensions alone never make two embedding spaces compatible.
++     */
++    public function prepare(array $embedding, array $model = []): array
++    {
++        $values = $embedding['values'] ?? null;
++        if (!is_array($values) || !array_is_list($values) || count($values) < 1 || count($values) > min(16000, max(1, (int) config('mati_ai.vectors.max_dimensions', 16000)))) {
++            throw new InvalidArgumentException('INVALID_EMBEDDING_VALUES');
++        }
++        foreach ($values as $value) {
++            if ((!is_int($value) && !is_float($value)) || !is_finite((float) $value)) {
++                throw new InvalidArgumentException('INVALID_EMBEDDING_VALUES');
++            }
++        }
++        $dimensions = count($values);
++        $declared = $embedding['dimensions'] ?? $embedding['dimension'] ?? null;
++        if ($declared !== null && (!is_int($declared) || $declared !== $dimensions)) {
++            throw new InvalidArgumentException('EMBEDDING_DIMENSION_MISMATCH');
++        }
++        $identity = [];
++        foreach (['model_id', 'model_revision', 'pipeline_version'] as $key) {
++            $value = $embedding[$key] ?? $model[$key] ?? null;
++            if (!is_string($value) || trim($value) === '' || mb_strlen($value) > 255
++                || (isset($embedding[$key], $model[$key]) && $embedding[$key] !== $model[$key])) {
++                throw new InvalidArgumentException('INCOMPLETE_EMBEDDING_IDENTITY');
++            }
++            $identity[$key] = $value;
++        }
++        // Mutable aliases such as main cannot identify a reproducible vector space.
++        if (!preg_match('/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i', $identity['model_revision'])
++            || in_array($identity['model_id'], ['deterministic', 'unavailable'], true)) {
++            throw new InvalidArgumentException('UNPINNED_EMBEDDING_REVISION');
++        }
++        $legacy = !isset($embedding['embedding_version']) || !isset($embedding['preprocess_version']);
++        // Historical ai_runs had no feature-profile fields. Keep them in a separate space
++        // based on the recorded pipeline instead of pretending they match a newer endpoint.
++        $legacyProfile = substr(hash('sha256', $identity['pipeline_version']), 0, 16);
++        $embeddingVersion = $embedding['embedding_version'] ?? 'legacy-image-'.$legacyProfile;
++        $preprocessVersion = $embedding['preprocess_version'] ?? 'legacy-preprocess-'.$legacyProfile;
++        foreach ([$embeddingVersion, $preprocessVersion] as $version) {
++            if (!is_string($version) || trim($version) === '' || mb_strlen($version) > 100) {
++                throw new InvalidArgumentException('INVALID_EMBEDDING_GEOMETRY');
++            }
++        }
++        if (isset($embedding['normalization']) && $embedding['normalization'] !== 'l2') {
++            throw new InvalidArgumentException('UNSUPPORTED_EMBEDDING_NORMALIZATION');
++        }
++        $scale = max(array_map(fn ($value) => abs((float) $value), $values));
++        if ($scale == 0) throw new InvalidArgumentException('ZERO_EMBEDDING_VECTOR');
++        $scaled = array_map(fn ($value) => $value / $scale, $values);
++        $scaledNorm = sqrt(array_sum(array_map(fn ($value) => $value * $value, $scaled)));
++        $inputNorm = $scale * $scaledNorm;
++        if (!is_finite($inputNorm) || $inputNorm <= 0) throw new InvalidArgumentException('INVALID_EMBEDDING_NORM');
++        $unit = array_map(fn ($value) => $value / $scaledNorm, $scaled);
++        $norm = sqrt(array_sum(array_map(fn ($value) => $value * $value, $unit)));
++        $geometry = [
++            'embedding_version' => $embeddingVersion, 'preprocess_version' => $preprocessVersion,
++            'normalization' => 'l2',
++        ];
++        return [
++            ...$identity, ...$geometry, 'dimensions' => $dimensions, 'values' => $unit,
++            'norm' => $norm, 'input_norm' => $inputNorm, 'normalized' => true,
++            'geometry_key' => hash('sha256', json_encode($geometry, JSON_THROW_ON_ERROR)),
++            'vector_literal' => json_encode($unit, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION),
++            'identity_source' => $legacy ? 'legacy_pipeline_profile' : 'explicit_feature_profile',
++        ];
++    }
++
++    public function storeRun(AiRun $run, ?int $imageId = null, array $metadata = [], bool $force = false): ?AiProductEmbedding
++    {
++        if (!$run->prenda_id || !is_array($run->embedding) || !$this->available()) return null;
++
++        // A nested transaction creates a savepoint when called during commercial saving.
++        return DB::transaction(function () use ($run, $imageId, $metadata, $force) {
++            $prepared = $this->prepare($run->embedding, $run->result['model'] ?? []);
++            if (!$run->model_version_id || !DB::table('ai_model_versions')
++                ->where('id', $run->model_version_id)
++                ->where('model_id', $prepared['model_id'])->where('model_revision', $prepared['model_revision'])
++                ->where('pipeline_version', $prepared['pipeline_version'])->exists()) {
++                throw new InvalidArgumentException('EMBEDDING_MODEL_VERSION_MISMATCH');
++            }
++            $hash = $run->input_hash;
++            if (!is_string($hash) || !preg_match('/^[a-f0-9]{64}$/i', $hash)) {
++                throw new InvalidArgumentException('EMBEDDING_CONTENT_HASH_REQUIRED');
++            }
++            $imageId ??= data_get($run->input_metadata, 'image_id');
++            $image = $imageId !== null ? ImagenPrenda::whereKey($imageId)->where('cod_prendas_igp', $run->prenda_id)->first() : null;
++            if ($imageId !== null && !$image) throw new InvalidArgumentException('EMBEDDING_IMAGE_PRODUCT_MISMATCH');
++            $key = [
++                'prenda_id' => $run->prenda_id, 'content_hash' => strtolower($hash),
++                'ai_model_version_id' => $run->model_version_id, 'dimensions' => $prepared['dimensions'],
++                'geometry_key' => $prepared['geometry_key'],
++            ];
++            $evidence = [
++                ...array_intersect_key($run->input_metadata ?? [], array_flip(['image_id', 'pixel_sha256', 'width', 'height', 'mime'])),
++                ...$metadata, 'model_id' => $prepared['model_id'], 'model_revision' => $prepared['model_revision'],
++                'pipeline_version' => $prepared['pipeline_version'],
++                'embedding_version' => $prepared['embedding_version'], 'preprocess_version' => $prepared['preprocess_version'],
++                'dimensions' => $prepared['dimensions'], 'identity_source' => $prepared['identity_source'],
++                'metric' => 'cosine_similarity', 'normalized' => true,
++                'original_preserved' => true, 'source_operation' => $run->operation,
++                ...($image ? ['image_id' => (int) $image->id_imagen_prenda, 'image_path' => $image->rut_igp] : []),
++            ];
++            $now = now()->toDateTimeString();
++            $encodedMetadata = json_encode($evidence, JSON_THROW_ON_ERROR);
++            $inserted = DB::affectingStatement(
++                'INSERT INTO ai_product_embeddings (prenda_id,image_id,ai_model_version_id,source_run_id,content_hash,dimensions,geometry_key,embedding_version,preprocess_version,normalization,norm,input_norm,metadata,embedding,created_at,updated_at)
++                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS json), CAST(? AS vector), ?, ?)
++                 ON CONFLICT (prenda_id,content_hash,ai_model_version_id,dimensions,geometry_key) DO NOTHING',
++                [
++                    $key['prenda_id'], $imageId, $key['ai_model_version_id'], $run->id,
++                    $key['content_hash'], $key['dimensions'], $key['geometry_key'],
++                    $prepared['embedding_version'], $prepared['preprocess_version'], 'l2',
++                    $prepared['norm'], $prepared['input_norm'], $encodedMetadata, $prepared['vector_literal'], $now, $now,
++                ],
++            );
++            $stored = AiProductEmbedding::where($key)->firstOrFail();
++            if (!$inserted && $force) {
++                $encodedMetadata = json_encode([...$stored->metadata, ...$evidence], JSON_THROW_ON_ERROR);
++                DB::update(
++                    'UPDATE ai_product_embeddings SET embedding=CAST(? AS vector),norm=?,input_norm=?,metadata=CAST(? AS json),source_run_id=?,image_id=COALESCE(?,image_id),updated_at=? WHERE id=?',
++                    [$prepared['vector_literal'], $prepared['norm'], $prepared['input_norm'], $encodedMetadata, $run->id, $imageId, $now, $stored->id],
++                );
++                $stored->refresh();
++            } elseif ($imageId && ((int) $stored->image_id !== (int) $imageId || data_get($stored->metadata, 'image_path') !== $image->rut_igp)) {
++                $stored->update(['image_id' => $imageId, 'metadata' => [...$stored->metadata, 'image_id' => $imageId, 'image_path' => $image->rut_igp]]);
++            }
++            $stored->wasRecentlyCreated = $inserted > 0;
++            return $stored;
++        });
++    }
++
++    /** Identity lookup after inference: never guess the current revision to skip a real image. */
++    public function existingForProduct(int $prendaId, string $hash, array $embedding, array $model = []): ?AiProductEmbedding
++    {
++        if (!$this->available()) return null;
++        $prepared = $this->prepare($embedding, $model);
++        return $this->currentProductEmbeddings($prendaId)->where('content_hash', strtolower($hash))
++            ->where('dimensions', $prepared['dimensions'])->where('geometry_key', $prepared['geometry_key'])
++            ->whereIn('ai_model_version_id', DB::table('ai_model_versions')->select('id')
++                ->where('model_id', $prepared['model_id'])->where('model_revision', $prepared['model_revision'])
++                ->where('pipeline_version', $prepared['pipeline_version']))
++            ->first();
++    }
++
++    public function latestForProduct(int $prendaId): ?AiProductEmbedding
++    {
++        if (!$this->available()) return null;
++        return $this->currentProductEmbeddings($prendaId)->orderByDesc('updated_at')->orderByDesc('id')->first();
++    }
++
++    public function latestCompatibleForProduct(int $prendaId, array $embedding, array $model = []): ?AiProductEmbedding
++    {
++        if (!$this->available()) return null;
++        $prepared = $this->prepare($embedding, $model);
++        return $this->currentProductEmbeddings($prendaId)
++            ->where('dimensions', $prepared['dimensions'])->where('geometry_key', $prepared['geometry_key'])
++            ->where('normalization', 'l2')
++            ->whereIn('ai_model_version_id', DB::table('ai_model_versions')->select('id')
++                ->where('model_id', $prepared['model_id'])->where('model_revision', $prepared['model_revision'])
++                ->where('pipeline_version', $prepared['pipeline_version']))
++            ->orderByDesc('updated_at')->orderByDesc('id')->first();
++    }
++
++    private function currentProductEmbeddings(int $prendaId)
++    {
++        return AiProductEmbedding::where('prenda_id', $prendaId)
++            ->whereHas('prenda', fn ($query) => $query->where('est_pre', true))
++            ->whereRaw($this->currentImageCondition('ai_product_embeddings'));
++    }
++
++    private function currentImageCondition(string $alias): string
++    {
++        // Deleting an image nulls its FK; retained provenance distinguishes it from
++        // a genuinely unlinked original. A replaced path invalidates the old vector.
++        return "(({$alias}.image_id IS NULL AND {$alias}.metadata->>'image_id' IS NULL AND {$alias}.metadata->>'image_path' IS NULL)
++            OR EXISTS (SELECT 1 FROM imagenes_prenda image_ref
++                WHERE image_ref.id_imagen_prenda={$alias}.image_id AND image_ref.cod_prendas_igp={$alias}.prenda_id
++                AND ({$alias}.metadata->>'image_path' IS NULL OR image_ref.rut_igp={$alias}.metadata->>'image_path')))";
++    }
++
++    /**
++     * Exact cosine search, one stable best image per active garment.
++     * PostgreSQL first materializes the compatible geometry; mixed dimensions never
++     * reach the vector operator, regardless of predicate evaluation order.
++     */
++    public function search(array $embedding, array $filters = [], array $model = []): array
++    {
++        $prepared = $this->prepare($embedding, $model);
++        $result = [
++            'status' => 'completed', 'matches' => [], 'total_candidates' => 0, 'total_indexed' => 0,
++            ...array_intersect_key($prepared, array_flip([
++                'dimensions', 'model_id', 'model_revision', 'pipeline_version', 'embedding_version', 'preprocess_version',
++            ])),
++            'metric' => 'cosine_similarity', 'search_mode' => 'exact', 'warnings' => [],
++        ];
++        if (!$this->available()) return [...$result, 'status' => 'degraded', 'warnings' => ['VECTOR_STORE_UNAVAILABLE']];
++
++        $limit = filter_var($filters['limit'] ?? config('mati_ai.vectors.default_limit', 12), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => min(30, max(1, (int) config('mati_ai.vectors.max_limit', 30)))]]);
++        $minimum = $filters['min_similarity'] ?? $filters['min_score'] ?? 0;
++        $duplicateThreshold = $filters['duplicate_similarity'] ?? $filters['duplicate_threshold'] ?? config('mati_ai.vectors.duplicate_similarity_threshold', 0.98);
++        if ($limit === false || !is_numeric($minimum) || !is_finite((float) $minimum) || $minimum < -1 || $minimum > 1
++            || !is_numeric($duplicateThreshold) || !is_finite((float) $duplicateThreshold) || $duplicateThreshold < -1 || $duplicateThreshold > 1) {
++            throw new InvalidArgumentException('INVALID_EMBEDDING_SEARCH_FILTER');
++        }
++        $conditions = [
++            'p.est_pre = true', 'mv.model_id = ?', 'mv.model_revision = ?', 'mv.pipeline_version = ?',
++            'e.dimensions = ?', 'e.geometry_key = ?', "e.normalization = 'l2'", $this->currentImageCondition('e'),
++        ];
++        $bindings = [
++            $prepared['model_id'], $prepared['model_revision'], $prepared['pipeline_version'],
++            $prepared['dimensions'], $prepared['geometry_key'],
++        ];
++        foreach ([
++            'exclude_prenda_id' => 'p.id_prenda <> ?', 'category_id' => 'p.cod_categorias_pre = ?',
++            'brand_id' => 'p.cod_marcas_pre = ?', 'season_id' => 'p.cod_temporadas_pre = ?',
++        ] as $filter => $condition) {
++            if (!isset($filters[$filter])) continue;
++            $id = filter_var($filters[$filter], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
++            if ($id === false) throw new InvalidArgumentException('INVALID_EMBEDDING_SEARCH_FILTER');
++            $conditions[] = $condition;
++            $bindings[] = $id;
++        }
++        foreach (['color_id' => 'pv.cod_colores_prv', 'size_id' => 'pv.cod_tallas_prv'] as $filter => $column) {
++            if (!isset($filters[$filter])) continue;
++            $id = filter_var($filters[$filter], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
++            if ($id === false) throw new InvalidArgumentException('INVALID_EMBEDDING_SEARCH_FILTER');
++            $conditions[] = "EXISTS (SELECT 1 FROM prenda_variantes pv WHERE pv.cod_prendas_prv=p.id_prenda AND pv.est_prv=true AND {$column}=?)";
++            $bindings[] = $id;
++        }
++        $compatibility = [
++            'mv.model_id = ?', 'mv.model_revision = ?', 'mv.pipeline_version = ?',
++            'e.dimensions = ?', 'e.geometry_key = ?', "e.normalization = 'l2'",
++        ];
++        $eligibleWhere = implode(' AND ', array_values(array_diff($conditions, $compatibility)));
++        $compatibleWhere = implode(' AND ', $compatibility);
++        $sql = <<<SQL
++            WITH eligible AS MATERIALIZED (
++                SELECT e.id AS embedding_id,e.prenda_id,e.image_id,e.content_hash,e.embedding,p.nom_pre AS title,
++                       e.ai_model_version_id,e.dimensions,e.geometry_key,e.normalization
++                FROM ai_product_embeddings e
++                JOIN prendas p ON p.id_prenda=e.prenda_id
++                WHERE {$eligibleWhere}
++            ), compatible AS MATERIALIZED (
++                SELECT e.embedding_id,e.prenda_id,e.image_id,e.content_hash,e.embedding,e.title
++                FROM eligible e
++                JOIN ai_model_versions mv ON mv.id=e.ai_model_version_id
++                WHERE {$compatibleWhere}
++            ), scored AS MATERIALIZED (
++                SELECT embedding_id,prenda_id,image_id,content_hash,title,
++                       embedding <=> CAST(? AS vector) AS distance
++                FROM compatible
++            ), ranked AS (
++                SELECT *, ROW_NUMBER() OVER (PARTITION BY prenda_id ORDER BY distance,embedding_id) AS garment_rank
++                FROM scored
++            ), selected AS (
++                SELECT embedding_id,prenda_id,image_id,content_hash,title,distance
++                FROM ranked WHERE garment_rank=1 AND 1-distance >= ?
++                ORDER BY distance,prenda_id,embedding_id LIMIT ?
++            )
++            SELECT (SELECT COUNT(DISTINCT prenda_id) FROM eligible) AS total_indexed,
++                   (SELECT COUNT(DISTINCT prenda_id) FROM compatible) AS total_candidates,
++                   COALESCE(json_agg(selected ORDER BY distance,prenda_id,embedding_id),'[]'::json) AS matches
++            FROM selected
++            SQL;
++        try {
++            $row = DB::transaction(fn () => DB::selectOne($sql, [...array_slice($bindings, 5), ...array_slice($bindings, 0, 5), $prepared['vector_literal'], (float) $minimum, $limit]));
++            $result['total_candidates'] = (int) $row->total_candidates;
++            $result['total_indexed'] = (int) $row->total_indexed;
++            $matches = json_decode((string) $row->matches, true, 512, JSON_THROW_ON_ERROR);
++            $queryHash = $filters['content_hash'] ?? $filters['query_content_hash'] ?? null;
++            foreach ($matches as $match) {
++                $distance = (float) $match['distance'];
++                if (!is_finite($distance)) continue;
++                $similarity = max(-1, min(1, 1 - $distance));
++                $sameContent = is_string($queryHash) && preg_match('/^[a-f0-9]{64}$/i', $queryHash)
++                    && hash_equals(strtolower($queryHash), $match['content_hash']);
++                $highSimilarity = $similarity >= (float) $duplicateThreshold;
++                $result['matches'][] = [
++                    'embedding_id' => (int) $match['embedding_id'], 'prenda_id' => (int) $match['prenda_id'],
++                    'image_id' => $match['image_id'] !== null ? (int) $match['image_id'] : null,
++                    'title' => $match['title'], 'distance' => $distance, 'similarity_score' => $similarity,
++                    'possible_duplicate' => $sameContent || $highSimilarity,
++                    'duplicate_evidence' => ['same_content_hash' => (bool) $sameContent, 'high_visual_similarity' => $highSimilarity],
++                ];
++            }
++            if (!$result['total_candidates']) {
++                $result['status'] = 'insufficient_evidence';
++                $result['warnings'][] = $result['total_indexed'] ? 'VECTOR_COMPATIBLE_INDEX_EMPTY' : 'VECTOR_INDEX_EMPTY';
++            } elseif (!$result['matches']) {
++                $result['warnings'][] = 'NO_SIMILAR_PRODUCTS_ABOVE_THRESHOLD';
++            }
++            $result['warnings'][] = 'VISUAL_SIMILARITY_DOES_NOT_CONFIRM_IDENTITY';
++            return $result;
++        } catch (\Throwable) {
++            Log::warning('mati_ai.vector_search_unavailable', ['dimensions' => $prepared['dimensions']]);
++            return [...$result, 'status' => 'degraded', 'matches' => [], 'warnings' => ['VECTOR_SEARCH_UNAVAILABLE']];
++        }
++    }
++}
+diff --git a/app/Services/AI/ColorimetryCatalogGuard.php b/app/Services/AI/ColorimetryCatalogGuard.php
+new file mode 100644
+index 0000000..b597a17
+--- /dev/null
++++ b/app/Services/AI/ColorimetryCatalogGuard.php
+@@ -0,0 +1,226 @@
++<?php
++
++namespace App\Services\AI;
++
++/**
++ * Reconciles observations with the catalog Laravel supplied for this request.
++ * It never creates a commercial color or turns a swatch into a confirmed value.
++ */
++class ColorimetryCatalogGuard
++{
++    private const FAMILIES = [
++        'black', 'white', 'gray', 'beige_cream', 'brown', 'red', 'orange',
++        'yellow', 'green', 'blue', 'violet', 'pink', 'metallic', 'multicolor',
++    ];
++    private const LIGHTING_WARNINGS = [
++        'COLOR_OVEREXPOSURE_SUSPECTED', 'COLOR_UNDEREXPOSURE_SUSPECTED',
++        'COLOR_CHANNEL_CLIPPING', 'WARM_LIGHTING_SUSPECTED', 'COOL_LIGHTING_SUSPECTED',
++        'WHITE_BALANCE_SUSPECTED',
++    ];
++
++    public function normalize(array $result, array $catalog): array
++    {
++        $available = [];
++        foreach ($catalog as $entry) {
++            if (is_array($entry) && isset($entry['id'], $entry['name'])) {
++                $available[(string) $entry['id']] = $entry;
++            }
++        }
++
++        if (!array_key_exists('colorimetry', $result['data'])) {
++            // Previous service versions keep working with their existing color contract.
++            $result['data']['colors'] = $this->legacyColors($result['data']['colors'], $available);
++            return $result;
++        }
++
++        $colorimetry = $result['data']['colorimetry'];
++        if (!$this->validColorimetry($colorimetry)) {
++            unset($result['data']['colorimetry']);
++            $result['data']['colors'] = [
++                ...$this->legacyColors($result['data']['colors'], []),
++                'dominant_color' => null, 'secondary_colors' => [], 'palette' => [],
++                'foreground_confidence' => 0, 'coverage' => 0,
++                'warnings' => ['COLORIMETRY_INVALID_RESPONSE'],
++            ];
++            $result['warnings'][] = 'COLORIMETRY_INVALID_RESPONSE';
++            if ($result['status'] === 'completed') $result['status'] = 'partial';
++            $result['human_review_required'] = true;
++            return $result;
++        }
++
++        if ($colorimetry['foreground_confidence'] < 0.70 || $colorimetry['status'] === 'insufficient_evidence') {
++            $colorimetry['status'] = 'insufficient_evidence';
++            $colorimetry['palette'] = $colorimetry['secondary_colors'] = $colorimetry['accent_colors'] = [];
++            $colorimetry['primary_color'] = $colorimetry['dominant_family'] = null;
++            $colorimetry['coverage'] = 0;
++            foreach (['temperature', 'lightness', 'chroma', 'saturation', 'neutrality', 'internal_contrast', 'color_variety'] as $property) {
++                $colorimetry[$property] = 'unknown';
++            }
++            $colorimetry['warnings'] = array_values(array_unique([...$colorimetry['warnings'], 'BACKGROUND_INTERFERENCE']));
++        }
++        if ($result['status'] === 'completed' && $colorimetry['status'] !== 'completed') $result['status'] = 'partial';
++
++        $reliable = $colorimetry['foreground_confidence'] >= 0.70
++            && $colorimetry['status'] !== 'insufficient_evidence'
++            && data_get($colorimetry, 'evidence.illumination.reliable') === true
++            && !array_intersect(self::LIGHTING_WARNINGS, $colorimetry['warnings']);
++        $palette = array_map(fn ($swatch) => $this->catalogSwatch($swatch, $available, $reliable), $colorimetry['palette']);
++
++        // All roles point to the same reconciled observations, including their evidence.
++        $primary = $this->paletteSwatch($colorimetry['primary_color'] ?? null, $palette);
++        if (in_array('NO_SINGLE_DOMINANT_COLOR', $colorimetry['warnings'], true)) $primary = null;
++        $colorimetry['palette'] = $palette;
++        $colorimetry['primary_color'] = $primary;
++        foreach (['secondary_colors', 'accent_colors'] as $role) {
++            $colorimetry[$role] = array_values(array_filter(array_map(
++                fn ($swatch) => $this->paletteSwatch($swatch, $palette), $colorimetry[$role],
++            )));
++        }
++        $result['data']['colorimetry'] = $colorimetry;
++        $result['warnings'] = array_values(array_unique([...$result['warnings'], ...$colorimetry['warnings']], SORT_REGULAR));
++        // Rebuild legacy aliases so a refused advanced match cannot bypass the guard.
++        $result['data']['colors'] = [
++            ...$result['data']['colors'],
++            'dominant_color' => $primary ? $this->legacySwatch($primary) : null,
++            'secondary_colors' => array_values(array_map(fn ($swatch) => $this->legacySwatch($swatch), array_filter(
++                $palette, fn ($swatch) => $primary === null || $swatch['hex'] !== $primary['hex'] || $swatch['lab'] !== $primary['lab'],
++            ))),
++            'palette' => array_map(fn ($swatch) => $this->legacySwatch($swatch), $palette),
++            'foreground_confidence' => $colorimetry['foreground_confidence'],
++            'warnings' => $colorimetry['warnings'],
++            'coverage' => $colorimetry['coverage'],
++        ];
++        $result['human_review_required'] = true;
++        return $result;
++    }
++
++    private function catalogSwatch(array $swatch, array $available, bool $reliable): array
++    {
++        $id = $swatch['catalog_color_id'] ?? null;
++        $entry = $id !== null ? ($available[(string) $id] ?? null) : null;
++        $distance = $swatch['delta_e'] ?? null;
++        $margin = data_get($swatch, 'evidence.catalog_match_margin_delta_e');
++        $hex = $entry['hex'] ?? null;
++        $catalogFamily = mb_strtoupper((string) ($entry['family'] ?? ''));
++        $catalogName = mb_strtoupper((string) ($entry['name'] ?? ''));
++        $metallic = in_array($catalogFamily, ['DORADO', 'PLATEADO', 'METALIZADO', 'METALIZADOS'], true)
++            || preg_match('/DORAD|PLATEAD|METALIZ|BRONCE|COBRE/', $catalogName);
++        $accepted = $reliable && $entry && !$metallic
++            && is_string($hex) && preg_match('/^#[0-9a-fA-F]{6}$/', $hex)
++            && $swatch['family'] !== 'metallic'
++            && data_get($swatch, 'evidence.catalog_match_accepted') === true
++            && data_get($swatch, 'evidence.catalog_reference_source') === 'catalog_hex'
++            && data_get($swatch, 'evidence.illumination_reliable') === true
++            && $this->numberInRange($distance, 0, 10)
++            && ($distance <= 2 || $this->numberInRange($margin, 2, PHP_FLOAT_MAX))
++            && $swatch['confidence_score'] >= 0.55;
++
++        $swatch['catalog_color_id'] = $accepted ? $entry['id'] : null;
++        $swatch['catalog_color_name'] = $accepted ? $entry['name'] : null;
++        // Extra legacy fields may be retained by the additive Python schema.
++        if (array_key_exists('catalog_id', $swatch)) $swatch['catalog_id'] = $swatch['catalog_color_id'];
++        if (array_key_exists('catalog_name', $swatch)) $swatch['catalog_name'] = $swatch['catalog_color_name'];
++        $swatch['evidence']['catalog_validated_by'] = 'laravel';
++        $swatch['evidence']['catalog_match_accepted'] = (bool) $accepted;
++        if ($accepted) {
++            $swatch['evidence']['catalog_reference_hex'] = $hex;
++            $swatch['evidence']['catalog_family'] = $entry['family'] ?? null;
++        } elseif ($id !== null) {
++            $swatch['evidence']['catalog_match_reason'] = $entry
++                ? 'insufficient_color_evidence' : 'catalog_color_unavailable';
++        }
++        return $swatch;
++    }
++
++    private function paletteSwatch(?array $swatch, array $palette): ?array
++    {
++        if ($swatch === null) return null;
++        foreach ($palette as $entry) {
++            if ($entry['hex'] === $swatch['hex'] && $entry['lab'] === $swatch['lab']) return $entry;
++        }
++        return null;
++    }
++
++    private function legacySwatch(array $swatch): array
++    {
++        return [
++            ...$swatch, 'catalog_id' => $swatch['catalog_color_id'],
++            'catalog_name' => $swatch['catalog_color_name'],
++            'distance_delta_e' => $swatch['delta_e'], 'source' => 'garment_colorimetry_delta_e_2000',
++        ];
++    }
++
++    private function legacyColors(array $colors, array $available): array
++    {
++        $normalize = function ($swatch) use ($available) {
++            if (!is_array($swatch)) return null;
++            $id = $swatch['catalog_id'] ?? null;
++            $entry = is_int($id) || is_string($id) ? ($available[(string) $id] ?? null) : null;
++            $swatch['catalog_id'] = $entry['id'] ?? null;
++            $swatch['catalog_name'] = $entry['name'] ?? null;
++            if (array_key_exists('catalog_color_id', $swatch)) $swatch['catalog_color_id'] = $entry['id'] ?? null;
++            if (array_key_exists('catalog_color_name', $swatch)) $swatch['catalog_color_name'] = $entry['name'] ?? null;
++            return $swatch;
++        };
++        $colors['dominant_color'] = $normalize($colors['dominant_color'] ?? null);
++        foreach (['palette', 'secondary_colors'] as $field) {
++            $colors[$field] = array_values(array_filter(array_map($normalize, is_array($colors[$field] ?? null) ? $colors[$field] : [])));
++        }
++        return $colors;
++    }
++
++    private function validColorimetry(mixed $value): bool
++    {
++        if (!is_array($value)
++            || !is_string($value['version'] ?? null) || mb_strlen($value['version']) > 100
++            || !in_array($value['status'] ?? null, ['completed', 'partial', 'insufficient_evidence'], true)
++            || !$this->numberInRange($value['foreground_confidence'] ?? null, 0, 1)
++            || !$this->numberInRange($value['coverage'] ?? null, 0, 1)
++            || !is_array($value['evidence'] ?? null) || !is_array($value['metrics'] ?? null)
++            || !is_array($value['warnings'] ?? null) || !array_is_list($value['warnings']) || count($value['warnings']) > 40) return false;
++
++        foreach ($value['warnings'] as $warning) {
++            if (!is_string($warning) || mb_strlen($warning) > 160) return false;
++        }
++        foreach (['lightness', 'chroma', 'saturation', 'neutrality', 'internal_contrast'] as $property) {
++            if (!in_array($value[$property] ?? null, ['low', 'medium', 'high', 'unknown'], true)) return false;
++        }
++        if (!in_array($value['temperature'] ?? null, ['warm', 'cool', 'neutral', 'warm_neutral', 'cool_neutral', 'unknown'], true)
++            || !in_array($value['color_variety'] ?? null, ['monochrome', 'bicolor', 'multicolor', 'unknown'], true)
++            || (($value['dominant_family'] ?? null) !== null && !in_array($value['dominant_family'], self::FAMILIES, true))) return false;
++        foreach (['palette', 'secondary_colors', 'accent_colors'] as $role) {
++            if (!is_array($value[$role] ?? null) || !array_is_list($value[$role]) || count($value[$role]) > 12) return false;
++            foreach ($value[$role] as $swatch) {
++                if (!$this->validSwatch($swatch)) return false;
++            }
++        }
++        return ($value['primary_color'] ?? null) === null || $this->validSwatch($value['primary_color']);
++    }
++
++    private function validSwatch(mixed $swatch): bool
++    {
++        if (!is_array($swatch) || !is_string($swatch['hex'] ?? null) || !preg_match('/^#[0-9a-fA-F]{6}$/', $swatch['hex'])
++            || !$this->numberInRange($swatch['percentage'] ?? null, 0, 1)
++            || !$this->numberInRange($swatch['confidence_score'] ?? null, 0, 1)
++            || !is_array($swatch['evidence'] ?? null)
++            || !in_array($swatch['family'] ?? null, self::FAMILIES, true)
++            || !is_string($swatch['descriptive_name'] ?? null) || mb_strlen($swatch['descriptive_name']) > 160
++            || (($swatch['delta_e'] ?? null) !== null && !$this->numberInRange($swatch['delta_e'], 0, PHP_FLOAT_MAX))
++            || (($swatch['catalog_color_id'] ?? null) !== null && !is_int($swatch['catalog_color_id']) && !is_string($swatch['catalog_color_id']))) return false;
++        foreach (['rgb', 'lab'] as $space) {
++            if (!is_array($swatch[$space] ?? null) || !array_is_list($swatch[$space]) || count($swatch[$space]) !== 3) return false;
++        }
++        foreach ($swatch['rgb'] as $channel) {
++            if (!is_int($channel) || $channel < 0 || $channel > 255) return false;
++        }
++        foreach ($swatch['lab'] as $channel) {
++            if ((!is_int($channel) && !is_float($channel)) || !is_finite((float) $channel)) return false;
++        }
++        return $this->numberInRange($swatch['lab'][0], 0, 100);
++    }
++
++    private function numberInRange(mixed $number, float $min, float $max): bool
++    {
++        return (is_int($number) || is_float($number)) && is_finite((float) $number) && $number >= $min && $number <= $max;
++    }
++}
+diff --git a/database/migrations/2026_10_03_000001_create_ai_product_embeddings_table.php b/database/migrations/2026_10_03_000001_create_ai_product_embeddings_table.php
+new file mode 100644
+index 0000000..84a7896
+--- /dev/null
++++ b/database/migrations/2026_10_03_000001_create_ai_product_embeddings_table.php
+@@ -0,0 +1,58 @@
++<?php
++
++use Illuminate\Database\Migrations\Migration;
++use Illuminate\Database\Schema\Blueprint;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Schema;
++
++return new class extends Migration
++{
++    public function up(): void
++    {
++        if (DB::connection()->getDriverName() !== 'pgsql') {
++            throw new RuntimeException('El catálogo vectorial requiere PostgreSQL con pgvector instalado.');
++        }
++
++        DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
++        Schema::create('ai_product_embeddings', function (Blueprint $table) {
++            $table->id();
++            $table->unsignedBigInteger('prenda_id');
++            $table->unsignedBigInteger('image_id')->nullable();
++            $table->foreignId('ai_model_version_id')->constrained('ai_model_versions')->restrictOnDelete();
++            $table->foreignUuid('source_run_id')->nullable()->constrained('ai_runs')->nullOnDelete();
++            $table->char('content_hash', 64);
++            $table->unsignedInteger('dimensions');
++            $table->char('geometry_key', 64);
++            $table->string('embedding_version', 100);
++            $table->string('preprocess_version', 100);
++            $table->string('normalization', 20)->default('l2');
++            $table->double('norm');
++            $table->double('input_norm');
++            $table->json('metadata');
++            $table->timestamps();
++
++            $table->foreign('prenda_id')->references('id_prenda')->on('prendas')->cascadeOnDelete();
++            $table->foreign('image_id')->references('id_imagen_prenda')->on('imagenes_prenda')->nullOnDelete();
++            $table->unique(
++                ['prenda_id', 'content_hash', 'ai_model_version_id', 'dimensions', 'geometry_key'],
++                'ai_product_embeddings_identity',
++            );
++            $table->index(['ai_model_version_id', 'dimensions', 'geometry_key'], 'ai_product_embeddings_compatibility');
++            $table->index('image_id');
++            $table->index('content_hash');
++        });
++
++        // Actual output length is discovered at inference, never guessed from a model name.
++        // Different dimensions coexist, but exact search materializes a compatible subset first.
++        DB::statement('ALTER TABLE ai_product_embeddings ADD COLUMN embedding vector NOT NULL');
++        DB::statement('ALTER TABLE ai_product_embeddings ADD CONSTRAINT ai_product_embeddings_dimensions CHECK (dimensions BETWEEN 1 AND 16000 AND vector_dims(embedding) = dimensions)');
++        DB::statement("ALTER TABLE ai_product_embeddings ADD CONSTRAINT ai_product_embeddings_normalized CHECK (normalization = 'l2' AND norm BETWEEN 0.999 AND 1.001 AND vector_norm(embedding) BETWEEN 0.999 AND 1.001)");
++        // No HNSW/IVFFlat: the current catalog uses exact cosine search.
++    }
++
++    public function down(): void
++    {
++        Schema::dropIfExists('ai_product_embeddings');
++        // The shared extension may serve other tables; rollback never removes it.
++    }
++};
+diff --git a/database/pgsql/Dockerfile b/database/pgsql/Dockerfile
+new file mode 100644
+index 0000000..47db4fe
+--- /dev/null
++++ b/database/pgsql/Dockerfile
+@@ -0,0 +1,14 @@
++# Preserve PostgreSQL 18 and the existing Alpine-based data volume.
++FROM postgres:18-alpine AS vector-build
++ARG PGVECTOR_VERSION=0.8.7
++RUN apk add --no-cache build-base linux-headers \
++    && wget -qO /tmp/pgvector.tar.gz "https://github.com/pgvector/pgvector/archive/refs/tags/v${PGVECTOR_VERSION}.tar.gz" \
++    && mkdir /tmp/pgvector \
++    && tar -xzf /tmp/pgvector.tar.gz -C /tmp/pgvector --strip-components=1 \
++    && make -C /tmp/pgvector OPTFLAGS="" with_llvm=no \
++    && make -C /tmp/pgvector OPTFLAGS="" with_llvm=no install
++
++FROM postgres:18-alpine
++COPY --from=vector-build /usr/local/lib/postgresql/vector.so /usr/local/lib/postgresql/vector.so
++COPY --from=vector-build /usr/local/share/postgresql/extension/vector* /usr/local/share/postgresql/extension/
++COPY --from=vector-build /tmp/pgvector/LICENSE /usr/share/doc/pgvector/LICENSE
+diff --git a/services/mati-ai/src/mati_ai/contracts/colorimetry.py b/services/mati-ai/src/mati_ai/contracts/colorimetry.py
+new file mode 100644
+index 0000000..5562e6d
+--- /dev/null
++++ b/services/mati-ai/src/mati_ai/contracts/colorimetry.py
+@@ -0,0 +1,59 @@
++"""Additive garment-only colorimetry contract; commercial truth stays in Laravel."""
++
++from typing import Annotated, Any, Literal
++
++from pydantic import BaseModel, ConfigDict, Field
++
++COLORIMETRY_VERSION = "garment-colorimetry-1.0.0"
++
++ColorLevel = Literal["low", "medium", "high", "unknown"]
++ColorTemperature = Literal[
++    "warm", "cool", "neutral", "warm_neutral", "cool_neutral", "unknown"
++]
++ColorFamily = Literal[
++    "black", "white", "gray", "beige_cream", "brown", "red", "orange",
++    "yellow", "green", "blue", "violet", "pink", "metallic", "multicolor",
++]
++ColorVariety = Literal["monochrome", "bicolor", "multicolor", "unknown"]
++RGBChannel = Annotated[int, Field(ge=0, le=255)]
++
++
++class ColorimetrySwatch(BaseModel):
++    # Legacy palette aliases and future additive evidence survive serialization.
++    model_config = ConfigDict(extra="allow", allow_inf_nan=False)
++
++    rgb: tuple[RGBChannel, RGBChannel, RGBChannel]
++    hex: str = Field(pattern=r"^#[0-9a-fA-F]{6}$")
++    lab: tuple[float, float, float]
++    percentage: float = Field(ge=0, le=1)
++    catalog_color_id: int | str | None = None
++    catalog_color_name: str | None = None
++    delta_e: float | None = Field(default=None, ge=0)
++    confidence_score: float = Field(ge=0, le=1)
++    family: ColorFamily
++    descriptive_name: str
++    evidence: dict[str, Any] = Field(default_factory=dict)
++
++
++class GarmentColorimetry(BaseModel):
++    model_config = ConfigDict(extra="allow", allow_inf_nan=False)
++
++    version: str = COLORIMETRY_VERSION
++    status: Literal["completed", "partial", "insufficient_evidence"]
++    foreground_confidence: float = Field(ge=0, le=1)
++    palette: list[ColorimetrySwatch] = Field(default_factory=list)
++    primary_color: ColorimetrySwatch | None = None
++    secondary_colors: list[ColorimetrySwatch] = Field(default_factory=list)
++    accent_colors: list[ColorimetrySwatch] = Field(default_factory=list)
++    temperature: ColorTemperature = "unknown"
++    lightness: ColorLevel = "unknown"
++    chroma: ColorLevel = "unknown"
++    saturation: ColorLevel = "unknown"
++    neutrality: ColorLevel = "unknown"
++    internal_contrast: ColorLevel = "unknown"
++    color_variety: ColorVariety = "unknown"
++    dominant_family: ColorFamily | None = None
++    warnings: list[str] = Field(default_factory=list)
++    metrics: dict[str, Any] = Field(default_factory=dict)
++    evidence: dict[str, Any] = Field(default_factory=dict)
++    coverage: float = Field(ge=0, le=1)
+diff --git a/services/mati-ai/src/mati_ai/contracts/embedding.py b/services/mati-ai/src/mati_ai/contracts/embedding.py
+new file mode 100644
+index 0000000..df60743
+--- /dev/null
++++ b/services/mati-ai/src/mati_ai/contracts/embedding.py
+@@ -0,0 +1,74 @@
++"""Versioned projected image embeddings; metadata preserves legacy consumers."""
++
++import math
++import re
++from typing import Literal
++
++from pydantic import BaseModel, ConfigDict, Field, model_validator
++
++EMBEDDING_VERSION = "projected-image-l2-1"
++PREPROCESS_VERSION = "srgb-exif-transformers-image-1"
++RESOLVED_REVISION_PATTERN = r"^[0-9a-fA-F]{40}(?:[0-9a-fA-F]{24})?$"
++
++
++def resolved_revision(value: str | None) -> str | None:
++    return value.lower() if value and re.fullmatch(RESOLVED_REVISION_PATTERN, value) else None
++
++
++class Embedding(BaseModel):
++    """Old values/model fields remain readable; new vectors carry full identity."""
++
++    model_config = ConfigDict(allow_inf_nan=False)
++    values: list[float] = Field(min_length=1, max_length=2048)
++    model_id: str = Field(min_length=1, max_length=200)
++    model_revision: str = Field(min_length=1, max_length=120)
++    dimension: int | None = Field(default=None, ge=1, le=2048)
++    pipeline_version: str | None = Field(default=None, max_length=120)
++    embedding_version: str | None = Field(default=None, max_length=120)
++    preprocess_version: str | None = Field(default=None, max_length=120)
++    normalization: Literal["l2"] | None = None
++    normalized: bool | None = None
++    norm: float | None = Field(default=None, gt=0)
++    dimension_source: Literal["generated_vector"] | None = None
++
++    @model_validator(mode="after")
++    def validate_vector_metadata(self):
++        if self.dimension is not None and self.dimension != len(self.values):
++            raise ValueError("Embedding dimension must match the actual vector length.")
++        actual_norm = math.hypot(*self.values)
++        if not math.isfinite(actual_norm) or actual_norm <= 0:
++            raise ValueError("Embedding must have a finite, nonzero norm.")
++        if self.norm is not None and not math.isclose(self.norm, actual_norm, rel_tol=1e-4, abs_tol=1e-5):
++            raise ValueError("Embedding norm must match its values.")
++        if (self.normalized is True or self.normalization == "l2") and not math.isclose(actual_norm, 1.0, rel_tol=1e-4, abs_tol=1e-5):
++            raise ValueError("L2 normalized embeddings must have unit norm.")
++        if self.embedding_version is not None:
++            if self.normalized is not True:
++                raise ValueError("Versioned embeddings must declare verified L2 normalization.")
++            if resolved_revision(self.model_revision) is None:
++                raise ValueError("Versioned embeddings require an immutable checkpoint revision.")
++            if any(value is None for value in (
++                self.dimension, self.pipeline_version, self.preprocess_version,
++                self.normalization, self.normalized, self.norm,
++            )):
++                raise ValueError("Versioned embeddings require complete generation metadata.")
++        return self
++
++
++def compatible_embeddings(left: Embedding, right: Embedding) -> bool:
++    """Never mix a legacy vector with a fully versioned embedding space."""
++    return (
++        resolved_revision(left.model_revision) is not None
++        and resolved_revision(right.model_revision) is not None
++        and bool(left.pipeline_version)
++        and bool(right.pipeline_version)
++        and left.model_id == right.model_id
++        and left.model_revision == right.model_revision
++        and len(left.values) == len(right.values)
++        and left.pipeline_version == right.pipeline_version
++        and left.embedding_version == right.embedding_version
++        and left.preprocess_version == right.preprocess_version
++        and left.normalization == right.normalization
++    )
++
++
+diff --git a/services/mati-ai/src/mati_ai/vision/color_distance.py b/services/mati-ai/src/mati_ai/vision/color_distance.py
+new file mode 100644
+index 0000000..32a369f
+--- /dev/null
++++ b/services/mati-ai/src/mati_ai/vision/color_distance.py
+@@ -0,0 +1,60 @@
++"""Perceptual distance for physical CIELAB values (L* in 0..100).
++
++CIEDE2000 with kL=kC=kH=1, independently expressed from Sharma, Wu & Dalal:
++https://hajim.rochester.edu/ece/sites/gsharma/ciede2000/
++Arrays broadcast, so pixels, clusters and catalog share the same calculation.
++"""
++
++import numpy as np
++
++
++def delta_e_2000(left: np.ndarray, right: np.ndarray) -> np.ndarray:
++    """Return Delta E 00; inputs end in [L*, a*, b*], never uint8 Lab."""
++    left, right = np.broadcast_arrays(
++        np.asarray(left, dtype=np.float64), np.asarray(right, dtype=np.float64)
++    )
++    l1, a1, b1 = np.moveaxis(left, -1, 0)
++    l2, a2, b2 = np.moveaxis(right, -1, 0)
++    c1, c2 = np.hypot(a1, b1), np.hypot(a2, b2)
++    mean_c = (c1 + c2) / 2
++    mean_c7 = mean_c**7
++    g = 0.5 * (1 - np.sqrt(mean_c7 / (mean_c7 + 25**7)))
++    ap1, ap2 = (1 + g) * a1, (1 + g) * a2
++    cp1, cp2 = np.hypot(ap1, b1), np.hypot(ap2, b2)
++    hp1 = np.mod(np.degrees(np.arctan2(b1, ap1)), 360)
++    hp2 = np.mod(np.degrees(np.arctan2(b2, ap2)), 360)
++    hp1 = np.where(cp1 == 0, 0, hp1)
++    hp2 = np.where(cp2 == 0, 0, hp2)
++    dl, dc = l2 - l1, cp2 - cp1
++    raw_h = hp2 - hp1
++    zero_chroma = cp1 * cp2 == 0
++    dh = np.where(
++        zero_chroma, 0,
++        np.where(raw_h > 180, raw_h - 360, np.where(raw_h < -180, raw_h + 360, raw_h)),
++    )
++    d_h = 2 * np.sqrt(cp1 * cp2) * np.sin(np.radians(dh / 2))
++    mean_l, mean_cp = (l1 + l2) / 2, (cp1 + cp2) / 2
++    hue_sum = hp1 + hp2
++    mean_hp = np.where(
++        zero_chroma,
++        hue_sum,
++        np.where(
++            np.abs(raw_h) <= 180,
++            hue_sum / 2,
++            np.where(hue_sum < 360, (hue_sum + 360) / 2, (hue_sum - 360) / 2),
++        ),
++    )
++    t = (
++        1 - 0.17 * np.cos(np.radians(mean_hp - 30))
++        + 0.24 * np.cos(np.radians(2 * mean_hp))
++        + 0.32 * np.cos(np.radians(3 * mean_hp + 6))
++        - 0.20 * np.cos(np.radians(4 * mean_hp - 63))
++    )
++    sl = 1 + 0.015 * (mean_l - 50)**2 / np.sqrt(20 + (mean_l - 50)**2)
++    sc, sh = 1 + 0.045 * mean_cp, 1 + 0.015 * mean_cp * t
++    rotation_angle = 30 * np.exp(-((mean_hp - 275) / 25)**2)
++    mean_cp7 = mean_cp**7
++    rc = 2 * np.sqrt(mean_cp7 / (mean_cp7 + 25**7))
++    rt = -np.sin(np.radians(2 * rotation_angle)) * rc
++    dl, dc, d_h = dl / sl, dc / sc, d_h / sh
++    return np.sqrt(np.maximum(0, dl**2 + dc**2 + d_h**2 + rt * dc * d_h))
+diff --git a/services/mati-ai/src/mati_ai/vision/segmentation.py b/services/mati-ai/src/mati_ai/vision/segmentation.py
+new file mode 100644
+index 0000000..9ebead7
+--- /dev/null
++++ b/services/mati-ai/src/mati_ai/vision/segmentation.py
+@@ -0,0 +1,147 @@
++"""Conservative, deterministic object/background evidence for garment photos.
++
++This is a silhouette heuristic, not a garment/person detector. The caller must
++supply one isolated garment. Unreliable separation returns an empty mask.
++"""
++
++import cv2
++import numpy as np
++
++from mati_ai.vision.color_distance import delta_e_2000
++
++MIN_FOREGROUND_CONFIDENCE = 0.70
++
++
++def foreground_mask(lab: np.ndarray) -> tuple[np.ndarray, float, dict, list[str]]:
++    height, width = lab.shape[:2]
++    band = max(1, round(min(height, width) * 0.04))
++    border_mask = np.zeros((height, width), dtype=bool)
++    border_mask[:band] = border_mask[-band:] = True
++    border_mask[:, :band] = border_mask[:, -band:] = True
++    border = lab[border_mask]
++    # Find the principal border mode before its median; a textured border must
++    # not manufacture a background color by averaging incompatible colors.
++    bins = np.floor(border / np.array([6, 8, 8])).astype(np.int16)
++    _, inverse, counts = np.unique(bins, axis=0, return_inverse=True, return_counts=True)
++    modal = border[inverse == int(np.argmax(counts))].mean(axis=0)
++    near_mode = delta_e_2000(border, modal) <= 6
++    background = np.median(border[near_mode], axis=0) if near_mode.any() else modal
++    border_distance = delta_e_2000(border, background)
++    distance = delta_e_2000(lab, background)
++    side_distances = [
++        distance[:band].reshape(-1), distance[-band:].reshape(-1),
++        distance[:, :band].reshape(-1), distance[:, -band:].reshape(-1),
++    ]
++    side_support = [float(np.mean(values <= 7)) for values in side_distances]
++    support = float(np.mean(border_distance <= 7))
++    p90 = float(np.percentile(border_distance, 90))
++    evidence = {
++        "method": "border_connected_background_lab_ciede2000",
++        "semantic_garment_detection": False,
++        "foreground_confidence_kind": "heuristic_uncalibrated",
++        "minimum_foreground_confidence": MIN_FOREGROUND_CONFIDENCE,
++        "background_lab": [round(float(value), 3) for value in background],
++        "background_border_support": round(support, 4),
++        "background_border_delta_e_p90": round(p90, 3),
++        "background_side_support": [round(value, 4) for value in side_support],
++        "analysis_width": width,
++        "analysis_height": height,
++    }
++    warnings = []
++    empty = np.zeros((height, width), dtype=bool)
++    uniform = (
++        support >= 0.82 and p90 <= 7
++        and min(side_support) >= 0.65
++        and sum(value >= 0.82 for value in side_support) >= 3
++    )
++    if not uniform:
++        evidence["rejection_reason"] = "background_not_uniform_on_supported_borders"
++        return empty, round(min(0.49, support * 0.49), 3), evidence, ["BACKGROUND_INTERFERENCE"]
++
++    # Only color-similar regions connected to the image border are background.
++    # Similar patches enclosed by the silhouette remain in the garment palette.
++    threshold = max(6.0, min(11.0, p90 + 3.0))
++    similar = (distance <= threshold).astype(np.uint8)
++    _, labels = cv2.connectedComponents(similar, connectivity=8)
++    exterior_labels = np.unique(labels[border_mask & similar.astype(bool)])
++    connected_background = np.isin(labels, exterior_labels) & similar.astype(bool)
++    candidate = (~connected_background).astype(np.uint8)
++    # A small closing joins sampling-scale gaps without filling a silhouette's
++    # large holes. It never bridges distinct sizable foreground objects.
++    candidate = cv2.morphologyEx(candidate, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
++    component_count, components, stats, centroids = cv2.connectedComponentsWithStats(candidate, connectivity=8)
++    total = height * width
++    fraction = float(candidate.mean())
++    center = np.zeros((height, width), dtype=bool)
++    center[int(height * 0.28):int(height * 0.72), int(width * 0.28):int(width * 0.72)] = True
++    eligible = [
++        index for index in range(1, component_count)
++        if stats[index, cv2.CC_STAT_AREA] >= total * 0.04
++        and np.any((components == index) & center)
++    ]
++    evidence.update({
++        "background_gate_delta_e": round(threshold, 3),
++        "candidate_foreground_fraction": round(fraction, 4),
++        "significant_components": int(sum(stats[index, cv2.CC_STAT_AREA] >= total * 0.035 for index in range(1, component_count))),
++    })
++    if not eligible or fraction < 0.08:
++        evidence["rejection_reason"] = "no_supported_central_foreground"
++        return empty, 0.30, evidence, ["BACKGROUND_INTERFERENCE", "FOREGROUND_TOO_SMALL"]
++    selected = max(eligible, key=lambda index: int(stats[index, cv2.CC_STAT_AREA]))
++    mask = components == selected
++    area = int(mask.sum())
++    component_share = area / max(int(candidate.sum()), 1)
++    other_large = [
++        index for index in range(1, component_count)
++        if index != selected and stats[index, cv2.CC_STAT_AREA] >= total * 0.035
++    ]
++    central_occupancy = float(mask[center].mean())
++    border_leakage = float(mask[border_mask].mean())
++    center_x, center_y = centroids[selected] / np.array([width, height])
++    offset = float(np.hypot(center_x - 0.5, center_y - 0.5))
++    foreground_distance = float(np.median(distance[mask]))
++    boundary = cv2.dilate(mask.astype(np.uint8), np.ones((3, 3), np.uint8)) != cv2.erode(mask.astype(np.uint8), np.ones((3, 3), np.uint8))
++    lightness = lab[..., 0].astype(np.float32)
++    dx = cv2.Sobel(lightness, cv2.CV_32F, 1, 0)
++    dy = cv2.Sobel(lightness, cv2.CV_32F, 0, 1)
++    edge_support = float(np.mean(np.hypot(dx, dy)[boundary] >= 8)) if boundary.any() else 0.0
++    evidence.update({
++        "foreground_fraction": round(area / total, 4),
++        "principal_component_share": round(component_share, 4),
++        "central_occupancy": round(central_occupancy, 4),
++        "border_leakage": round(border_leakage, 4),
++        "centroid_offset": round(offset, 4),
++        "foreground_background_delta_e_median": round(foreground_distance, 3),
++        "boundary_lightness_edge_support": round(edge_support, 4),
++    })
++    if other_large or component_share < 0.88:
++        warnings.append("MULTIPLE_FOREGROUND_REGIONS")
++    if border_leakage > 0.05 or area / total > 0.88:
++        warnings.append("GARMENT_MAY_BE_CROPPED")
++    if central_occupancy < 0.45 or offset > 0.22 or foreground_distance < 10:
++        warnings.append("BACKGROUND_INTERFERENCE")
++    if warnings:
++        evidence["rejection_reason"] = "foreground_geometry_or_separation_uncertain"
++        return empty, 0.45, evidence, list(dict.fromkeys(["BACKGROUND_INTERFERENCE", *warnings]))
++
++    confidence = min(0.94, (
++        0.30 * support
++        + 0.20 * max(0, 1 - p90 / 10)
++        + 0.20 * min(1, foreground_distance / 22)
++        + 0.15 * component_share
++        + 0.10 * min(1, central_occupancy / 0.8)
++        + 0.05 * min(1, edge_support / 0.3)
++    ))
++    # Avoid anti-aliased boundary pixels; keep enough area for slim silhouettes.
++    core = cv2.erode(mask.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(bool)
++    if core.sum() < area * 0.85:
++        evidence["rejection_reason"] = "insufficient_interior_pixels"
++        return empty, 0.50, evidence, ["BACKGROUND_INTERFERENCE", "FOREGROUND_TOO_SMALL"]
++    evidence["sampled_foreground_fraction"] = round(float(core.mean()), 4)
++    evidence["boundary_pixels_excluded"] = area - int(core.sum())
++    evidence["rejection_reason"] = None
++    if confidence < MIN_FOREGROUND_CONFIDENCE:
++        evidence["rejection_reason"] = "confidence_below_threshold"
++        return empty, round(confidence, 3), evidence, ["BACKGROUND_INTERFERENCE"]
++    return core, round(confidence, 3), evidence, []
++

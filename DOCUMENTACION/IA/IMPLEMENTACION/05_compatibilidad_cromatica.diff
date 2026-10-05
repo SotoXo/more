@@ -1,0 +1,1183 @@
+diff --git a/app/Services/AI/MatiAiClient.php b/app/Services/AI/MatiAiClient.php
+--- a/app/Services/AI/MatiAiClient.php
++++ b/app/Services/AI/MatiAiClient.php
+@@ -12,6 +12,7 @@
+     private const PATHS = [
+         'capabilities' => '/api/v1/capabilities',
+         'analyze' => '/api/v1/garments/analyze',
++        'compatibility' => '/api/v1/garments/compatibility',
+         'embedding' => '/api/v1/garments/embedding',
+         'barcode' => '/api/v1/identification/barcode',
+         'label' => '/api/v1/identification/label',
+@@ -92,6 +93,8 @@
+             && match ($operation) {
+                 'capabilities' => is_array(data_get($body, 'data.operations')),
+                 'analyze' => is_array(data_get($body, 'data.quality')) && is_array(data_get($body, 'data.colors')) && is_array(data_get($body, 'data.classification.top_k')),
++                'compatibility' => data_get($body, 'data.status') === $body['status']
++                    && $this->validCompatibilityResponse($body['data']),
+                 'embedding' => is_array(data_get($body, 'data.image'))
+                     && is_array(data_get($body, 'data.embedding.values'))
+                     && is_int(data_get($body, 'data.embedding.dimension'))
+@@ -108,6 +111,50 @@
+             };
+     }
+ 
++    private function validCompatibilityResponse(array $data): bool
++    {
++        if (($data['version'] ?? null) !== GarmentCompatibilityService::RULES_VERSION
++            || ($data['rules_version'] ?? null) !== GarmentCompatibilityService::RULES_VERSION
++            || ($data['score_kind'] ?? null) !== 'heuristic_ranking_signal'
++            || !in_array($data['status'] ?? null, ['completed', 'partial', 'insufficient_evidence'], true)
++            || !array_key_exists('compatibility_score', $data)
++            || !is_array($data['components'] ?? null)
++            || !is_array($data['evidence'] ?? null)) {
++            return false;
++        }
++
++        $score = $data['compatibility_score'];
++        if ($data['status'] === 'insufficient_evidence') {
++            if ($score !== null) return false;
++        } elseif (!$this->validCompatibilityScore($score)) {
++            return false;
++        }
++        foreach (['temperature', 'lightness', 'hue', 'contrast'] as $component) {
++            if (!array_key_exists($component, $data['components'])
++                || ($data['components'][$component] !== null
++                    && !$this->validCompatibilityScore($data['components'][$component]))) {
++                return false;
++            }
++        }
++        foreach (['harmony_types', 'explanations', 'warnings'] as $field) {
++            if (!is_array($data[$field] ?? null) || !array_is_list($data[$field])) return false;
++            foreach ($data[$field] as $value) {
++                if (!is_string($value)) return false;
++            }
++        }
++
++        return !array_diff($data['harmony_types'], [
++            'monochromatic', 'analogous', 'complementary', 'split_complementary',
++            'triadic', 'neutrals', 'neutral_accent', 'light_dark_contrast',
++        ]);
++    }
++
++    private function validCompatibilityScore(mixed $value): bool
++    {
++        return (is_int($value) || is_float($value))
++            && is_finite((float) $value) && $value >= 0 && $value <= 100;
++    }
++
+     public function fallback(string $requestId, string $code): array
+     {
+         return [
+diff --git a/services/mati-ai/README.md b/services/mati-ai/README.md
+--- a/services/mati-ai/README.md
++++ b/services/mati-ai/README.md
+@@ -69,3 +69,11 @@
+ La dimensión del checkpoint SigLIP preparado es 768, constatada leyendo sus pesos locales sin inferencia. Cada vector generado declara su longitud real; la tabla permite espacios versionados con distintas dimensiones y comprueba `vector_dims(embedding) = dimensions`. Se exige revisión inmutable del modelo y coincidencia de modelo, revisión, pipeline, dimensión y perfil de preprocesado para comparar.
+ 
+ `mati-ai:index-catalog` incorpora lotes, reanudación, actualización idempotente y recuperación de JSON históricos con `--from-runs`. No se añaden índices HNSW. Instalación, comandos que debe ejecutar el administrador, consulta, archivos, limitaciones y estado de entrega: [04_embeddings_pgvector.md](../../DOCUMENTACION/IA/IMPLEMENTACION/04_embeddings_pgvector.md).
++
++## Compatibilidad cromática entre prendas
++
++`POST /api/v1/garments/compatibility` compara dos objetos `data.colorimetry` existentes mediante reglas explícitas versionadas `garment-compatibility-1.0.0`. Recibe JSON y patrones opcionales; no abre imágenes ni carga modelos visuales. Devuelve score heurístico 0–100 (o `null` por evidencia insuficiente), armonías, componentes, explicaciones, advertencias y evidencia. El score sirve como señal de ranking y no como porcentaje de certeza.
++
++Las reglas cubren monocromática, análoga, complementaria, complementaria dividida, triádica, neutros, neutro + acento y contraste claro/oscuro. Laravel incorpora `GarmentCompatibilityService::compare()` para consumir snapshots de colorimetría; esta fase no añade UI, persistencia de pares ni generación de outfits. No analiza personas, rostros ni VTO y no incorpora Redis, tendencias ni recomendaciones personales.
++
++Algoritmo, constantes, versionado, API, integración, archivos, limitaciones y estado: [05_compatibilidad_cromatica.md](../../DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.md). La implementación queda pendiente de validación por el usuario; no se ejecutaron tests ni validación final y no se hizo commit ni push.
+diff --git a/services/mati-ai/src/mati_ai/api/v1/routes.py b/services/mati-ai/src/mati_ai/api/v1/routes.py
+--- a/services/mati-ai/src/mati_ai/api/v1/routes.py
++++ b/services/mati-ai/src/mati_ai/api/v1/routes.py
+@@ -8,6 +8,11 @@
+ 
+ from mati_ai.api.dependencies import require_service_token
+ from mati_ai.contracts.colorimetry import COLORIMETRY_VERSION, GarmentColorimetry
++from mati_ai.contracts.compatibility import (
++    COMPATIBILITY_RULES_VERSION,
++    GarmentCompatibilityRequest,
++)
++from mati_ai.compatibility.engine import evaluate_compatibility
+ from mati_ai.contracts.common import envelope
+ from mati_ai.contracts.embedding import Embedding
+ from mati_ai.contracts.identification import MatchRequest
+@@ -82,6 +87,7 @@
+         {
+             "operations": [
+                 "garments.analyze",
++                "garments.compatibility",
+                 "garments.embedding",
+                 "identification.barcode",
+                 "identification.label",
+@@ -112,6 +118,19 @@
+                 "catalog_authority": "laravel",
+                 "score_kind": "heuristic_uncalibrated",
+                 "original_image_modified": False,
++            },
++            "color_compatibility": {
++                "enabled": True,
++                "scope": "garment_pairs_only",
++                "rules_version": COMPATIBILITY_RULES_VERSION,
++                "input": "existing_garment_colorimetry",
++                "score_kind": "heuristic_ranking_signal",
++                "score_range": [0, 100],
++                "harmonies": [
++                    "monochromatic", "analogous", "complementary",
++                    "split_complementary", "triadic", "neutrals",
++                    "neutral_accent", "light_dark_contrast",
++                ],
+             },
+             "barcode_symbologies": [
+                 "EAN-13",
+@@ -229,6 +248,39 @@
+     )
+ 
+ 
++@router.post("/garments/compatibility")
++def garment_compatibility(request: Request, payload: GarmentCompatibilityRequest):
++    """Evaluate two existing garment palettes without image or model inference."""
++    if payload.request_id and not request.headers.get("x-request-id"):
++        request.state.request_id = payload.request_id
++    started = time.perf_counter()
++    data = evaluate_compatibility(
++        payload.garment_a,
++        payload.garment_b,
++        rules_version=payload.rules_version,
++        pattern_a=payload.pattern_a,
++        pattern_b=payload.pattern_b,
++    ).model_dump(mode="json")
++    return envelope(
++        request,
++        data,
++        status=data["status"],
++        warnings=data["warnings"],
++        abstentions=(
++            ["COMPATIBILITY_INSUFFICIENT_EVIDENCE"]
++            if data["compatibility_score"] is None
++            else []
++        ),
++        model={
++            "model_id": "deterministic_garment_color_compatibility",
++            "model_revision": data["rules_version"],
++        },
++        timing_ms={
++            "compatibility": round((time.perf_counter() - started) * 1000, 3)
++        },
++    )
++
++
+ @router.post("/garments/embedding")
+ async def image_embedding(request: Request):
+     """Generate only the image vector; Laravel performs persistent retrieval."""
+diff --git a/app/Services/AI/GarmentCompatibilityService.php b/app/Services/AI/GarmentCompatibilityService.php
+new file mode 100644
+--- /dev/null
++++ b/app/Services/AI/GarmentCompatibilityService.php
+@@ -0,0 +1,34 @@
++<?php
++
++namespace App\Services\AI;
++
++/**
++ * Compare existing data.colorimetry snapshots from garments/analyze.
++ * This is a pair-ranking signal; callers must handle null scores and degraded responses.
++ */
++class GarmentCompatibilityService
++{
++    public const RULES_VERSION = 'garment-compatibility-1.0.0';
++
++    public function __construct(private readonly MatiAiClient $client) {}
++
++    /**
++     * Patterns are optional catalog evidence: solid, printed, striped, checkered or unknown.
++     * No image extraction, persistence or outfit generation occurs here.
++     */
++    public function compare(
++        array $colorimetryA,
++        array $colorimetryB,
++        string $patternA = 'unknown',
++        string $patternB = 'unknown',
++        ?string $requestId = null,
++    ): array {
++        return $this->client->request('compatibility', [
++            'garment_a' => $colorimetryA,
++            'garment_b' => $colorimetryB,
++            'rules_version' => self::RULES_VERSION,
++            'pattern_a' => $patternA,
++            'pattern_b' => $patternB,
++        ], requestId: $requestId);
++    }
++}
+diff --git a/services/mati-ai/src/mati_ai/contracts/compatibility.py b/services/mati-ai/src/mati_ai/contracts/compatibility.py
+new file mode 100644
+--- /dev/null
++++ b/services/mati-ai/src/mati_ai/contracts/compatibility.py
+@@ -0,0 +1,71 @@
++"""Pairwise ranking contract over existing garment colorimetry, without images."""
++
++from typing import Any, Literal
++
++from pydantic import BaseModel, ConfigDict, Field, field_validator
++
++from mati_ai.contracts.colorimetry import GarmentColorimetry
++
++COMPATIBILITY_RULES_VERSION = "garment-compatibility-1.0.0"
++HarmonyType = Literal[
++    "monochromatic", "analogous", "complementary", "split_complementary",
++    "triadic", "neutrals", "neutral_accent", "light_dark_contrast",
++]
++PatternKind = Literal["solid", "printed", "striped", "checkered", "unknown"]
++
++
++class GarmentCompatibilityRequest(BaseModel):
++    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
++
++    request_id: str | None = Field(default=None, max_length=100, pattern=r"^[A-Za-z0-9._:-]{1,100}$")
++    garment_a: GarmentColorimetry
++    garment_b: GarmentColorimetry
++    rules_version: Literal["garment-compatibility-1.0.0"] = COMPATIBILITY_RULES_VERSION
++    pattern_a: PatternKind = "unknown"
++    pattern_b: PatternKind = "unknown"
++
++    @field_validator("garment_a", "garment_b")
++    @classmethod
++    def bounded_colorimetry(cls, value: GarmentColorimetry) -> GarmentColorimetry:
++        # The upstream extractor retains at most eight swatches. Bound geometry
++        # work without changing that shared, already deployed contract.
++        for collection in (value.palette, value.secondary_colors, value.accent_colors):
++            if len(collection) > 8:
++                raise ValueError("La colorimetría admite hasta ocho muestras por lista.")
++        samples = value.palette + value.secondary_colors + value.accent_colors
++        if value.primary_color is not None:
++            samples = samples + [value.primary_color]
++        if any(not 0 <= sample.lab[0] <= 100 for sample in samples):
++            raise ValueError("La luminosidad Lab física debe estar entre 0 y 100.")
++        if any(abs(axis) > 160 for sample in samples for axis in sample.lab[1:]):
++            raise ValueError("Los ejes Lab deben estar en el rango físico admitido.")
++        if sum(sample.percentage for sample in value.palette) > 1.00001:
++            raise ValueError("Las proporciones de la paleta no pueden sumar más de uno.")
++        keys = [(sample.rgb, sample.lab) for sample in value.palette]
++        if len(set(keys)) != len(keys):
++            raise ValueError("La paleta no debe duplicar una misma muestra.")
++        return value
++
++
++class CompatibilityComponents(BaseModel):
++    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
++
++    temperature: float | None = Field(default=None, ge=0, le=100)
++    lightness: float | None = Field(default=None, ge=0, le=100)
++    hue: float | None = Field(default=None, ge=0, le=100)
++    contrast: float | None = Field(default=None, ge=0, le=100)
++
++
++class GarmentCompatibilityResult(BaseModel):
++    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
++
++    version: str = COMPATIBILITY_RULES_VERSION
++    rules_version: str = COMPATIBILITY_RULES_VERSION
++    status: Literal["completed", "partial", "insufficient_evidence"]
++    score_kind: Literal["heuristic_ranking_signal"] = "heuristic_ranking_signal"
++    compatibility_score: float | None = Field(default=None, ge=0, le=100)
++    harmony_types: list[HarmonyType] = Field(default_factory=list)
++    components: CompatibilityComponents = Field(default_factory=CompatibilityComponents)
++    explanations: list[str] = Field(default_factory=list)
++    warnings: list[str] = Field(default_factory=list)
++    evidence: dict[str, Any] = Field(default_factory=dict)
+diff --git a/services/mati-ai/src/mati_ai/compatibility/__init__.py b/services/mati-ai/src/mati_ai/compatibility/__init__.py
+new file mode 100644
+--- /dev/null
++++ b/services/mati-ai/src/mati_ai/compatibility/__init__.py
+@@ -0,0 +1 @@
++"""Deterministic, garment-only chromatic compatibility."""
+diff --git a/services/mati-ai/src/mati_ai/compatibility/rules.py b/services/mati-ai/src/mati_ai/compatibility/rules.py
+new file mode 100644
+--- /dev/null
++++ b/services/mati-ai/src/mati_ai/compatibility/rules.py
+@@ -0,0 +1,71 @@
++"""Immutable v1 policy. Any change to geometry, weights or scores needs a version."""
++
++from dataclasses import asdict, dataclass
++
++from mati_ai.contracts.compatibility import COMPATIBILITY_RULES_VERSION
++
++
++@dataclass(frozen=True)
++class CompatibilityRules:
++    version: str = COMPATIBILITY_RULES_VERSION
++    # Artistic hue approximation, explicitly distinct from the CIELAB hue.
++    hsv_to_ryb: tuple[tuple[float, float], ...] = (
++        (0, 0), (30, 60), (60, 120), (120, 180),
++        (180, 210), (240, 240), (300, 300), (360, 360),
++    )
++    monochromatic_degrees: float = 18
++    analogous_degrees: float = 55
++    complementary_tolerance: float = 25
++    triple_tolerance: float = 22
++    triple_min_share: float = 0.06
++    triple_min_garment_support: float = 0.18
++    triple_min_combined_support: float = 0.45
++    pair_min_support: float = 0.20
++    neutral_chroma: float = 12
++    earth_neutral_chroma: float = 30
++    earth_hue_min: float = 35
++    earth_hue_max: float = 100
++    neutral_garment_share: float = 0.70
++    accent_garment_share: float = 0.12
++    light_dark_delta: float = 30
++    light_dark_support: float = 0.35
++    foreground_min: float = 0.70
++    coverage_min: float = 0.50
++    coverage_complete: float = 0.85
++    swatch_confidence_min: float = 0.45
++    low_confidence_mass: float = 0.25
++    high_chroma: float = 50
++    high_saturation: float = 0.60
++    intense_mass: float = 0.60
++    monochromatic_score: float = 0.90
++    analogous_score: float = 0.84
++    complementary_score: float = 0.90
++    split_complementary_score: float = 0.87
++    triadic_score: float = 0.87
++    neutrals_score: float = 0.92
++    neutral_accent_score: float = 0.90
++    unmatched_hue_score: float = 0.55
++    lightness_base: float = 0.70
++    lightness_range_bonus: float = 0.20
++    lightness_range_scale: float = 40
++    monochromatic_lightness_score: float = 0.85
++    temperature_same_score: float = 0.82
++    temperature_neutral_score: float = 0.88
++    temperature_opposed_score: float = 0.70
++    temperature_structured_score: float = 0.86
++    contrast_base: float = 0.85
++    contrast_unmatched_adjustment: float = 0.12
++    both_saturated_adjustment: float = 0.08
++    both_complex_adjustment: float = 0.10
++    both_intense_patterns_adjustment: float = 0.08
++    adjustment_cap: float = 0.20
++    component_weights: tuple[tuple[str, float], ...] = (
++        ("temperature", 0.10), ("lightness", 0.20), ("hue", 0.55), ("contrast", 0.15),
++    )
++
++    def metadata(self) -> dict:
++        return asdict(self)
++
++
++RULES_V1 = CompatibilityRules()
++RULESETS = {COMPATIBILITY_RULES_VERSION: RULES_V1}
+diff --git a/services/mati-ai/src/mati_ai/compatibility/engine.py b/services/mati-ai/src/mati_ai/compatibility/engine.py
+new file mode 100644
+--- /dev/null
++++ b/services/mati-ai/src/mati_ai/compatibility/engine.py
+@@ -0,0 +1,463 @@
++"""Explicit palette harmonies; no image inference, training or outfit generation."""
++
++import colorsys
++import math
++from dataclasses import dataclass
++from itertools import combinations
++
++from mati_ai.compatibility.rules import RULESETS, CompatibilityRules
++from mati_ai.contracts.colorimetry import COLORIMETRY_VERSION, ColorimetrySwatch, GarmentColorimetry
++from mati_ai.contracts.compatibility import (
++    COMPATIBILITY_RULES_VERSION,
++    CompatibilityComponents,
++    GarmentCompatibilityRequest,
++    GarmentCompatibilityResult,
++    PatternKind,
++)
++
++HARMONY_ORDER = (
++    "monochromatic", "analogous", "complementary", "split_complementary",
++    "triadic", "neutrals", "neutral_accent", "light_dark_contrast",
++)
++HARMONY_NAMES = {
++    "monochromatic": "monocromática: tonos próximos en la misma región de matiz",
++    "analogous": "análoga: regiones vecinas de la rueda cromática",
++    "complementary": "complementaria: regiones opuestas de la rueda cromática",
++    "split_complementary": "complementaria dividida: un tono y dos vecinos de su opuesto",
++    "triadic": "triádica: tres regiones de matiz aproximadamente equidistantes",
++}
++
++
++@dataclass(frozen=True)
++class Tone:
++    swatch: ColorimetrySwatch
++    weight: float
++    role: str
++    hue: float
++    chroma: float
++    saturation: float
++    neutral: bool
++
++    @property
++    def lightness(self) -> float:
++        return self.swatch.lab[0]
++
++
++def _angle(left: float, right: float) -> float:
++    return abs((left - right + 180) % 360 - 180)
++
++
++def _key(swatch: ColorimetrySwatch) -> tuple:
++    return swatch.rgb, swatch.lab
++
++
++def _ryb(hue: float, rules: CompatibilityRules) -> float:
++    for (x0, y0), (x1, y1) in zip(rules.hsv_to_ryb, rules.hsv_to_ryb[1:]):
++        if x0 <= hue <= x1:
++            return (y0 + (hue - x0) * (y1 - y0) / (x1 - x0)) % 360
++    return 0.0
++
++
++def _tones(profile: GarmentColorimetry, rules: CompatibilityRules) -> list[Tone]:
++    total = sum(sample.percentage for sample in profile.palette)
++    if total <= 0:
++        return []
++    primary = _key(profile.primary_color) if profile.primary_color else None
++    secondary = {_key(sample) for sample in profile.secondary_colors}
++    accents = {_key(sample) for sample in profile.accent_colors}
++    result = []
++    for sample in profile.palette:
++        if sample.percentage <= 0:
++            continue
++        _, a, b = sample.lab
++        chroma = math.hypot(a, b)
++        lab_hue = math.degrees(math.atan2(b, a)) % 360
++        hsv_hue, saturation, _ = colorsys.rgb_to_hsv(*(channel / 255 for channel in sample.rgb))
++        neutral = chroma <= rules.neutral_chroma or (
++            sample.family in ("beige_cream", "brown")
++            and chroma <= rules.earth_neutral_chroma
++            and rules.earth_hue_min <= lab_hue <= rules.earth_hue_max
++        )
++        key = _key(sample)
++        role = "primary" if key == primary else "accent" if key in accents else (
++            "secondary" if key in secondary else "unassigned"
++        )
++        result.append(Tone(
++            sample, sample.percentage / total, role,
++            _ryb(hsv_hue * 360, rules), chroma, saturation, neutral,
++        ))
++    return result
++
++
++def _profile_warnings(profile: GarmentColorimetry, label: str, rules: CompatibilityRules) -> list[str]:
++    warnings = [f"{label}:{warning}" for warning in profile.warnings]
++    total = sum(sample.percentage for sample in profile.palette)
++    if profile.version != COLORIMETRY_VERSION:
++        warnings.append(f"{label}:UNSUPPORTED_COLORIMETRY_VERSION")
++    if profile.status != "completed":
++        warnings.append(f"{label}:COLORIMETRY_{profile.status.upper()}")
++    if profile.coverage < rules.coverage_complete or total < rules.coverage_complete:
++        warnings.append(f"{label}:PALETTE_COVERAGE_LOW")
++    low_confidence_share = sum(
++        sample.percentage for sample in profile.palette
++        if sample.confidence_score < rules.swatch_confidence_min
++    ) / total if total > 0 else 0.0
++    if low_confidence_share >= rules.low_confidence_mass:
++        warnings.append(f"{label}:LOW_SWATCH_EVIDENCE")
++    if abs(profile.coverage - total) > 0.01:
++        warnings.append(f"{label}:PALETTE_COVERAGE_MISMATCH")
++    palette_keys = {_key(sample) for sample in profile.palette}
++    references = profile.secondary_colors + profile.accent_colors
++    if profile.primary_color:
++        references = references + [profile.primary_color]
++    if any(_key(sample) not in palette_keys for sample in references):
++        warnings.append(f"{label}:COLOR_ROLE_NOT_IN_PALETTE")
++    primary_keys = {_key(profile.primary_color)} if profile.primary_color else set()
++    secondary_keys = {_key(sample) for sample in profile.secondary_colors}
++    accent_keys = {_key(sample) for sample in profile.accent_colors}
++    if primary_keys & (secondary_keys | accent_keys) or secondary_keys & accent_keys:
++        warnings.append(f"{label}:COLOR_ROLES_OVERLAP")
++    return list(dict.fromkeys(warnings))
++
++
++def _unusable(profile: GarmentColorimetry, rules: CompatibilityRules) -> bool:
++    total = sum(sample.percentage for sample in profile.palette)
++    return (
++        profile.version != COLORIMETRY_VERSION
++        or profile.status == "insufficient_evidence"
++        or not profile.palette
++        or total <= 0
++        or min(profile.coverage, total) < rules.coverage_min
++        or profile.foreground_confidence < rules.foreground_min
++    )
++
++
++def _triple_matches(left: list[Tone], right: list[Tone], rules: CompatibilityRules) -> dict:
++    candidates = sorted(
++        [(tone, owner) for owner, tones in enumerate((left, right)) for tone in tones
++         if not tone.neutral and tone.swatch.percentage >= rules.triple_min_share],
++        key=lambda item: (item[0].hue, item[0].swatch.rgb, item[1]),
++    )
++    best = {}
++    for triple in combinations(candidates, 3):
++        if len({owner for _, owner in triple}) < 2:
++            continue
++        hues = sorted(tone.hue for tone, _ in triple)
++        gaps = sorted([(hues[(i + 1) % 3] - hues[i]) % 360 for i in range(3)])
++        if gaps[0] <= 2 * rules.monochromatic_degrees:
++            continue
++        for kind, target in (
++            ("triadic", (120, 120, 120)), ("split_complementary", (60, 150, 150)),
++        ):
++            error = max(abs(gap - expected) for gap, expected in zip(gaps, target))
++            if error > rules.triple_tolerance:
++                continue
++            indices = [
++                [index for index, tone in enumerate(tones) if not tone.neutral
++                 and any(_angle(tone.hue, hue) <= rules.monochromatic_degrees for hue in hues)]
++                for tones in (left, right)
++            ]
++            shares = [sum(tones[i].weight for i in selected)
++                      for tones, selected in zip((left, right), indices)]
++            support = sum(shares) / 2
++            if min(shares) < rules.triple_min_garment_support or support < rules.triple_min_combined_support:
++                continue
++            quality = (support, -error, tuple(-hue for hue in hues))
++            if kind not in best or quality > best[kind]["quality"]:
++                best[kind] = {
++                    "quality": quality, "hues": hues, "support": support,
++                    "garment_support": shares, "indices": indices, "max_gap_error": error,
++                }
++    return best
++
++
++def _pair(left: Tone, right: Tone, rules: CompatibilityRules) -> tuple[str | None, float]:
++    if left.neutral and right.neutral:
++        return "neutrals", rules.neutrals_score
++    if left.neutral or right.neutral:
++        return "neutral_accent", rules.neutral_accent_score
++    angle = _angle(left.hue, right.hue)
++    if angle <= rules.monochromatic_degrees:
++        return "monochromatic", rules.monochromatic_score
++    if angle <= rules.analogous_degrees:
++        return "analogous", rules.analogous_score
++    if abs(angle - 180) <= rules.complementary_tolerance:
++        return "complementary", rules.complementary_score
++    return None, rules.unmatched_hue_score
++
++
++def _intense(tones: list[Tone], profile: GarmentColorimetry, rules: CompatibilityRules) -> bool:
++    mass = sum(tone.weight for tone in tones
++               if tone.chroma >= rules.high_chroma or tone.saturation >= rules.high_saturation)
++    return mass >= rules.intense_mass or profile.chroma == "high" or profile.saturation == "high"
++
++
++def _temperature(left: GarmentColorimetry, right: GarmentColorimetry,
++                 harmonies: list[str], rules: CompatibilityRules) -> tuple[float | None, str]:
++    first, second = left.temperature, right.temperature
++    if "unknown" in (first, second):
++        return None, "La temperatura no tiene una interpretación común fiable; su componente queda sin puntuar."
++    if first == "neutral" or second == "neutral":
++        return rules.temperature_neutral_score, "Una temperatura neutra facilita el diálogo entre las paletas."
++    warm = {"warm", "warm_neutral"}
++    cool = {"cool", "cool_neutral"}
++    if (first in warm and second in warm) or (first in cool and second in cool):
++        return rules.temperature_same_score, "Las paletas comparten una orientación de temperatura."
++    if any(kind in harmonies for kind in ("complementary", "split_complementary", "triadic", "neutral_accent")):
++        return rules.temperature_structured_score, (
++            "El contraste cálido/frío cuenta con una estructura cromática reconocida y puede aportar equilibrio."
++        )
++    return rules.temperature_opposed_score, (
++        "Hay contraste cálido/frío; esta diferencia aporta tensión visual sin descartar la combinación."
++    )
++
++
++def _tone_evidence(tones: list[Tone]) -> list[dict]:
++    return [{
++        "hex": tone.swatch.hex, "family": tone.swatch.family, "role": tone.role,
++        "original_share": tone.swatch.percentage, "retained_palette_weight": round(tone.weight, 6),
++        "ryb_hue": None if tone.neutral else round(tone.hue, 3),
++        "lab_lightness": tone.lightness, "lab_chroma": round(tone.chroma, 3),
++        "hsv_saturation": round(tone.saturation, 4), "neutral": tone.neutral,
++    } for tone in tones]
++
++
++def evaluate_compatibility(
++    garment_a: GarmentColorimetry,
++    garment_b: GarmentColorimetry,
++    *,
++    rules_version: str = COMPATIBILITY_RULES_VERSION,
++    pattern_a: PatternKind = "unknown",
++    pattern_b: PatternKind = "unknown",
++) -> GarmentCompatibilityResult:
++    """Symmetric score on two observed palettes; roles never add palette mass."""
++    # Enforce the same bounds for HTTP and direct Python callers.
++    request = GarmentCompatibilityRequest(
++        garment_a=garment_a, garment_b=garment_b, rules_version=rules_version,
++        pattern_a=pattern_a, pattern_b=pattern_b,
++    )
++    rules = RULESETS[request.rules_version]
++    profiles = (request.garment_a, request.garment_b)
++    warnings = [warning for profile, label in zip(profiles, ("A", "B"))
++                for warning in _profile_warnings(profile, label, rules)]
++    evidence = {
++        "rules": rules.metadata(),
++        "input_versions": [profile.version for profile in profiles],
++        "input_statuses": [profile.status for profile in profiles],
++        "input_coverage": [profile.coverage for profile in profiles],
++        "input_properties": [{
++            "temperature": p.temperature, "lightness": p.lightness, "chroma": p.chroma,
++            "saturation": p.saturation, "neutrality": p.neutrality,
++            "internal_contrast": p.internal_contrast, "color_variety": p.color_variety,
++        } for p in profiles],
++        "scope": "two_observed_garment_palettes",
++        "hue_space": "versioned_approximate_artistic_RYB_from_sRGB_HSV",
++        "lightness_chroma_space": "CIELAB_D65",
++        "garment_weights": [0.5, 0.5],
++        "weight_basis": "conditional_on_retained_palette_not_physical_outfit_area",
++        "pattern_hints": [pattern_a, pattern_b],
++        "pattern_basis": "caller_supplied_existing_pattern_result_or_unknown",
++    }
++    if any(_unusable(profile, rules) for profile in profiles):
++        warnings.append("COMPATIBILITY_INSUFFICIENT_EVIDENCE")
++        return GarmentCompatibilityResult(
++            status="insufficient_evidence", warnings=list(dict.fromkeys(warnings)),
++            explanations=[
++                "No hay evidencia cromática utilizable en ambas prendas bajo el contrato admitido.",
++                "La ausencia de puntuación no significa incompatibilidad cromática.",
++            ], evidence=evidence,
++        )
++
++    left, right = (_tones(profile, rules) for profile in profiles)
++    triples = _triple_matches(left, right, rules)
++    support = dict.fromkeys(HARMONY_ORDER, 0.0)
++    hue_score = lightness_score = unmatched_mass = mean_lightness_delta = 0.0
++    pair_evidence = []
++    for i, a in enumerate(left):
++        for j, b in enumerate(right):
++            weight = a.weight * b.weight
++            kind, score = _pair(a, b, rules)
++            if kind is not None:
++                support[kind] += weight
++            supporting_triples = []
++            for triple_kind, match in triples.items():
++                if i in match["indices"][0] and j in match["indices"][1]:
++                    triple_score = getattr(rules, triple_kind + "_score")
++                    score = max(score, triple_score)
++                    supporting_triples.append(triple_kind)
++            if kind is None and not supporting_triples:
++                unmatched_mass += weight
++            delta_l = abs(a.lightness - b.lightness)
++            if delta_l >= rules.light_dark_delta:
++                support["light_dark_contrast"] += weight
++            light_score = rules.lightness_base + rules.lightness_range_bonus * min(
++                1, delta_l / rules.lightness_range_scale
++            )
++            if kind == "monochromatic":
++                light_score = max(light_score, rules.monochromatic_lightness_score)
++            hue_score += weight * score
++            lightness_score += weight * light_score
++            mean_lightness_delta += weight * delta_l
++            pair_evidence.append({
++                "a": i, "b": j, "weight": round(weight, 6),
++                "hue_difference_ryb": None if a.neutral or b.neutral else round(_angle(a.hue, b.hue), 3),
++                "lightness_difference": round(delta_l, 3), "pair_rule": kind,
++                "triple_rules": supporting_triples, "hue_score": round(score * 100, 3),
++            })
++
++    neutral_shares = [sum(tone.weight for tone in tones if tone.neutral) for tones in (left, right)]
++    harmonies = [kind for kind in ("monochromatic", "analogous", "complementary")
++                 if support[kind] >= rules.pair_min_support]
++    for kind, match in triples.items():
++        support[kind] = match["support"]
++        harmonies.append(kind)
++    if min(neutral_shares) >= rules.neutral_garment_share:
++        harmonies.append("neutrals")
++    if any(neutral_shares[i] >= rules.neutral_garment_share
++           and 1 - neutral_shares[1 - i] >= rules.accent_garment_share for i in (0, 1)):
++        harmonies.append("neutral_accent")
++    if support["light_dark_contrast"] >= rules.light_dark_support:
++        harmonies.append("light_dark_contrast")
++    harmonies = [kind for kind in HARMONY_ORDER if kind in harmonies]
++
++    explanations = [
++        f"Se reconoce una relación {HARMONY_NAMES[kind]}; su soporte es "
++        f"{support[kind]:.2f} de la masa de paleta evaluada."
++        for kind in harmonies if kind in HARMONY_NAMES
++    ]
++    if "neutrals" in harmonies:
++        explanations.append(
++            "Ambas paletas tienen una base neutra importante; los tonos tierra se aceptan "
++            "como neutros solo cuando su croma y matiz respaldan esa función."
++        )
++    if "neutral_accent" in harmonies:
++        explanations.append(
++            "Una base neutra permite que el color de la otra prenda actúe como acento entre prendas. "
++            "Ese acento puede ser el color principal dentro de su propia prenda."
++        )
++        for tones in (left, right):
++            for family, message in (
++                ("white", "El blanco de bajo croma aporta una base versátil para muchos colores."),
++                ("black", "El negro de bajo croma sostiene el acento y puede destacar su luminosidad."),
++            ):
++                if sum(t.weight for t in tones if t.neutral and t.swatch.family == family) >= rules.neutral_garment_share:
++                    explanations.append(message)
++    if "light_dark_contrast" in harmonies:
++        explanations.append(
++            "Una proporción relevante de las paletas separa claros y oscuros al menos "
++            f"{rules.light_dark_delta:g} unidades L*, aportando diferenciación visual."
++        )
++    if not harmonies:
++        explanations.append(
++            "Estas reglas no identifican una armonía con soporte suficiente; "
++            "la combinación puede responder a otras preferencias estéticas."
++        )
++    explanations.append(
++        f"La diferencia de luminosidad media entre parejas de tonos es {mean_lightness_delta:.1f} "
++        "unidades L*. Se considera tanto la continuidad tonal como la separación de claros y oscuros."
++    )
++    if any(profile.primary_color is None for profile in profiles):
++        explanations.append(
++            "La falta de un color principal único no invalida las paletas: secundarios y acentos "
++            "participan según su proporción original, sin duplicar su peso."
++        )
++    temperature_score, message = _temperature(*profiles, harmonies, rules)
++    explanations.append(message)
++    if temperature_score is None:
++        warnings.append("TEMPERATURE_COMPONENT_UNAVAILABLE")
++
++    intense = [_intense(tones, profile, rules) for tones, profile in zip((left, right), profiles)]
++    complex_palettes = [
++        profile.color_variety == "multicolor" and profile.internal_contrast == "high"
++        for profile in profiles
++    ]
++    adjustments = {}
++    if all(intense):
++        adjustments["both_saturated"] = rules.both_saturated_adjustment
++        warnings.append("BOTH_PALETTES_INTENSE")
++        explanations.append(
++            "Las dos prendas concentran croma o saturación altos; se aplica un ajuste moderado "
++            "por competencia visual, aunque una combinación intensa puede ser intencional."
++        )
++    if all(complex_palettes):
++        adjustments["both_complex"] = rules.both_complex_adjustment
++        warnings.append("BOTH_PALETTES_COMPLEX")
++        explanations.append(
++            "Ambas paletas son multicolor y contrastadas; conviene considerar la proporción "
++            "de sus tonos y las relaciones que comparten."
++        )
++    printed_patterns = {"printed", "striped", "checkered"}
++    pattern_intensity = [value or profile.internal_contrast == "high"
++                         for value, profile in zip(intense, profiles)]
++    if pattern_a in printed_patterns and pattern_b in printed_patterns and all(pattern_intensity):
++        adjustments["both_intense_patterns"] = rules.both_intense_patterns_adjustment
++        warnings.append("BOTH_PATTERNS_INTENSE")
++        explanations.append(
++            "Los patrones informados y sus paletas intensas pueden competir visualmente. "
++            "La escala y distribución del estampado no se evalúan aquí."
++        )
++    if any(profile.color_variety == "multicolor" for profile in profiles):
++        warnings.append("MULTICOLOR_PROPORTIONS_MATTER")
++        explanations.append(
++            "La paleta multicolor se evalúa completa y ponderada por sus proporciones; "
++            "ningún tono pequeño representa por sí solo a toda la prenda."
++        )
++    if unmatched_mass >= rules.pair_min_support:
++        explanations.append(
++            f"Una masa de parejas cromáticas de {unmatched_mass:.2f} queda fuera de las geometrías "
++            "reconocidas; se conserva como señal de tensión, sin un veto estético."
++        )
++    adjustment = min(rules.adjustment_cap, sum(adjustments.values()))
++    contrast_score = max(0, rules.contrast_base - rules.contrast_unmatched_adjustment * unmatched_mass - adjustment)
++    components = {
++        "temperature": temperature_score, "lightness": lightness_score,
++        "hue": hue_score, "contrast": contrast_score,
++    }
++    weights = dict(rules.component_weights)
++    active_weight = sum(weights[name] for name, value in components.items() if value is not None)
++    score = sum(weights[name] * value for name, value in components.items() if value is not None) / active_weight
++    partial = any(
++        profile.status != "completed"
++        or min(profile.coverage, sum(t.percentage for t in profile.palette)) < rules.coverage_complete
++        for profile in profiles
++    ) or any("PALETTE_COVERAGE_MISMATCH" in w or "COLOR_ROLE" in w
++             or "LOW_SWATCH_EVIDENCE" in w for w in warnings)
++    if partial:
++        warnings.append("COMPATIBILITY_PROVISIONAL_INPUT")
++        explanations.append(
++            "La evidencia de entrada es parcial; las relaciones son provisionales. "
++            "Esa incertidumbre no se convierte automáticamente en menor compatibilidad."
++        )
++    evidence.update({
++        "tones_a": _tone_evidence(left), "tones_b": _tone_evidence(right),
++        "neutral_shares": [round(share, 6) for share in neutral_shares],
++        "role_shares": [{role: round(sum(t.weight for t in tones if t.role == role), 6)
++                        for role in ("primary", "secondary", "accent", "unassigned")}
++                       for tones in (left, right)],
++        "mean_cross_palette_lightness_delta": round(mean_lightness_delta, 3),
++        "rule_support": {kind: round(value, 6) for kind, value in support.items()},
++        "triple_matches": {kind: {
++            "hues_ryb": [round(hue, 3) for hue in match["hues"]],
++            "combined_support": round(match["support"], 6),
++            "garment_support": [round(value, 6) for value in match["garment_support"]],
++            "max_gap_error": round(match["max_gap_error"], 3),
++        } for kind, match in triples.items()},
++        "cross_palette_pairs": pair_evidence, "unmatched_pair_mass": round(unmatched_mass, 6),
++        "contrast_adjustments": adjustments, "applied_contrast_adjustment": adjustment,
++        "active_component_weights": {
++            name: round(weights[name] / active_weight, 6)
++            for name, value in components.items() if value is not None
++        },
++        "formula": "weighted_component_mean * 100; missing components excluded",
++    })
++    return GarmentCompatibilityResult(
++        status="partial" if partial else "completed",
++        compatibility_score=round(min(1, max(0, score)) * 100, 2),
++        harmony_types=harmonies,
++        components=CompatibilityComponents(**{
++            name: round(value * 100, 2) if value is not None else None
++            for name, value in components.items()
++        }),
++        explanations=list(dict.fromkeys(explanations)),
++        warnings=list(dict.fromkeys(warnings)), evidence=evidence,
++    )
+diff --git a/DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.md b/DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.md
+new file mode 100644
+--- /dev/null
++++ b/DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.md
+@@ -0,0 +1,344 @@
++# Motor de compatibilidad cromática entre prendas de Mati Boutique
++
++Fecha: 2026-10-03. Implementación escrita sin ejecutar tests, validación final, lint, build, inferencias ni llamadas de comprobación a la API. Sin commit ni push. Esta entrega incorpora una señal para ordenar pares de prendas; no construye outfits completos.
++
++## 1. Alcance y entrada existente
++
++El motor recibe dos objetos `GarmentColorimetry` ya producidos por la fase [03_colorimetria_prendas.md](03_colorimetria_prendas.md). No abre fotografías, no vuelve a extraer colores y no carga el modelo visual. Consume paleta, color primario, secundarios, acentos, temperatura, luminosidad, croma, contraste interno y proporciones. La calidad y las advertencias de la extracción acompañan el resultado.
++
++El ámbito es exclusivamente cromático y de prendas. No analiza personas ni rostros; no incorpora VTO, recomendaciones personales, tendencias, Redis ni generación de outfits. Laravel conserva la autoridad sobre IDs y catálogo. Los HEX particulares del catálogo y la paleta extraída permanecen como datos; las familias cromáticas ayudan a interpretar neutros y no reemplazan esos colores.
++
++Cada color de la paleta conserva `rgb`, `hex`, `lab`, `percentage`, `confidence_score`, `family` y la evidencia del contrato anterior. `primary_color`, `secondary_colors` y `accent_colors` señalan funciones de colores presentes en la paleta: no suman otra vez su superficie. El score representa compatibilidad heurística para ranking y nunca un porcentaje de certeza.
++
++## 2. Algoritmo determinista
++
++1. Comprueba la evidencia de cada colorimetría, retiene colores con proporción positiva y conserva las proporciones originales como evidencia. Los pesos utilizados para comparar se normalizan sólo entre los colores retenidos.
++2. Construye un resumen por prenda con neutros, colores cromáticos, luminosidad, croma, temperatura, contraste y variedad. Una ausencia de dominante no impide evaluar una paleta suficiente y se explica en el resultado.
++3. Deriva el tono sRGB mediante HSV y lo transforma mediante una rueda artística RYB aproximada, definida con nodos y tolerancias versionados. Luminosidad y croma proceden de CIELAB: L* y C* = √(a*² + b*²).
++4. Evalúa reglas explícitas entre los colores de A y B. Los pesos de cada par son el producto de sus proporciones normalizadas. Ambas prendas aportan 0.5 al resumen combinado: no se conoce ni se supone el área visible de cada una en un outfit.
++5. Busca grupos reales de tres tonos distintos repartidos entre las dos prendas para complementaria dividida y triádica. Dos colores aislados a 120° o 150° no bastan para declarar una armonía de tres tonos.
++6. Produce componentes interpretables, tipos de armonía, ajustes suaves, explicaciones y advertencias. La evidencia describe qué colores y relaciones sostienen las reglas.
++7. Devuelve `compatibility_score=null` cuando no hay evidencia suficiente de ambas prendas. El estado `partial` describe limitaciones de entrada y se conserva separado del score.
++
++La relación entre tonos es sólo una parte del resultado. Las reglas combinan disposición en la rueda, neutrales, luminosidad, croma, proporciones, roles y contraste. CIEDE2000 sigue siendo parte de la extracción y del matching de color comercial existente; este motor no utiliza únicamente una distancia perceptual para dictaminar una combinación.
++
++## 3. Reglas y versionado
++
++Versión de contrato/motor: `garment-compatibility-1.0.0`. Las reglas y constantes viven en `compatibility/rules.py`; el request declara `rules_version` y la respuesta vuelve a declarar la versión realmente aplicada. La versión de colorimetría permanece `garment-colorimetry-1.0.0` y el envelope HTTP conserva `contract_version="1"` y `registration-1.2.0`.
++
++| Tipo de armonía | Regla conceptual | Explicación que aporta |
++| --- | --- | --- |
++| `monochromatic` | Tonos cromáticos cercanos en la rueda con variación posible de luz/croma | Continuidad de familia cromática entre las prendas |
++| `analogous` | Tonos vecinos dentro de la tolerancia de la regla | Transición cromática cercana |
++| `complementary` | Tonos próximos a posiciones opuestas | Contraste de matiz sostenido por proporciones |
++| `split_complementary` | Un tono y dos tonos distintos situados a ambos lados de su opuesto | Contraste de tres tonos con oposición repartida |
++| `triadic` | Tres tonos distintos aproximadamente equidistantes | Equilibrio de tres regiones de la rueda |
++| `neutrals` | Proporción de neutros, incluyendo interpretación de familia y croma Lab | Base neutral con matices y luminosidad registrados |
++| `neutral_accent` | Base neutral junto a presencia cromática en la otra prenda | El color cromático funciona como foco frente a una base neutral |
++| `light_dark_contrast` | Diferencia relevante de L* entre las prendas | Separación visual por luminosidad |
++
++Una prenda puede participar en varias reglas. Las armonías no son etiquetas excluyentes ni un juicio universal de gusto. Cambiar la rueda, tolerancias, pesos, umbrales, ajustes o significado de componentes requiere una nueva versión de reglas. Para reproducir un ranking futuro se deben conservar ambas colorimetrías de entrada y `rules_version`; comparar scores de versiones distintas requiere revisión y calibración.
++
++### Constantes de reglas v1
++
++La rueda interpola linealmente estos nodos HSV → RYB, expresados en grados:
++
++```text
++0→0, 30→60, 60→120, 120→180,
++180→210, 240→240, 300→300, 360→360
++```
++
++| Parámetro | Valor v1 |
++| --- | --- |
++| Monocromática | Cercanía máxima de 18° |
++| Análoga | Cercanía máxima de 55° |
++| Complementaria | Tolerancia de 25° respecto de 180° |
++| Complementaria dividida y triádica | Tolerancia de 22° en las posiciones de cada estructura de tres tonos |
++| Soporte mínimo de una regla de pares | 0.20 de la masa ponderada de pares |
++| Muestra candidata a grupos de tres | Proporción original mínima 0.06; no es el peso renormalizado |
++| Grupo de tres tonos | Soporte mínimo 0.18 en cada prenda y 0.45 en el resumen combinado |
++| Neutralidad base | C* máximo 12 |
++| Neutralidad terrosa | Familia beige_cream/brown, C* máximo 30 y matiz Lab de 35°–100° |
++| Prenda considerada base neutral | Masa neutral mínima 0.70 |
++| Presencia cromática para neutro + acento | Masa cromática mínima 0.12 |
++| Contraste claro/oscuro | Diferencia L* mínima 30 y soporte mínimo 0.35 |
++| Evidencia de primer plano | Mínimo 0.70 |
++| Evidencia baja de muestras | confidence_score < 0.45; advertencia si cubre al menos 0.25 de la masa retenida |
++| Cobertura mínima / completa | 0.50 / 0.85 |
++| Croma / saturación intensos | C* mínimo 50 / HSV S mínimo 0.60 |
++| Masa necesaria para intensidad conjunta | 0.60 por prenda |
++| Ajuste de dos prendas saturadas | 0.08 |
++| Ajuste de dos paletas complejas | 0.10 |
++| Ajuste de dos patrones intensos | 0.08 |
++| Límite acumulado de ajustes | 0.20 |
++
++Los soportes de pares y de grupos de tres son fracciones de los pesos calculados; no son medidas de certeza. Los umbrales de primer plano y cobertura determinan si la entrada es utilizable; no puntúan gustos estéticos.
++
++Los valores numéricos son parámetros elegidos para ranking y no porcentajes de aprobación estética. La fórmula exacta se describe en la sección siguiente.
++
++
++## 4. Score, componentes y evidencia
++
++`compatibility_score` usa la escala 0–100 y `score_kind="heuristic_ranking_signal"`. Su fin es ordenar combinaciones bajo las mismas reglas. Un valor mayor indica más soporte para las relaciones implementadas; no expresa probabilidad, exactitud del análisis, aceptación comercial ni gusto de una persona.
++
++| Componente | Interpretación |
++| --- | --- |
++| `temperature` | Relación de temperaturas con contexto de neutros y evidencia disponible |
++| `lightness` | Continuidad o contraste de luminosidad según L* |
++| `hue` | Soporte de reglas de tonos y de composición neutral, ponderado por proporciones |
++| `contrast` | Relación entre contrastes internos y separación de las prendas |
++
++Los componentes son valores 0–100 o `null` cuando faltan datos para evaluarlos. `evidence` conserva el resumen usado, soporte de reglas, proporciones y ajustes aplicados para interpretar el cálculo. `explanations` comunica por qué el par recibió las señales relevantes, incluyendo su diferencia media de L* y la ausencia de dominante cuando corresponde. `warnings` comunica evidencia parcial, intensidad conjunta, multicolor o textura informada cuando corresponde.
++
++Dos prendas muy saturadas o dos estampados intensos pueden recibir un ajuste moderado por competencia visual. La saturación conjunta no anula una armonía explícita ni crea una prohibición. La complejidad multicolor genera contexto y cautela; no produce por sí sola un resultado de “bien” o “mal”.
++
++### Fórmula operacional del score
++
++Para cada prenda, sea p_i la proporción original de una muestra con p_i > 0 y P = Σ p_i. El peso retenido es w_i = p_i/P. Cada par cruzado A_i/B_j pesa w_ij = w_Ai × w_Bj; la suma de pesos cruzados es 1. Las referencias primario/secundario/acento se resuelven por RGB y Lab, con precedencia primario → acento → secundario, y no añaden peso. Los roles son evidencia de interpretación; no se convierten en multiplicadores arbitrarios.
++
++La regla de cada par se aplica en este orden: ambos neutros (0.92), un neutro (0.90), monocromática (0.90), análoga (0.84), complementaria (0.90) o ninguna (0.55). Un grupo de tres tonos válido eleva el valor de los pares cubiertos por sus tonos al máximo entre la regla del par y 0.87. El componente hue es la suma Σ w_ij × valor_del_par. Por ello un tono pequeño no domina por sí solo toda una paleta.
++
++Para las triples se comparan los huecos circulares ordenados de tres tonos: (120°,120°,120°) para triádica y (60°,150°,150°) para complementaria dividida, con error máximo 22°. El hueco más pequeño debe superar 36° para distinguir tres regiones. Se exige que los candidatos originales incluyan colores de ambas prendas; el soporte acumula los colores dentro de 18° de esas regiones, exige al menos 0.18 en cada prenda y media combinada de al menos 0.45. Cuando existen varios grupos del mismo tipo se elige el de mayor soporte, después menor error y finalmente un desempate determinista por tonos.
++
++Para cada par, el valor de luminosidad es:
++
++```text
++L_ij = 0.70 + 0.20 × min(1, |L*_Ai − L*_Bj| / 40)
++si el par es monocromático: L_ij = max(L_ij, 0.85)
++lightness = Σ w_ij × L_ij
++```
++
++Temperatura usa 0.88 si una prenda es neutral, 0.82 si ambas comparten orientación cálida o fría y 0.86 para oposición cálido/frío respaldada por complementaria, complementaria dividida, triádica o neutro + acento. Una oposición sin esas estructuras usa 0.70. Si alguna temperatura es `unknown`, el componente queda `null` y se excluye de la media.
++
++El contraste usa la masa de pares sin regla y sin soporte de triple:
++
++```text
++adjustment = min(0.20, suma_de_ajustes_activos)
++contrast = max(0, 0.85 − 0.12 × unmatched_pair_mass − adjustment)
++```
++
++`both_saturated=0.08` se activa cuando ambas prendas son intensas: al menos 0.60 de su peso retenido tiene C* ≥ 50 o HSV S ≥ 0.60, o la colorimetría declara croma/saturación `high`. `both_complex=0.10` exige que ambas sean `multicolor` y tengan `internal_contrast="high"`. `both_intense_patterns=0.08` exige ambos patrones informados dentro de `printed`, `striped` o `checkered` y que cada prenda sea intensa por croma/saturación o declare `internal_contrast="high"`. Por eso también reconoce dos estampados blanco/negro contrastados. El límite 0.20 corresponde sólo a estos ajustes simultáneos; el término de masa sin regla permanece separado.
++
++La media final, expresada primero en 0–1, es:
++
++```text
++score = Σ (peso_componente × componente_disponible)
++        / Σ pesos_de_componentes_disponibles
++compatibility_score = round(100 × clamp(score, 0, 1), 2)
++```
++
++Los pesos base son temperatura 0.10, luminosidad 0.20, tono 0.55 y contraste 0.15. Los componentes devueltos se multiplican por 100 y redondean a dos decimales. `active_component_weights` documenta la renormalización cuando falta temperatura. La calidad de entrada parcial no introduce una penalización automática al score.
++
++Una armonía reportada y la contribución de sus pares son conceptos distintos: monocromática/análoga/complementaria se anuncian con soporte cruzado ≥ 0.20; `neutrals` exige masa neutral ≥ 0.70 en ambas prendas; `neutral_accent` exige masa neutral ≥ 0.70 en una y masa cromática ≥ 0.12 en la otra; claro/oscuro exige masa cruzada ≥ 0.35 de pares con ΔL* ≥ 30. Las triples usan sus propios mínimos. Los identificadores se devuelven en un orden estable.
++
++### Evidencia y estado de resultado
++
++Se devuelve `insufficient_evidence` y score/componentes `null` si alguna colorimetría usa una versión no admitida, declara `insufficient_evidence`, carece de paleta con masa positiva, tiene cobertura o suma original de proporciones inferior a 0.50, o su `foreground_confidence` es inferior a 0.70. No se interpreta la abstención como incompatibilidad.
++
++Se devuelve `partial` con score calculado si alguna entrada no es `completed`, cobertura o suma de paleta es inferior a 0.85, cobertura y suma difieren en más de 0.01, una referencia de rol no pertenece a la paleta, los roles se superponen, o al menos 0.25 de la masa retenida tiene `confidence_score < 0.45`. Se añade `COMPATIBILITY_PROVISIONAL_INPUT` y una explicación; no se rebaja el score por ese estado. La evidencia baja de muestras añade `A:LOW_SWATCH_EVIDENCE` o `B:LOW_SWATCH_EVIDENCE`. Sin esas condiciones el estado es `completed`. Temperatura desconocida añade `TEMPERATURE_COMPONENT_UNAVAILABLE` y su componente queda `null`; esto por sí solo no cambia el estado a parcial.
++
++La evidencia incluye `rules`, versiones/estados/cobertura de entrada, propiedades declaradas, `pattern_hints`, `tones_a`/`tones_b`, roles, `role_shares`, proporciones originales y normalizadas, tono RYB, Lab, saturación HSV, masa neutral, `mean_cross_palette_lightness_delta`, soportes de reglas, grupos de tres, pares cruzados, masa sin regla, ajustes, pesos activos y fórmula. Las advertencias previas se propagan con prefijo `A:` o `B:`.
++
++## 5. Casos diferenciados
++
++Los resultados siguientes describen la intención de las reglas; no son mediciones ejecutadas durante esta entrega. El resultado concreto depende de los HEX, proporciones, Lab y evidencia de cada paleta.
++
++| Par | Señales esperables |
++| --- | --- |
++| Blanco + casi cualquier color | Base neutral, posible acento cromático y contraste claro/oscuro según L* |
++| Negro + acento | Base neutral oscura, foco cromático y posible separación luminosa |
++| Beige + marrón | Contexto neutral/terroso, continuidad de temperatura y posible variación de luminosidad |
++| Azul + naranja | Posible complementariedad bajo la rueda RYB aproximada; revisa matices y proporciones reales |
++| Azul + azul | Posible monocromática; diferencia continuidad de tono de igualdad de luminosidad/croma |
++| Verde oliva + beige | Base beige neutral y tono oliva de croma contenido; temperatura y proporción contextualizan |
++| Dos estampados intensos | Aviso y ajuste suave si los patrones se informaron y cada prenda es intensa o de contraste alto; incluye estampados blanco/negro contrastados sin analizar su geometría |
++| Dos prendas muy saturadas | Competencia cromática moderada; conserva complementariedad u otra regla respaldada |
++| Paletas multicolor | Evalúa relaciones ponderadas y grupos de tres tonos; evidencia de complejidad y proporciones |
++
++La ausencia de una armonía clásica no equivale a incompatibilidad absoluta. Las reglas no codifican tendencias, códigos personales ni preferencias estéticas como verdades universales.
++
++## 6. API privada FastAPI
++
++`POST /api/v1/garments/compatibility` recibe JSON y usa el mismo bearer de servicio de `/api/v1`. No recibe archivos, imágenes, rutas ni URLs.
++
++| Campo de entrada | Tipo y función |
++| --- | --- |
++| `garment_a`, `garment_b` | Objetos `GarmentColorimetry` completos del contrato existente |
++| `rules_version` | Versión admitida `garment-compatibility-1.0.0`; tiene default explícito |
++| `pattern_a`, `pattern_b` | Opcionales: `solid`, `printed`, `striped`, `checkered`, `unknown`; default `unknown` |
++| `request_id` | String opcional, patrón `[A-Za-z0-9._:-]{1,100}`; `x-request-id` tiene precedencia |
++
++Los patrones son metadatos aportados por el llamador. El motor no los adivina a partir de la paleta. Se deben traducir IDs o nombres de la taxonomía comercial a este vocabulario sólo cuando su significado esté establecido.
++
++Ejemplo de construcción del cuerpo, sin ejecutar una petición:
++
++```python
++payload = {
++    "garment_a": saved_result_a["data"]["colorimetry"],
++    "garment_b": saved_result_b["data"]["colorimetry"],
++    "rules_version": "garment-compatibility-1.0.0",
++    "pattern_a": "solid",
++    "pattern_b": "printed",
++}
++```
++
++El identificador enviado en JSON se utiliza cuando falta `x-request-id`; si existe el header, se conserva el ID resuelto por el middleware. Laravel envía ambas formas para mantener correlación entre servicios.
++
++La respuesta mantiene el envelope existente: `request_id`, `contract_version`, `status`, `data`, `warnings`, `abstentions`, `model`, `timing_ms` y `human_review_required`.
++
++| Campo en `data` | Tipo |
++| --- | --- |
++| `version`, `rules_version` | Versión aplicada |
++| `status` | `completed`, `partial` o `insufficient_evidence` |
++| `score_kind` | `heuristic_ranking_signal` |
++| `compatibility_score` | Número 0–100 o `null` |
++| `harmony_types` | Lista de identificadores de armonías respaldadas |
++| `components` | `temperature`, `lightness`, `hue`, `contrast`: número 0–100 o `null` |
++| `explanations`, `warnings` | Listas de textos/códigos de explicación y advertencia |
++| `evidence` | Evidencia del cálculo y ajustes |
++
++El envelope replica las advertencias del resultado. Cuando el score es `null`, añade la abstención `COMPATIBILITY_INSUFFICIENT_EVIDENCE`. Declara `model_id="deterministic_garment_color_compatibility"`, `model_revision=rules_version` y mide `timing_ms.compatibility`; esa identidad describe un cálculo determinista, no inferencia visual.
++
++El request usa contratos Pydantic y rechaza campos superiores no definidos. Admite como máximo ocho muestras en cada lista de paleta, secundarios y acentos; exige L* entre 0 y 100, a*/b* dentro de ±160, suma de proporciones de paleta no mayor que 1 (tolerancia 0.00001) y ausencia de muestras idénticas duplicadas por RGB/Lab. Mantiene los límites y finitud del contrato de colorimetría existente. Una versión de reglas no admitida o datos fuera del esquema producen un error de petición; una paleta válida en estructura pero insuficiente en evidencia produce una respuesta de abstención. Se conservan autenticación, límites de bytes y formato de errores del servicio existente.
++
++`GET /api/v1/capabilities` anuncia `garments.compatibility` y `color_compatibility`: alcance `garment_pairs_only`, entrada `existing_garment_colorimetry`, versión de reglas, escala 0–100, tipo de score y las ocho armonías.
++
++## 7. Integración Laravel y futuro ranking
++
++`MatiAiClient` incorpora la operación `compatibility`, valida la estructura de la respuesta y exige coherencia entre `status` del envelope y `data.status`. `GarmentCompatibilityService::compare()` ofrece la entrada de integración interna:
++
++```php
++compare(
++    array $colorimetryA,
++    array $colorimetryB,
++    string $patternA = 'unknown',
++    string $patternB = 'unknown',
++    ?string $requestId = null,
++): array
++```
++
++Recibe snapshots de `data.colorimetry` ya generados; devuelve el envelope privado validado. No selecciona automáticamente el “último” resultado de una prenda ni reanaliza imágenes. El llamador debe elegir colorimetrías de las imágenes pertinentes y conservar su procedencia. En esta fase no se añade endpoint público Laravel, pantalla, migración ni persistencia de pares.
++
++El ranking de outfits futuro podrá consumir el score como una señal junto a restricciones comerciales y otras señales. Tendrá que distinguir ausencia de score de un score bajo y considerar estado, advertencias y versiones. Esta entrega no determina pesos de un ranking general ni genera conjuntos de prendas.
++
++## 8. Archivos de esta fase
++
++Nuevos:
++
++- `services/mati-ai/src/mati_ai/contracts/compatibility.py`
++- `services/mati-ai/src/mati_ai/compatibility/__init__.py`
++- `services/mati-ai/src/mati_ai/compatibility/rules.py`
++- `services/mati-ai/src/mati_ai/compatibility/engine.py`
++- `app/Services/AI/GarmentCompatibilityService.php`
++- `DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.md`
++- `DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.diff`
++
++Modificados:
++
++- `services/mati-ai/src/mati_ai/api/v1/routes.py`
++- `app/Services/AI/MatiAiClient.php`
++- `services/mati-ai/README.md`
++
++Los cambios de colorimetría y embeddings ya presentes en el árbol de trabajo se conservan. No se añaden dependencias, Redis ni operaciones de despliegue.
++
++## 9. Limitaciones
++
++Los RGB, HEX y Lab de la entrada deben proceder de la misma muestra de colorimetría: el contrato comprueba formato/rangos, pero no recalcula su coherencia física. La rueda RYB es una aproximación artística versionada sobre valores sRGB; no representa pigmentos físicos ni garantiza una percepción idéntica en todas las condiciones. Lab y proporciones dependen de la colorimetría previa, que puede verse afectada por luz, balance de blancos, fondo, segmentación y fotografía.
++
++La entrada no describe silueta, textura, brillo, distribución espacial del estampado ni área de las prendas dentro de un outfit. Los patrones opcionales permiten advertir complejidad, pero no analizar sus motivos o escala. Cada prenda pesa lo mismo en el resumen combinado.
++
++La escala es heurística y no está calibrada con preferencias de usuarios ni evaluaciones comerciales de pares reales. El motor conserva explicaciones para que un ranking futuro pueda revisar su comportamiento. No confundir `confidence_score` de una muestra de color con el score de compatibilidad del par.
++
++Una relación de tres tonos requiere evidencia de los tres: el motor evita afirmar una triada o complementaria dividida a partir de dos colores. Una paleta multicolor puede contener varios subconjuntos armónicos sin que toda su distribución resulte equivalente. Las proporciones y ajustes moderan esas señales.
++
++## 10. Diff y status
++
++Diff propio de esta fase: [05_compatibilidad_cromatica.diff](05_compatibilidad_cromatica.diff). Incluye los ocho archivos de implementación/README y esta guía. Se calculó contra las copias inmediatamente anteriores a esta fase para los tres archivos ya modificados; los archivos nuevos se comparan con vacío. El propio artefacto .diff queda excluido. No se usó staging ni se alteraron cambios anteriores.
++
++### Resumen del diff de implementación/README de esta fase
++
++```text
++app/Services/AI/MatiAiClient.php | +47 -0
++services/mati-ai/README.md | +8 -0
++services/mati-ai/src/mati_ai/api/v1/routes.py | +52 -0
++app/Services/AI/GarmentCompatibilityService.php | +34 -0 (nuevo)
++services/mati-ai/src/mati_ai/contracts/compatibility.py | +71 -0 (nuevo)
++services/mati-ai/src/mati_ai/compatibility/__init__.py | +1 -0 (nuevo)
++services/mati-ai/src/mati_ai/compatibility/rules.py | +71 -0 (nuevo)
++services/mati-ai/src/mati_ai/compatibility/engine.py | +463 -0 (nuevo)
++8 archivos de implementación/README; +747 -0 líneas.
++```
++
++A ese inventario se suman esta guía y el artefacto de diff: diez archivos creados o modificados por esta fase. El código y los ejemplos documentados no se ejecutaron.
++
++### git diff --stat acumulado respecto de HEAD
++
++Esta captura incluye colorimetría, embeddings y otros cambios anteriores. Los archivos nuevos sin seguimiento no aparecen en este stat.
++
++```text
++.env.example                                       |   4 +
++ app/Console/Commands/IndexMatiAiCatalog.php        | 153 ++++--
++ app/Http/Controllers/Superadmin/AiController.php   | 114 ++++-
++ app/Services/AI/AiReviewService.php                |  58 ++-
++ app/Services/AI/CatalogAiService.php               |  29 +-
++ app/Services/AI/MatiAiClient.php                   |  59 ++-
++ compose.yaml                                       |   6 +-
++ config/mati_ai.php                                 |   8 +
++ .../Superadmin/GarmentIntelligentAssistant.tsx     | 143 +++++-
++ resources/js/lib/garmentAssistant.ts               |  36 ++
++ routes/web.php                                     |   3 +
++ services/mati-ai/README.md                         |  22 +
++ services/mati-ai/src/mati_ai/api/v1/routes.py      | 126 ++++-
++ services/mati-ai/src/mati_ai/contracts/common.py   |   2 +-
++ .../src/mati_ai/contracts/identification.py        |   9 +-
++ services/mati-ai/src/mati_ai/contracts/vision.py   |   2 +
++ services/mati-ai/src/mati_ai/core/model_manager.py | 282 ++++++++--
++ .../mati-ai/src/mati_ai/identification/matching.py |   7 +-
++ services/mati-ai/src/mati_ai/vision/color.py       | 568 +++++++++++++++++----
++ 19 files changed, 1398 insertions(+), 233 deletions(-)
++```
++
++### git status --short
++
++Rama: `feature/ia-colorimetria`. Estado acumulado; los prefijos ` M` describen cambios sin staging y `??` archivos nuevos sin seguimiento.
++
++```text
++M .env.example
++ M app/Console/Commands/IndexMatiAiCatalog.php
++ M app/Http/Controllers/Superadmin/AiController.php
++ M app/Services/AI/AiReviewService.php
++ M app/Services/AI/CatalogAiService.php
++ M app/Services/AI/MatiAiClient.php
++ M compose.yaml
++ M config/mati_ai.php
++ M resources/js/Components/Superadmin/GarmentIntelligentAssistant.tsx
++ M resources/js/lib/garmentAssistant.ts
++ M routes/web.php
++ M services/mati-ai/README.md
++ M services/mati-ai/src/mati_ai/api/v1/routes.py
++ M services/mati-ai/src/mati_ai/contracts/common.py
++ M services/mati-ai/src/mati_ai/contracts/identification.py
++ M services/mati-ai/src/mati_ai/contracts/vision.py
++ M services/mati-ai/src/mati_ai/core/model_manager.py
++ M services/mati-ai/src/mati_ai/identification/matching.py
++ M services/mati-ai/src/mati_ai/vision/color.py
++?? DOCUMENTACION/IA/IMPLEMENTACION/03_colorimetria_prendas.md
++?? DOCUMENTACION/IA/IMPLEMENTACION/04_embeddings_pgvector.diff
++?? DOCUMENTACION/IA/IMPLEMENTACION/04_embeddings_pgvector.md
++?? DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.diff
++?? DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.md
++?? app/Models/AiProductEmbedding.php
++?? app/Services/AI/CatalogEmbeddingStore.php
++?? app/Services/AI/ColorimetryCatalogGuard.php
++?? app/Services/AI/GarmentCompatibilityService.php
++?? database/migrations/2026_10_03_000001_create_ai_product_embeddings_table.php
++?? database/pgsql/
++?? services/mati-ai/src/mati_ai/compatibility/
++?? services/mati-ai/src/mati_ai/contracts/colorimetry.py
++?? services/mati-ai/src/mati_ai/contracts/compatibility.py
++?? services/mati-ai/src/mati_ai/contracts/embedding.py
++?? services/mati-ai/src/mati_ai/vision/color_distance.py
++?? services/mati-ai/src/mati_ai/vision/segmentation.py
++```
++
++Estado de ejecución: código y documentación escritos; no se ejecutaron tests, lint, builds, inferencias, benchmarks, migraciones, llamadas de comprobación a la API ni validación final. Sin staging, commit ni push. No se afirma que la API, contratos o integración hayan pasado comprobaciones de ejecución. La captura de Git y la creación del diff son documentación de cambios, no una validación del motor.

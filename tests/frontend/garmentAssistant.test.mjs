@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import {
-    aiReviewKey, aiWarningText, applyAiSuggestion, compatibleSuggestionBatch,
+    aiApplicableSuggestions, aiResultNotice, aiResultStatusLabel, aiReviewKey, aiWarningText, applyAiSuggestion, compatibleSuggestionBatch,
     currentSuggestionValue, existingAnalysisImageId, externalReferencePreviewUrl,
     imageRightsAllowPublication, preparedImageUrl, queueAiReview, readAiReviewQueue,
     safeExternalUrl, suggestionIssue, suggestionValue, wouldReplaceValue,
@@ -175,4 +175,56 @@ test('pending feedback recovery is bounded, expires after one day and ignores ma
     assert.deepEqual(readAiReviewQueue(pack([valid], now + 60_001), now), []);
     assert.deepEqual(readAiReviewQueue('{broken', now), []);
     assert.deepEqual(readAiReviewQueue(pack([{ ...valid, variant_index: -1 }, { ...valid, action: 'save_inventory' }, { ...valid, confirmed_value: {} }]), now), []);
+});
+
+
+test('abstained category keeps informational ranking but cannot be applied or counted as accepted', () => {
+    const ranked = [{ category_id: 'top', category_name: 'POLERA', similarity_score: 0.072 }];
+    const response = { status: 'partial', human_review_required: true,
+        data: { classification: { abstained: true, top_k: ranked }, attributes: { pattern: null } },
+        suggestions: [{ ...suggestion('category', 'top'), source: 'vision' }],
+    };
+    const applicable = aiApplicableSuggestions(response);
+    const batch = compatibleSuggestionBatch(form(), applicable, catalogs, 0);
+    assert.deepEqual(applicable, []);
+    assert.equal(batch.form.cod_categorias_pre, '');
+    assert.deepEqual(batch.accepted, []);
+    assert.equal(response.data.classification.top_k, ranked);
+    assert.equal(response.human_review_required, true);
+});
+
+test('partial results may apply a nonabstained category and keep an abstained pattern informational', () => {
+    const category = { ...suggestion('category', 'top'), source: 'vision' };
+    const pattern = { ...suggestion('pattern', 'plain'), source: 'vision' };
+    const response = { status: 'partial', data: { classification: { abstained: false }, attributes: { pattern: null } },
+        suggestions: [category, pattern],
+    };
+    assert.deepEqual(aiApplicableSuggestions(response), [category]);
+    assert.equal(compatibleSuggestionBatch(form(), aiApplicableSuggestions(response), catalogs, 0).form.cod_categorias_pre, 'top');
+    response.data.attributes.pattern = { name: 'LISO', abstained: true };
+    assert.deepEqual(aiApplicableSuggestions(response), [category]);
+    response.data.attributes.pattern = { name: 'LISO' };
+    assert.deepEqual(aiApplicableSuggestions(response), [category, pattern]);
+});
+
+test('insufficient or degraded responses and missing category decision cannot expose visual proposals', () => {
+    const category = { ...suggestion('category', 'top'), source: 'vision' };
+    const pattern = { ...suggestion('pattern', 'plain'), source: 'vision' };
+    const brand = { ...suggestion('brand', 'brand'), source: 'label_ocr' };
+    for (const status of ['insufficient_evidence', 'degraded']) {
+        assert.deepEqual(aiApplicableSuggestions({ status,
+            data: { classification: { abstained: false }, attributes: { pattern: { name: 'LISO' } } },
+            suggestions: [category, pattern, brand] }), [brand]);
+    }
+    assert.deepEqual(aiApplicableSuggestions({ status: 'completed', data: { classification: { top_k: [] } }, suggestions: [category] }), []);
+});
+
+test('completed, partial, insufficient evidence and service errors have distinct messages', () => {
+    assert.equal(aiResultStatusLabel('completed'), 'Completado');
+    assert.equal(aiResultNotice('completed'), null);
+    assert.match(aiResultNotice('partial'), /parcial/);
+    assert.match(aiResultNotice('insufficient_evidence'), /evidencia suficiente/);
+    assert.match(aiResultNotice('degraded'), /servicio no está disponible/);
+    assert.equal(new Set(['completed', 'partial', 'insufficient_evidence', 'degraded'].map(aiResultStatusLabel)).size, 4);
+    assert.match(aiWarningText('TARGET_GARMENT_IDENTITY_UNVERIFIED'), /paleta es informativa/);
 });

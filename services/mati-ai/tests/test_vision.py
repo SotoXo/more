@@ -39,7 +39,7 @@ def test_limits_and_animated_image(settings):
         validate_image(buffer.getvalue(), settings)
 
 
-def test_color_reduces_uniform_white_border_and_maps_existing_ids():
+def test_color_reduces_white_border_but_requires_target_garment_evidence():
     image = Image.new("RGB", (100, 100), "white")
     ImageDraw.Draw(image).rectangle((20, 10, 80, 90), fill="#d9c5a0")
     result = extract_colors(
@@ -49,14 +49,18 @@ def test_color_reduces_uniform_white_border_and_maps_existing_ids():
             CatalogValue(id=8, name="BLANCO", hex="#ffffff"),
         ],
     )
-    assert result["dominant_color"]["catalog_id"] == 7
+    assert result["dominant_color"]["catalog_id"] is None
+    assert result["colorimetry"]["commercial_color_status"] == "insufficient_evidence"
+    assert result["dominant_color"]["evidence"]["observed_catalog_match_accepted"] is True
     assert result["foreground_confidence"] > 0.7
     assert result["dominant_color"]["percentage"] > 0.9
 
 
 def test_unknown_color_does_not_create_entity():
     result = extract_colors(Image.new("RGB", (100, 100), "green"), [])
-    assert result["dominant_color"]["catalog_id"] is None
+    assert result["dominant_color"] is None
+    assert result["palette"] == []
+    assert result["colorimetry"]["status"] == "insufficient_evidence"
 
 
 def test_classification_scores_not_probabilities():

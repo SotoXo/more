@@ -35,6 +35,8 @@ services:
             MATI_AI_MODEL_REVISION: '${MATI_AI_MODEL_REVISION:-main}'
             MATI_AI_DEVICE: '${MATI_AI_DEVICE:-auto}'
             MATI_AI_LOCAL_FILES_ONLY: 'true'
+            MATI_AI_OCR_ENABLED: '${MATI_AI_OCR_ENABLED:-true}'
+            MATI_AI_OCR_MODEL_DIRECTORY: '/cache/easyocr'
             MATI_AI_OCR_DOWNLOAD_ENABLED: 'false'
             MATI_AI_EXTERNAL_SOURCES_FILE: '${MATI_AI_EXTERNAL_SOURCES_FILE:-/app/config/external-sources.example.json}'
         volumes:
@@ -48,7 +50,11 @@ services:
         cap_drop:
             - ALL
     pgsql:
-        image: 'postgres:18-alpine'
+        build:
+            context: './database/pgsql'
+            args:
+                PGVECTOR_VERSION: '0.8.7'
+        image: 'mati-postgres:18.6-alpine-pgvector-0.8.7'
         ports:
             - '${FORWARD_DB_PORT:-5432}:5432'
         environment:

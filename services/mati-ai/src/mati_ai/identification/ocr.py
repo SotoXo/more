@@ -1,6 +1,8 @@
+import os
 import threading
 import time
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -23,6 +25,27 @@ class EasyOCRProvider(OCRProvider):
         self._reader: Any = None
         self._lock = threading.Lock()
         self._failed_until = 0.0
+
+    def capabilities_metadata(self) -> dict:
+        """Report local preparation without loading weights or downloading assets."""
+        module_path = os.environ.get("EASYOCR_MODULE_PATH") or os.environ.get("MODULE_PATH")
+        directory = Path(self.settings.ocr_model_directory) if self.settings.ocr_model_directory else (
+            Path(module_path) if module_path else Path.home() / ".EasyOCR"
+        ) / "model"
+        weights = {}
+        for filename in ("craft_mlt_25k.pth", "latin_g2.pth"):
+            try:
+                weights[filename] = (directory / filename).is_file()
+            except OSError:
+                weights[filename] = False
+        return {
+            "languages": ["es", "en"],
+            "download_enabled": self.settings.ocr_download_enabled,
+            "weights_present": weights,
+            "weights_presence_is_not_load_validation": True,
+            "reader_loaded": self._reader is not None,
+            "quality_evaluated": False,
+        }
 
     def read(self, image: Image.Image) -> dict:
         if not self.settings.ocr_enabled or time.monotonic() < self._failed_until:

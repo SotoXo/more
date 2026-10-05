@@ -3,7 +3,7 @@ from typing import Any, Literal
 from fastapi import Request
 from pydantic import BaseModel, Field
 
-PIPELINE_VERSION = "registration-1.0.0"
+PIPELINE_VERSION = "registration-1.2.0"
 Status = Literal["completed", "partial", "insufficient_evidence", "degraded", "failed"]
 
 

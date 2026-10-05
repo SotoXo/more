@@ -4,7 +4,7 @@ import json
 
 import pytest
 from fastapi.testclient import TestClient
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from mati_ai.core.config import Settings
 from mati_ai.core.errors import PipelineError
@@ -18,15 +18,31 @@ class FakeModel:
         return {
             "similarities": [0.3, 0.2, 0.1][: len(prompts)],
             "embedding": [0.6, 0.8],
+            "embedding_metadata": {
+                "model_id": "fixture", "model_revision": "a" * 40,
+                "pipeline_version": "registration-1.2.0", "values": [0.6, 0.8],
+                "dimension": 2, "normalization": "l2", "normalized": True,
+                "norm": 1.0, "dimension_source": "generated_vector",
+                "embedding_version": "projected-image-l2-1",
+                "preprocess_version": "srgb-exif-transformers-image-1",
+            },
             "model": {
                 "model_id": "fixture",
-                "model_revision": "abc",
-                "pipeline_version": "registration-1.0.0",
+                "model_revision": "a" * 40,
+                "pipeline_version": "registration-1.2.0",
             },
             "device": "cpu",
             "vram_peak_mb": 0,
             "metrics": {"inference": 1, "model_load": 0},
         }
+
+
+def isolated_image_bytes():
+    image = Image.new("RGB", (400, 500), "white")
+    ImageDraw.Draw(image).rectangle((80, 50, 320, 450), fill="#d9c5a0")
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    return buffer.getvalue()
 
 
 def test_health_and_fail_closed_auth(client, headers):
@@ -65,6 +81,7 @@ def test_valid_image_contract_uses_only_laravel_taxonomy(
     client, headers, app, image_bytes
 ):
     app.state.model_manager = FakeModel()
+    image_bytes = isolated_image_bytes()
     response = client.post(
         "/api/v1/garments/analyze",
         headers=headers,
@@ -83,7 +100,11 @@ def test_valid_image_contract_uses_only_laravel_taxonomy(
     assert {
         item["category_id"] for item in result["data"]["classification"]["top_k"]
     } == {44, 2}
-    assert result["data"]["colors"]["dominant_color"]["catalog_id"] == 6
+    assert result["data"]["colors"]["dominant_color"]["catalog_id"] is None
+    assert result["data"]["colorimetry"]["palette"]
+    assert result["data"]["colorimetry"]["status"] == "completed"
+    assert result["data"]["colorimetry"]["commercial_color_status"] == "insufficient_evidence"
+    assert "COLORIMETRY_INSUFFICIENT_EVIDENCE" in result["abstentions"]
     assert result["data"]["embedding"]["values"] == [0.6, 0.8]
     assert result["data"]["image"]["mime"] == "image/png"
     assert result["timing_ms"]["color"] >= 0
@@ -96,6 +117,7 @@ def test_visual_model_failure_returns_useful_partial(client, headers, app, image
             raise PipelineError("MODEL_UNAVAILABLE", "offline", 503)
 
     app.state.model_manager = Unavailable()
+    image_bytes = isolated_image_bytes()
     result = client.post(
         "/api/v1/garments/analyze",
         headers=headers,
@@ -106,7 +128,7 @@ def test_visual_model_failure_returns_useful_partial(client, headers, app, image
     assert result["data"]["colors"]["palette"]
     assert result["data"]["classification"]["top_k"] == []
     assert "embedding" not in result["data"]
-    assert result["abstentions"] == ["MODEL_UNAVAILABLE"]
+    assert result["abstentions"] == ["COLORIMETRY_INSUFFICIENT_EVIDENCE", "MODEL_UNAVAILABLE"]
 
 
 @pytest.mark.parametrize(

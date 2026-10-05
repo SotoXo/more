@@ -91,7 +91,7 @@ class MatiAiWorkflowTest extends TestCase
         ];
     }
 
-    private function run(string $operation, array $data = [], int $actor = 1): AiRun
+    private function workflowRun(string $operation, array $data = [], int $actor = 1): AiRun
     {
         $id = (string) Str::uuid();
         return app(AiReviewService::class)->persist($operation, $this->envelope($id, $data), $actor);
@@ -117,7 +117,7 @@ class MatiAiWorkflowTest extends TestCase
         $image = ImagenPrenda::create(['cod_prendas_igp' => $product->id_prenda, 'rut_igp' => 'productos/fixture.png']);
         Http::fake(function (ClientRequest $request) {
             return Http::response($this->envelope($request->header('X-Request-Id')[0], [
-                'quality' => [], 'colors' => [], 'classification' => ['top_k' => [['category_id' => 1, 'similarity_score' => 0.72]]],
+                'quality' => [], 'colors' => [], 'classification' => ['abstained' => false, 'top_k' => [['category_id' => 1, 'similarity_score' => 0.72]]],
                 'embedding' => ['model_id' => 'fixture', 'model_revision' => 'revision-1', 'values' => [0.2, 0.8]],
             ]));
         });
@@ -171,7 +171,7 @@ class MatiAiWorkflowTest extends TestCase
 
     public function test_feedback_is_bound_to_owner_and_does_not_save_commercial_data(): void
     {
-        $run = $this->run('analyze');
+        $run = $this->workflowRun('analyze', ['classification' => ['abstained' => false]]);
         $suggestion = AiSuggestion::create(['run_id' => $run->id, 'field' => 'category', 'value' => 1, 'label' => 'POLERA', 'source' => 'vision']);
         $this->actingAs($this->user(2))->postJson('/superadmin/ai/feedback', ['suggestion_id' => $suggestion->id, 'action' => 'accepted'])->assertNotFound();
         $this->actingAs($this->user())->postJson('/superadmin/ai/feedback', ['suggestion_id' => $suggestion->id, 'action' => 'corrected', 'confirmed_value' => 8])
@@ -185,7 +185,7 @@ class MatiAiWorkflowTest extends TestCase
     public function test_feedback_arriving_after_save_records_the_actual_saved_value_once(): void
     {
         $product = Prenda::create(['nom_pre' => 'VALOR GUARDADO']);
-        $run = $this->run('analyze');
+        $run = $this->workflowRun('analyze');
         $run->update(['prenda_id' => $product->id_prenda]);
         $suggestion = AiSuggestion::create([
             'run_id' => $run->id, 'field' => 'name', 'value' => 'PREDICCION', 'label' => 'PREDICCION', 'source' => 'external',
@@ -206,7 +206,7 @@ class MatiAiWorkflowTest extends TestCase
 
     public function test_external_references_use_persisted_urls_and_cannot_be_read_by_another_admin(): void
     {
-        $run = $this->run('external-search', ['candidates' => [[
+        $run = $this->workflowRun('external-search', ['candidates' => [[
             'source_id' => 'approved-source', 'canonical_url' => 'https://merchant.test/product',
             'images' => [['original_url' => 'https://merchant.test/photo.png', 'rights_status' => 'unknown']],
         ]]]);
@@ -237,7 +237,7 @@ class MatiAiWorkflowTest extends TestCase
 
     public function test_reference_with_unknown_rights_cannot_be_prepared_for_publication(): void
     {
-        $run = $this->run('external-search', ['candidates' => [[
+        $run = $this->workflowRun('external-search', ['candidates' => [[
             'source_id' => 'source', 'canonical_url' => 'https://merchant.test/product', 'rights_status' => 'unknown',
             'images' => [['original_url' => 'https://merchant.test/photo.png', 'rights_status' => 'unknown']],
         ]]]);
@@ -261,7 +261,7 @@ class MatiAiWorkflowTest extends TestCase
             'profile' => $profile, 'content_base64' => base64_encode($bytes),
             'sha256' => hash('sha256', $bytes), 'mime_type' => 'image/webp', 'width' => 4, 'height' => 4,
         ], ['thumbnail', 'card', 'detail']);
-        $run = $this->run('prepare-publication');
+        $run = $this->workflowRun('prepare-publication');
         $service = app(AiPublicationService::class);
         $prepared = $service->stage($run, $this->envelope($run->id, ['derivatives' => $derivatives]), $this->png(), [
             'rights_status' => 'owned', 'rights_evidence' => 'Carga propia aprobada', 'approved_by' => 1,
@@ -285,7 +285,7 @@ class MatiAiWorkflowTest extends TestCase
 
     public function test_prepared_token_requires_owner_approval_and_is_single_use(): void
     {
-        $run = $this->run('prepare-publication', ['provenance' => [
+        $run = $this->workflowRun('prepare-publication', ['provenance' => [
             'rights_status' => 'owned', 'rights_evidence' => 'Administrador', 'approved_by' => 1,
         ]]);
         $run->update(['expires_at' => now()->addHour()]);

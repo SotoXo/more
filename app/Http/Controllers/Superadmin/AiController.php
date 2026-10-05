@@ -7,6 +7,7 @@ use App\Models\AiRun;
 use App\Models\AiSuggestion;
 use App\Models\ImagenPrenda;
 use App\Services\AI\CatalogImageReader;
+use App\Services\AI\CatalogEmbeddingStore;
 use App\Services\AI\AiPublicationService;
 use App\Services\AI\AiReviewService;
 use App\Services\AI\CatalogAiService;
@@ -44,22 +45,123 @@ class AiController extends Controller
     {
         $actor = $this->actor($request);
         $data = $request->validate([
-            'image' => ['nullable', 'required_without:existing_image_id', 'prohibited_with:existing_image_id', 'file', 'mimes:jpg,jpeg,png,webp', 'max:'.config('mati_ai.max_image_kb')],
-            'existing_image_id' => ['nullable', 'required_without:image', 'prohibited_with:image', 'integer', 'min:1'],
+            'image' => ['nullable', 'required_without:existing_image_id', 'prohibits:existing_image_id', 'file', 'mimes:jpg,jpeg,png,webp', 'max:'.config('mati_ai.max_image_kb')],
+            'existing_image_id' => ['nullable', 'required_without:image', 'prohibits:image', 'integer', 'min:1', 'exists:imagenes_prenda,id_imagen_prenda'],
         ]);
-        $bytes = !empty($data['existing_image_id'])
-            ? app(CatalogImageReader::class)->read(ImagenPrenda::findOrFail($data['existing_image_id']))
+        $existingImage = !empty($data['existing_image_id']) ? ImagenPrenda::findOrFail($data['existing_image_id']) : null;
+        $bytes = $existingImage
+            ? app(CatalogImageReader::class)->read($existingImage)
             : $request->file('image')->getContent();
         $taxonomies = $this->catalog->taxonomies();
         $result = $this->client->request($operation, [...$taxonomies, 'include_embedding' => true], $bytes);
         if (!isset($result['error'])) {
             $query = $this->queryFromResult($result);
             $result = $this->withInternalMatches($result, $query);
-            if ($operation === 'analyze') $result['data']['duplicates'] = $this->catalog->duplicates(hash('sha256', $bytes));
+            if ($operation === 'analyze') {
+                $result['data']['duplicates'] = $this->catalog->duplicates(hash('sha256', $bytes));
+                $result = $this->withVisualSimilarities($result, $existingImage?->cod_prendas_igp, hash('sha256', $bytes));
+            }
         }
-        return $this->record($operation, $result, $actor, $taxonomies, ['sha256' => hash('sha256', $bytes)]);
+        return $this->record($operation, $result, $actor, $taxonomies, [
+            'sha256' => hash('sha256', $bytes), 'image_id' => $existingImage?->id_imagen_prenda,
+            'prenda_id' => $existingImage?->cod_prendas_igp,
+        ]);
     }
 
+    public function similar(Request $request, CatalogEmbeddingStore $vectors)
+    {
+        $actor = $this->actor($request);
+        $data = $request->validate([
+            'image' => ['nullable', 'required_without:existing_image_id', 'prohibits:existing_image_id', 'file', 'mimes:jpg,jpeg,png,webp', 'max:'.config('mati_ai.max_image_kb')],
+            'existing_image_id' => ['nullable', 'required_without:image', 'prohibits:image', 'integer', 'min:1', 'exists:imagenes_prenda,id_imagen_prenda'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:'.config('mati_ai.vectors.max_limit', 30)],
+        ]);
+        if (!$vectors->available()) {
+            $result = $this->localResult();
+            $result['status'] = 'degraded';
+            $result['warnings'] = ['VECTOR_STORE_UNAVAILABLE'];
+            $result['data'] = ['visual_similarities' => [], 'vector_search' => [
+                'status' => 'unavailable', 'metric' => 'cosine', 'exact' => true, 'total_candidates' => 0,
+            ]];
+            return response()->json($result);
+        }
+        $image = !empty($data['existing_image_id']) ? ImagenPrenda::findOrFail($data['existing_image_id']) : null;
+        $bytes = $image ? app(CatalogImageReader::class)->read($image) : $request->file('image')->getContent();
+        $result = $this->client->request('embedding', [], $bytes);
+        $result = $this->withVisualSimilarities(
+            $result, $image?->cod_prendas_igp, hash('sha256', $bytes),
+            (int) ($data['limit'] ?? config('mati_ai.vectors.default_limit', 12)),
+        );
+        // Search audits retain identity/results, not a duplicate copy of the query vector.
+        unset($result['data']['embedding']);
+        return $this->record('similar', $result, $actor, $this->catalog->taxonomies(), [
+            'sha256' => hash('sha256', $bytes), 'query_image_id' => $image?->id_imagen_prenda,
+        ]);
+    }
+
+    public function catalogImage(Request $request, ImagenPrenda $image)
+    {
+        $this->actor($request);
+        abort_unless($image->prenda?->est_pre, 404);
+        $bytes = app(CatalogImageReader::class)->read($image);
+        $mime = getimagesizefromstring($bytes)['mime'];
+        return response($bytes, 200, [
+            'Content-Type' => $mime, 'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Disposition' => 'inline; filename="prenda"',
+        ]);
+    }
+
+    private function withVisualSimilarities(array $result, ?int $excludePrenda, string $hash, ?int $limit = null): array
+    {
+        $embedding = data_get($result, 'data.embedding');
+        $result['data']['visual_similarities'] = [];
+        $result['data']['vector_search'] = ['status' => 'no_embedding', 'metric' => 'cosine', 'exact' => true, 'total_candidates' => 0];
+        if (!is_array($embedding) || empty($embedding['values'])) {
+            $result['warnings'][] = 'IMAGE_EMBEDDING_UNAVAILABLE';
+            return $result;
+        }
+        try {
+            $search = app(CatalogEmbeddingStore::class)->search($embedding, [
+                'limit' => $limit ?? config('mati_ai.vectors.default_limit', 12),
+                'exclude_prenda_id' => $excludePrenda, 'content_hash' => $hash,
+            ], $result['model'] ?? []);
+            $warnings = $search['warnings'] ?? [];
+            $status = ($search['status'] ?? '') === 'degraded' ? 'unavailable'
+                : (($search['total_candidates'] ?? 0) > 0 ? 'completed'
+                    : (in_array('VECTOR_COMPATIBLE_INDEX_EMPTY', $warnings, true) ? 'incompatible' : 'empty'));
+            $result['data']['vector_search'] = [
+                'status' => $status, 'metric' => 'cosine', 'exact' => true,
+                'total_candidates' => $search['total_candidates'] ?? 0,
+                'total_indexed' => $search['total_indexed'] ?? 0,
+                'dimension' => $search['dimensions'] ?? null,
+                'model_id' => $search['model_id'] ?? null, 'model_revision' => $search['model_revision'] ?? null,
+                'pipeline_version' => $search['pipeline_version'] ?? null,
+                'embedding_version' => $search['embedding_version'] ?? null,
+                'preprocess_version' => $search['preprocess_version'] ?? null,
+            ];
+            $result['data']['visual_similarities'] = array_map(function ($match) {
+                $prendaId = (int) $match['prenda_id'];
+                $imageId = !empty($match['image_id']) ? (int) $match['image_id'] : null;
+                return [
+                    'prenda_id' => $prendaId, 'image_id' => $imageId, 'title' => $match['title'],
+                    'image_url' => $imageId ? route('superadmin.ai.catalog-image', ['image' => $imageId], false) : null,
+                    'href' => '/superadmin/catalogo/prendas/'.$prendaId,
+                    'similarity_score' => $match['similarity_score'], 'distance' => $match['distance'],
+                    'possible_duplicate' => $match['possible_duplicate'] ?? false,
+                    'duplicate_evidence' => $match['duplicate_evidence'] ?? [],
+                ];
+            }, $search['matches'] ?? []);
+            $result['warnings'] = array_values(array_unique([...($result['warnings'] ?? []), ...$warnings]));
+            if ($status === 'unavailable' && $result['status'] === 'completed') $result['status'] = 'partial';
+        } catch (\Throwable) {
+            Log::warning('mati_ai.vector_search_failed', ['request_id' => $result['request_id']]);
+            $result['data']['vector_search']['status'] = 'unavailable';
+            $result['warnings'][] = 'VECTOR_SEARCH_UNAVAILABLE';
+            if ($result['status'] === 'completed') $result['status'] = 'partial';
+        }
+        return $result;
+    }
     private function queryFromResult(array $result): array
     {
         $codes = data_get($result, 'data.codes', []);
@@ -182,8 +284,8 @@ class AiController extends Controller
     {
         $actor = $this->actor($request);
         $data = $request->validate([
-            'approved' => ['required', 'accepted'], 'image' => ['nullable', 'required_without:external_run_id', 'prohibited_with:external_run_id', 'file', 'mimes:jpg,jpeg,png,webp', 'max:6144'],
-            'external_run_id' => ['nullable', 'required_without:image', 'prohibited_with:image', 'uuid'], 'candidate_index' => ['required_with:external_run_id', 'integer', 'min:0'],
+            'approved' => ['required', 'accepted'], 'image' => ['nullable', 'required_without:external_run_id', 'prohibits:external_run_id', 'file', 'mimes:jpg,jpeg,png,webp', 'max:6144'],
+            'external_run_id' => ['nullable', 'required_without:image', 'prohibits:image', 'uuid'], 'candidate_index' => ['required_with:external_run_id', 'integer', 'min:0'],
             'image_index' => ['required_with:external_run_id', 'integer', 'min:0'], 'rights_status' => ['nullable', Rule::in(AiPublicationService::RIGHTS)],
         ]);
         $provenance = ['rights_status' => 'owned', 'rights_evidence' => 'Carga propia aprobada por administrador', 'approved_by' => $actor, 'approved_at' => now()->toIso8601String()];
@@ -294,6 +396,10 @@ class AiController extends Controller
     {
         try {
             $run = $this->reviews->persist($operation, $result, $actor, $input);
+            if (!empty($input['prenda_id']) && !empty($input['image_id']) && $run->embedding) {
+                $run->update(['prenda_id' => (int) $input['prenda_id']]);
+                $this->reviews->indexSavedEmbeddingSafely($run, (int) $input['image_id']);
+            }
             $suggestions = $this->reviews->suggestions($run, $taxonomies);
             $result['data'] = $suggestions['data'];
             $result['suggestions'] = $suggestions['suggestions'];

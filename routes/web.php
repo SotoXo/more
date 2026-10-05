@@ -170,6 +170,9 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
             Route::post('/'.$operation, [\App\Http\Controllers\Superadmin\AiController::class, 'image'])
                 ->defaults('operation', $operation)->name($operation);
         }
+        Route::post('/similar', [\App\Http\Controllers\Superadmin\AiController::class, 'similar'])->name('similar');
+        Route::get('/catalog-image/{image}', [\App\Http\Controllers\Superadmin\AiController::class, 'catalogImage'])
+            ->whereNumber('image')->name('catalog-image');
         Route::post('/match', [\App\Http\Controllers\Superadmin\AiController::class, 'match'])->name('match');
         Route::post('/external-search', [\App\Http\Controllers\Superadmin\AiController::class, 'externalSearch'])->name('external-search');
         Route::post('/prepare-publication', [\App\Http\Controllers\Superadmin\AiController::class, 'preparePublication'])->name('prepare-publication');

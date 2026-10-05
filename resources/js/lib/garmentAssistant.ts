@@ -10,6 +10,40 @@ export type AiSuggestion = {
     confidence_score?: number | null;
     similarity_score?: number | null;
 };
+export type AiClassification = {
+    abstained?: boolean;
+    top_k?: { category_id?: string | number; category_name?: string; similarity_score?: number }[];
+    margin?: number | null;
+};
+export type AiVisualDecisionContext = {
+    status: string;
+    data: {
+        classification?: AiClassification;
+        attributes?: { pattern?: { name?: string; abstained?: boolean } | null; abstained?: boolean };
+    };
+};
+
+export function aiApplicableSuggestions(response: AiVisualDecisionContext & { suggestions?: AiSuggestion[] }): AiSuggestion[] {
+    return (response.suggestions ?? []).filter((suggestion) => {
+        if (suggestion.source !== 'vision' || !['category', 'pattern'].includes(suggestion.field)) return true;
+        if (!['completed', 'partial'].includes(response.status)) return false;
+        if (suggestion.field === 'category') return response.data.classification?.abstained === false;
+        const attributes = response.data.attributes;
+        return attributes?.pattern != null && attributes.pattern.abstained !== true && attributes.abstained !== true;
+    });
+}
+
+export function aiResultStatusLabel(status: string): string {
+    return ({ completed: 'Completado', partial: 'Parcial', insufficient_evidence: 'Evidencia insuficiente',
+        degraded: 'Servicio no disponible', failed: 'Error del servicio' } as Record<string, string>)[status] ?? 'Revisar resultado';
+}
+
+export function aiResultNotice(status: string): string | null {
+    return ({ partial: 'Resultado parcial: revisa las advertencias y completa los datos pendientes manualmente.',
+        insufficient_evidence: 'No hay evidencia suficiente para proponer estos datos. Puedes seleccionarlos manualmente.',
+        degraded: 'El servicio no está disponible. Puedes continuar y guardar la ficha manualmente.' } as Record<string, string>)[status] ?? null;
+}
+
 export type AiCatalogs = {
     categories: SuperadminFormFieldOption[];
     brands: SuperadminFormFieldOption[];
@@ -161,10 +195,39 @@ export function externalReferencePreviewUrl(value?: string): string | null {
     return value && /^\/superadmin\/ai\/external-reference\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/\d+\/\d+$/i.test(value) ? value : null;
 }
 
+export function visualSimilarityImageUrl(value?: string | null): string | null {
+    return value && /^\/superadmin\/ai\/catalog-image\/[1-9]\d*$/.test(value) ? value : null;
+}
+
+export function visualSimilarityScoreText(score?: number | null): string {
+    return typeof score === 'number' && Number.isFinite(score) && score >= -1 && score <= 1
+        ? score.toFixed(3) + ' · similitud visual' : 'Similitud visual sin puntuación';
+}
 export type AiWarning = string | { code?: string; message?: string };
 
 const warningMessages: Record<string, string> = {
+    TARGET_GARMENT_IDENTITY_UNVERIFIED: 'La imagen no verifica qué píxeles pertenecen a la prenda objetivo. La paleta es informativa; elige el color manualmente.',
     BACKGROUND_MAY_AFFECT_COLOR: 'El fondo puede alterar el color detectado. Comprueba el tono en la prenda.',
+    BACKGROUND_INTERFERENCE: 'No se pudo separar la prenda del fondo con suficiente fiabilidad. Usa una foto centrada sobre un fondo uniforme.',
+    FOREGROUND_TOO_SMALL: 'La prenda ocupa poco espacio en la foto. Acerca el encuadre para distinguir sus colores.',
+    MULTIPLE_FOREGROUND_REGIONS: 'Hay varias zonas que podrían pertenecer a objetos distintos. Fotografía una sola prenda para mejorar el análisis.',
+    GARMENT_MAY_BE_CROPPED: 'La prenda puede estar cortada por el encuadre. Los colores describen solo la parte visible.',
+    COLOR_OVEREXPOSURE_SUSPECTED: 'La luz puede haber aclarado demasiado los colores. Revisa una foto sin zonas quemadas.',
+    COLOR_UNDEREXPOSURE_SUSPECTED: 'La foto está demasiado oscura para identificar con fiabilidad el tono comercial.',
+    COLOR_CHANNEL_CLIPPING: 'La imagen perdió detalle en algunos tonos por la exposición. Revisa el color con luz uniforme.',
+    WARM_LIGHTING_SUSPECTED: 'La iluminación parece muy cálida y puede volver los tonos más amarillos. Comprueba el color de la prenda.',
+    COOL_LIGHTING_SUSPECTED: 'La iluminación parece muy fría y puede volver los tonos más azules. Comprueba el color de la prenda.',
+    WHITE_BALANCE_SUSPECTED: 'La iluminación puede estar alterando el equilibrio de los colores. No hay un tono comercial confirmado.',
+    NO_SINGLE_DOMINANT_COLOR: 'La prenda presenta varios colores sin un único dominante fiable. Conserva y revisa la paleta completa.',
+    PALETTE_COVERAGE_LOW: 'La paleta resume solo parte de los colores visibles. Los porcentajes son aproximados.',
+    CATALOG_MATCH_AMBIGUOUS: 'Varios colores del catálogo son parecidos al tono observado. Elige el color comercial manualmente.',
+    CATALOG_COLOR_UNMATCHED: 'Algún tono observado no coincide suficientemente con los colores disponibles en el catálogo.',
+    CATALOG_REFERENCE_APPROXIMATE: 'Alguna referencia de color del catálogo es aproximada. Confirma el tono antes de aplicarlo.',
+    METALLIC_FINISH_NOT_VERIFIABLE: 'La fotografía no permite confirmar un acabado metalizado. Revisa el material y el brillo de la prenda.',
+    COLOR_PROPERTIES_UNCERTAIN: 'La calidad o la iluminación impiden describir con fiabilidad las propiedades de color.',
+    COLORIMETRY_INSUFFICIENT_EVIDENCE: 'No hay evidencia suficiente para analizar los colores de la prenda con fiabilidad. Puedes elegirlos manualmente o volver a fotografiarla.',
+    COLORIMETRY_PARTIAL_EVIDENCE: 'El análisis de color es parcial. Revisa la paleta y los avisos antes de elegir un color del catálogo.',
+    COLORIMETRY_INVALID_RESPONSE: 'No se pudo interpretar la colorimetría. Revisa los colores manualmente.',
     CATEGORY_LOW_MARGIN_OR_SIMILARITY: 'No hay suficiente diferencia entre las categorías sugeridas. Elige la categoría manualmente.',
     VISUAL_MODEL_UNAVAILABLE_MANUAL_ENTRY_AVAILABLE: 'El análisis visual no está disponible. Puedes continuar completando los datos manualmente.',
     MODEL_UNAVAILABLE: 'El análisis visual no está disponible en este momento.',
@@ -185,6 +248,14 @@ const warningMessages: Record<string, string> = {
     MODEL_CODE_CONFLICT: 'El modelo del candidato no coincide con el modelo buscado.',
     MODEL_CONFLICT: 'El modelo del candidato no coincide con el modelo buscado.',
     EMBEDDING_MODEL_MISMATCH: 'Estas imágenes se analizaron con modelos distintos y no se compararon visualmente.',
+    VECTOR_STORE_UNAVAILABLE: 'La búsqueda visual no está disponible en este momento. Puedes continuar con el registro manual.',
+    VECTOR_INDEX_EMPTY: 'Todavía no hay prendas preparadas para comparar por fotografía. Puedes buscar en el catálogo o completar la ficha manualmente.',
+    VECTOR_COMPATIBLE_INDEX_EMPTY: 'Las prendas disponibles todavía no se pueden comparar con esta foto. Requieren un análisis compatible.',
+    VECTOR_SEARCH_UNAVAILABLE: 'No fue posible consultar prendas similares. Puedes continuar y guardar la ficha manualmente.',
+    IMAGE_EMBEDDING_UNAVAILABLE: 'No se pudo preparar la fotografía para compararla. Prueba otra foto o continúa manualmente.',
+    NO_SIMILAR_PRODUCTS_ABOVE_THRESHOLD: 'No se encontraron prendas con suficiente parecido visual. Puedes buscar por código o continuar manualmente.',
+    VISUAL_SIMILARITY_DOES_NOT_CONFIRM_IDENTITY: 'El parecido visual no confirma que sea la misma prenda. Revisa las fotos y los datos del catálogo.',
+    NO_COMPATIBLE_CATALOG_EMBEDDINGS: 'Las prendas disponibles todavía no se pueden comparar con esta foto. Requieren un análisis compatible.',
     NO_EXTERNAL_SOURCES_CONFIGURED: 'Todavía no hay fuentes externas configuradas para consultar.',
     SOURCE_NOT_CONFIGURED: 'Esta fuente externa no está configurada para consulta.',
     INSUFFICIENT_SEARCH_EVIDENCE: 'Escribe un código, modelo o texto de etiqueta para orientar la búsqueda.',

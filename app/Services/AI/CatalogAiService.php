@@ -2,7 +2,6 @@
 
 namespace App\Services\AI;
 
-use App\Models\AiRun;
 use App\Models\Categoria;
 use App\Models\Color;
 use App\Models\ImagenPrenda;
@@ -20,7 +19,12 @@ class CatalogAiService
         return [
             'categories' => Categoria::where('est_cat', true)->get()->map(fn ($v) => ['id' => $v->id_categoria, 'name' => $v->nom_cat])->all(),
             'brands' => Marca::where('est_mar', true)->get()->map(fn ($v) => ['id' => $v->id_marca, 'name' => $v->nom_mar])->all(),
-            'colors' => Color::where('est_col', true)->get()->map(fn ($v) => ['id' => $v->id_color, 'name' => $v->nom_col, 'hex' => $v->hex_dom_col ?: $v->hex_col])->all(),
+            'colors' => Color::where('est_col', true)->orderBy('ord_col')->orderBy('id_color')->get()->map(fn ($v) => [
+                'id' => $v->id_color, 'name' => $v->nom_col,
+                // Match the exact commercial shade; the family swatch is separate evidence.
+                'hex' => $v->hex_col,
+                'family' => $v->fam_col, 'family_hex' => $v->hex_dom_col,
+            ])->all(),
             'sizes' => Talla::where('est_tal', true)->get()->map(fn ($v) => ['id' => $v->id_talla, 'name' => $v->nom_tal])->all(),
             'patterns' => Patron::where('est_pat', true)->get()->map(fn ($v) => ['id' => $v->id_patron, 'name' => $v->nom_pat])->all(),
         ];
@@ -54,11 +58,24 @@ class CatalogAiService
         })->limit(100)->get();
         $soft = (clone $base)->when(filled($query['category_id'] ?? null), fn ($q) => $q->whereHas('prenda', fn ($p) => $p->where('cod_categorias_pre', $query['category_id'])))
             ->limit(config('mati_ai.candidate_limit', 100))->get();
-        return $exact->concat($soft)->unique('id_prenda_variante')->map(function ($v) {
-            $embedding = Schema::hasTable('ai_runs') ? AiRun::where('prenda_id', $v->cod_prendas_prv)->whereNotNull('embedding')->latest()->value('embedding') : null;
-            if (is_string($embedding)) {
-                $embedding = json_decode($embedding, true);
+        $vectors = app(CatalogEmbeddingStore::class);
+        $queryEmbedding = $query['embedding'] ?? null;
+        $useVectors = is_array($queryEmbedding) && $vectors->available();
+        $embeddings = [];
+        return $exact->concat($soft)->unique('id_prenda_variante')->map(function ($v) use ($vectors, $queryEmbedding, $useVectors, &$embeddings) {
+            $productId = (int) $v->cod_prendas_prv;
+            if (!array_key_exists($productId, $embeddings)) {
+                $embeddings[$productId] = null;
+                if ($useVectors) {
+                    try {
+                        $embeddings[$productId] = $vectors->latestCompatibleForProduct($productId, $queryEmbedding)?->toEmbedding();
+                    } catch (\Throwable) {
+                        // Text and exact-code matching remain usable if vectors are unavailable.
+                        $embeddings[$productId] = null;
+                    }
+                }
             }
+            $embedding = $embeddings[$productId];
             return [
                 'candidate_id' => (string) $v->id_prenda_variante,
                 'prenda_id' => $v->cod_prendas_prv,

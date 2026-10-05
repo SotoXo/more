@@ -9,4 +9,12 @@ return [
     'max_image_kb' => 6144,
     'candidate_limit' => 100,
     'prepared_ttl_hours' => 24,
+    'vectors' => [
+        'enabled' => env('MATI_AI_VECTOR_ENABLED', true),
+        'default_limit' => 12,
+        'max_limit' => 30,
+        'max_dimensions' => 16000,
+        // Heuristic candidate flag; similarity is never an identity probability.
+        'duplicate_similarity_threshold' => (float) env('MATI_AI_DUPLICATE_SIMILARITY', 0.98),
+    ],
 ];

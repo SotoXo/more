@@ -29,6 +29,13 @@ El middleware ASGI cuenta los bytes realmente recibidos, incluidos cuerpos por f
 
 Las fuentes externas permanecen desactivadas hasta configurar dominios, permiso de uso, términos revisados y un adaptador. Consultar la guía antes de habilitarlas. Las URLs QR solo son datos y no se visitan automáticamente.
 
+## Colorimetría de prendas
+
+El análisis existente evoluciona con `data.colorimetry`, conservando `data.colors` y el contrato HTTP v1. La fase de colorimetría introdujo `registration-1.1.0`; la fase vectorial actual utiliza `registration-1.2.0`. El algoritmo tiene su propia versión `garment-colorimetry-1.0.0`. `capabilities` identifica la capacidad, su ámbito exclusivo de prendas, CIELAB y CIEDE2000.
+
+La extracción determinista usa una máscara conservadora de primer plano, una paleta perceptual y propiedades cromáticas con evidencia de fondo/iluminación. Una separación insegura produce abstención y avisos; no genera IDs comerciales. Laravel proporciona los colores activos con su HEX específico, conserva la autoridad del catálogo y guarda el resultado en las tablas IA existentes.
+
+Guía de esta fase y limitaciones: [03_colorimetria_prendas.md](../../DOCUMENTACION/IA/IMPLEMENTACION/03_colorimetria_prendas.md). Los originales no se modifican. Esta fase no incorpora análisis de personas, outfits, recomendaciones, tendencias ni VTO. La validación de la entrega queda pendiente del administrador.
 ## Medición opcional por el administrador
 
 Después de preparar los pesos, el administrador puede medir imágenes reales de su entorno:
@@ -55,3 +62,18 @@ MATI_AI_RUN_MODEL_TESTS=1 uv run pytest -m model_integration
 ```
 
 Estos comandos no se ejecutaron al cerrar esta entrega, por instrucción del usuario. Los tests escritos no equivalen a una validación final. El test de integración real tiene un marcador separado; las mediciones de producción requieren fotografías y hardware del entorno de destino.
+## Embeddings persistentes y pgvector
+
+PostgreSQL sigue siendo la base principal; Laravel instala la extensión `vector`, persiste `ai_product_embeddings` y ejecuta búsquedas coseno exactas. FastAPI no recibe credenciales PostgreSQL: su nuevo `POST /api/v1/garments/embedding` devuelve únicamente el embedding de la imagen y su identidad completa. React utiliza Laravel mediante `POST /superadmin/ai/similar`.
+
+La dimensión del checkpoint SigLIP preparado es 768, constatada leyendo sus pesos locales sin inferencia. Cada vector generado declara su longitud real; la tabla permite espacios versionados con distintas dimensiones y comprueba `vector_dims(embedding) = dimensions`. Se exige revisión inmutable del modelo y coincidencia de modelo, revisión, pipeline, dimensión y perfil de preprocesado para comparar.
+
+`mati-ai:index-catalog` incorpora lotes, reanudación, actualización idempotente y recuperación de JSON históricos con `--from-runs`. No se añaden índices HNSW. Instalación, comandos que debe ejecutar el administrador, consulta, archivos, limitaciones y estado de entrega: [04_embeddings_pgvector.md](../../DOCUMENTACION/IA/IMPLEMENTACION/04_embeddings_pgvector.md).
+
+## Compatibilidad cromática entre prendas
+
+`POST /api/v1/garments/compatibility` compara dos objetos `data.colorimetry` existentes mediante reglas explícitas versionadas `garment-compatibility-1.0.0`. Recibe JSON y patrones opcionales; no abre imágenes ni carga modelos visuales. Devuelve score heurístico 0–100 (o `null` por evidencia insuficiente), armonías, componentes, explicaciones, advertencias y evidencia. El score sirve como señal de ranking y no como porcentaje de certeza.
+
+Las reglas cubren monocromática, análoga, complementaria, complementaria dividida, triádica, neutros, neutro + acento y contraste claro/oscuro. Laravel incorpora `GarmentCompatibilityService::compare()` para consumir snapshots de colorimetría; esta fase no añade UI, persistencia de pares ni generación de outfits. No analiza personas, rostros ni VTO y no incorpora Redis, tendencias ni recomendaciones personales.
+
+Algoritmo, constantes, versionado, API, integración, archivos, limitaciones y estado: [05_compatibilidad_cromatica.md](../../DOCUMENTACION/IA/IMPLEMENTACION/05_compatibilidad_cromatica.md). La implementación queda pendiente de validación por el usuario; no se ejecutaron tests ni validación final y no se hizo commit ni push.

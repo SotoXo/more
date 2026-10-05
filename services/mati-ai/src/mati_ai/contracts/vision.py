@@ -7,6 +7,8 @@ class CatalogValue(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     aliases: list[str] = Field(default_factory=list, max_length=8)
     hex: str | None = Field(default=None, pattern=r"^#?[0-9a-fA-F]{6}$")
+    family: str | None = Field(default=None, max_length=160)
+    family_hex: str | None = Field(default=None, pattern=r"^#?[0-9a-fA-F]{6}$")
 
 
 class CategoryPrediction(BaseModel):
