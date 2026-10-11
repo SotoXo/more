@@ -1,0 +1,156 @@
+{
+  "artifact_type": "vocabulary",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "concepts": [
+    {
+      "canonical_id": "value.pattern.solid",
+      "label_es": "Liso",
+      "label_en": "Solid",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Sin motivo repetido visible; no implica textura lisa.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.striped",
+      "label_es": "Rayas",
+      "label_en": "Striped",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Motivo de líneas repetidas; dirección y escala pueden anotarse aparte.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.check",
+      "label_es": "Cuadros",
+      "label_en": "Check",
+      "aliases_es": [],
+      "aliases_en": [
+        "checked",
+        "checks"
+      ],
+      "definition": "Motivo de cuadrícula por líneas cruzadas; término padre de variantes.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.tartan",
+      "label_es": "Tartán",
+      "label_en": "Tartan",
+      "aliases_es": [
+        "cuadros tartán"
+      ],
+      "aliases_en": [],
+      "definition": "Motivo de bandas cruzadas multicolor tipo tartán; sin atribuir clan o autenticidad.",
+      "parent_id": "value.pattern.check",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.gingham",
+      "label_es": "Vichy",
+      "label_en": "Gingham",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Cuadriculado regular de bloques alternados; composición desconocida.",
+      "parent_id": "value.pattern.check",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.windowpane",
+      "label_es": "Cuadro ventana",
+      "label_en": "Windowpane",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Cuadrícula de líneas separadas con campos amplios.",
+      "parent_id": "value.pattern.check",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.floral",
+      "label_es": "Floral",
+      "label_en": "Floral",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Motivo con formas florales identificables.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.animal_print",
+      "label_es": "Estampado animal",
+      "label_en": "Animal print",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Motivo que imita piel, manchas o rayado animal; no material animal.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.polka_dot",
+      "label_es": "Lunares",
+      "label_en": "Polka dot",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Motivo de puntos repetidos.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.graphic",
+      "label_es": "Gráfico",
+      "label_en": "Graphic",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Elementos pictóricos, texto o iconografía visible.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.abstract",
+      "label_es": "Abstracto",
+      "label_en": "Abstract",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Motivo no figurativo sin equivalencia a motivo más específico.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.geometric",
+      "label_es": "Geométrico",
+      "label_en": "Geometric",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Formas geométricas repetidas distintas de rayas/cuadros/puntos.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    },
+    {
+      "canonical_id": "value.pattern.camouflage",
+      "label_es": "Camuflaje",
+      "label_en": "Camouflage",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Motivo visual de manchas entrelazadas de identidad camuflaje.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "pattern"
+    }
+  ]
+}

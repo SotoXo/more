@@ -1,0 +1,543 @@
+{
+  "schema_version": "mati-commercial-category-snapshot-1",
+  "captured_utc": "2026-10-05T15:14:55+00:00",
+  "read_only": true,
+  "authority": "Laravel/PostgreSQL commercial; SELECT-only exported snapshot",
+  "source_path": "storage/app/ai-rag/catalog-master-baseline.json",
+  "source_sha256": "8079a475b267cbeb99c2e8387d2e011dc92c2bc719f06f97ffbac37853033099",
+  "categories": [
+    {
+      "id_categoria": 1,
+      "nom_cat": "ABRIGOS",
+      "des_cat": "Abrigos, capas y piezas de exterior.",
+      "est_cat": true,
+      "tip_tal_cat": "ALFA",
+      "gru_tal_cat": "SUPERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 2,
+      "nom_cat": "BLAZERS",
+      "des_cat": "Sastreria ligera y blazers de estructura definida.",
+      "est_cat": true,
+      "tip_tal_cat": "ALFA",
+      "gru_tal_cat": "SUPERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 3,
+      "nom_cat": "CAMISAS",
+      "des_cat": "Camisas y piezas de botonadura.",
+      "est_cat": true,
+      "tip_tal_cat": "ALFA",
+      "gru_tal_cat": "SUPERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 4,
+      "nom_cat": "BLUSAS",
+      "des_cat": "Blusas fluidas y piezas de caida suave.",
+      "est_cat": true,
+      "tip_tal_cat": "ALFA",
+      "gru_tal_cat": "SUPERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 5,
+      "nom_cat": "VESTIDOS",
+      "des_cat": "Vestidos de linea diaria, evento y ocasion.",
+      "est_cat": true,
+      "tip_tal_cat": "ALFA",
+      "gru_tal_cat": "SUPERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 6,
+      "nom_cat": "FALDAS",
+      "des_cat": "Faldas para look diario, oficina o ocasion.",
+      "est_cat": true,
+      "tip_tal_cat": "NUMERICA",
+      "gru_tal_cat": "INFERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 7,
+      "nom_cat": "PANTALONES",
+      "des_cat": "Pantalones sastreros, rectos y de silueta amplia.",
+      "est_cat": true,
+      "tip_tal_cat": "NUMERICA",
+      "gru_tal_cat": "INFERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 8,
+      "nom_cat": "POLOS Y KNITWEAR",
+      "des_cat": "Punto ligero, knitwear y polos de base.",
+      "est_cat": true,
+      "tip_tal_cat": "ALFA",
+      "gru_tal_cat": "SUPERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 9,
+      "nom_cat": "ACCESORIOS",
+      "des_cat": "Complementos de styling y piezas de apoyo.",
+      "est_cat": true,
+      "tip_tal_cat": "UNICA",
+      "gru_tal_cat": "GENERAL",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 10,
+      "nom_cat": "CONJUNTOS",
+      "des_cat": "Sets coordinados y propuestas armadas.",
+      "est_cat": true,
+      "tip_tal_cat": "ALFA",
+      "gru_tal_cat": "SUPERIOR",
+      "cod_categoria_padre_cat": null
+    },
+    {
+      "id_categoria": 11,
+      "nom_cat": "POLERA",
+      "des_cat": null,
+      "est_cat": true,
+      "tip_tal_cat": "ALFA",
+      "gru_tal_cat": null,
+      "cod_categoria_padre_cat": null
+    }
+  ],
+  "sizes": [
+    {
+      "id_talla": 1,
+      "nom_tal": "UNITALLA",
+      "seg_tal": "ADULTO",
+      "sis_tal": "UNICA",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 2,
+      "nom_tal": "XS",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 3,
+      "nom_tal": "S",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 4,
+      "nom_tal": "M",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 5,
+      "nom_tal": "L",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 6,
+      "nom_tal": "XL",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 7,
+      "nom_tal": "XXL",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 8,
+      "nom_tal": "32",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 9,
+      "nom_tal": "34",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 10,
+      "nom_tal": "36",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 11,
+      "nom_tal": "38",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 12,
+      "nom_tal": "40",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 13,
+      "nom_tal": "42",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 14,
+      "nom_tal": "44",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 15,
+      "nom_tal": "46",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 16,
+      "nom_tal": "48",
+      "seg_tal": "ADULTO",
+      "sis_tal": "NUMERICA",
+      "gru_tal": "INFERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 17,
+      "nom_tal": "XXXS",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 18,
+      "nom_tal": "XXS",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 19,
+      "nom_tal": "XXXL",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 20,
+      "nom_tal": "XXXXL",
+      "seg_tal": "ADULTO",
+      "sis_tal": "ALFA",
+      "gru_tal": "SUPERIOR",
+      "est_tal": true
+    },
+    {
+      "id_talla": 21,
+      "nom_tal": "6 US",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_US",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 22,
+      "nom_tal": "6.5 US",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_US",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 23,
+      "nom_tal": "7 US",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_US",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 24,
+      "nom_tal": "7.5 US",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_US",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 25,
+      "nom_tal": "8 US",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_US",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 26,
+      "nom_tal": "8.5 US",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_US",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 27,
+      "nom_tal": "9 US",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_US",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 28,
+      "nom_tal": "36 EU",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_EU",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 29,
+      "nom_tal": "37 EU",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_EU",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 30,
+      "nom_tal": "38 EU",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_EU",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 31,
+      "nom_tal": "39 EU",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_EU",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 32,
+      "nom_tal": "40 EU",
+      "seg_tal": "ADULTO",
+      "sis_tal": "CALZADO_EU",
+      "gru_tal": "CALZADO",
+      "est_tal": true
+    },
+    {
+      "id_talla": 33,
+      "nom_tal": "2A",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "EDAD",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 34,
+      "nom_tal": "3A",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "EDAD",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 35,
+      "nom_tal": "4A",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "EDAD",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 36,
+      "nom_tal": "5A",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "EDAD",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 37,
+      "nom_tal": "6A",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "EDAD",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 38,
+      "nom_tal": "8A",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "EDAD",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 39,
+      "nom_tal": "10A",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "EDAD",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 40,
+      "nom_tal": "12A",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "EDAD",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 41,
+      "nom_tal": "92 CM",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "ALTURA_CM",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 42,
+      "nom_tal": "98 CM",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "ALTURA_CM",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 43,
+      "nom_tal": "104 CM",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "ALTURA_CM",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 44,
+      "nom_tal": "110 CM",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "ALTURA_CM",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 45,
+      "nom_tal": "116 CM",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "ALTURA_CM",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 46,
+      "nom_tal": "122 CM",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "ALTURA_CM",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 47,
+      "nom_tal": "128 CM",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "ALTURA_CM",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 48,
+      "nom_tal": "0-3M",
+      "seg_tal": "BEBE",
+      "sis_tal": "MESES",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 49,
+      "nom_tal": "3-6M",
+      "seg_tal": "BEBE",
+      "sis_tal": "MESES",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 50,
+      "nom_tal": "6-9M",
+      "seg_tal": "BEBE",
+      "sis_tal": "MESES",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 51,
+      "nom_tal": "9-12M",
+      "seg_tal": "BEBE",
+      "sis_tal": "MESES",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 52,
+      "nom_tal": "12-18M",
+      "seg_tal": "BEBE",
+      "sis_tal": "MESES",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 53,
+      "nom_tal": "18-24M",
+      "seg_tal": "BEBE",
+      "sis_tal": "MESES",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    },
+    {
+      "id_talla": 54,
+      "nom_tal": "XXXXXXXXL",
+      "seg_tal": "INFANTIL",
+      "sis_tal": "ALFA",
+      "gru_tal": "GENERAL",
+      "est_tal": true
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -10,6 +12,17 @@ from mati_ai.core.http import RequestContextMiddleware
 from mati_ai.core.model_manager import ModelManager
 from mati_ai.enrichment.api import router as enrichment_router
 from mati_ai.identification.ocr import EasyOCRProvider
+from mati_ai.rag.api import router as rag_router
+from mati_ai.rag.service import TextEmbeddingService
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        yield
+    finally:
+        app.state.text_embedding_service.close()
+
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -19,10 +32,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
+        lifespan=lifespan,
     )
     app.state.settings = settings or Settings()
     app.state.model_manager = ModelManager(app.state.settings)
     app.state.ocr_provider = EasyOCRProvider(app.state.settings)
+    app.state.text_embedding_service = TextEmbeddingService(app.state.settings)
 
     app.add_middleware(RequestContextMiddleware, settings=app.state.settings)
 
@@ -80,6 +95,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(router)
     app.include_router(enrichment_router)
+    app.include_router(rag_router)
     return app
 
 

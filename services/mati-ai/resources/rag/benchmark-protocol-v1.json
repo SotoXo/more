@@ -1,0 +1,117 @@
+{
+  "candidates": [
+    {
+      "dimensions": 384,
+      "document_prefix": "passage: ",
+      "id": "e5-small",
+      "license": "mit",
+      "max_length": 512,
+      "model_id": "intfloat/multilingual-e5-small",
+      "normalization": "l2",
+      "ood_cosine_min": 0.74,
+      "pooling": "attention_mask_mean",
+      "preprocess_version": "text-nfc-strip-meanpool-l2-e5querypassage512-1",
+      "query_prefix": "query: ",
+      "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "weights_bytes": 470641600,
+      "weights_sha256": "1a55775f53449dac10a2bcbc312469fac40b96d53198c407081a831f81c98477"
+    },
+    {
+      "dimensions": 384,
+      "document_prefix": "",
+      "id": "minilm",
+      "license": "apache-2.0",
+      "max_length": 128,
+      "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "normalization": "l2",
+      "ood_cosine_min": 0.35,
+      "pooling": "attention_mask_mean",
+      "preprocess_version": "text-nfc-strip-meanpool-l2-minilm128-1",
+      "query_prefix": "",
+      "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "weights_bytes": 470641600,
+      "weights_sha256": "eaa086f0ffee582aeb45b36e34cdd1fe2d6de2bef61f8a559a1bbc9bd955917b"
+    },
+    {
+      "dimensions": 768,
+      "document_prefix": "passage: ",
+      "id": "e5-base",
+      "license": "mit",
+      "max_length": 512,
+      "model_id": "intfloat/multilingual-e5-base",
+      "normalization": "l2",
+      "ood_cosine_min": 0.74,
+      "pooling": "attention_mask_mean",
+      "preprocess_version": "text-nfc-strip-meanpool-l2-e5querypassage512-1",
+      "query_prefix": "query: ",
+      "revision": "d128750597153bb5987e10b1c3493a34e5a4502a",
+      "weights_bytes": 1112201288,
+      "weights_sha256": "a18a44fad1d0b46ded15928144138cff1135d5cc8233bdd90be5f18822de09a7"
+    }
+  ],
+  "corpus_path": "services/mati-ai/resources/rag/corpus-v1.json",
+  "corpus_sha256": "d1fd24f3a18e9c169c6197e6bf12da8a663359010ffc271c33918eb8893a3fe2",
+  "determinism_repetitions": 3,
+  "device": "cpu",
+  "document_batch_size": 1,
+  "dtype": "float32",
+  "evaluation_path": "services/mati-ai/resources/rag/evaluation-v1.json",
+  "evaluation_sha256": "c09509b42e33622e9613ba2f64207947d78b62260d355f63da3c951304b6bdb4",
+  "frozen_at_utc": "2026-10-05T17:12:12.207102+00:00",
+  "gate": {
+    "cold_load_ms_max": 20000,
+    "english_recall_at_3_min": 0.6,
+    "errors_max": 0,
+    "incremental_peak_rss_mib_max": 2048,
+    "license_acceptable_required": true,
+    "mrr_min": 0.6,
+    "ndcg_at_3_min": 0.65,
+    "offline_pinned_native_required": true,
+    "recall_at_3_min": 0.75,
+    "spanish_recall_at_3_min": 0.75,
+    "vram_mib_max": 0,
+    "warm_query_p95_ms_max": 500
+  },
+  "inference_network": "none",
+  "limitations": [
+    "Small Codex-curated relevance proposal, pending Mati domain review; not human ground truth",
+    "No post-result changes to queries, relevance, candidates, prefixes, gates or floors",
+    "Load time excludes explicit prior model preparation and hash verification"
+  ],
+  "query_repetitions": 1,
+  "rag_gate": {
+    "cosine_interpretation": "uncalibrated similarity, not probability",
+    "dynamic_queries": "insufficient_evidence with requires_tool and no chunks",
+    "end_to_end_warm_p95_ms_max": 1500,
+    "fixed_cosine_floors": {
+      "e5-base": 0.74,
+      "e5-small": 0.74,
+      "minilm": 0.35
+    },
+    "hybrid": "RRF k60 only cosine-floor eligible rows or normalized whole-query exact category name/alias",
+    "mrr_min": 0.6,
+    "ndcg_at_3_min": 0.65,
+    "negative_abstention_min": 0.9,
+    "positive_coverage_min": 0.8,
+    "provenance_required_fraction": 1.0,
+    "recall_at_3_min": 0.75,
+    "sql_numpy_top_k": "exact agreement except numerical ties",
+    "stale_or_duplicate_rows_max": 0
+  },
+  "random_seed": 0,
+  "schema_version": "mati-text-benchmark-1",
+  "threads": 4,
+  "trust_remote_code": false,
+  "version": "1.0.0",
+  "winner_rule": {
+    "eligible": "all gate criteria pass",
+    "near_latency_tie": "highest ndcg_at_3 among candidates within 10% of minimum p95",
+    "near_latency_tie_relative": 0.1,
+    "primary": "lowest warm query p95",
+    "remaining_tie": [
+      "highest mrr",
+      "lowest incremental peak RSS",
+      "lexicographic candidate ID"
+    ]
+  }
+}

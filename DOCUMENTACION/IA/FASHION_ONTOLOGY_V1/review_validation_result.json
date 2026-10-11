@@ -1,0 +1,50 @@
+{
+  "valid": true,
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "counts": {
+    "families": 12,
+    "categories": 47,
+    "subcategories": 22,
+    "attributes": 69,
+    "styles": 14,
+    "materials": 20,
+    "patterns": 13,
+    "body_zones": 18,
+    "relations": 97,
+    "concepts": 454
+  },
+  "checks": {
+    "parse": "PASS",
+    "schema": "PASS",
+    "unique_ids": "PASS",
+    "references_and_hierarchy": "PASS",
+    "aliases": "PASS",
+    "applicability_and_labels": "PASS",
+    "relationships": "PASS",
+    "body_zones_and_layering": "PASS",
+    "commercial_mapping": "PASS",
+    "commercial_season_mapping": "PASS",
+    "exported_matrices": "PASS",
+    "product_intelligence": "PASS",
+    "hashes_and_summary": "PASS",
+    "human_policies": "PASS",
+    "governance": "PASS"
+  },
+  "errors": [],
+  "read_only": true,
+  "domain_freeze_approved": false,
+  "validation_scope": {
+    "commercial_categories": "Exact IDs, names and SHA256 of the declared read-only source snapshot",
+    "commercial_seasons": "Documentary mapping structure, unique IDs and semantic references; no live season snapshot provided",
+    "domain_review": "Schema and semantic consistency do not approve human domain freeze"
+  },
+  "executed_command": [
+    "C:\\Users\\Usuario\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "services/mati-ai/scripts/fashion_ontology/validate_fashion_ontology.py"
+  ],
+  "exit_code": 0,
+  "executed_utc": "2026-10-08T21:00:20.944199+00:00",
+  "artifacts_unchanged_by_validator": true
+}

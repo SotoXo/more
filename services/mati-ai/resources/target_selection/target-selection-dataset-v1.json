@@ -1,0 +1,48 @@
+{
+  "schema_version": "target-selection-dataset-manifest-1",
+  "dataset_name": "target_selection_dataset_v1",
+  "status": "design_only_not_exported_not_trainable",
+  "snapshot_date": null,
+  "event_ids": [],
+  "model_versions": [],
+  "feature_schema": "target-predecision-features-1",
+  "event_schema": "target-human-selection-event-1",
+  "label_policy": "one_human_choice_complete_group-1",
+  "grouping": ["run_id", "image_sha256", "product_identity_when_known"],
+  "split_policy": {
+    "type": "grouped_holdout_then_validation",
+    "group_keys": ["image_sha256", "duplicate_image_component", "product_id_when_known"],
+    "keep_complete_candidate_groups_together": true,
+    "split_before_preprocessing_fit": true,
+    "percentages": null,
+    "reason_percentages_unset": "No real independent human target events or sufficient sample size exist."
+  },
+  "predecision_features": [
+    "candidate_id", "external_class", "detector_score", "detector_score_kind",
+    "bbox", "area_ratio", "center_distance", "border_touch", "mask",
+    "broader_role", "taxonomy_version", "visual_embedding_reference",
+    "category_hint_before", "detector", "segmenter"
+  ],
+  "labels_only_never_features": ["selected", "final_product_category"],
+  "provenance_only_never_predictive_features": [
+    "event_id", "action_id", "actor_id", "group_id", "image_sha256", "snapshot_sha256", "created_at"
+  ],
+  "exclusions": [
+    "synthetic_test_event", "Codex_assisted_not_human", "attribute_feedback_not_target_selection",
+    "duplicate_or_replayed_event", "incomplete_candidate_group", "missing_or_unverified_lineage",
+    "stale_photo_or_generation", "unknown_owner_or_run", "expired_snapshot",
+    "invalid_geometry_or_mask", "mixed_model_or_preprocess_identity", "postdecision_features",
+    "unresolved_contradictory_human_choices", "missing_privacy_or_retention_authorization"
+  ],
+  "training_preconditions": [
+    "Resolve AUD-10/FE-03/LAR-04 feedback idempotency for target action capture",
+    "Resolve AUD-14/FE-02 photo A to B invalidation and late response selection",
+    "Validate AUD-15/FE-06 nested response and candidate contract",
+    "Validate source run, actor ownership, image bytes SHA, mask digest, generation and TTL",
+    "Ensure transactional complete snapshot and human choice lineage (LAR-07)",
+    "Deduplicate SHA exhaustively and protect from rewritten image bytes (LAR-03/LAR-05, AUD-12)",
+    "Audit genuinely human selections and independent grouped holdout"
+  ],
+  "online_weight_updates": false,
+  "training_executed": false
+}

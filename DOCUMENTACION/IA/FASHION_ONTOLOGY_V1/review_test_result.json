@@ -1,0 +1,32 @@
+{
+  "command": [
+    "C:\\Users\\Usuario\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "services/mati-ai/scripts/fashion_ontology",
+    "-p",
+    "test_fashion_ontology.py",
+    "-v"
+  ],
+  "started_utc": "2026-10-08T20:58:39.379300+00:00",
+  "finished_utc": "2026-10-08T21:04:59.191238+00:00",
+  "elapsed_seconds": 379.812,
+  "exit_code": 0,
+  "status": "PASS",
+  "output_file": "review_test_output.txt",
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "ontology_version": "1.1.0",
+  "initial_run": {
+    "tests": 111,
+    "failures": 2,
+    "cause": "Two new inseam test fixtures incorrectly used an upper garment; corrected to trousers. Actual applicability policy was preserved.",
+    "output_file": "review_test_output_initial.txt"
+  },
+  "final_test_source_sha256": "fb7b0f2d14fe4c7841a02644c4a83db550066db6db829c2bc2967f9b6b72efc0",
+  "tests_run": 111,
+  "failures": 0,
+  "errors": 0,
+  "test_source_unchanged_since_run": true
+}

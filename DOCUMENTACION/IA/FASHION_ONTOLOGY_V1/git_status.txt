@@ -1,0 +1,43 @@
+ M compose.yaml
+ M routes/web.php
+ M services/mati-ai/Dockerfile
+ M services/mati-ai/src/mati_ai/api/v1/routes.py
+ M services/mati-ai/src/mati_ai/core/config.py
+ M services/mati-ai/src/mati_ai/core/http.py
+ M services/mati-ai/src/mati_ai/main.py
+?? DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/
+?? DOCUMENTACION/IA/RAG_ABSTENTION_V2/
+?? DOCUMENTACION/IA/RAG_TAXONOMIA/
+?? DOCUMENTACION/IA/SEGMENTACION_SEMANTICA/
+?? app/Console/Commands/IndexRagCorpus.php
+?? app/Http/Controllers/Superadmin/RagController.php
+?? app/Models/RagChunk.php
+?? app/Models/RagDocument.php
+?? app/Models/RagEmbedding.php
+?? app/Models/RagModelVersion.php
+?? app/Services/AI/RagCorpusStore.php
+?? app/Services/AI/RagGateV2Evidence.php
+?? app/Services/AI/RagGateV2Features.php
+?? app/Services/AI/RagGateV2Model.php
+?? app/Services/AI/RagGateV2Retriever.php
+?? app/Services/AI/RagGateV2Router.php
+?? app/Services/AI/RagRetrievalPolicy.php
+?? app/Services/AI/RagRetriever.php
+?? app/Services/AI/RagTextClient.php
+?? config/rag.php
+?? config/rag_gate_v2.php
+?? database/migrations/2026_10_05_000001_create_rag_tables.php
+?? services/mati-ai/resources/
+?? services/mati-ai/scripts/fashion_ontology/
+?? services/mati-ai/scripts/gate_v2/
+?? services/mati-ai/scripts/segmentation/
+?? services/mati-ai/scripts/semantic/
+?? services/mati-ai/src/mati_ai/learning/
+?? services/mati-ai/src/mati_ai/rag/
+?? services/mati-ai/tests/test_rag_text.py
+?? tests/Feature/RagAccessTest.php
+?? tests/Feature/RagGateV2AccessTest.php
+?? tests/Feature/RagPersistenceTest.php
+?? tests/Unit/RagFoundationTest.php
+?? tests/Unit/RagGateV2Test.php
+error: unable to open '.git/sequencer/todo': Function not implemented

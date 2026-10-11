@@ -1,0 +1,190 @@
+{
+  "artifact_type": "commercial_mapping",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "source_snapshot": {
+    "path": "services/mati-ai/resources/taxonomy/commercial-categories-v1.json",
+    "sha256": "5ba69a10a5065eef1e95ac96d38e9c4e6ac62e607dac63791232563cd0bdd261",
+    "captured_utc": "2026-10-05T15:14:55+00:00"
+  },
+  "mappings": [
+    {
+      "commercial_category_id": 1,
+      "commercial_name": "ABRIGOS",
+      "ontology_targets": [
+        "garment.category.coat",
+        "garment.category.cape",
+        "garment.category.jacket",
+        "garment.category.sweater"
+      ],
+      "mapping_type": "candidate_1_to_many",
+      "notes": "Decision 4 preserves historical ABRIGOS for JERSEY ALPACA (dump product11). Sweater is a candidate identity requiring verifiable product evidence; otherwise UNKNOWN with candidates and administrative discrepancy. ALPACA in name does not prove composition. Never relabel commercial products automatically.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW",
+      "human_decision": {
+        "number": 4,
+        "source": "Human approved request pasted 2026-10-08; PROMPT MAESTRO PARA ASTRA, Part II.",
+        "approval_scope": "Commercial interpretation and separation policy only; taxonomy examples, annotations, datasets and models remain subject to scoped review."
+      }
+    },
+    {
+      "commercial_category_id": 2,
+      "commercial_name": "BLAZERS",
+      "ontology_targets": [
+        "garment.category.blazer"
+      ],
+      "mapping_type": "candidate_1_to_1",
+      "notes": "Candidate semantic identity; commercial source remains authoritative.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_category_id": 3,
+      "commercial_name": "CAMISAS",
+      "ontology_targets": [
+        "garment.category.shirt"
+      ],
+      "mapping_type": "candidate_1_to_1",
+      "notes": "Candidate semantic identity; commercial source remains authoritative.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_category_id": 4,
+      "commercial_name": "BLUSAS",
+      "ontology_targets": [
+        "garment.category.blouse"
+      ],
+      "mapping_type": "candidate_1_to_1",
+      "notes": "Candidate semantic identity; commercial source remains authoritative.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_category_id": 5,
+      "commercial_name": "VESTIDOS",
+      "ontology_targets": [
+        "garment.category.dress"
+      ],
+      "mapping_type": "candidate_1_to_1",
+      "notes": "Candidate semantic identity; commercial source remains authoritative.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_category_id": 6,
+      "commercial_name": "FALDAS",
+      "ontology_targets": [
+        "garment.category.skirt"
+      ],
+      "mapping_type": "candidate_1_to_1",
+      "notes": "Candidate semantic identity; commercial source remains authoritative.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_category_id": 7,
+      "commercial_name": "PANTALONES",
+      "ontology_targets": [
+        "garment.category.trousers",
+        "garment.category.jeans",
+        "garment.category.shorts",
+        "garment.category.leggings"
+      ],
+      "mapping_type": "candidate_1_to_many",
+      "notes": "Actual snapshot focuses trousers. Jeans/shorts/leggings are potential domain extensions requiring business review, not current confirmed contents.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_category_id": 8,
+      "commercial_name": "POLOS Y KNITWEAR",
+      "ontology_targets": [
+        "garment.category.polo",
+        "garment.category.sweater",
+        "garment.category.cardigan"
+      ],
+      "mapping_type": "candidate_1_to_many",
+      "notes": "Decision 2 preserves POLOS Y KNITWEAR ID8 and resolves polo, sweater or cardigan per product. Knit construction alone never converts a shirt or T-shirt to polo or sweater. Historical outliers may retain UNKNOWN/candidates; no global commercial-category correction.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW",
+      "human_decision": {
+        "number": 2,
+        "source": "Human approved request pasted 2026-10-08; PROMPT MAESTRO PARA ASTRA, Part II.",
+        "approval_scope": "Commercial interpretation and separation policy only; taxonomy examples, annotations, datasets and models remain subject to scoped review."
+      }
+    },
+    {
+      "commercial_category_id": 9,
+      "commercial_name": "ACCESORIOS",
+      "ontology_targets": [
+        "garment.category.handbag",
+        "garment.category.backpack",
+        "garment.category.waist_bag",
+        "garment.category.travel_bag",
+        "garment.category.belt",
+        "garment.category.glasses",
+        "garment.category.watch",
+        "garment.category.necklace",
+        "garment.category.bracelet",
+        "garment.category.ring",
+        "garment.category.earring",
+        "garment.category.brooch",
+        "garment.category.scarf",
+        "garment.category.hat",
+        "garment.category.cap",
+        "garment.category.gloves",
+        "garment.category.pocket_square"
+      ],
+      "mapping_type": "candidate_1_to_many",
+      "notes": "Decision 3 approves scope: bags, backpacks, belts, glasses, watches, jewelry, scarves/kerchiefs, caps, hats and gloves. Existing bag and kerchief categories are preserved; precise examples and local scarf/pocket_square boundary remain reviewable. Footwear explicitly excluded; its future commercial category pending. Zero historical accessories observations does not imply training support. Tie remains an ontology concept outside this approved commercial scope.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW",
+      "human_decision": {
+        "number": 3,
+        "source": "Human approved request pasted 2026-10-08; PROMPT MAESTRO PARA ASTRA, Part II.",
+        "approval_scope": "Commercial interpretation and separation policy only; taxonomy examples, annotations, datasets and models remain subject to scoped review."
+      },
+      "excluded_ontology_families": [
+        "garment.family.footwear"
+      ]
+    },
+    {
+      "commercial_category_id": 10,
+      "commercial_name": "CONJUNTOS",
+      "ontology_targets": [
+        "garment.category.coordinated_set"
+      ],
+      "mapping_type": "candidate_1_to_1",
+      "notes": "Decision 6: only explicitly linked commercial sets with separable components. Routine sale is individual garments; dresses are one_piece. Sets may sell complete or by components with necessary commercial records and inventory; exact shared/reserved/packaged inventory design remains pending, unimplemented. Recommended outfits do not create packages or package prices.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW",
+      "human_decision": {
+        "number": 6,
+        "source": "Human approved request pasted 2026-10-08; PROMPT MAESTRO PARA ASTRA, Part II.",
+        "approval_scope": "Commercial interpretation and separation policy only; taxonomy examples, annotations, datasets and models remain subject to scoped review."
+      }
+    },
+    {
+      "commercial_category_id": 11,
+      "commercial_name": "POLERA",
+      "ontology_targets": [
+        "garment.category.tshirt"
+      ],
+      "mapping_type": "one_to_one",
+      "notes": "Decision 1 fixes Mati POLERA ID11 to camiseta/T-shirt including short sleeves, long sleeves and Henley. Sleeve length, neckline and collar are independent attributes. Sweater, cardigan, sweatshirt and coat are not automatic targets. Preserve historical category and verify each product identity; no relabeling or automatic training truth.",
+      "version": "1.1.0",
+      "review_status": "NEEDS MATI REVIEW",
+      "human_decision": {
+        "number": 1,
+        "source": "Human approved request pasted 2026-10-08; PROMPT MAESTRO PARA ASTRA, Part II.",
+        "approval_scope": "Commercial interpretation and separation policy only; taxonomy examples, annotations, datasets and models remain subject to scoped review."
+      }
+    }
+  ],
+  "resolution_policy": "Commercial scope lookup remains separate from product-level identity. Approved POLERA interpretation narrows its lookup to tshirt; any physical product discrepancy still requires evidence, UNKNOWN/candidates when unresolved, and administrative review. No mapping is an automatically valid training label.",
+  "commercial_master_policy": "No IDs/names merged, renamed or deleted; no automatic stock/category/material/color write.",
+  "review_status_policy": "NEEDS MATI REVIEW applies to taxonomy definitions, local examples and product-level adjudication still outstanding; human_decision separately records the approved commercial scope policy, which is no longer an open mapping question.",
+  "footwear_commercial_policy": "Independent ontology family; excluded from ACCESORIOS ID9. Future commercial category pending; no database category created."
+}

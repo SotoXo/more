@@ -1,0 +1,148 @@
+{
+  "artifact_type": "layering",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "roles": [
+    {
+      "canonical_id": "layer.role.base",
+      "label_es": "Base",
+      "label_en": "Base",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Prenda elegida como capa vestible próxima al cuerpo en una zona; no categoría permanente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "layering_role"
+    },
+    {
+      "canonical_id": "layer.role.intermediate",
+      "label_es": "Intermedia",
+      "label_en": "Intermediate",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Prenda entre otras dos capas en una zona y contexto.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "layering_role"
+    },
+    {
+      "canonical_id": "layer.role.outer",
+      "label_es": "Exterior",
+      "label_en": "Outer",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Prenda más exterior entre prendas de cobertura de una zona en contexto.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "layering_role"
+    },
+    {
+      "canonical_id": "layer.role.overlay",
+      "label_es": "Superpuesta",
+      "label_en": "Overlay",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Uso superpuesto intencional sobre otra prenda, incluido falda sobre pantalón.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "layering_role"
+    },
+    {
+      "canonical_id": "layer.role.accessory",
+      "label_es": "Complemento",
+      "label_en": "Accessory",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Rol contextual de complemento; no prueba de familia accessory.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "layering_role"
+    }
+  ],
+  "relations": [
+    {
+      "canonical_id": "layer.relation.example_1",
+      "subject": "garment.category.shirt",
+      "predicate": "relation.can_layer_over",
+      "object": "garment.category.tshirt",
+      "rule_kind": "soft_rule",
+      "conditions": [
+        "Same torso zone",
+        "Adequate ease and openings"
+      ],
+      "notes": "Design scenario, not universal compatibility or recommendation."
+    },
+    {
+      "canonical_id": "layer.relation.example_2",
+      "subject": "garment.category.blazer",
+      "predicate": "relation.can_layer_over",
+      "object": "garment.category.shirt",
+      "rule_kind": "soft_rule",
+      "conditions": [
+        "Same torso zone",
+        "Adequate ease and length"
+      ],
+      "notes": "Design scenario, not universal compatibility or recommendation."
+    },
+    {
+      "canonical_id": "layer.relation.example_3",
+      "subject": "garment.category.coat",
+      "predicate": "relation.can_layer_over",
+      "object": "garment.category.blazer",
+      "rule_kind": "soft_rule",
+      "conditions": [
+        "Same torso zone",
+        "Adequate ease and mobility"
+      ],
+      "notes": "Design scenario, not universal compatibility or recommendation."
+    },
+    {
+      "canonical_id": "layer.relation.example_4",
+      "subject": "garment.category.skirt",
+      "predicate": "relation.can_layer_over",
+      "object": "garment.category.trousers",
+      "rule_kind": "styling_preference",
+      "conditions": [
+        "Context declares overlay",
+        "Assess material, leg_shape, length, occasion; no trend asserted"
+      ],
+      "notes": "Design scenario, not universal compatibility or recommendation."
+    },
+    {
+      "canonical_id": "layer.relation.example_5",
+      "subject": "garment.category.scarf",
+      "predicate": "relation.can_layer_over",
+      "object": "garment.category.coat",
+      "rule_kind": "styling_preference",
+      "conditions": [
+        "Neck/upper contact context",
+        "Wear configuration confirmed"
+      ],
+      "notes": "Design scenario, not universal compatibility or recommendation."
+    }
+  ],
+  "semantics": {
+    "representation": "Directed partial order of garment instances within zone and wear_context, not total category ordering",
+    "constraint_types": [
+      "structural_constraint",
+      "styling_preference",
+      "soft_rule",
+      "trend_exception",
+      "hard_incompatibility"
+    ],
+    "hard_constraints": [
+      "No instance over itself",
+      "No contradictory order cycle within the same zone/context"
+    ],
+    "hard_incompatibilities": [],
+    "compatibility_levels": [
+      "default_candidate",
+      "contextual_candidate",
+      "requires_review"
+    ],
+    "trend_exception_policy": "Referenced time-bounded external Trend Intelligence evidence; no permanent trending assertion",
+    "inner_alias": "INNER denotes relative underneath relation, not duplicate absolute BASE role",
+    "examples": "A blazer can be intermediate under a coat, outer over a shirt, without changing family."
+  }
+}

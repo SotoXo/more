@@ -1,0 +1,162 @@
+{
+  "artifact_type": "vocabulary",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "concepts": [
+    {
+      "canonical_id": "value.style.minimalist",
+      "label_es": "Minimalista",
+      "label_en": "Minimalist",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a reducción ornamental y líneas contenidas; criterio de anotación requiere validación.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.classic",
+      "label_es": "Clásico",
+      "label_en": "Classic",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a formas recurrentes y ornamentación contenida; sin garantía temporal universal.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.preppy",
+      "label_es": "Preppy",
+      "label_en": "Preppy",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a códigos colegiales/deportivos de sastrería; etiquetas contextuales.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.streetwear",
+      "label_es": "Streetwear",
+      "label_en": "Streetwear",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a códigos de vestimenta urbana; no inferir identidad social del usuario.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.bohemian",
+      "label_es": "Bohemio",
+      "label_en": "Bohemian",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a códigos de ornamentación y fluidez bohemios; no origen cultural inferido.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.sport_inspired",
+      "label_es": "Inspiración deportiva",
+      "label_en": "Sport-inspired",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad visual a indumentaria deportiva; no rendimiento físico confirmado.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.romantic",
+      "label_es": "Romántico",
+      "label_en": "Romantic",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a detalles como frunces, encaje o formas suaves; ningún rasgo obligatorio universal.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.utilitarian",
+      "label_es": "Utilitario",
+      "label_en": "Utilitarian",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a detalles funcionales visibles, bolsillos y construcción; no capacidad técnica confirmada.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.avant_garde",
+      "label_es": "Vanguardia",
+      "label_en": "Avant-garde",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a construcción o proporciones experimentales; alto desacuerdo potencial.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.style.western_inspired",
+      "label_es": "Inspiración western",
+      "label_en": "Western-inspired",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad a códigos western observables; no atribuir procedencia o pertenencia cultural.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "style"
+    },
+    {
+      "canonical_id": "value.aesthetic.old_money",
+      "label_es": "Old money",
+      "label_en": "Old money",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Etiqueta estética de discurso contemporáneo; no clase socioeconómica ni regla estable.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "aesthetic"
+    },
+    {
+      "canonical_id": "value.aesthetic.y2k",
+      "label_es": "Y2K",
+      "label_en": "Y2K",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Referencia estética a códigos de cambio de milenio; no fecha de fabricación.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "aesthetic"
+    },
+    {
+      "canonical_id": "value.aesthetic.retro",
+      "label_es": "Retro",
+      "label_en": "Retro",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Afinidad visual a códigos históricos sin afirmar antigüedad real.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "aesthetic"
+    },
+    {
+      "canonical_id": "value.aesthetic.techwear",
+      "label_es": "Techwear",
+      "label_en": "Techwear",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Etiqueta estética/funcional de vestimenta técnica; no prueba de prestaciones.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "aesthetic"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "artifact_type": "hash_manifest",
+  "algorithm": "sha256",
+  "files": {
+    "annotation_matrix.csv": "92002430b0c8d87aa3dcb6720ae35c9308920e1fed907661a67f86ea53f347e0",
+    "attribute_applicability.json": "aec0388f9d042d756b3f749abbefbb08f21e7abcff281f08929aa5a336a5b00f",
+    "attribute_values.json": "a07e89196d654fe7bfa999b7de989951097003f1f11d928d312ecb6c0c33d392",
+    "body_zones.json": "af25886c597d30b7c5e2564c962fe23af21b1ac6834e2fbd75e21f6d26ccf51b",
+    "color_semantics.json": "13f98588fc7aed3d7b4bfe9e29390942ef4e79239a54998e81611fab81a75da9",
+    "commercial_mapping.json": "451593dba8dfcaafeb6b153a95c486f7f4a4040a376650ce914ebd76283b9899",
+    "commercial_season_mapping.json": "587283e7c8c9f61c9a7513e79cd1f2ae4a7dc5d405fc0454129ce830b5b7bcc2",
+    "coverage_matrix.csv": "f73da9baa163d79f9cf14c6be4e68ab26eb9c62a6f94c1bcc2e18b2dcd5a0c13",
+    "fabrics.json": "5e74d3f040abc33d90a02be403cef081e28e858eee56f7c43f4dd9554b98ce64",
+    "governance.json": "410e21257ae842c97d104e9020adde324c60141bb06703e1dabbfae01473e64e",
+    "label_schema.json": "a5045cf79a394255400148643052588255aa7a6480c3062fb7a48a9e366cee90",
+    "layering.json": "2f64f502ab6ad58c6dd1e81d5c02e886a38baee36771417d5919d989fc91f69f",
+    "materials.json": "dfa6998236f63c0062e886d821c62172fd505954fdc8e342f056631501cba430",
+    "ontology.json": "f128fed5585283406da34ad86f39bba0ae4c8122e9c9192e3594861d69787c4a",
+    "ontology.schema.json": "9a655db28ec4a41edf069abb52abcc777eed333c4e385c764e7bb7c64b01982b",
+    "patterns.json": "f034c5d6933c6148b1e152fc74042bf39d925885ac26a2de708c770ea50069d6",
+    "product_intelligence.example.json": "f45418e739ce8dca74b7d9d1094423d679d317b8fd6d1f550f5b451e60ccdf0f",
+    "product_intelligence.schema.json": "13f2c0547a2d1b9eaa192c82ba219197d766900d5e221bf2c8ebcafc285c519e",
+    "styles.json": "d6ea49946b3504e63e139aeb38e4ff346e878152276beac0efc33867f4926850",
+    "summary.json": "f03a0c4ab23685b5380da70cd53d6affac41b899dc1fdefc6b0dba6dc0cb1838",
+    "textures.json": "68d883cfdf1858f2d7f978b9f45d2504b5512caefebe8c4dc7c72c2ca320a3e3",
+    "usage.json": "dea3699e0445166175c16379fd0a434e4b9f539deb3351c14a0938233f96df15"
+  },
+  "generated_reports": [
+    "summary.json",
+    "coverage_matrix.csv",
+    "annotation_matrix.csv"
+  ],
+  "excludes": [
+    "hashes.json"
+  ],
+  "hash_policy": "SHA256 of exact UTF-8 file bytes; no circular self-hash."
+}

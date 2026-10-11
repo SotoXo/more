@@ -1,0 +1,70 @@
+attribute_id,label_type,annotation_sources,visually_learnable,annotation_difficulty,future_head,trainable_visual
+attribute.observed_color,structured,"[""human"", ""vision_model""]",partial,medium,EXISTING_COLORIMETRY,no
+attribute.color_family,multi_label,"[""human"", ""vision_model""]",yes,medium,GENERAL.color_family,conditional
+attribute.color_role,multi_label,"[""human"", ""derived_rule""]",partial,medium,GENERAL.color_role,no
+attribute.perceived_temperature,single_label,"[""human"", ""vision_model""]",partial,medium,GENERAL.perceived_temperature,conditional
+attribute.pattern,multi_label,"[""human"", ""vision_model""]",yes,low,GENERAL.pattern,conditional
+attribute.fiber_composition,structured,"[""catalog"", ""ocr"", ""human"", ""external_import""]",no,high,GENERAL.fiber_composition,no
+attribute.non_textile_material,multi_label,"[""catalog"", ""ocr"", ""human""]",no,medium,GENERAL.non_textile_material,no
+attribute.textile_structure,single_label,"[""human"", ""catalog"", ""ocr""]",partial,high,GENERAL.textile_structure,conditional
+attribute.weave,single_label,"[""human"", ""catalog""]",partial,high,GENERAL.weave,conditional
+attribute.knit_structure,single_label,"[""human"", ""catalog""]",partial,high,GENERAL.knit_structure,conditional
+attribute.fabric_family,multi_label,"[""human"", ""catalog""]",partial,high,GENERAL.fabric_family,conditional
+attribute.surface_texture,multi_label,"[""human"", ""vision_model""]",yes,medium,GENERAL.surface_texture,conditional
+attribute.finish,multi_label,"[""human"", ""catalog""]",partial,medium,GENERAL.finish,conditional
+attribute.opacity,ordinal,"[""human"", ""vision_model""]",partial,medium,GENERAL.opacity,conditional
+attribute.fit,single_label,"[""human"", ""catalog"", ""vision_model""]",partial,high,SPECIALIST.fit,conditional
+attribute.silhouette,multi_label,"[""human"", ""vision_model""]",partial,high,SPECIALIST.silhouette,conditional
+attribute.construction,multi_label,"[""human"", ""vision_model""]",partial,medium,GENERAL.construction,conditional
+attribute.cut_technique,multi_label,"[""human"", ""catalog""]",partial,high,SPECIALIST.cut_technique,no
+attribute.closure,multi_label,"[""human"", ""vision_model""]",partial,medium,GENERAL.closure,conditional
+attribute.structure,ordinal,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.structure,conditional
+attribute.styles,multi_label,"[""human"", ""vision_model"", ""derived_rule""]",partial,high,GENERAL.styles,conditional
+attribute.aesthetics,multi_label,"[""human"", ""external_import""]",partial,high,GENERAL.aesthetics,no
+attribute.dress_codes,multi_label,"[""human"", ""derived_rule""]",partial,high,GENERAL.dress_codes,no
+attribute.formality,ordinal,"[""human"", ""derived_rule""]",partial,high,GENERAL.formality,conditional
+attribute.occasions,multi_label,"[""human"", ""derived_rule""]",partial,high,GENERAL.occasions,no
+attribute.calendar_seasons,multi_label,"[""human"", ""catalog"", ""derived_rule""]",no,medium,GENERAL.calendar_seasons,no
+attribute.climate_suitability,multi_label,"[""human"", ""catalog"", ""derived_rule""]",partial,medium,GENERAL.climate_suitability,no
+attribute.target_gender,multi_label,"[""catalog"", ""human""]",no,medium,GENERAL.target_gender,no
+attribute.target_age,multi_label,"[""catalog"", ""human""]",no,medium,GENERAL.target_age,no
+attribute.leg_shape,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.leg_shape,conditional
+attribute.rise,ordinal,"[""human"", ""catalog"", ""vision_model""]",partial,high,SPECIALIST.rise,conditional
+attribute.waist_type,multi_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.waist_type,conditional
+attribute.inseam,continuous,"[""catalog"", ""human""]",no,medium,SPECIALIST.inseam,no
+attribute.upper_length,ordinal,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.upper_length,conditional
+attribute.lower_length,ordinal,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.lower_length,conditional
+attribute.skirt_dress_length,ordinal,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.skirt_dress_length,conditional
+attribute.outer_length,ordinal,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.outer_length,conditional
+attribute.neckline,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.neckline,conditional
+attribute.sleeve_length,ordinal,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.sleeve_length,conditional
+attribute.sleeve_shape,multi_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.sleeve_shape,conditional
+attribute.sleeve_attachment,single_label,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.sleeve_attachment,conditional
+attribute.sleeve_cuff_type,multi_label,"[""human"", ""catalog"", ""vision_model""]",partial,medium,,no
+attribute.collar,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.collar,conditional
+attribute.hem,multi_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.hem,conditional
+attribute.slit,boolean,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.slit,conditional
+attribute.pleats,boolean,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.pleats,conditional
+attribute.lapel,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.lapel,conditional
+attribute.insulation,structured,"[""catalog"", ""ocr"", ""human""]",no,medium,SPECIALIST.insulation,no
+attribute.heel_height,continuous,"[""catalog"", ""human""]",no,medium,SPECIALIST.heel_height,no
+attribute.heel_type,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.heel_type,conditional
+attribute.toe_shape,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.toe_shape,conditional
+attribute.toe_open,boolean,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.toe_open,conditional
+attribute.shaft_height,ordinal,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.shaft_height,conditional
+attribute.sole_type,multi_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.sole_type,conditional
+attribute.carry_method,multi_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.carry_method,conditional
+attribute.strap_type,multi_label,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.strap_type,conditional
+attribute.bag_shape,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.bag_shape,conditional
+attribute.capacity,continuous,"[""catalog"", ""human""]",no,medium,SPECIALIST.capacity,no
+attribute.frame_shape,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.frame_shape,conditional
+attribute.frame_style,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.frame_style,conditional
+attribute.lens_shape,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.lens_shape,conditional
+attribute.lens_tint,multi_label,"[""human"", ""vision_model""]",partial,medium,SPECIALIST.lens_tint,conditional
+attribute.frame_material,multi_label,"[""catalog"", ""human""]",no,medium,SPECIALIST.frame_material,no
+attribute.case_shape,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.case_shape,conditional
+attribute.watch_display,single_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.watch_display,conditional
+attribute.jewelry_form,multi_label,"[""human"", ""vision_model""]",yes,medium,SPECIALIST.jewelry_form,conditional
+attribute.belt_width,continuous,"[""catalog"", ""human""]",no,medium,SPECIALIST.belt_width,no
+attribute.spatial_semantics,structured,"[""human"", ""catalog"", ""derived_rule""]",partial,medium,DERIVED_SPATIAL_CONTRACT,no
+attribute.layering,structured,"[""human"", ""derived_rule""]",partial,medium,CONTEXTUAL_LAYERING_CONTRACT,no

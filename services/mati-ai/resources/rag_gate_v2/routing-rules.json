@@ -1,0 +1,85 @@
+{
+  "schema_version": "mati-rag-routing-rules-2",
+  "policy_version": "mati-rag-routing-2",
+  "normalization_version": "mati-rag-query-normalization-2",
+  "ambiguous_exact": [
+    "cual es mejor",
+    "cual es la mejor",
+    "combina",
+    "la tienen",
+    "lo tienen",
+    "which is better",
+    "does it match",
+    "do you have it",
+    "is it available",
+    "what about this",
+    "y esta",
+    "que talla me queda",
+    "what size fits me"
+  ],
+  "garment_pattern": "\\b(?:abrigo|abrigos|blazer|blazers|camisa|camisas|blusa|blusas|vestido|vestidos|falda|faldas|pantalon|pantalones|short|shorts|bermuda|bermudas|polera|poleras|polo|polos|knitwear|conjunto|conjuntos|prenda|prendas|producto|productos|shirt|shirts|blouse|blouses|dress|dresses|skirt|skirts|trousers|pants|garment|garments|item|items|product|products|coat|coats)\\b",
+  "meta_concept_pattern": "\\b(?:rag|tools?|evidencia|evidence|retrieval|recuperacion|embedding|embeddings)\\b",
+  "meta_question_pattern": "\\b(?:que es|que son|que significa|por que|para que|what is|what are|why|what does|difference between|diferencia entre)\\b",
+  "direct_value_pattern": "\\b(?:cuantos|cuantas|cuanto cuesta|how many|how much|puedo reservar|can i reserve|mi pago|mi transferencia|mi reserva|my payment|my transfer|my reservation|precio de|price of)\\b",
+  "rules": [
+    {
+      "id": "inventory_quantity",
+      "required_tool": "inventory_lookup",
+      "signal": "\\b(?:cuantos|cuantas|quedan|restan|how many|remaining)\\b",
+      "reference": "garment_or_inventory"
+    },
+    {
+      "id": "inventory_current",
+      "required_tool": "inventory_lookup",
+      "signal": "\\b(?:stock|stocks|inventario|inventory|existencias)\\b",
+      "reference": "current_or_garment"
+    },
+    {
+      "id": "inventory_availability",
+      "required_tool": "inventory_lookup",
+      "signal": "\\b(?:disponible|disponibles|disponibilidad|tienen|hay|available|availability|in stock|do you have)\\b",
+      "reference": "garment_or_explicit_size"
+    },
+    {
+      "id": "price",
+      "required_tool": "price_lookup",
+      "signal": "\\b(?:precio|precios|cuesta|cuestan|price|prices|cost|costs|how much)\\b",
+      "reference": "garment_or_current"
+    },
+    {
+      "id": "reservation",
+      "required_tool": "reservation_lookup",
+      "signal": "\\b(?:reserva|reservas|reservar|reservation|reservations|reserve)\\b",
+      "reference": "garment_or_ownership"
+    },
+    {
+      "id": "payment",
+      "required_tool": "payment_lookup",
+      "signal": "\\b(?:pago|pagos|payment|payments|transferencia|transferencias|transfer|paid)\\b",
+      "reference": "ownership_or_state"
+    },
+    {
+      "id": "analytics",
+      "required_tool": "analytics_lookup",
+      "signal": "\\b(?:vende mas|venden mas|mas vendida|mas vendido|ventas|sales|best selling|sells most)\\b",
+      "reference": "garment"
+    },
+    {
+      "id": "product_state",
+      "required_tool": "product_lookup",
+      "signal": "\\b(?:estado|vendida|vendido|envio|pedido|order|shipped|sold|status)\\b",
+      "reference": "garment_or_order_ownership"
+    }
+  ],
+  "reference_patterns": {
+    "inventory": "\\b(?:stock|inventario|inventory|existencias)\\b",
+    "current": "\\b(?:actual|actuales|hoy|ahora|current|today|now)\\b",
+    "ownership": "\\b(?:mi|mis|my|nuestro|nuestra|our)\\b",
+    "state": "\\b(?:aprobada|aprobado|pendiente|confirmada|confirmado|approved|pending|confirmed|estado|status)\\b",
+    "explicit_size": "\\b(?:talla|size)\\s+(?:xxs|xs|s|m|l|xl|xxl|[0-9]{1,3})\\b",
+    "order": "\\b(?:pedido|order|reserva|reservation)\\b"
+  },
+  "unknown": "candidate_rag; relevance model decides",
+  "tools_execution": false,
+  "meta_precedence": "A conceptual meta-question is not a tool shortcut unless a direct value/action clause is present; exact ambiguous queries require information."
+}

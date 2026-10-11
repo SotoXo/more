@@ -1,0 +1,1239 @@
+{
+  "artifact_type": "approval_registry",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "policy_source": "User master prompt received 2026-10-08; SHA256 in review_baseline.json",
+  "approved_policy_ids": [
+    "H01",
+    "H02",
+    "H03",
+    "H04",
+    "H05",
+    "H06",
+    "H07",
+    "H08",
+    "H09",
+    "H10",
+    "H11",
+    "H12"
+  ],
+  "phase_order": [
+    "ontology_definition",
+    "annotation_guide",
+    "validated_dataset",
+    "trained_model",
+    "evaluated_model",
+    "production_authorization"
+  ],
+  "scopes": [
+    {
+      "scope_id": "garment.family.upper",
+      "concept_refs": [
+        "garment.family.upper"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.lower",
+      "concept_refs": [
+        "garment.family.lower"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.outerwear",
+      "concept_refs": [
+        "garment.family.outerwear"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.one_piece",
+      "concept_refs": [
+        "garment.family.one_piece"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.multi_piece",
+      "concept_refs": [
+        "garment.family.multi_piece"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.footwear",
+      "concept_refs": [
+        "garment.family.footwear"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.bag",
+      "concept_refs": [
+        "garment.family.bag"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.headwear",
+      "concept_refs": [
+        "garment.family.headwear"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.neckwear",
+      "concept_refs": [
+        "garment.family.neckwear"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.jewelry",
+      "concept_refs": [
+        "garment.family.jewelry"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.eyewear",
+      "concept_refs": [
+        "garment.family.eyewear"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "garment.family.accessory",
+      "concept_refs": [
+        "garment.family.accessory"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "No real annotation review or dataset/model approval supplied in this task.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "scope.styles",
+      "concept_refs": [],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati + technical_responsible + annotation_reviewers",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "Policy approval does not approve this scope or subsequent phases.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "scope.materials",
+      "concept_refs": [],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati + technical_responsible + annotation_reviewers",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "Policy approval does not approve this scope or subsequent phases.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "scope.fit_measurements",
+      "concept_refs": [],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati + technical_responsible + annotation_reviewers",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "Policy approval does not approve this scope or subsequent phases.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "scope.sleeve_cuffs",
+      "concept_refs": [
+        "attribute.sleeve_cuff_type"
+      ],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati + technical_responsible + annotation_reviewers",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "Policy approval does not approve this scope or subsequent phases.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "scope.body_layering",
+      "concept_refs": [],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati + technical_responsible + annotation_reviewers",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "Policy approval does not approve this scope or subsequent phases.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    },
+    {
+      "scope_id": "scope.commercial_mapping",
+      "concept_refs": [],
+      "status": "PENDING_REVIEW",
+      "legacy_review_status": "NEEDS MATI REVIEW",
+      "responsible_role": "Mati + technical_responsible + annotation_reviewers",
+      "responsible_person_ref": null,
+      "phases": [
+        {
+          "phase": "ontology_definition",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "annotation_guide",
+          "status": "PENDING_REVIEW",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "validated_dataset",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "trained_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "evaluated_model",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        },
+        {
+          "phase": "production_authorization",
+          "status": "BLOCKED_INSUFFICIENT_EVIDENCE",
+          "evidence_refs": [],
+          "reviewer_ref": null,
+          "reviewed_at": null,
+          "decision_ref": null
+        }
+      ],
+      "ambiguities_reviewed": false,
+      "discrepancy_refs": [],
+      "notes": "Policy approval does not approve this scope or subsequent phases.",
+      "definition_review_ref": null,
+      "example_refs": [],
+      "integrity_check_refs": [],
+      "discrepancy_review_ref": null
+    }
+  ],
+  "roles": {
+    "Mati": "Commercial criteria, real products and suitability of AI proposals",
+    "technical_responsible": "Contracts, versioning, integrity and technical compatibility; person not appointed",
+    "annotation_reviewers": "Review examples and record disagreements; people not appointed"
+  },
+  "status_mapping": {
+    "DRAFT": "DRAFT_FOR_REVIEW",
+    "PENDING_REVIEW": "NEEDS MATI REVIEW",
+    "REVIEWED": "No legacy equivalent; review is not approval",
+    "APPROVED": "Requires documented explicit scope decision; SAFE TO FREEZE alone is insufficient",
+    "BLOCKED_INSUFFICIENT_EVIDENCE": "RESEARCH INCOMPLETE"
+  }
+}

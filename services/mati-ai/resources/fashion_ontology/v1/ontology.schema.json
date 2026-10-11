@@ -1,0 +1,1389 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:more:fashion-ontology:artifacts:1.1.0",
+  "title": "MORE / Mati Fashion Ontology V1 artifact schema",
+  "description": "Authoritative structural schema for the draft ontology, referenced vocabularies, mappings, applicability, label plan, layering and generated reports. Domain validation remains separate from human approval. Product Intelligence has its own contract schema.",
+  "oneOf": [
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "families",
+            "categories",
+            "subcategories",
+            "attributes",
+            "vocabularies",
+            "relation_types",
+            "relationships",
+            "alias_ambiguities"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "ontology"
+            },
+            "families": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/node"
+              },
+              "uniqueItems": true
+            },
+            "categories": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/taxon"
+              },
+              "uniqueItems": true
+            },
+            "subcategories": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/taxon"
+              },
+              "uniqueItems": true
+            },
+            "attributes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/attribute"
+              },
+              "uniqueItems": true
+            },
+            "vocabularies": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*\\.json$"
+              },
+              "uniqueItems": true,
+              "minItems": 1
+            },
+            "relation_types": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "canonical_id",
+                  "definition"
+                ],
+                "properties": {
+                  "canonical_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                  },
+                  "definition": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "uniqueItems": true
+            },
+            "relationships": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/relation"
+              },
+              "uniqueItems": true
+            },
+            "alias_ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "term",
+                  "language",
+                  "scope",
+                  "concept_ids",
+                  "notes"
+                ],
+                "properties": {
+                  "term": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "language": {
+                    "enum": [
+                      "es",
+                      "en"
+                    ]
+                  },
+                  "scope": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "concept_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                    },
+                    "uniqueItems": true,
+                    "minItems": 2
+                  },
+                  "notes": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "concepts"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "vocabulary"
+            },
+            "concepts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/vocabulary_concept"
+              },
+              "uniqueItems": true
+            },
+            "semantics": {
+              "type": "object"
+            },
+            "bindings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "category_id",
+                  "primary_zone",
+                  "secondary_zones",
+                  "coverage_role",
+                  "notes"
+                ],
+                "properties": {
+                  "category_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                  },
+                  "primary_zone": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                  },
+                  "secondary_zones": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                    },
+                    "uniqueItems": true
+                  },
+                  "coverage_role": {
+                    "enum": [
+                      "covers",
+                      "worn_at",
+                      "carried_at",
+                      "contacts"
+                    ]
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "rows"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "applicability"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "attribute_id",
+                  "family_id",
+                  "status",
+                  "unknown_allowed",
+                  "category_scope"
+                ],
+                "properties": {
+                  "attribute_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                  },
+                  "family_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                  },
+                  "status": {
+                    "enum": [
+                      "required",
+                      "optional",
+                      "not_applicable"
+                    ]
+                  },
+                  "unknown_allowed": {
+                    "type": "boolean"
+                  },
+                  "category_scope": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                    },
+                    "uniqueItems": true
+                  }
+                }
+              }
+            },
+            "conditional_rules": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "required": [
+                  "attribute_id",
+                  "condition",
+                  "false_state",
+                  "unknown_condition_state"
+                ],
+                "properties": {
+                  "attribute_id": {
+                    "type": "string"
+                  },
+                  "condition": {
+                    "type": "string"
+                  },
+                  "false_state": {
+                    "const": "NOT_APPLICABLE"
+                  },
+                  "unknown_condition_state": {
+                    "const": "UNKNOWN"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "labels",
+            "taxonomy_labels"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "label_schema"
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "attribute_id",
+                  "label_type",
+                  "allowed_values_ref",
+                  "applicable_families",
+                  "requirement",
+                  "unknown_policy",
+                  "annotation_sources",
+                  "visually_learnable",
+                  "annotation_difficulty",
+                  "future_head",
+                  "trainable_visual"
+                ],
+                "properties": {
+                  "attribute_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                  },
+                  "label_type": {
+                    "enum": [
+                      "single_label",
+                      "multi_label",
+                      "ordinal",
+                      "continuous",
+                      "boolean",
+                      "structured"
+                    ]
+                  },
+                  "allowed_values_ref": {
+                    "$ref": "#/$defs/vocabulary_ref"
+                  },
+                  "applicable_families": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                    },
+                    "uniqueItems": true,
+                    "minItems": 1
+                  },
+                  "requirement": {
+                    "enum": [
+                      "required",
+                      "optional"
+                    ]
+                  },
+                  "unknown_policy": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "annotation_sources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true,
+                    "minItems": 1
+                  },
+                  "visually_learnable": {
+                    "enum": [
+                      "yes",
+                      "no",
+                      "partial"
+                    ]
+                  },
+                  "annotation_difficulty": {
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  "future_head": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "trainable_visual": {
+                    "enum": [
+                      "yes",
+                      "conditional",
+                      "no"
+                    ]
+                  }
+                }
+              },
+              "uniqueItems": true
+            },
+            "taxonomy_labels": {
+              "type": "object"
+            },
+            "metadata": {
+              "type": "object"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "source_snapshot",
+            "mappings"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "commercial_mapping"
+            },
+            "source_snapshot": {
+              "type": "object",
+              "required": [
+                "path",
+                "sha256",
+                "captured_utc"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "$ref": "#/$defs/sha256"
+                },
+                "captured_utc": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "mappings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "commercial_category_id",
+                  "commercial_name",
+                  "ontology_targets",
+                  "mapping_type",
+                  "notes",
+                  "version",
+                  "review_status"
+                ],
+                "properties": {
+                  "commercial_category_id": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    ]
+                  },
+                  "commercial_name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "ontology_targets": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                    },
+                    "uniqueItems": true,
+                    "minItems": 1
+                  },
+                  "mapping_type": {
+                    "enum": [
+                      "exact",
+                      "one_to_one",
+                      "one_to_many",
+                      "ambiguous",
+                      "ambiguous_local_term",
+                      "broader",
+                      "narrower",
+                      "partial",
+                      "no_direct_mapping",
+                      "candidate_set",
+                      "candidate_1_to_many",
+                      "candidate_1_to_1"
+                    ]
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "const": "1.1.0"
+                  },
+                  "review_status": {
+                    "enum": [
+                      "SAFE TO FREEZE",
+                      "NEEDS MATI REVIEW",
+                      "RESEARCH INCOMPLETE",
+                      "NEEDS_REVIEW"
+                    ]
+                  }
+                }
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "roles",
+            "relations",
+            "semantics"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "layering"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/vocabulary_concept"
+              },
+              "uniqueItems": true
+            },
+            "relations": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/relation"
+              },
+              "uniqueItems": true
+            },
+            "semantics": {
+              "type": "object"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "files",
+            "generated_reports"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "hash_manifest"
+            },
+            "files": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_.-]*\\.(json|csv)$"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/sha256"
+              }
+            },
+            "generated_reports": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "counts",
+            "checks"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "summary"
+            },
+            "counts": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "checks": {
+              "anyOf": [
+                {
+                  "type": "object"
+                },
+                {
+                  "type": "array"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "mappings"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "season_mapping"
+            },
+            "mappings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "commercial_season_id",
+                  "commercial_name",
+                  "semantic_targets",
+                  "mapping_type",
+                  "review_status"
+                ],
+                "properties": {
+                  "commercial_season_id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "commercial_name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "semantic_targets": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "mapping_type": {
+                    "enum": [
+                      "candidate_contextual",
+                      "NO_DIRECT_MAPPING"
+                    ]
+                  },
+                  "review_status": {
+                    "enum": [
+                      "SAFE TO FREEZE",
+                      "NEEDS MATI REVIEW",
+                      "RESEARCH INCOMPLETE",
+                      "NEEDS_REVIEW"
+                    ]
+                  }
+                }
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "type": "object",
+          "required": [
+            "approved_policy_ids",
+            "phase_order",
+            "scopes",
+            "policy_source",
+            "roles",
+            "status_mapping"
+          ],
+          "properties": {
+            "artifact_type": {
+              "const": "approval_registry"
+            },
+            "approved_policy_ids": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "H01",
+                  "H02",
+                  "H03",
+                  "H04",
+                  "H05",
+                  "H06",
+                  "H07",
+                  "H08",
+                  "H09",
+                  "H10",
+                  "H11",
+                  "H12"
+                ]
+              },
+              "uniqueItems": true,
+              "minItems": 12,
+              "maxItems": 12
+            },
+            "phase_order": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "ontology_definition",
+                  "annotation_guide",
+                  "validated_dataset",
+                  "trained_model",
+                  "evaluated_model",
+                  "production_authorization"
+                ]
+              },
+              "uniqueItems": true,
+              "minItems": 6,
+              "maxItems": 6
+            },
+            "policy_source": {
+              "type": "string",
+              "minLength": 1
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "scope_id",
+                  "concept_refs",
+                  "status",
+                  "legacy_review_status",
+                  "responsible_role",
+                  "responsible_person_ref",
+                  "phases",
+                  "ambiguities_reviewed",
+                  "discrepancy_refs",
+                  "notes",
+                  "definition_review_ref",
+                  "discrepancy_review_ref",
+                  "integrity_check_refs",
+                  "example_refs"
+                ],
+                "properties": {
+                  "scope_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "concept_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "status": {
+                    "enum": [
+                      "DRAFT",
+                      "PENDING_REVIEW",
+                      "REVIEWED",
+                      "APPROVED",
+                      "BLOCKED_INSUFFICIENT_EVIDENCE"
+                    ]
+                  },
+                  "legacy_review_status": {
+                    "enum": [
+                      "NEEDS MATI REVIEW",
+                      "RESEARCH INCOMPLETE",
+                      "SAFE TO FREEZE",
+                      "NEEDS_REVIEW"
+                    ]
+                  },
+                  "responsible_role": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "responsible_person_ref": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "phases": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "phase",
+                        "status",
+                        "evidence_refs",
+                        "reviewer_ref",
+                        "reviewed_at",
+                        "decision_ref"
+                      ],
+                      "properties": {
+                        "phase": {
+                          "enum": [
+                            "ontology_definition",
+                            "annotation_guide",
+                            "validated_dataset",
+                            "trained_model",
+                            "evaluated_model",
+                            "production_authorization"
+                          ]
+                        },
+                        "status": {
+                          "enum": [
+                            "DRAFT",
+                            "PENDING_REVIEW",
+                            "REVIEWED",
+                            "APPROVED",
+                            "BLOCKED_INSUFFICIENT_EVIDENCE"
+                          ]
+                        },
+                        "evidence_refs": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "uniqueItems": true
+                        },
+                        "reviewer_ref": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "reviewed_at": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "decision_ref": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "minItems": 6,
+                    "maxItems": 6
+                  },
+                  "ambiguities_reviewed": {
+                    "type": "boolean"
+                  },
+                  "discrepancy_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "notes": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "definition_review_ref": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "discrepancy_review_ref": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "integrity_check_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "example_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "evidence_ref"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "enum": [
+                            "positive",
+                            "negative",
+                            "borderline"
+                          ]
+                        },
+                        "evidence_ref": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    "uniqueItems": true
+                  }
+                }
+              },
+              "minItems": 1
+            },
+            "roles": {
+              "type": "object"
+            },
+            "status_mapping": {
+              "type": "object"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "envelope": {
+      "type": "object",
+      "required": [
+        "artifact_type",
+        "ontology_version",
+        "schema_version",
+        "status"
+      ],
+      "properties": {
+        "artifact_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ontology_version": {
+          "const": "1.1.0"
+        },
+        "schema_version": {
+          "const": "1.1.0"
+        },
+        "status": {
+          "const": "DRAFT_FOR_REVIEW"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "canonical_id",
+        "label_es",
+        "label_en",
+        "aliases_es",
+        "aliases_en",
+        "definition",
+        "parent_id",
+        "review_status"
+      ],
+      "properties": {
+        "canonical_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "label_es": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label_en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases_es": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "aliases_en": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "review_status": {
+          "enum": [
+            "SAFE TO FREEZE",
+            "NEEDS MATI REVIEW",
+            "RESEARCH INCOMPLETE",
+            "NEEDS_REVIEW"
+          ]
+        }
+      }
+    },
+    "taxon": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/node"
+        },
+        {
+          "type": "object",
+          "required": [
+            "positive_cues",
+            "negative_cues",
+            "distinction_criteria",
+            "commonly_confused_with"
+          ],
+          "properties": {
+            "positive_cues": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "negative_cues": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "distinction_criteria": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "commonly_confused_with": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "attribute": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/node"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value_type",
+            "vocabulary_ref",
+            "applies_to",
+            "requirement",
+            "unknown_allowed",
+            "visually_learnable",
+            "annotation_difficulty",
+            "annotation_sources",
+            "future_head",
+            "trainable_visual",
+            "unit",
+            "value_constraints",
+            "notes"
+          ],
+          "properties": {
+            "value_type": {
+              "enum": [
+                "single_label",
+                "multi_label",
+                "ordinal",
+                "continuous",
+                "boolean",
+                "structured"
+              ]
+            },
+            "vocabulary_ref": {
+              "$ref": "#/$defs/vocabulary_ref"
+            },
+            "applies_to": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+              },
+              "uniqueItems": true,
+              "minItems": 1
+            },
+            "applies_to_categories": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+              },
+              "uniqueItems": true
+            },
+            "requirement": {
+              "enum": [
+                "required",
+                "optional"
+              ]
+            },
+            "unknown_allowed": {
+              "type": "boolean"
+            },
+            "visually_learnable": {
+              "enum": [
+                "yes",
+                "no",
+                "partial"
+              ]
+            },
+            "annotation_difficulty": {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "annotation_sources": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true,
+              "minItems": 1
+            },
+            "future_head": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trainable_visual": {
+              "enum": [
+                "yes",
+                "conditional",
+                "no"
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value_constraints": {
+              "type": "object"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "vocabulary_ref": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "file",
+            "domain"
+          ],
+          "properties": {
+            "file": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*\\.json$"
+            },
+            "domain": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "vocabulary_concept": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/node"
+        },
+        {
+          "type": "object",
+          "required": [
+            "domain"
+          ],
+          "properties": {
+            "domain": {
+              "type": "string",
+              "minLength": 1
+            },
+            "ordinal_rank": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "kind": {
+              "enum": [
+                "style",
+                "aesthetic",
+                "dress_code"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "relation": {
+      "type": "object",
+      "required": [
+        "canonical_id",
+        "subject",
+        "predicate",
+        "object",
+        "rule_kind",
+        "conditions",
+        "notes"
+      ],
+      "properties": {
+        "canonical_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "predicate": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "object": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "rule_kind": {
+          "enum": [
+            "structural_constraint",
+            "styling_preference",
+            "soft_rule",
+            "trend_exception",
+            "hard_incompatibility"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+ compose.yaml                                  |  1 +
+ routes/web.php                                |  1 +
+ services/mati-ai/Dockerfile                   |  1 +
+ services/mati-ai/src/mati_ai/api/v1/routes.py |  2 ++
+ services/mati-ai/src/mati_ai/core/config.py   |  6 ++++++
+ services/mati-ai/src/mati_ai/core/http.py     |  8 ++++++--
+ services/mati-ai/src/mati_ai/main.py          | 16 ++++++++++++++++
+ 7 files changed, 33 insertions(+), 2 deletions(-)

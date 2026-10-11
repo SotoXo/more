@@ -95,7 +95,9 @@ def capabilities(request: Request):
                 "products.external-search",
                 "products.external-image",
                 "images.prepare-publication",
+                "rag.embed",
             ],
+            "text_embeddings": request.app.state.text_embedding_service.capabilities(),
             "visual_model": {
                 "provider": settings.model_provider,
                 "model_id": settings.model_id,

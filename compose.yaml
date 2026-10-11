@@ -35,6 +35,7 @@ services:
             MATI_AI_MODEL_REVISION: '${MATI_AI_MODEL_REVISION:-main}'
             MATI_AI_DEVICE: '${MATI_AI_DEVICE:-auto}'
             MATI_AI_LOCAL_FILES_ONLY: 'true'
+            MATI_AI_TEXT_EMBEDDING_ENABLED: '${MATI_AI_TEXT_EMBEDDING_ENABLED:-true}'
             MATI_AI_OCR_ENABLED: '${MATI_AI_OCR_ENABLED:-true}'
             MATI_AI_OCR_MODEL_DIRECTORY: '/cache/easyocr'
             MATI_AI_OCR_DOWNLOAD_ENABLED: 'false'

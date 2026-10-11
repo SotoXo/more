@@ -1,0 +1,576 @@
+{
+  "$defs": {
+    "BoundingBox": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "title": "BoundingBox",
+      "type": "object"
+    },
+    "CandidateFeatures": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "pattern": "^[A-Za-z0-9:_-]{1,128}$",
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "external_class": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "External Class",
+          "type": "string"
+        },
+        "detector_score": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Detector Score",
+          "type": "number"
+        },
+        "detector_score_kind": {
+          "const": "uncalibrated_model_score",
+          "default": "uncalibrated_model_score",
+          "title": "Detector Score Kind",
+          "type": "string"
+        },
+        "bbox": {
+          "$ref": "#/$defs/BoundingBox"
+        },
+        "area_ratio": {
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Area Ratio",
+          "type": "number"
+        },
+        "center_distance": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Center Distance",
+          "type": "number"
+        },
+        "border_touch": {
+          "items": {
+            "enum": [
+              "left",
+              "right",
+              "top",
+              "bottom"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Border Touch",
+          "type": "array"
+        },
+        "mask": {
+          "$ref": "#/$defs/MaskMetadata"
+        },
+        "broader_role": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Broader Role"
+        },
+        "taxonomy_version": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Taxonomy Version"
+        },
+        "visual_embedding_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VisualEmbeddingReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "candidate_id",
+        "external_class",
+        "detector_score",
+        "bbox",
+        "area_ratio",
+        "center_distance",
+        "border_touch",
+        "mask"
+      ],
+      "title": "CandidateFeatures",
+      "type": "object"
+    },
+    "CandidateLabel": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "pattern": "^[A-Za-z0-9:_-]{1,128}$",
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "selected": {
+          "title": "Selected",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "selected"
+      ],
+      "title": "CandidateLabel",
+      "type": "object"
+    },
+    "CandidateSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "target-candidate-snapshot-1",
+          "default": "target-candidate-snapshot-1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/SelectionContext"
+        },
+        "detector": {
+          "$ref": "#/$defs/ModelIdentity"
+        },
+        "segmenter": {
+          "$ref": "#/$defs/ModelIdentity"
+        },
+        "selection_policy_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Selection Policy Version",
+          "type": "string"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/CandidateFeatures"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Candidates",
+          "type": "array"
+        }
+      },
+      "required": [
+        "context",
+        "detector",
+        "segmenter",
+        "selection_policy_version",
+        "candidates"
+      ],
+      "title": "CandidateSnapshot",
+      "type": "object"
+    },
+    "MaskMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "pattern": "^[A-Za-z0-9:_-]{1,128}$",
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "mask_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Mask Sha256",
+          "type": "string"
+        },
+        "mask_pixels": {
+          "exclusiveMinimum": 0,
+          "title": "Mask Pixels",
+          "type": "integer"
+        },
+        "quality_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quality Score"
+        },
+        "quality_kind": {
+          "enum": [
+            "uncalibrated_model_score",
+            "not_available"
+          ],
+          "title": "Quality Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "mask_sha256",
+        "mask_pixels",
+        "quality_kind"
+      ],
+      "title": "MaskMetadata",
+      "type": "object"
+    },
+    "ModelIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "maxLength": 180,
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^[a-f0-9]{40}$",
+          "title": "Revision",
+          "type": "string"
+        },
+        "checkpoint_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Checkpoint Sha256",
+          "type": "string"
+        },
+        "pipeline_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Pipeline Version",
+          "type": "string"
+        },
+        "preprocess_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Preprocess Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "revision",
+        "checkpoint_sha256",
+        "pipeline_version",
+        "preprocess_version"
+      ],
+      "title": "ModelIdentity",
+      "type": "object"
+    },
+    "PostDecisionLabels": {
+      "additionalProperties": false,
+      "properties": {
+        "final_product_category": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Final Product Category"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "title": "Recorded At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recorded_at"
+      ],
+      "title": "PostDecisionLabels",
+      "type": "object"
+    },
+    "SelectionContext": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "format": "uuid",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "owner_id": {
+          "exclusiveMinimum": 0,
+          "title": "Owner Id",
+          "type": "integer"
+        },
+        "image_id": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image Id"
+        },
+        "image_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Image Sha256",
+          "type": "string"
+        },
+        "image_generation": {
+          "minimum": 0,
+          "title": "Image Generation",
+          "type": "integer"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "maximum": 12000,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "maximum": 12000,
+          "title": "Height",
+          "type": "integer"
+        },
+        "captured_at": {
+          "format": "date-time",
+          "title": "Captured At",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        },
+        "category_hint_before": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category Hint Before"
+        },
+        "category_hint_recorded_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category Hint Recorded At"
+        }
+      },
+      "required": [
+        "run_id",
+        "owner_id",
+        "image_sha256",
+        "image_generation",
+        "width",
+        "height",
+        "captured_at",
+        "expires_at"
+      ],
+      "title": "SelectionContext",
+      "type": "object"
+    },
+    "VisualEmbeddingReference": {
+      "additionalProperties": false,
+      "properties": {
+        "vector_space": {
+          "const": "visual",
+          "default": "visual",
+          "title": "Vector Space",
+          "type": "string"
+        },
+        "image_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Image Sha256",
+          "type": "string"
+        },
+        "row_id": {
+          "exclusiveMinimum": 0,
+          "title": "Row Id",
+          "type": "integer"
+        },
+        "model_id": {
+          "maxLength": 180,
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^[a-f0-9]{40}$",
+          "title": "Revision",
+          "type": "string"
+        },
+        "dimensions": {
+          "const": 768,
+          "default": 768,
+          "title": "Dimensions",
+          "type": "integer"
+        },
+        "normalization": {
+          "const": "l2",
+          "default": "l2",
+          "title": "Normalization",
+          "type": "string"
+        },
+        "preprocess_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Preprocess Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "image_sha256",
+        "row_id",
+        "model_id",
+        "revision",
+        "preprocess_version"
+      ],
+      "title": "VisualEmbeddingReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "target-human-selection-event-1",
+      "default": "target-human-selection-event-1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "feature_schema": {
+      "const": "target-predecision-features-1",
+      "default": "target-predecision-features-1",
+      "title": "Feature Schema",
+      "type": "string"
+    },
+    "label_policy": {
+      "const": "one_human_choice_complete_group-1",
+      "default": "one_human_choice_complete_group-1",
+      "title": "Label Policy",
+      "type": "string"
+    },
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "action_id": {
+      "format": "uuid",
+      "title": "Action Id",
+      "type": "string"
+    },
+    "group_id": {
+      "format": "uuid",
+      "title": "Group Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "selection_mode": {
+      "const": "human",
+      "default": "human",
+      "title": "Selection Mode",
+      "type": "string"
+    },
+    "actor_id": {
+      "exclusiveMinimum": 0,
+      "title": "Actor Id",
+      "type": "integer"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "snapshot": {
+      "$ref": "#/$defs/CandidateSnapshot"
+    },
+    "labels": {
+      "items": {
+        "$ref": "#/$defs/CandidateLabel"
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "title": "Labels",
+      "type": "array"
+    },
+    "post_decision": {
+      "$ref": "#/$defs/PostDecisionLabels"
+    },
+    "training_ready": {
+      "const": false,
+      "default": false,
+      "title": "Training Ready",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "event_id",
+    "action_id",
+    "group_id",
+    "snapshot_sha256",
+    "actor_id",
+    "created_at",
+    "snapshot",
+    "labels",
+    "post_decision"
+  ],
+  "title": "HumanSelectionEvent",
+  "type": "object"
+}

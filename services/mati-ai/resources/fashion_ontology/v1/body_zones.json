@@ -1,0 +1,614 @@
+{
+  "artifact_type": "vocabulary",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "concepts": [
+    {
+      "canonical_id": "body.zone.full_body",
+      "label_es": "Cuerpo completo",
+      "label_en": "Full body",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": null,
+      "review_status": "SAFE TO FREEZE",
+      "domain": "body_zone",
+      "zone_kind": "aggregate"
+    },
+    {
+      "canonical_id": "body.zone.head",
+      "label_es": "Cabeza",
+      "label_en": "Head",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.full_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.face",
+      "label_es": "Rostro",
+      "label_en": "Face",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.head",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.ears",
+      "label_es": "Orejas",
+      "label_en": "Ears",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.head",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.neck",
+      "label_es": "Cuello",
+      "label_en": "Neck",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.full_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.upper_body",
+      "label_es": "Región superior",
+      "label_en": "Upper body",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.full_body",
+      "review_status": "SAFE TO FREEZE",
+      "domain": "body_zone",
+      "zone_kind": "aggregate"
+    },
+    {
+      "canonical_id": "body.zone.torso",
+      "label_es": "Torso",
+      "label_en": "Torso",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.upper_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.shoulders",
+      "label_es": "Hombros",
+      "label_en": "Shoulders",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.upper_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.arms",
+      "label_es": "Brazos",
+      "label_en": "Arms",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.upper_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.wrists",
+      "label_es": "Muñecas",
+      "label_en": "Wrists",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.arms",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.hands",
+      "label_es": "Manos",
+      "label_en": "Hands",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.arms",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.fingers",
+      "label_es": "Dedos de mano",
+      "label_en": "Fingers",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.hands",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.waist",
+      "label_es": "Cintura",
+      "label_en": "Waist",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.full_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "boundary"
+    },
+    {
+      "canonical_id": "body.zone.lower_body",
+      "label_es": "Región inferior",
+      "label_en": "Lower body",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.full_body",
+      "review_status": "SAFE TO FREEZE",
+      "domain": "body_zone",
+      "zone_kind": "aggregate"
+    },
+    {
+      "canonical_id": "body.zone.pelvis",
+      "label_es": "Pelvis",
+      "label_en": "Pelvis",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.lower_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.legs",
+      "label_es": "Piernas",
+      "label_en": "Legs",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.lower_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.feet",
+      "label_es": "Pies",
+      "label_en": "Feet",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.lower_body",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    },
+    {
+      "canonical_id": "body.zone.back",
+      "label_es": "Espalda",
+      "label_en": "Back",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Zona funcional de cobertura/contacto para vestimenta; no medición anatómica exacta.",
+      "parent_id": "body.zone.torso",
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "body_zone",
+      "zone_kind": "region"
+    }
+  ],
+  "bindings": [
+    {
+      "category_id": "garment.category.shirt",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.blouse",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.tshirt",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.polo",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.sweater",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.cardigan",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.tank_top",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.top",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.sweatshirt",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.trousers",
+      "primary_zone": "body.zone.pelvis",
+      "secondary_zones": [
+        "body.zone.legs"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.jeans",
+      "primary_zone": "body.zone.pelvis",
+      "secondary_zones": [
+        "body.zone.legs"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.shorts",
+      "primary_zone": "body.zone.pelvis",
+      "secondary_zones": [
+        "body.zone.legs"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.skirt",
+      "primary_zone": "body.zone.pelvis",
+      "secondary_zones": [
+        "body.zone.legs"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.leggings",
+      "primary_zone": "body.zone.pelvis",
+      "secondary_zones": [
+        "body.zone.legs"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.blazer",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.jacket",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.coat",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.cape",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.vest",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.dress",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.pelvis",
+        "body.zone.legs"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.jumpsuit",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.pelvis",
+        "body.zone.legs"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.romper",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [
+        "body.zone.pelvis",
+        "body.zone.legs"
+      ],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.sneaker",
+      "primary_zone": "body.zone.feet",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.boot",
+      "primary_zone": "body.zone.feet",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.pump",
+      "primary_zone": "body.zone.feet",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.loafer",
+      "primary_zone": "body.zone.feet",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.sandal",
+      "primary_zone": "body.zone.feet",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.flat_shoe",
+      "primary_zone": "body.zone.feet",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.handbag",
+      "primary_zone": "body.zone.hands",
+      "secondary_zones": [],
+      "coverage_role": "carried_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.backpack",
+      "primary_zone": "body.zone.back",
+      "secondary_zones": [
+        "body.zone.shoulders"
+      ],
+      "coverage_role": "carried_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.waist_bag",
+      "primary_zone": "body.zone.waist",
+      "secondary_zones": [],
+      "coverage_role": "carried_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.travel_bag",
+      "primary_zone": "body.zone.hands",
+      "secondary_zones": [],
+      "coverage_role": "carried_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.hat",
+      "primary_zone": "body.zone.head",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.cap",
+      "primary_zone": "body.zone.head",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.scarf",
+      "primary_zone": "body.zone.neck",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.tie",
+      "primary_zone": "body.zone.neck",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.necklace",
+      "primary_zone": "body.zone.neck",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.bracelet",
+      "primary_zone": "body.zone.wrists",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.ring",
+      "primary_zone": "body.zone.fingers",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.earring",
+      "primary_zone": "body.zone.ears",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.brooch",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [],
+      "coverage_role": "contacts",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.glasses",
+      "primary_zone": "body.zone.face",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.belt",
+      "primary_zone": "body.zone.waist",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.watch",
+      "primary_zone": "body.zone.wrists",
+      "secondary_zones": [],
+      "coverage_role": "worn_at",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.gloves",
+      "primary_zone": "body.zone.hands",
+      "secondary_zones": [],
+      "coverage_role": "covers",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    },
+    {
+      "category_id": "garment.category.pocket_square",
+      "primary_zone": "body.zone.torso",
+      "secondary_zones": [],
+      "coverage_role": "contacts",
+      "notes": "Default candidate; real coverage depends on length, sleeves, component and wear context."
+    }
+  ],
+  "semantics": {
+    "coverage_roles": [
+      "covers",
+      "worn_at",
+      "carried_at",
+      "contacts"
+    ],
+    "aggregate_only": [
+      "body.zone.full_body",
+      "body.zone.upper_body",
+      "body.zone.lower_body"
+    ],
+    "hierarchy_policy": "part_of tree for aggregation; waist is boundary under full_body, not duplicated under upper and lower",
+    "multi_piece_policy": "Aggregate component assertions; no inferred single FULL_BODY coverage",
+    "bag_policy": "Primary/secondary are carrying sites; alternate carry is contextual, not garment coverage",
+    "sleeve_policy": "Add arms only when sleeves evidenced; unknown coverage never means bare body"
+  }
+}

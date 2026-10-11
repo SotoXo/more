@@ -1,0 +1,228 @@
+{
+  "artifact_type": "vocabulary",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "concepts": [
+    {
+      "canonical_id": "value.fiber.cotton",
+      "label_es": "Algodón",
+      "label_en": "Cotton",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra declarada de algodón; no confirmar por apariencia.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.wool",
+      "label_es": "Lana",
+      "label_en": "Wool",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra declarada de lana; especie/composición requieren etiqueta.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.alpaca",
+      "label_es": "Alpaca",
+      "label_en": "Alpaca",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra declarada de alpaca; nombre de producto no certifica porcentaje.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.cashmere",
+      "label_es": "Cachemira",
+      "label_en": "Cashmere",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra declarada de cachemira; autenticidad no inferible visualmente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.silk",
+      "label_es": "Seda",
+      "label_en": "Silk",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra declarada de seda; satén no es evidencia suficiente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.linen",
+      "label_es": "Lino",
+      "label_en": "Linen",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra declarada de lino; arrugas no prueban composición.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.polyester",
+      "label_es": "Poliéster",
+      "label_en": "Polyester",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra manufacturada declarada de poliéster.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.polyamide",
+      "label_es": "Poliamida",
+      "label_en": "Polyamide",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra manufacturada declarada de poliamida; nylon como alias contextual.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.acrylic",
+      "label_es": "Acrílico",
+      "label_en": "Acrylic",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra manufacturada declarada de acrílico.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.elastane",
+      "label_es": "Elastano",
+      "label_en": "Elastane",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra elastomérica declarada; elasticidad aparente no establece porcentaje.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.viscose",
+      "label_es": "Viscosa",
+      "label_en": "Viscose",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra regenerada declarada viscosa; no fusionar con todas las variedades de rayón.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.fiber.lyocell",
+      "label_es": "Lyocell",
+      "label_en": "Lyocell",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Fibra regenerada declarada lyocell; marcas comerciales no equivalen por defecto.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fiber"
+    },
+    {
+      "canonical_id": "value.non_textile_material.leather",
+      "label_es": "Cuero",
+      "label_en": "Leather",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Material cuero confirmado por catálogo/etiqueta; no distinguir autenticidad solo por imagen.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "non_textile_material"
+    },
+    {
+      "canonical_id": "value.non_textile_material.synthetic_leather",
+      "label_es": "Material sintético tipo cuero",
+      "label_en": "Synthetic leather",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Material declarado sintético con apariencia cuero; composición exacta separada.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "non_textile_material"
+    },
+    {
+      "canonical_id": "value.non_textile_material.metal",
+      "label_es": "Metal",
+      "label_en": "Metal",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Material metálico declarado; aleación, ley y valor no inferibles.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "non_textile_material"
+    },
+    {
+      "canonical_id": "value.non_textile_material.glass",
+      "label_es": "Vidrio",
+      "label_en": "Glass",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Material vidrio confirmado, sin deducir propiedades ópticas.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "non_textile_material"
+    },
+    {
+      "canonical_id": "value.non_textile_material.polymer",
+      "label_es": "Polímero",
+      "label_en": "Polymer",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Material polimérico confirmado; resina específica desconocida.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "non_textile_material"
+    },
+    {
+      "canonical_id": "value.non_textile_material.rubber",
+      "label_es": "Caucho",
+      "label_en": "Rubber",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Material caucho declarado; natural/sintético requiere etiqueta.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "non_textile_material"
+    },
+    {
+      "canonical_id": "value.non_textile_material.wood",
+      "label_es": "Madera",
+      "label_en": "Wood",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Material madera declarado; especie no inferible.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "non_textile_material"
+    },
+    {
+      "canonical_id": "value.non_textile_material.acetate",
+      "label_es": "Acetato para montura",
+      "label_en": "Frame acetate",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Material acetato de montura confirmado; dominio distinto de fibra textil.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "non_textile_material"
+    }
+  ]
+}

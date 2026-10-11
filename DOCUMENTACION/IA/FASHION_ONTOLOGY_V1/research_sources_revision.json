@@ -1,0 +1,317 @@
+{
+  "artifact_type": "revision_research_registry",
+  "schema_version": "1.0.0-documentary",
+  "status": "DRAFT_FOR_REVIEW",
+  "consulted_on_local": "2026-10-08",
+  "timezone": "America/La_Paz",
+  "scope": {
+    "stable_vocabulary_modified": false,
+    "candidates_promoted": false,
+    "web_documentation_only": true,
+    "trend_series_downloaded": false,
+    "images_downloaded": false,
+    "datasets_downloaded": false,
+    "models_downloaded": false,
+    "training_run": false,
+    "scraping_implemented": false,
+    "commercial_clearance_granted": false
+  },
+  "notes": [
+    "Separate from research_sources.json: the earlier research record is preserved.",
+    "MORE definitions and relations are original design proposals pending Mati review; source terminology is not a domain mandate.",
+    "candidate.* identifiers identify documentary proposals only; they are not stable vocabulary IDs or Product Intelligence values.",
+    "described_period is the exhibition/event period, not inferred publication date; null publication_date means not established.",
+    "Historical style documentation is not evidence of current popularity, sales, available inventory or local adoption.",
+    "Public access does not grant image or content redistribution rights."
+  ],
+  "sources": [
+    {
+      "id": "revision_fit_minmax",
+      "title": "Minimalism/Maximalism",
+      "publisher": "The Museum at FIT",
+      "source_type": "primary_publisher_page",
+      "url": "https://www.fitnyc.edu/museum/exhibitions/minimalism-maximalism.php",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "start": "2019-05-28",
+        "end": "2019-11-16"
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Contrasts reductive design with visual exuberance; minimalist design can use ornament to support construction.",
+      "more_proposals": [
+        "candidate.style.maximalist",
+        "clarification.value.style.minimalist"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Historical exhibition; contemporary wording refers to its exhibition period, not 2026."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_met_punk",
+      "title": "PUNK: Chaos to Couture",
+      "publisher": "The Metropolitan Museum of Art",
+      "source_type": "primary_publisher_page",
+      "url": "https://www.metmuseum.org/exhibitions/listings/2013/punk",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "start": "2013-05-09",
+        "end": "2013-08-14"
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Examines punk visual symbols and DIY themes including hardware, bricolage, graphics and deliberate destruction.",
+      "more_proposals": [
+        "candidate.style.punk_inspired"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Does not define a universal visual classifier or prove current demand."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_fit_gothic",
+      "title": "Gothic: Dark Glamour",
+      "publisher": "The Museum at FIT",
+      "source_type": "primary_publisher_page",
+      "url": "https://www.fitnyc.edu/museum/exhibitions/gothic-dark-glamour.php",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "start": "2008-09-05",
+        "end": "2009-02-21"
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Documents gothic themes across fashion and multiple historical/subcultural repertoires.",
+      "more_proposals": [
+        "candidate.style.gothic_inspired"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Black clothing alone is not a validated identification criterion; MORE domain choice remains proposed."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_fit_nineties",
+      "title": "Reinvention & Restlessness: Fashion in the Nineties",
+      "publisher": "The Museum at FIT",
+      "source_type": "primary_publisher_page",
+      "url": "https://www.fitnyc.edu/museum/exhibitions/fashion-in-the-nineties.php",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "start": "2022-01-19",
+        "end": "2022-04-17"
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Distinguishes grunge, minimalism, deconstruction and retro revival; describes grunge through layered, mismatched and worn-looking clothing.",
+      "more_proposals": [
+        "candidate.style.grunge_inspired",
+        "clarification.value.aesthetic.retro",
+        "clarification.value.aesthetic.y2k"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Exhibition studies 1990s references; no date of manufacture inferred for a product.",
+        "An initially attempted /reinvention-restlessness/index.php URL failed; the listed fashion-in-the-nineties.php page was subsequently verified."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_fit_utility",
+      "title": "Beyond Utility",
+      "publisher": "The Museum at FIT / FIT School of Graduate Studies",
+      "source_type": "primary_publisher_page",
+      "url": "https://www.fitnyc.edu/museum/exhibitions/beyond-utility/index.php",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "start": "2026-02-25",
+        "end": "2026-03-22"
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Juxtaposes workwear, military and craft archetypes with fashion reinterpretations, separating visible codes from original functions.",
+      "more_proposals": [
+        "clarification.value.style.utilitarian",
+        "candidate.relation.workwear_utilitarian",
+        "candidate.relation.military_utilitarian"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Does not certify technical properties of any Mati product."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_fit_hiphop",
+      "title": "Fresh, Fly, and Fabulous: Fifty Years of Hip Hop Style",
+      "publisher": "The Museum at FIT",
+      "source_type": "primary_publisher_page",
+      "url": "https://www.fitnyc.edu/museum/exhibitions/hip-hop-style/",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "year": 2023
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Documents the evolution and cultural specificity of hip hop fashion, including remixing and customization.",
+      "more_proposals": [
+        "clarification.value.style.streetwear"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Hip hop is not treated as an exact synonym for all streetwear; identity of people is not inferred."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_fit_ivy",
+      "title": "Ivy Style",
+      "publisher": "The Museum at FIT",
+      "source_type": "primary_publisher_page",
+      "url": "https://sites.fitnyc.edu/depts/museum/Ivy_Style/",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "start": "2012-09-14",
+        "end": "2013-01-05"
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Documents a collegiate repertoire and subsequent reinterpretations, including uses of the name preppy.",
+      "more_proposals": [
+        "candidate.relation.ivy_preppy"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Partial relationship proposed by MORE; no universal equivalence of Ivy and preppy approved."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_vam_saul_nash",
+      "title": "Fashion in Motion: Saul Nash",
+      "publisher": "Victoria and Albert Museum",
+      "source_type": "primary_publisher_page",
+      "url": "https://www.vam.ac.uk/articles/fashion-in-motion-saul-nash",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "event_date": "2026-03-06",
+        "page_last_updated": "2026-02-25"
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Describes a design practice reinterpreting sportswear and athleisure codes through movement and fashion.",
+      "more_proposals": [
+        "candidate.relation.athleisure_sport_inspired"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Documents one practice rather than a universal athleisure definition or current market prevalence."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_emily_post",
+      "title": "Attire Guide: Dress Codes from Casual to White Tie",
+      "publisher": "The Emily Post Institute",
+      "source_type": "primary_publisher_page",
+      "url": "https://emilypost.com/advice/attire-guide-dress-codes-from-casual-to-white-tie",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": null,
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Distinguishes event dress expectations, including black tie optional and creative black tie.",
+      "more_proposals": [
+        "candidate.dress_code.black_tie_optional",
+        "candidate.context.festive",
+        "candidate.context.creative_black_tie"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Cultural guidance is not a universal Bolivian norm; event instructions and Mati review remain necessary."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_fit_trendology",
+      "title": "Trend-ology",
+      "publisher": "The Museum at FIT",
+      "source_type": "primary_publisher_page",
+      "url": "https://www.fitnyc.edu/museum/exhibitions/trend-ology.php",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": {
+        "start": "2013-12-03",
+        "end": "2014-04-30"
+      },
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Documents that fashion trends can emerge from changes in print, color, material, embellishment or silhouette and from diverse cultural sources.",
+      "more_proposals": [
+        "design.novelty_evaluation"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "Historical source is not a live trend measurement or approval of a new style."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    },
+    {
+      "id": "revision_google_trends_faq",
+      "title": "FAQ about Google Trends data",
+      "publisher": "Google Trends Help",
+      "source_type": "primary_publisher_page",
+      "url": "https://support.google.com/trends/answer/4365533?hl=en",
+      "consulted_on_local": "2026-10-08",
+      "timezone": "America/La_Paz",
+      "publication_date": null,
+      "described_period": null,
+      "access_status": "VERIFIED_READABLE",
+      "evidence": "Explains sampled, geographically and temporally normalized search interest, low-volume limits and why search spikes are not polling or sales evidence.",
+      "more_proposals": [
+        "design.trend_signal_interpretation"
+      ],
+      "source_assertion_is_more_approval": false,
+      "limitations": [
+        "No trend queries, series or API integration executed.",
+        "The same normalized score between regions need not represent equal search volume."
+      ],
+      "definitions_copied": false,
+      "images_downloaded": false,
+      "media_reuse_authorized": false
+    }
+  ]
+}

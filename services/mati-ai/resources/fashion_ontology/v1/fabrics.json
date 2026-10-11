@@ -1,0 +1,173 @@
+{
+  "artifact_type": "vocabulary",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "concepts": [
+    {
+      "canonical_id": "value.textile_structure.woven",
+      "label_es": "Tejido de calada",
+      "label_en": "Woven",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Estructura de hilos entrelazados de urdimbre y trama.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "textile_structure"
+    },
+    {
+      "canonical_id": "value.textile_structure.knitted",
+      "label_es": "Tejido de punto",
+      "label_en": "Knitted",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Estructura de bucles enlazados; no especifica fibra.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "textile_structure"
+    },
+    {
+      "canonical_id": "value.textile_structure.nonwoven",
+      "label_es": "No tejido",
+      "label_en": "Nonwoven",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Estructura no tejida ni de punto confirmada documentalmente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "textile_structure"
+    },
+    {
+      "canonical_id": "value.weave.plain",
+      "label_es": "Ligamento tafetán",
+      "label_en": "Plain weave",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Ligamento básico de entrelazado alterno.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "weave"
+    },
+    {
+      "canonical_id": "value.weave.twill",
+      "label_es": "Ligamento sarga",
+      "label_en": "Twill weave",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Ligamento que produce patrón diagonal característico.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "weave"
+    },
+    {
+      "canonical_id": "value.weave.satin",
+      "label_es": "Ligamento satén",
+      "label_en": "Satin weave",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Ligamento con bastas superficiales; no significa seda.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "weave"
+    },
+    {
+      "canonical_id": "value.knit_structure.jersey",
+      "label_es": "Punto jersey",
+      "label_en": "Jersey knit",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Estructura de punto jersey, distinta de jersey como nombre regional de suéter.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "knit_structure"
+    },
+    {
+      "canonical_id": "value.knit_structure.rib",
+      "label_es": "Punto canalé",
+      "label_en": "Rib knit",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Estructura de punto con columnas alternas; apariencia acanalada sola no la confirma.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "knit_structure"
+    },
+    {
+      "canonical_id": "value.knit_structure.interlock",
+      "label_es": "Punto interlock",
+      "label_en": "Interlock knit",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Estructura de punto interlock; normalmente requiere detalle o documentación.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "knit_structure"
+    },
+    {
+      "canonical_id": "value.fabric_family.denim",
+      "label_es": "Denim",
+      "label_en": "Denim",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia textil de identidad denim, comúnmente sarga; no implica algodón cien por ciento.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fabric_family"
+    },
+    {
+      "canonical_id": "value.fabric_family.chiffon",
+      "label_es": "Chifón",
+      "label_en": "Chiffon",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia textil ligera de identidad chifón; composición independiente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fabric_family"
+    },
+    {
+      "canonical_id": "value.fabric_family.lace",
+      "label_es": "Encaje",
+      "label_en": "Lace",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia textil de estructura calada ornamental; fibra independiente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fabric_family"
+    },
+    {
+      "canonical_id": "value.fabric_family.velvet",
+      "label_es": "Terciopelo",
+      "label_en": "Velvet",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia textil con pelo de identidad terciopelo; ligamento y fibra independientes.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fabric_family"
+    },
+    {
+      "canonical_id": "value.fabric_family.fleece",
+      "label_es": "Felpa",
+      "label_en": "Fleece",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia de tejido de identidad felpa; método constructivo debe confirmarse.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fabric_family"
+    },
+    {
+      "canonical_id": "value.fabric_family.corduroy",
+      "label_es": "Pana",
+      "label_en": "Corduroy",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia textil de identidad pana con cordones de pelo; no todo ribbed es pana.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "fabric_family"
+    }
+  ]
+}

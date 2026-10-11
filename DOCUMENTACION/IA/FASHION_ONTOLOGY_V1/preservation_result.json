@@ -1,0 +1,27 @@
+{
+  "captured_utc": "2026-10-08T03:16:09.027236+00:00",
+  "scope": "Protected filesystem and Git comparison during this task; no live DB connection",
+  "protected_files_count": 380,
+  "changed_protected_files": [],
+  "protected_files_identical": true,
+  "head_before": "e422ef4c0a279172ca03818a4b16ffb501d493bd",
+  "head_after": "e422ef4c0a279172ca03818a4b16ffb501d493bd",
+  "head_identical": true,
+  "validator_did_not_write_resources": true,
+  "new_status_lines": [
+    "?? DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/",
+    "?? services/mati-ai/scripts/fashion_ontology/"
+  ],
+  "removed_status_lines": [],
+  "unexpected_new_status_lines": [],
+  "prior_git_status_preserved": true,
+  "git_diff_check_exit_code": 0,
+  "git_diff_check_output": "",
+  "live_database_preservation": "UNVERIFIED_NO_LIVE_DB_ACCESS",
+  "historical_evidence_only": "2026-10-06 gate V2 preserved fingerprints do not certify current DB",
+  "training_executed": false,
+  "inference_or_GPU_tests_executed": false,
+  "commercial_writes_executed": false,
+  "git_add_commit_push_executed": false,
+  "validation_exit_code": 0
+}

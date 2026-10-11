@@ -1,0 +1,1193 @@
+{
+  "schema_version": "1.0.0",
+  "research_version": "1.0.0-design-candidate",
+  "consulted_on_local": "2026-10-07",
+  "timezone": "America/La_Paz",
+  "consulted_on_utc": "2026-10-08",
+  "status": "DESIGN_CANDIDATE_NOT_FROZEN",
+  "scope": {
+    "web_documentation_only": true,
+    "dataset_downloaded": false,
+    "models_downloaded": false,
+    "training_run": false,
+    "complete_taxonomies_copied": false,
+    "commercial_clearance_granted": false,
+    "source_assertions_are_not_more_decisions": true
+  },
+  "registry_notes": [
+    "Null publication year means not established, not missing current verification.",
+    "Missing source labels are UNKNOWN, never automatic negatives.",
+    "Candidate equivalence is not an approved label conversion.",
+    "more_ids bind only identifiers supplied by the ontology author; descriptive terms are not executable references.",
+    "No direct mapping means no equivalent verified in this review, not a claim of permanent impossibility."
+  ],
+  "sources": [
+    {
+      "id": "fashionpedia",
+      "title": "Fashionpedia: expert ontology and attribute-localized dataset",
+      "publisher": "Fashionpedia Consortium / Cornell / Google Research",
+      "source_type": "primary_research_project",
+      "published_year": 2020,
+      "urls": [
+        "https://fashionpedia.github.io/home/index.html",
+        "https://arxiv.org/html/2004.12276v2",
+        "https://fashionpedia.github.io/home/Fashionpedia_download.html"
+      ],
+      "license_urls": [
+        "https://fashionpedia.github.io/home/data_license.html",
+        "https://github.com/KMnP/fashionpedia-api/blob/master/license.txt"
+      ],
+      "evidence": [
+        "Categories, garment parts and localized attributes are separate concepts.",
+        "The paper maps composite benchmark classes to categories plus attributes."
+      ],
+      "licenses": {
+        "code": {
+          "status": "VERIFIED",
+          "identifier": "BSD-2-Clause",
+          "scope": "Fashionpedia software/API",
+          "commercial_use": "PERMITTED_WITH_CONDITIONS"
+        },
+        "ontology_and_annotations": {
+          "status": "VERIFIED",
+          "identifier": "CC-BY-4.0",
+          "commercial_use": "PERMITTED_WITH_ATTRIBUTION"
+        },
+        "images": {
+          "status": "PER_IMAGE_REVIEW_REQUIRED",
+          "identifier": null,
+          "commercial_use": "NOT_GLOBALLY_CLEARED",
+          "notes": "Project does not own image copyright; provider terms and image rights remain separate."
+        }
+      },
+      "conceptual_reuse": [
+        "Identity versus attributes",
+        "Garment part relations",
+        "Instance evidence"
+      ],
+      "rejected": [
+        "Whole external list import",
+        "Blanket image authorization"
+      ],
+      "review_status": "SAFE TO FREEZE PRINCIPLES ONLY",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "deepfashion2",
+      "title": "DeepFashion2",
+      "publisher": "switchablenorms / dataset authors",
+      "source_type": "primary_research_repository",
+      "published_year": 2019,
+      "urls": [
+        "https://github.com/switchablenorms/DeepFashion2",
+        "https://arxiv.org/abs/1901.07973"
+      ],
+      "license_urls": [
+        "https://github.com/switchablenorms/DeepFashion2#download-the-data"
+      ],
+      "evidence": [
+        "Category labels may combine garment identity and sleeve length.",
+        "The style field identifies retrieval variants, not cultural fashion styles."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_VERIFIED_GLOBALLY",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        },
+        "ontology_and_annotations": {
+          "status": "RESEARCH_INCOMPLETE",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED",
+          "notes": "README directs to access form; complete access conditions were unavailable to the web reader."
+        },
+        "images": {
+          "status": "RESEARCH_INCOMPLETE",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Factorization of compound labels",
+        "Occlusion/viewpoint evidence"
+      ],
+      "rejected": [
+        "style -> MORE style affinity",
+        "License inheritance from DeepFashion or third-party forks"
+      ],
+      "review_status": "RESEARCH INCOMPLETE",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "deepfashion_original",
+      "title": "DeepFashion Database and Release Agreement",
+      "publisher": "CUHK MMLab",
+      "source_type": "primary_dataset_publisher",
+      "published_year": 2016,
+      "urls": [
+        "https://mmlab.ie.cuhk.edu.hk/projects/DeepFashion.html"
+      ],
+      "license_urls": [
+        "https://mmlab.ie.cuhk.edu.hk/projects/DeepFashion/DeepFashionAgreement.pdf"
+      ],
+      "evidence": [
+        "The original dataset agreement limits access to noncommercial research."
+      ],
+      "licenses": {
+        "code": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        },
+        "ontology_and_annotations": {
+          "status": "VERIFIED_RESTRICTED",
+          "identifier": "DeepFashion Dataset Release Agreement",
+          "commercial_use": "NONCOMMERCIAL_RESEARCH_ONLY"
+        },
+        "images": {
+          "status": "VERIFIED_RESTRICTED",
+          "identifier": "DeepFashion Dataset Release Agreement",
+          "commercial_use": "NONCOMMERCIAL_RESEARCH_ONLY"
+        }
+      },
+      "conceptual_reuse": [
+        "Comparison of public dataset scope"
+      ],
+      "rejected": [
+        "Applying this agreement automatically to DeepFashion2"
+      ],
+      "review_status": "RESEARCH INCOMPLETE FOR COMMERCIAL USE",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "modanet",
+      "title": "ModaNet",
+      "publisher": "eBay / authors",
+      "source_type": "primary_research_repository",
+      "published_year": 2018,
+      "urls": [
+        "https://github.com/eBay/modanet",
+        "https://arxiv.org/abs/1807.01394"
+      ],
+      "license_urls": [
+        "https://github.com/eBay/modanet/blob/master/LICENSE",
+        "https://creativecommons.org/licenses/by-nc/4.0/"
+      ],
+      "evidence": [
+        "Annotations use broad classes, including a heterogeneous outer class.",
+        "Images are drawn from the separate PaperDoll image set."
+      ],
+      "licenses": {
+        "code": {
+          "status": "PARTIAL_SCOPE",
+          "identifier": "COCO format software notice in LICENSE",
+          "commercial_use": "NOT_AN_IMAGE_OR_DATA_GRANT"
+        },
+        "ontology_and_annotations": {
+          "status": "VERIFIED_RESTRICTED",
+          "identifier": "CC-BY-NC-4.0",
+          "commercial_use": "NONCOMMERCIAL_ONLY"
+        },
+        "images": {
+          "status": "SEPARATE_RIGHTS_REVIEW_REQUIRED",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Coarse external benchmark mappings",
+        "Accessory instance coverage"
+      ],
+      "rejected": [
+        "outer = MORE outerwear",
+        "Commercial training authorization"
+      ],
+      "review_status": "RESEARCH INCOMPLETE FOR COMMERCIAL USE",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "schema_org",
+      "title": "schema.org Product",
+      "publisher": "schema.org",
+      "source_type": "primary_vocabulary_publisher",
+      "published_year": null,
+      "urls": [
+        "https://schema.org/Product",
+        "https://schema.org/material",
+        "https://schema.org/pattern",
+        "https://schema.org/size"
+      ],
+      "license_urls": [
+        "https://schema.org/docs/terms.html",
+        "https://github.com/schemaorg/schemaorg/blob/main/LICENSE"
+      ],
+      "evidence": [
+        "Product supports specific properties and references for descriptive product information.",
+        "Website terms and current repository LICENSE identify different license scopes."
+      ],
+      "licenses": {
+        "code": {
+          "status": "VERIFIED_REPOSITORY",
+          "identifier": "Apache-2.0",
+          "commercial_use": "PERMITTED_WITH_CONDITIONS"
+        },
+        "ontology_and_annotations": {
+          "status": "RESOURCE_SCOPE_REVIEW_REQUIRED",
+          "identifier": "Website terms: CC-BY-SA-3.0; repository LICENSE: Apache-2.0",
+          "commercial_use": "SELECT_EXACT_RESOURCE_AND_TERMS_BEFORE_IMPORT"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "External URI references",
+        "Future publication adapter"
+      ],
+      "rejected": [
+        "Invented schema:Apparel class",
+        "Offers/stock/prices inside semantic ontology"
+      ],
+      "review_status": "SAFE TO FREEZE REFERENCES; COPYING NEEDS RESOURCE REVIEW",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "google_product_taxonomy",
+      "title": "Google product category attribute",
+      "publisher": "Google Merchant Center",
+      "source_type": "primary_product_documentation",
+      "published_year": null,
+      "urls": [
+        "https://support.google.com/merchants/answer/6324436?hl=en"
+      ],
+      "license_urls": [
+        "https://support.google.com/merchants/answer/6324436?hl=en"
+      ],
+      "evidence": [
+        "Taxonomy is evolving and serves categorization for Shopping.",
+        "Predefined category identifiers or paths differ from merchant-defined product types."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_APPLICABLE",
+          "identifier": null,
+          "commercial_use": "NOT_APPLICABLE"
+        },
+        "ontology_and_annotations": {
+          "status": "RESEARCH_INCOMPLETE",
+          "identifier": null,
+          "commercial_use": "REDISTRIBUTION_NOT_CLEARED"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Versioned external commerce mapping"
+      ],
+      "rejected": [
+        "Full taxonomy copy",
+        "External channel tree as MORE domain authority"
+      ],
+      "review_status": "RESEARCH INCOMPLETE FOR LIST IMPORT",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "gs1_webvoc",
+      "title": "GS1 Web Vocabulary",
+      "publisher": "GS1",
+      "source_type": "primary_vocabulary_publisher",
+      "published_year": null,
+      "urls": [
+        "https://www.gs1.org/gs1-web-vocabulary",
+        "https://ref.gs1.org/voc/",
+        "https://ref.gs1.org/voc/Footwear",
+        "https://github.com/gs1/WebVoc"
+      ],
+      "license_urls": [
+        "https://github.com/gs1/WebVoc/blob/master/LICENSE"
+      ],
+      "evidence": [
+        "Specialized product properties have declared domain and value type.",
+        "The publisher repository expressly licenses WebVoc under Apache 2.0."
+      ],
+      "licenses": {
+        "code": {
+          "status": "VERIFIED",
+          "identifier": "Apache-2.0",
+          "commercial_use": "PERMITTED_WITH_CONDITIONS"
+        },
+        "ontology_and_annotations": {
+          "status": "VERIFIED_WEBVOC_SCOPE",
+          "identifier": "Apache-2.0",
+          "commercial_use": "PERMITTED_WITH_CONDITIONS",
+          "notes": "Check versioned file license notice before later import."
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Applicability",
+        "Typed values and units",
+        "External identifiers"
+      ],
+      "rejected": [
+        "Invented GPC codes",
+        "Apache extension to all GS1 resources"
+      ],
+      "review_status": "SAFE TO FREEZE DESIGN PRINCIPLES",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "gs1_gpc",
+      "title": "GS1 Global Product Classification",
+      "publisher": "GS1",
+      "source_type": "primary_standard_publisher",
+      "published_year": null,
+      "urls": [
+        "https://www.gs1.org/standards/gpc/how-gpc-works",
+        "https://gpc-browser.gs1.org/"
+      ],
+      "license_urls": [],
+      "evidence": [
+        "GPC is a separate classification resource for trade partner interoperability."
+      ],
+      "licenses": {
+        "code": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        },
+        "ontology_and_annotations": {
+          "status": "RESEARCH_INCOMPLETE",
+          "identifier": null,
+          "commercial_use": "REDISTRIBUTION_NOT_CLEARED"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Future external trade mapping"
+      ],
+      "rejected": [
+        "Codes or lists without verified version/license"
+      ],
+      "review_status": "RESEARCH INCOMPLETE",
+      "access_limitations": [
+        "How GPC works page yielded search excerpt but direct open failed; browser content was not fully readable."
+      ],
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "shopify_taxonomy",
+      "title": "Shopify Standard Product Taxonomy",
+      "publisher": "Shopify",
+      "source_type": "primary_retail_taxonomy",
+      "published_year": null,
+      "urls": [
+        "https://github.com/Shopify/product-taxonomy"
+      ],
+      "license_urls": [
+        "https://github.com/Shopify/product-taxonomy/blob/main/LICENSE"
+      ],
+      "evidence": [
+        "Categories, attributes, values and external mappings are independently organized.",
+        "The publisher explicitly releases its product taxonomy under MIT."
+      ],
+      "licenses": {
+        "code": {
+          "status": "VERIFIED",
+          "identifier": "MIT",
+          "commercial_use": "PERMITTED_WITH_CONDITIONS"
+        },
+        "ontology_and_annotations": {
+          "status": "VERIFIED_TAXONOMY_SCOPE",
+          "identifier": "MIT",
+          "commercial_use": "PERMITTED_WITH_CONDITIONS"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Referenced vocabularies",
+        "Versioned mappings"
+      ],
+      "rejected": [
+        "Full retail tree import",
+        "Changing Mati commercial taxonomy"
+      ],
+      "review_status": "SAFE TO FREEZE DESIGN PRINCIPLES",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "weavers_company",
+      "title": "Glossary of Weaving Terms",
+      "publisher": "The Worshipful Company of Weavers",
+      "source_type": "primary_professional_glossary",
+      "published_year": null,
+      "urls": [
+        "https://www.weavers.org.uk/textiles/resources/glossary-of-weaving-terms/"
+      ],
+      "license_urls": [],
+      "evidence": [
+        "Fabric structures are distinct from fiber composition.",
+        "The term jersey has fabric and garment meanings depending on context."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_APPLICABLE",
+          "identifier": null,
+          "commercial_use": "NOT_APPLICABLE"
+        },
+        "ontology_and_annotations": {
+          "status": "OPEN_LICENSE_NOT_VERIFIED",
+          "identifier": null,
+          "commercial_use": "NO_CONTENT_IMPORT"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Terminology contrast; original MORE definitions"
+      ],
+      "rejected": [
+        "Copied/transformed glossary lists"
+      ],
+      "review_status": "SAFE TO FREEZE AXIS SEPARATION",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "act_glossary",
+      "title": "Contract Textile Glossary",
+      "publisher": "Association for Contract Textiles",
+      "source_type": "primary_professional_glossary",
+      "published_year": null,
+      "urls": [
+        "https://contracttextiles.org/learn/contract-textile-glossary/"
+      ],
+      "license_urls": [],
+      "evidence": [
+        "Weave structures and fabric names need distinct interpretation."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_APPLICABLE",
+          "identifier": null,
+          "commercial_use": "NOT_APPLICABLE"
+        },
+        "ontology_and_annotations": {
+          "status": "OPEN_LICENSE_NOT_VERIFIED",
+          "identifier": null,
+          "commercial_use": "NO_CONTENT_IMPORT"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Professional terminology validation"
+      ],
+      "rejected": [
+        "Direct glossary copy"
+      ],
+      "review_status": "SAFE TO FREEZE AXIS SEPARATION",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "cottonworks",
+      "title": "CottonWorks Denim Basics and technical textile references",
+      "publisher": "Cotton Incorporated",
+      "source_type": "primary_industry_education",
+      "published_year": null,
+      "urls": [
+        "https://cottonworks.com/learning-hub/denim/denim-basics/",
+        "https://cottonworks.com/wp-content/uploads/2023/03/Weaving-101.pdf"
+      ],
+      "license_urls": [
+        "https://cottonworks.com/terms-and-conditions/"
+      ],
+      "evidence": [
+        "Denim can be described by fabric construction independently of a composition assertion."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_APPLICABLE",
+          "identifier": null,
+          "commercial_use": "NOT_APPLICABLE"
+        },
+        "ontology_and_annotations": {
+          "status": "VERIFIED_RESTRICTED_WEBSITE_TERMS",
+          "identifier": "Cotton Incorporated website terms",
+          "commercial_use": "NO_CONTENT_IMPORT"
+        },
+        "images": {
+          "status": "RESTRICTED_WEBSITE_TERMS",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Fact checking of textile construction"
+      ],
+      "rejected": [
+        "Commercial glossary/diagram/sample import"
+      ],
+      "review_status": "SAFE TO FREEZE AXIS SEPARATION",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "ftc_fiber",
+      "title": "Threading Your Way Through the Labeling Requirements Under the Textile and Wool Acts",
+      "publisher": "US Federal Trade Commission",
+      "source_type": "primary_government_guidance",
+      "published_year": null,
+      "urls": [
+        "https://www.ftc.gov/business-guidance/resources/threading-your-way-through-labeling-requirements-under-textile-wool-acts"
+      ],
+      "license_urls": [],
+      "evidence": [
+        "Fiber content is documented by generic names and proportions; component declarations exist."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_APPLICABLE",
+          "identifier": null,
+          "commercial_use": "NOT_APPLICABLE"
+        },
+        "ontology_and_annotations": {
+          "status": "NO_CONTENT_IMPORT",
+          "identifier": null,
+          "commercial_use": "FACTUAL_REFERENCE_ONLY"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Composition by component with evidence"
+      ],
+      "rejected": [
+        "Assuming US requirements govern Mati in Bolivia",
+        "Visual composition confirmation"
+      ],
+      "review_status": "SAFE TO FREEZE AXIS SEPARATION",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "va_silhouette",
+      "title": "V&A fashion silhouette and construction resources",
+      "publisher": "Victoria and Albert Museum",
+      "source_type": "primary_museum_education",
+      "published_year": null,
+      "urls": [
+        "https://www.vam.ac.uk/blog/museum-life/letsmakewednesdays-fashion",
+        "https://www.vam.ac.uk/articles/fashion-unpicked-bar-suit-dior"
+      ],
+      "license_urls": [],
+      "evidence": [
+        "Silhouette concerns garment outline; cut and construction influence the resulting form and fit."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_APPLICABLE",
+          "identifier": null,
+          "commercial_use": "NOT_APPLICABLE"
+        },
+        "ontology_and_annotations": {
+          "status": "OPEN_LICENSE_NOT_VERIFIED",
+          "identifier": null,
+          "commercial_use": "NO_CONTENT_IMPORT"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Silhouette versus construction distinctions"
+      ],
+      "rejected": [
+        "Museum images/text imports"
+      ],
+      "review_status": "NEEDS MATI REVIEW FOR ANNOTATION BOUNDARIES",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "fit_style",
+      "title": "Museum at FIT: cultural style, minimalist aesthetics, Ivy and utility references",
+      "publisher": "Museum at FIT",
+      "source_type": "primary_museum_research",
+      "published_year": null,
+      "published_resource_years": [
+        2012,
+        2019,
+        2023,
+        2026
+      ],
+      "urls": [
+        "https://www.fitnyc.edu/museum/exhibitions/hip-hop-style/",
+        "https://www.fitnyc.edu/museum/exhibitions/minimalism-maximalism.php",
+        "https://sites.fitnyc.edu/depts/museum/Ivy_Style/",
+        "https://www.fitnyc.edu/museum/exhibitions/beyond-utility/index.php"
+      ],
+      "license_urls": [],
+      "evidence": [
+        "Fashion style is situated in cultural expression and historical change.",
+        "Minimalism/maximalism are described as aesthetics on a continuum.",
+        "Ivy/preppy references are historically enduring and reinterpreted.",
+        "Utility-inspired identity does not guarantee present technical function."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_APPLICABLE",
+          "identifier": null,
+          "commercial_use": "NOT_APPLICABLE"
+        },
+        "ontology_and_annotations": {
+          "status": "OPEN_LICENSE_NOT_VERIFIED",
+          "identifier": null,
+          "commercial_use": "NO_CONTENT_IMPORT"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Contextual cultural affinity"
+      ],
+      "rejected": [
+        "Universal categorical cultural identity from an image"
+      ],
+      "review_status": "NEEDS MATI REVIEW",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    },
+    {
+      "id": "emily_post",
+      "title": "Attire Guide: Dress Codes from Casual to White Tie Formal",
+      "publisher": "Emily Post Institute",
+      "source_type": "primary_professional_etiquette_guidance",
+      "published_year": null,
+      "urls": [
+        "https://emilypost.com/advice/attire-guide-dress-codes-from-casual-to-white-tie",
+        "https://emilypost.com/advice/business-casual-attire-guide"
+      ],
+      "license_urls": [],
+      "evidence": [
+        "Dress code is an expectation tied to context, not a universal visual attribute of one garment."
+      ],
+      "licenses": {
+        "code": {
+          "status": "NOT_APPLICABLE",
+          "identifier": null,
+          "commercial_use": "NOT_APPLICABLE"
+        },
+        "ontology_and_annotations": {
+          "status": "OPEN_LICENSE_NOT_VERIFIED",
+          "identifier": null,
+          "commercial_use": "NO_CONTENT_IMPORT"
+        },
+        "images": {
+          "status": "OUTSIDE_REVIEW",
+          "identifier": null,
+          "commercial_use": "NOT_CLEARED"
+        }
+      },
+      "conceptual_reuse": [
+        "Dress code versus occasion and style"
+      ],
+      "rejected": [
+        "Universalizing US attire rules",
+        "Copying attire guide"
+      ],
+      "review_status": "NEEDS MATI REVIEW",
+      "consulted_on_local": "2026-10-07",
+      "timezone": "America/La_Paz",
+      "consulted_on_utc": "2026-10-08",
+      "content_imported": false,
+      "definitions_copied": false,
+      "images_downloaded": false
+    }
+  ],
+  "conceptual_mappings": [
+    {
+      "id": "df2_trousers",
+      "source_id": "deepfashion2",
+      "source_field": "category_name",
+      "source_value": "trousers",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "CANDIDATE_EQUIVALENCE",
+      "more_ids": [
+        "garment.category.trousers"
+      ],
+      "more_semantic_terms": [],
+      "loss": [
+        "No verified rise, fit or trousers subtype"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "df2_skirt",
+      "source_id": "deepfashion2",
+      "source_field": "category_name",
+      "source_value": "skirt",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "CANDIDATE_EQUIVALENCE",
+      "more_ids": [
+        "garment.category.skirt"
+      ],
+      "more_semantic_terms": [],
+      "loss": [
+        "Length and silhouette unprovided"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "df2_dress_sleeves",
+      "source_id": "deepfashion2",
+      "source_field": "category_name",
+      "source_value": "long sleeve dress",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "COMPOSITE_DECOMPOSITION",
+      "more_ids": [
+        "garment.category.dress",
+        "attribute.sleeve_length"
+      ],
+      "more_semantic_terms": [
+        "sleeve length: long"
+      ],
+      "loss": [
+        "No source value identity bound for MORE sleeve bucket"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "df2_top_sleeves",
+      "source_id": "deepfashion2",
+      "source_field": "category_name",
+      "source_value": "short sleeve top",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "SOURCE_BROADER_THAN_MORE_CATEGORIES",
+      "more_ids": [
+        "garment.family.upper",
+        "attribute.sleeve_length"
+      ],
+      "more_semantic_terms": [
+        "sleeve length: short"
+      ],
+      "loss": [
+        "Cannot choose shirt, blouse, tshirt or other upper category"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "df2_vest",
+      "source_id": "deepfashion2",
+      "source_field": "category_name",
+      "source_value": "vest",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "AMBIGUOUS_CANDIDATE",
+      "more_ids": [
+        "garment.category.vest"
+      ],
+      "more_semantic_terms": [],
+      "loss": [
+        "Source meaning may differ from tailored/outer vest"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "df2_style_not_affinity",
+      "source_id": "deepfashion2",
+      "source_field": "style",
+      "source_value": "numeric retrieval variant identifier",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "more_ids": [],
+      "more_semantic_terms": [
+        "style affinity",
+        "aesthetic affinity"
+      ],
+      "loss": [
+        "Different semantic axis"
+      ],
+      "review_status": "SAFE TO FREEZE REJECTION"
+    },
+    {
+      "id": "modanet_pants",
+      "source_id": "modanet",
+      "source_field": "category_name",
+      "source_value": "pants",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "SOURCE_AGGREGATES_MORE_CONCEPTS",
+      "more_ids": [
+        "garment.category.trousers",
+        "garment.category.jeans",
+        "garment.category.leggings"
+      ],
+      "more_semantic_terms": [],
+      "loss": [
+        "Cannot determine a unique fine category"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "modanet_top",
+      "source_id": "modanet",
+      "source_field": "category_name",
+      "source_value": "top",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "SOURCE_AGGREGATES_MORE_CONCEPTS",
+      "more_ids": [
+        "garment.category.top",
+        "garment.category.blouse",
+        "garment.category.tshirt",
+        "garment.category.shirt"
+      ],
+      "more_semantic_terms": [],
+      "loss": [
+        "Cannot determine a unique fine category"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "modanet_outer",
+      "source_id": "modanet",
+      "source_field": "category_name",
+      "source_value": "outer",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "more_ids": [],
+      "more_semantic_terms": [
+        "Candidate concepts span upper, outerwear and one_piece"
+      ],
+      "loss": [
+        "No equivalence to garment.family.outerwear"
+      ],
+      "review_status": "SAFE TO FREEZE REJECTION"
+    },
+    {
+      "id": "modanet_bag",
+      "source_id": "modanet",
+      "source_field": "category_name",
+      "source_value": "bag",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "CANDIDATE_EQUIVALENCE_AT_FAMILY_ONLY",
+      "more_ids": [
+        "garment.family.bag"
+      ],
+      "more_semantic_terms": [],
+      "loss": [
+        "No bag subtype, capacity or carry method"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "modanet_scarf_tie",
+      "source_id": "modanet",
+      "source_field": "category_name",
+      "source_value": "scarf & tie",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "SOURCE_AGGREGATES_MORE_CONCEPTS",
+      "more_ids": [
+        "garment.category.scarf",
+        "garment.category.tie"
+      ],
+      "more_semantic_terms": [],
+      "loss": [
+        "Cannot choose a unique category"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "fashionpedia_jacket",
+      "source_id": "fashionpedia",
+      "source_field": "category",
+      "source_value": "jacket",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "CANDIDATE_EQUIVALENCE",
+      "more_ids": [
+        "garment.category.jacket"
+      ],
+      "more_semantic_terms": [],
+      "loss": [
+        "Exact category inclusion must be reviewed"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "fashionpedia_parts",
+      "source_id": "fashionpedia",
+      "source_field": "garment parts",
+      "source_value": "collar",
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "CONCEPTUAL_STRUCTURE_ONLY",
+      "more_ids": [],
+      "more_semantic_terms": [
+        "part: collar"
+      ],
+      "loss": [
+        "Part identity differs from collar-type attribute"
+      ],
+      "review_status": "NEEDS_REVIEW"
+    },
+    {
+      "id": "fashionpedia_localized",
+      "source_id": "fashionpedia",
+      "source_field": "localized attribute relations",
+      "source_value": null,
+      "direction": "EXTERNAL_TO_MORE",
+      "mapping_type": "CONCEPTUAL_STRUCTURE_ONLY",
+      "more_ids": [],
+      "more_semantic_terms": [
+        "Attributes bound to target garment or component"
+      ],
+      "loss": [
+        "No complete value-level mapping has been verified"
+      ],
+      "review_status": "RESEARCH INCOMPLETE"
+    },
+    {
+      "id": "public_conjuntos",
+      "source_ids": [
+        "fashionpedia",
+        "deepfashion2",
+        "modanet"
+      ],
+      "source_field": null,
+      "source_value": null,
+      "direction": "MORE_TO_EXTERNAL",
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "more_ids": [
+        "garment.category.coordinated_set"
+      ],
+      "more_semantic_terms": [
+        "Sold-as-set component relation"
+      ],
+      "loss": [
+        "No equivalent commercial component label verified"
+      ],
+      "review_status": "RESEARCH INCOMPLETE"
+    },
+    {
+      "id": "public_spatial",
+      "source_ids": [
+        "fashionpedia",
+        "deepfashion2",
+        "modanet"
+      ],
+      "source_field": null,
+      "source_value": null,
+      "direction": "MORE_TO_EXTERNAL",
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "more_ids": [],
+      "more_semantic_terms": [
+        "body zone coverage/support relation",
+        "contextual layering"
+      ],
+      "loss": [
+        "Localization masks/landmarks do not define these semantic relations"
+      ],
+      "review_status": "RESEARCH INCOMPLETE"
+    },
+    {
+      "id": "public_usage",
+      "source_ids": [
+        "fashionpedia",
+        "deepfashion2",
+        "modanet"
+      ],
+      "source_field": null,
+      "source_value": null,
+      "direction": "MORE_TO_EXTERNAL",
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "more_ids": [],
+      "more_semantic_terms": [
+        "MORE formality",
+        "occasion affinity",
+        "old_money aesthetic",
+        "Y2K aesthetic",
+        "fiber composition percentages"
+      ],
+      "loss": [
+        "No direct equivalents verified in documentation reviewed"
+      ],
+      "review_status": "RESEARCH INCOMPLETE"
+    }
+  ],
+  "more_design_decisions": [
+    {
+      "decision_id": "axes_identity_appearance_fit",
+      "status": "NEEDS MATI REVIEW",
+      "evidence_source_ids": [
+        "fashionpedia",
+        "va_silhouette"
+      ],
+      "statement": "Identity, silhouette, fit and construction remain independent."
+    },
+    {
+      "decision_id": "composition_structure_surface",
+      "status": "SAFE TO FREEZE PRINCIPLE",
+      "evidence_source_ids": [
+        "weavers_company",
+        "act_glossary",
+        "cottonworks",
+        "ftc_fiber"
+      ],
+      "statement": "Fiber composition, textile method/structure, fabric family, construction/finish and visual surface appearance are separate layers."
+    },
+    {
+      "decision_id": "style_aesthetic_code",
+      "status": "NEEDS MATI REVIEW",
+      "evidence_source_ids": [
+        "fit_style",
+        "emily_post"
+      ],
+      "statement": "Style affinity, temporal/historical aesthetic reference, contextual dress code, occasion and operational formality are distinct axes."
+    },
+    {
+      "decision_id": "unknown_na",
+      "status": "SAFE TO FREEZE PROJECT REQUIREMENT",
+      "evidence_source_ids": [
+        "gs1_webvoc"
+      ],
+      "statement": "MORE defines KNOWN, UNKNOWN and NOT_APPLICABLE explicitly; no external source defines the exact MORE value-state contract."
+    }
+  ],
+  "open_research": [
+    {
+      "id": "df2_access_terms",
+      "status": "RESEARCH INCOMPLETE",
+      "source_id": "deepfashion2",
+      "needed": "Read publisher access conditions and review rights of code, annotations, photos and intended commercial training before any future use."
+    },
+    {
+      "id": "image_rights",
+      "status": "RESEARCH INCOMPLETE",
+      "source_ids": [
+        "fashionpedia",
+        "deepfashion2",
+        "modanet"
+      ],
+      "needed": "Audit each image/provider and snapshot relevant rights for a future licensed ingestion."
+    },
+    {
+      "id": "external_lists",
+      "status": "RESEARCH INCOMPLETE",
+      "source_ids": [
+        "google_product_taxonomy",
+        "gs1_gpc"
+      ],
+      "needed": "Identify exact version and redistribution permission before importing list content."
+    },
+    {
+      "id": "fine_public_mapping",
+      "status": "RESEARCH INCOMPLETE",
+      "source_id": "fashionpedia",
+      "needed": "Review exact taxonomy definitions and annotation guide for value-level mappings; this phase did not ingest taxonomy files."
+    },
+    {
+      "id": "regional_semantics",
+      "status": "NEEDS MATI REVIEW",
+      "source_ids": [],
+      "needed": "Inspect Mati examples for POLERA, POLOS Y KNITWEAR, ACCESORIOS, shirt/blouse, coordinated set and local dress codes."
+    }
+  ]
+}

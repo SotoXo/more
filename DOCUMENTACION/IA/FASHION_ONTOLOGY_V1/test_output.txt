@@ -1,0 +1,24 @@
+Successful validation test executions
+
+PHASE 1: full suite before structured-value bindings
+PYTHONPATH=C:\Users\Usuario\AppData\Local\Temp\more-fashion-ontology-v1-python
+& 'C:\Users\Usuario\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m unittest discover -s 'services/mati-ai/scripts/fashion_ontology' -p 'test_fashion_ontology.py' -q
+
+Actual unittest stderr (exit code 0):
+----------------------------------------------------------------------
+Ran 87 tests in 382.171s
+
+OK
+
+PHASE 2: targeted tests after structured-value bindings
+PYTHONPATH=C:\Users\Usuario\AppData\Local\Temp\more-fashion-ontology-v1-python;services\mati-ai\scripts\fashion_ontology
+& 'C:\Users\Usuario\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m unittest test_fashion_ontology.FashionOntologyTests.test_product_json_schema_itself_rejects_wrong_structured_color test_fashion_ontology.FashionOntologyTests.test_product_json_schema_itself_rejects_wrong_structured_insulation test_fashion_ontology.FashionOntologyTests.test_observed_color_cannot_receive_fiber_composition_structure test_fashion_ontology.FashionOntologyTests.test_real_artifacts_pass_and_are_not_frozen test_fashion_ontology.FashionOntologyTests.test_complete_fiber_percentages_must_total_one_hundred test_fashion_ontology.FashionOntologyTests.test_fiber_composition_cannot_use_a_fabric_as_a_fiber test_fashion_ontology.FashionOntologyTests.test_fiber_cannot_claim_a_phantom_component test_fashion_ontology.FashionOntologyTests.test_known_fiber_conflicts_with_confirmed_absence_of_textile test_fashion_ontology.FashionOntologyTests.test_documented_nontextile_item_can_have_not_applicable_fiber test_fashion_ontology.FashionOntologyTests.test_product_spatial_zone_reference_must_resolve test_fashion_ontology.FashionOntologyTests.test_product_layering_cycles_are_scoped_to_instance_zone_context test_fashion_ontology.FashionOntologyTests.test_product_layering_opposite_orders_in_different_contexts_are_valid test_fashion_ontology.FashionOntologyTests.test_instance_layering_soft_rules_still_cannot_form_a_physical_cycle test_fashion_ontology.FashionOntologyTests.test_instance_layering_refs_must_be_registered -q
+
+Actual unittest stderr (exit code 0):
+----------------------------------------------------------------------
+Ran 14 tests in 57.595s
+
+OK
+
+Reporting scope: these are separate runs (87/87 before the final bindings and 14/14 after them). No complete 89-case run on the final snapshot is claimed. The final validator also returned valid=true, 13 PASS checks and zero errors; read_only=true and domain_freeze_approved=false.
+

@@ -1,0 +1,96 @@
+{
+  "artifact_type": "ontology_review_catalog_audit",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "review_date": "2026-10-08",
+  "timezone": "America/La_Paz",
+  "inspection_mode": "Local historical file read only; no SQL imported/executed and no live database accessed.",
+  "preserved_historical_audit": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/catalog_audit.json",
+  "sources": [
+    {
+      "path": "more_db_actual.sql",
+      "sha256": "fe1619447f3d541e030996a407cf0fa18e3aba805d8f69fa30ddc22a9f6649f8",
+      "scope": "Historical PostgreSQL text dump, not live database."
+    },
+    {
+      "path": "services/mati-ai/resources/taxonomy/commercial-categories-v1.json",
+      "sha256": "5ba69a10a5065eef1e95ac96d38e9c4e6ac62e607dac63791232563cd0bdd261",
+      "scope": "Historical commercial-category and size SELECT-only export, captured 2026-10-05T15:14:55+00:00."
+    },
+    {
+      "path": "diccionariodb.md",
+      "sha256": "2b40d4a933de5010d90d0a5b5c73b5874a9ebcbe5b208eae8419441ff1616d87",
+      "scope": "Column and relation dictionary read for talla/product/variant linkage."
+    }
+  ],
+  "size_anomaly": {
+    "human_decision": 11,
+    "commercial_size_id": 54,
+    "historical_value": "XXXXXXXXL",
+    "segment": "INFANTIL",
+    "system": "ALFA",
+    "group": "GENERAL",
+    "source_line": 2473,
+    "suspicion_reason": "Repeated X alpha label under INFANTIL warrants verification; no assertion that it is incorrect or valid.",
+    "observed_table_counts": {
+      "tallas": 54,
+      "prenda_variantes": 13,
+      "prendas": 13
+    },
+    "relation_checked": {
+      "variant_size_column": "prenda_variantes.cod_tallas_prv",
+      "variant_product_column": "prenda_variantes.cod_prendas_prv",
+      "variant_copy_header_line": 2130,
+      "product_copy_header_line": 2151,
+      "matching_variant_count": 0,
+      "matching_variant_ids": [],
+      "matching_product_count": 0,
+      "matching_product_ids": []
+    },
+    "conclusion": "Zero linked products/variants in this historical dump only; current relationships remain unverified.",
+    "policy": {
+      "preserve_historical_value": true,
+      "automatic_normalization": false,
+      "exclude_unverified_from_future_size_recommendation": true,
+      "commercial_correction_requires_human_authorization": true,
+      "current_validation_completed": false
+    },
+    "pending": [
+      "Read-only verification of current product and variant relationships when authorized database access is available.",
+      "Mati interpretation and explicit authorization before any commercial correction.",
+      "Future recommendation gate must omit this unverified label without deleting or hiding its commercial history."
+    ]
+  },
+  "commercial_identity_discrepancies": [
+    {
+      "human_decision": 4,
+      "commercial_product_id": 11,
+      "historical_name": "JERSEY ALPACA",
+      "commercial_category_id": 1,
+      "source_line": 2162,
+      "linked_variant_ids": [
+        11
+      ],
+      "ontology_identity": {
+        "state": "UNKNOWN",
+        "candidates": [
+          "garment.category.sweater",
+          "garment.category.coat"
+        ],
+        "reason": "Name alone is insufficient; no product-level technical/image evidence adjudicated in this audit."
+      },
+      "fiber_composition": {
+        "state": "UNKNOWN",
+        "reason": "ALPACA in historical name is not verified composition evidence."
+      },
+      "administrative_review_required": true,
+      "automatic_commercial_reclassification": false
+    }
+  ],
+  "limitations": [
+    "No live DB verification or full current catalogue reconciliation.",
+    "Dump relationships and dates must not be represented as current commercial truth.",
+    "No model, dataset, taxonomy scope or annotation approval results from this file."
+  ]
+}

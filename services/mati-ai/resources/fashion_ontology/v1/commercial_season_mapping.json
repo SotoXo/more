@@ -1,0 +1,64 @@
+{
+  "artifact_type": "season_mapping",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "mappings": [
+    {
+      "commercial_season_id": 1,
+      "commercial_name": "PV",
+      "semantic_targets": [
+        "value.calendar_season.spring",
+        "value.calendar_season.summer"
+      ],
+      "mapping_type": "candidate_contextual",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_season_id": 2,
+      "commercial_name": "OI",
+      "semantic_targets": [
+        "value.calendar_season.autumn",
+        "value.calendar_season.winter"
+      ],
+      "mapping_type": "candidate_contextual",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_season_id": 3,
+      "commercial_name": "RESORT",
+      "semantic_targets": [],
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_season_id": 4,
+      "commercial_name": "CAPSULE",
+      "semantic_targets": [],
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_season_id": 5,
+      "commercial_name": "PERMANENTE",
+      "semantic_targets": [],
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_season_id": 6,
+      "commercial_name": "CARNAVALERA",
+      "semantic_targets": [],
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "review_status": "NEEDS MATI REVIEW"
+    },
+    {
+      "commercial_season_id": 7,
+      "commercial_name": "MUNDIAL",
+      "semantic_targets": [],
+      "mapping_type": "NO_DIRECT_MAPPING",
+      "review_status": "NEEDS MATI REVIEW"
+    }
+  ],
+  "notes": "Collection/merchandising campaigns do not equal calendar seasons. PERMANENTE does not prove all_season. Location and climate needed."
+}

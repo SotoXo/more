@@ -23,6 +23,12 @@ class Settings(BaseSettings):
     ocr_download_enabled: bool = False
     ocr_model_directory: str | None = None
     external_sources_file: str | None = None
+    text_embedding_enabled: bool = False
+    text_embedding_profile_path: str = "/app/resources/rag/model-profile.json"
+    text_embedding_cache_dir: str = "/cache/text-embeddings"
+    text_embedding_timeout_seconds: float = Field(default=30.0, ge=1, le=120)
+    text_embedding_retry_seconds: float = Field(default=60.0, ge=1, le=600)
+    text_embedding_max_request_bytes: int = Field(default=65536, ge=1024, le=65536)
 
     @property
     def model_id(self) -> str:

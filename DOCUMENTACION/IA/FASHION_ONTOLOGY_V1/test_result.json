@@ -1,0 +1,75 @@
+{
+  "captured_utc": "2026-10-08 03:14:21 UTC",
+  "ontology_version": "1.0.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "test_runner": "Python unittest",
+  "service_dependency_changes": false,
+  "temporary_jsonschema_location": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\more-fashion-ontology-v1-python",
+  "test_fixture_policy": "Mutations use temporary directories beneath the script directory; resolved paths are checked before recursive cleanup. Reviewed artifact sources are never mutated by tests.",
+  "phases": [
+    {
+      "name": "full_suite_before_structured_value_schema_binding",
+      "environment": {
+        "PYTHONPATH": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\more-fashion-ontology-v1-python"
+      },
+      "command": "& 'C:\\Users\\Usuario\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe' -m unittest discover -s 'services/mati-ai/scripts/fashion_ontology' -p 'test_fashion_ontology.py' -q",
+      "tests_run": 87,
+      "failures": 0,
+      "errors": 0,
+      "duration_seconds": 382.171,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "----------------------------------------------------------------------\nRan 87 tests in 382.171s\n\nOK\n"
+    },
+    {
+      "name": "targeted_verification_after_structured_value_schema_binding",
+      "environment": {
+        "PYTHONPATH": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\more-fashion-ontology-v1-python;services\\mati-ai\\scripts\\fashion_ontology"
+      },
+      "command": "& 'C:\\Users\\Usuario\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe' -m unittest test_fashion_ontology.FashionOntologyTests.test_product_json_schema_itself_rejects_wrong_structured_color test_fashion_ontology.FashionOntologyTests.test_product_json_schema_itself_rejects_wrong_structured_insulation test_fashion_ontology.FashionOntologyTests.test_observed_color_cannot_receive_fiber_composition_structure test_fashion_ontology.FashionOntologyTests.test_real_artifacts_pass_and_are_not_frozen test_fashion_ontology.FashionOntologyTests.test_complete_fiber_percentages_must_total_one_hundred test_fashion_ontology.FashionOntologyTests.test_fiber_composition_cannot_use_a_fabric_as_a_fiber test_fashion_ontology.FashionOntologyTests.test_fiber_cannot_claim_a_phantom_component test_fashion_ontology.FashionOntologyTests.test_known_fiber_conflicts_with_confirmed_absence_of_textile test_fashion_ontology.FashionOntologyTests.test_documented_nontextile_item_can_have_not_applicable_fiber test_fashion_ontology.FashionOntologyTests.test_product_spatial_zone_reference_must_resolve test_fashion_ontology.FashionOntologyTests.test_product_layering_cycles_are_scoped_to_instance_zone_context test_fashion_ontology.FashionOntologyTests.test_product_layering_opposite_orders_in_different_contexts_are_valid test_fashion_ontology.FashionOntologyTests.test_instance_layering_soft_rules_still_cannot_form_a_physical_cycle test_fashion_ontology.FashionOntologyTests.test_instance_layering_refs_must_be_registered -q",
+      "targets": [
+        "test_product_json_schema_itself_rejects_wrong_structured_color",
+        "test_product_json_schema_itself_rejects_wrong_structured_insulation",
+        "test_observed_color_cannot_receive_fiber_composition_structure",
+        "test_real_artifacts_pass_and_are_not_frozen",
+        "test_complete_fiber_percentages_must_total_one_hundred",
+        "test_fiber_composition_cannot_use_a_fabric_as_a_fiber",
+        "test_fiber_cannot_claim_a_phantom_component",
+        "test_known_fiber_conflicts_with_confirmed_absence_of_textile",
+        "test_documented_nontextile_item_can_have_not_applicable_fiber",
+        "test_product_spatial_zone_reference_must_resolve",
+        "test_product_layering_cycles_are_scoped_to_instance_zone_context",
+        "test_product_layering_opposite_orders_in_different_contexts_are_valid",
+        "test_instance_layering_soft_rules_still_cannot_form_a_physical_cycle",
+        "test_instance_layering_refs_must_be_registered"
+      ],
+      "tests_run": 14,
+      "failures": 0,
+      "errors": 0,
+      "duration_seconds": 57.595,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "----------------------------------------------------------------------\nRan 14 tests in 57.595s\n\nOK\n"
+    }
+  ],
+  "changes_between_successful_phases": [
+    "Product Intelligence schema now binds the five structured attribute values directly to authoritative $defs: spatial_value_list, fiber_composition, observed_color, insulation, layering_value.",
+    "Validator resolves layering_value and spatial_value_list from the schema instead of defining a parallel shape in Python.",
+    "Two direct JSON Schema tests were added; the malformed observed-color test now expects a schema failure."
+  ],
+  "final_snapshot_full_suite_run": false,
+  "reporting_policy": "87/87 passed before the final structured bindings, followed by 14/14 targeted tests on the final bindings. These are distinct runs; this report does not claim one complete 89-case run on the final snapshot.",
+  "post_binding_validator": {
+    "valid": true,
+    "checks_passed": 13,
+    "error_count": 0,
+    "read_only": true,
+    "domain_freeze_approved": false
+  },
+  "excluded_work": [
+    "training",
+    "model inference",
+    "GPU tests",
+    "database writes"
+  ]
+}

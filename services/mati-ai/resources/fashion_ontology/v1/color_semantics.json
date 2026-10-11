@@ -1,0 +1,206 @@
+{
+  "artifact_type": "vocabulary",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "concepts": [
+    {
+      "canonical_id": "value.color_family.black",
+      "label_es": "Negro",
+      "label_en": "Black",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva negra; sin reemplazar familia comercial existente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.white",
+      "label_es": "Blanco",
+      "label_en": "White",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva blanca.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.grey",
+      "label_es": "Gris",
+      "label_en": "Grey",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva gris.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.beige_cream",
+      "label_es": "Beige y crema",
+      "label_en": "Beige and cream",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva beige/crema; mapping comercial explícito pendiente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.brown",
+      "label_es": "Marrón",
+      "label_en": "Brown",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva marrón.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.red",
+      "label_es": "Rojo",
+      "label_en": "Red",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva roja.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.orange",
+      "label_es": "Naranja",
+      "label_en": "Orange",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva naranja.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.yellow",
+      "label_es": "Amarillo",
+      "label_en": "Yellow",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva amarilla.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.green",
+      "label_es": "Verde",
+      "label_en": "Green",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva verde.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.blue",
+      "label_es": "Azul",
+      "label_en": "Blue",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva azul.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.purple",
+      "label_es": "Morado",
+      "label_en": "Purple",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva morada.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.pink",
+      "label_es": "Rosado",
+      "label_en": "Pink",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Familia descriptiva rosada.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_family.metallic",
+      "label_es": "Metálico",
+      "label_en": "Metallic",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Apariencia metálica descriptiva; material separado.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_family"
+    },
+    {
+      "canonical_id": "value.color_role.neutral",
+      "label_es": "Neutro de moda",
+      "label_en": "Fashion neutral",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Rol estilístico contextual de combinación; no propiedad física universal.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_role"
+    },
+    {
+      "canonical_id": "value.color_role.accent",
+      "label_es": "Acento",
+      "label_en": "Accent",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Rol contextual que destaca dentro de una composición concreta.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "color_role"
+    },
+    {
+      "canonical_id": "value.perceived_temperature.warm",
+      "label_es": "Cálido perceptual",
+      "label_en": "Perceptually warm",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Descriptor perceptual contextual; no nuevo cálculo colorimétrico.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "perceived_temperature"
+    },
+    {
+      "canonical_id": "value.perceived_temperature.cool",
+      "label_es": "Frío perceptual",
+      "label_en": "Perceptually cool",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Descriptor perceptual contextual.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "perceived_temperature"
+    },
+    {
+      "canonical_id": "value.perceived_temperature.balanced",
+      "label_es": "Equilibrado perceptual",
+      "label_en": "Perceptually balanced",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Descriptor perceptual contextual sin predominio declarado.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "perceived_temperature"
+    }
+  ]
+}

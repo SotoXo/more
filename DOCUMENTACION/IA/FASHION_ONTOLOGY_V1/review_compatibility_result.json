@@ -1,0 +1,16 @@
+{
+  "original_bilingual_ids": 449,
+  "current_bilingual_ids": 454,
+  "added_ids": [
+    "attribute.sleeve_cuff_type",
+    "value.sleeve_cuff_type.button",
+    "value.sleeve_cuff_type.elasticated",
+    "value.sleeve_cuff_type.french",
+    "value.sleeve_cuff_type.ribbed"
+  ],
+  "removed_ids": [],
+  "original_labels_and_aliases_changes": [],
+  "taxonomy_parent_changes": [],
+  "commercial_ids_and_names_unchanged": true,
+  "status": "PASS"
+}

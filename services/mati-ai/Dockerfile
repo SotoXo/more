@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 ca-cer
 COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --frozen --no-dev --no-install-project
 COPY src ./src
+COPY resources ./resources
 COPY config ./config
 COPY scripts ./scripts
 RUN uv sync --frozen --no-dev

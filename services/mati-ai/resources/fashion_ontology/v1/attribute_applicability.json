@@ -1,0 +1,5941 @@
+{
+  "artifact_type": "applicability",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "rows": [
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.upper",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.lower",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.outerwear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.one_piece",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.multi_piece",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.footwear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.bag",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.headwear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.neckwear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.jewelry",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.eyewear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "family_id": "garment.family.accessory",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.trousers",
+        "garment.category.jeans",
+        "garment.category.shorts",
+        "garment.category.leggings"
+      ]
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.jumpsuit",
+        "garment.category.romper"
+      ]
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.trousers",
+        "garment.category.jeans",
+        "garment.category.shorts",
+        "garment.category.leggings"
+      ]
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.jumpsuit",
+        "garment.category.romper"
+      ]
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.trousers",
+        "garment.category.jeans",
+        "garment.category.shorts",
+        "garment.category.leggings"
+      ]
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.jumpsuit",
+        "garment.category.romper"
+      ]
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.skirt"
+      ]
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.dress"
+      ]
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.skirt"
+      ]
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.dress"
+      ]
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.boot"
+      ]
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.handbag",
+        "garment.category.backpack",
+        "garment.category.waist_bag",
+        "garment.category.travel_bag"
+      ]
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.watch"
+      ]
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.watch"
+      ]
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.watch"
+      ]
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.upper",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.outerwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.one_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": [
+        "garment.category.belt"
+      ]
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.upper",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.lower",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.outerwear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.one_piece",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.multi_piece",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.footwear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.bag",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.headwear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.neckwear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.jewelry",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.eyewear",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "family_id": "garment.family.accessory",
+      "status": "required",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.lower",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.multi_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.footwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.bag",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.headwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.neckwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.jewelry",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.eyewear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "family_id": "garment.family.accessory",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.upper",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.lower",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.outerwear",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.one_piece",
+      "status": "optional",
+      "unknown_allowed": true,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.multi_piece",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.footwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.bag",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.headwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.neckwear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.jewelry",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.eyewear",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "family_id": "garment.family.accessory",
+      "status": "not_applicable",
+      "unknown_allowed": false,
+      "category_scope": []
+    }
+  ],
+  "conditional_rules": [
+    {
+      "attribute_id": "attribute.weave",
+      "condition": "component.textile_structure=woven",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN"
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "condition": "component.textile_structure=knitted",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN"
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "condition": "sleeve_length!=sleeveless",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN"
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "condition": "sleeve_length!=sleeveless",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN"
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "condition": "assertion.context.textile_component_present=true",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Absence requires documented evidence; family row only establishes potential applicability."
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "condition": "assertion.context.textile_component_present=true",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Absence requires documented evidence; family row only establishes potential applicability."
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "condition": "assertion.context.textile_component_present=true",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Absence requires documented evidence; family row only establishes potential applicability."
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "condition": "assertion.context.textile_component_present=true",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Absence requires documented evidence; family row only establishes potential applicability."
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "condition": "assertion.context.textile_component_present=true",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Absence requires documented evidence; family row only establishes potential applicability."
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "condition": "assertion.context.textile_component_present=true",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Absence requires documented evidence; family row only establishes potential applicability."
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "condition": "assertion.context.non_textile_component_present=true",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Absence requires documented evidence; family row only establishes potential applicability."
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "condition": "sleeve_length!=sleeveless",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Confirmed sleeveless excludes cuffs. A verified cuff independently establishes sleeve presence even if the length is UNKNOWN; do not force a length label to describe a visible cuff."
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "condition": "assertion.context.sleeve_cuff_present=true",
+      "false_state": "NOT_APPLICABLE",
+      "unknown_condition_state": "UNKNOWN",
+      "notes": "Differentiated sleeve cuff presence; a plain sleeve hem is not a cuff. Absence must be evidenced. Optional attribute slot does not require context in legacy documents that omit it."
+    }
+  ],
+  "requirement_policy": "Required means assertion slot/state required, not forced KNOWN; conditional category scope overrides broad family row."
+}

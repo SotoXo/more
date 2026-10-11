@@ -1,0 +1,143 @@
+{
+  "artifact_type": "vocabulary",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "concepts": [
+    {
+      "canonical_id": "value.surface_texture.smooth",
+      "label_es": "Superficie lisa",
+      "label_en": "Smooth",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Apariencia superficial sin relieve visible a escala observada.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "surface_texture"
+    },
+    {
+      "canonical_id": "value.surface_texture.ribbed",
+      "label_es": "Acanalado visible",
+      "label_en": "Ribbed",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Relieve superficial de canales; no confirma punto rib.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "surface_texture"
+    },
+    {
+      "canonical_id": "value.surface_texture.fuzzy",
+      "label_es": "Velloso",
+      "label_en": "Fuzzy",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Pelo superficial visible; no confirma lana o aislamiento.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "surface_texture"
+    },
+    {
+      "canonical_id": "value.surface_texture.pile",
+      "label_es": "Con pelo",
+      "label_en": "Pile",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Superficie de pelo denso observable; fibra no inferida.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "surface_texture"
+    },
+    {
+      "canonical_id": "value.surface_texture.pebbled",
+      "label_es": "Granulado",
+      "label_en": "Pebbled",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Relieve superficial de grano, por ejemplo en bolso; material independiente.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "surface_texture"
+    },
+    {
+      "canonical_id": "value.surface_texture.crinkled",
+      "label_es": "Arrugado textural",
+      "label_en": "Crinkled",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Relieve de arrugas estructurales o acabado aparente; verificar si transitorio.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "surface_texture"
+    },
+    {
+      "canonical_id": "value.finish.distressed",
+      "label_es": "Desgastado de diseño",
+      "label_en": "Distressed",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Apariencia de desgaste/rotura de diseño; estado usado real no inferido.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "finish"
+    },
+    {
+      "canonical_id": "value.finish.brushed",
+      "label_es": "Cepillado",
+      "label_en": "Brushed",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Acabado cepillado confirmado; vellosidad aparente sola no asegura proceso.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "finish"
+    },
+    {
+      "canonical_id": "value.finish.coated",
+      "label_es": "Recubierto",
+      "label_en": "Coated",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Recubrimiento confirmado; brillo no certifica composición.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "finish"
+    },
+    {
+      "canonical_id": "value.opacity.opaque",
+      "label_es": "Opaco",
+      "label_en": "Opaque",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "No se aprecia transmisión visual en la evidencia disponible.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "opacity",
+      "ordinal_rank": 0
+    },
+    {
+      "canonical_id": "value.opacity.semi_sheer",
+      "label_es": "Semitransparente",
+      "label_en": "Semi-sheer",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Transmisión parcial visual aparente dependiente de luz/fondo.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "opacity",
+      "ordinal_rank": 1
+    },
+    {
+      "canonical_id": "value.opacity.sheer",
+      "label_es": "Transparente",
+      "label_en": "Sheer",
+      "aliases_es": [],
+      "aliases_en": [],
+      "definition": "Transmisión visual aparente marcada; no propiedad óptica medida.",
+      "parent_id": null,
+      "review_status": "NEEDS MATI REVIEW",
+      "domain": "opacity",
+      "ordinal_rank": 2
+    }
+  ]
+}

@@ -62,7 +62,11 @@ class RequestContextMiddleware:
         try:
             # Multipart metadata has its own small allowance; the image limit is
             # still enforced by validate_image after extraction.
-            maximum = self.settings.max_image_bytes + 1_000_000
+            maximum = (
+                self.settings.text_embedding_max_request_bytes
+                if scope["path"] == "/api/v1/rag/embed"
+                else self.settings.max_image_bytes + 1_000_000
+            )
             lengths = headers.getlist("content-length")
             if lengths and (
                 len(lengths) != 1
@@ -128,7 +132,7 @@ class RequestContextMiddleware:
                 state["request_id"],
                 scope["path"],
                 (time.perf_counter() - started) * 1000,
-                self.settings.model_id,
+                state.get("model_id", self.settings.model_id),
                 status_code,
                 state.get("error_code", "none"),
             )

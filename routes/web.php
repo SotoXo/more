@@ -166,6 +166,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
         ->whereNumber('categoria')->name('categories.complements.update');
     Route::prefix('ai')->name('ai.')->middleware('throttle:30,1')->group(function () {
         Route::get('/capabilities', [\App\Http\Controllers\Superadmin\AiController::class, 'capabilities'])->name('capabilities');
+        Route::post('/rag/search', [\App\Http\Controllers\Superadmin\RagController::class, 'search'])->name('rag.search');
         foreach (['analyze', 'barcode', 'label'] as $operation) {
             Route::post('/'.$operation, [\App\Http\Controllers\Superadmin\AiController::class, 'image'])
                 ->defaults('operation', $operation)->name($operation);

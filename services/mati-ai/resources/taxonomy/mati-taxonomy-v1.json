@@ -1,0 +1,929 @@
+{
+  "schema_version": "mati-taxonomy-1",
+  "taxonomy_id": "mati-taxonomy-v1",
+  "version": "1.0.0",
+  "created_date": "2026-10-05",
+  "review_status": "proposed_semantics_pending_mati_domain_review",
+  "annotator": "Codex_curated_not_human_domain_ground_truth",
+  "commercial_authority": "Laravel/PostgreSQL commercial IDs and active names",
+  "semantic_authority": "This versioned proposal; not commercial relabeling or visual ground truth",
+  "commercial_snapshot": {
+    "path": "services/mati-ai/resources/taxonomy/commercial-categories-v1.json",
+    "sha256": "5ba69a10a5065eef1e95ac96d38e9c4e6ac62e607dac63791232563cd0bdd261"
+  },
+  "sources": [
+    {
+      "id": "mati-db",
+      "kind": "commercial_snapshot",
+      "uri": "storage/app/ai-rag/catalog-master-baseline.json",
+      "sha256": "8079a475b267cbeb99c2e8387d2e011dc92c2bc719f06f97ffbac37853033099",
+      "captured_utc": "2026-10-05T15:14:55+00:00",
+      "scope": "IDs, nombres, descripciones, estado y perfiles de talla; no certifica reglas visuales propuestas"
+    },
+    {
+      "id": "mati-sizing-doc",
+      "kind": "local_document",
+      "uri": "DOCUMENTACION/10_categorias_tallas_superadmin.md",
+      "scope": "Sugerencias de talla; ejemplo POLERA/SUPERIOR difiere de gru_tal_cat=null observado",
+      "sha256": "f0cfb061e4a1c5da92ad99bec6d894bcb9c3ed9dab819c380a63b6b1d8335267"
+    },
+    {
+      "id": "mati-catalog-doc",
+      "kind": "local_document",
+      "uri": "DOCUMENTACION/DATOS/catalogo_real_100_prendas.md",
+      "scope": "Ejemplos históricos y procedencia; no autoridad para disponibilidad o clasificación automática",
+      "sha256": "5a31787614a3137c33c01e772a72a3640e25276721ff9b1454ebc53cd324c969"
+    },
+    {
+      "id": "mati-segmentation-limitations",
+      "kind": "local_document",
+      "uri": "DOCUMENTACION/IA/SEGMENTACION_SEMANTICA/06_limitaciones.md",
+      "scope": "Sin target automático promovido; caso13 diagnóstico asistido sin ground truth humano",
+      "sha256": "20fef82d163230be0eee5df7ff436c0216a719c120a1a51c82e6e47ecb12c7d9"
+    },
+    {
+      "id": "asale-polera",
+      "kind": "primary_lexicography",
+      "uri": "https://www.asale.org/damer/polera",
+      "version": "Diccionario de americanismos 2010",
+      "access": "search-index entry checked 2026-10-05; direct open returned404",
+      "scope": "Variación regional del término, no significado comercial definitivo Mati"
+    },
+    {
+      "id": "cambridge-shirt",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/us/dictionary/learner-english/shirt",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Parte superior y frecuente botonadura; no regla universal"
+    },
+    {
+      "id": "cambridge-blouse",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/us/dictionary/english/blouse",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Solapamiento terminológico shirt/blouse; género lexicográfico no se usa como clasificador"
+    },
+    {
+      "id": "cambridge-blazer",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/us/dictionary/english/blazer",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Chaqueta formal; Mati conserva su definición comercial, sin exigir insignias o color distinto"
+    },
+    {
+      "id": "cambridge-coat",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/us/dictionary/english/coat",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Uso exterior por encima de otras piezas y abrigo habitual, no garantía térmica"
+    },
+    {
+      "id": "cambridge-knitwear",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/dictionary/english/knitwear",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Construcción de punto; no prueba de fibra específica"
+    },
+    {
+      "id": "fashionpedia-ontology",
+      "kind": "primary_research_ontology",
+      "uri": "https://github.com/KMnP/fashionpedia-api/blob/master/data/demo/category_attributes_descriptions.json",
+      "access": "primary repository read2026-10-05",
+      "scope": "Categorías upperbody/lowerbody; shirt,blouse agrupadas externamente, sin equivalencia uno a uno a Mati"
+    },
+    {
+      "id": "fashionpedia-paper",
+      "kind": "primary_research",
+      "uri": "https://arxiv.org/abs/2004.12276",
+      "version": "2020",
+      "scope": "Ontología desarrollada por expertos; inspiración estructural, sin importar categorías ni pesos"
+    },
+    {
+      "id": "mati-semantic-request",
+      "kind": "user_design_requirement",
+      "uri": "user-requirement://mati-semantic-foundation/2026-10-05",
+      "version": "2026-10-05",
+      "scope": "RAG vs Tools, separate vector spaces, no LLM, cosine terminology and data-only retrieval; requested design, not claim of deployed functionality"
+    }
+  ],
+  "hierarchy": [
+    {
+      "id": "APPAREL",
+      "parent": null
+    },
+    {
+      "id": "GARMENT",
+      "parent": "APPAREL"
+    },
+    {
+      "id": "UPPER",
+      "parent": "GARMENT"
+    },
+    {
+      "id": "OUTERWEAR",
+      "parent": "GARMENT"
+    },
+    {
+      "id": "LOWER",
+      "parent": "GARMENT"
+    },
+    {
+      "id": "ONE_PIECE",
+      "parent": "GARMENT"
+    },
+    {
+      "id": "MULTI_PIECE",
+      "parent": "GARMENT"
+    },
+    {
+      "id": "ACCESSORY",
+      "parent": "APPAREL"
+    }
+  ],
+  "hierarchy_scope": "Conceptual metadata only. No business parents changed. Role is not mutually exclusive visual layering.",
+  "categories": [
+    {
+      "commercial_id": 1,
+      "commercial_name": "ABRIGOS",
+      "commercial_description": "Abrigos, capas y piezas de exterior.",
+      "commercial_active": true,
+      "canonical_name": "coats_and_capes",
+      "definition": "Categoría Mati para abrigos, capas y piezas de exterior. Se propone priorizar la función de capa exterior sobre otras prendas, sin exigir largo, mangas ni una fibra concreta.",
+      "visual_characteristics": [
+        "cobertura exterior del torso",
+        "volumen o caída para superposición",
+        "apertura frontal frecuente"
+      ],
+      "positive_cues": [
+        "función exterior descrita en ficha",
+        "capa amplia sobre otra prenda"
+      ],
+      "negative_cues": [
+        "sastrería ligera sola no demuestra abrigo",
+        "suéter de punto aislado no demuestra categoría1"
+      ],
+      "commonly_confused_with": [
+        2,
+        8
+      ],
+      "distinction_rules": [
+        "Frente a BLAZERS valorar finalidad exterior y cobertura; longitud o solapa solas no deciden.",
+        "No garantizar aislamiento térmico por la fotografía."
+      ],
+      "aliases_es": [
+        "abrigo",
+        "abrigos",
+        "capa"
+      ],
+      "aliases_en": [
+        "coat",
+        "coats",
+        "cape",
+        "overcoat"
+      ],
+      "broader_role": "OUTERWEAR",
+      "compatible_size_group": {
+        "system": "ALFA",
+        "group": "SUPERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "abrigo largo",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "capa exterior",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "cambridge-coat"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 2,
+      "commercial_name": "BLAZERS",
+      "commercial_description": "Sastreria ligera y blazers de estructura definida.",
+      "commercial_active": true,
+      "canonical_name": "blazers",
+      "definition": "Categoría Mati de sastrería ligera y blazers de estructura definida. Se propone reconocer la construcción de chaqueta sastrera; no exige combinación formal, insignia ni un color determinado.",
+      "visual_characteristics": [
+        "solapas frecuentes",
+        "frente abierto o abotonado",
+        "estructura de hombros y cuerpo"
+      ],
+      "positive_cues": [
+        "sastrería y estructura definidas",
+        "ficha describe blazer"
+      ],
+      "negative_cues": [
+        "solapas también existen en abrigos",
+        "botones no bastan para separar de camisas"
+      ],
+      "commonly_confused_with": [
+        1,
+        3
+      ],
+      "distinction_rules": [
+        "Frente a ABRIGOS priorizar estructura de sastrería ligera y contexto del producto.",
+        "Un blazer puede ser largo o de tejido de punto; no excluirlo sólo por esos rasgos."
+      ],
+      "aliases_es": [
+        "blazer",
+        "blazers",
+        "americana"
+      ],
+      "aliases_en": [
+        "blazer",
+        "blazers"
+      ],
+      "broader_role": "OUTERWEAR",
+      "compatible_size_group": {
+        "system": "ALFA",
+        "group": "SUPERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "blazer de solapas",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "blazer estructurado",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "cambridge-blazer"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 3,
+      "commercial_name": "CAMISAS",
+      "commercial_description": "Camisas y piezas de botonadura.",
+      "commercial_active": true,
+      "canonical_name": "shirts",
+      "definition": "Categoría Mati para camisas y piezas de botonadura. Se propone priorizar construcción camisera y apertura de botones, con cuello o puños frecuentes pero no obligatorios.",
+      "visual_characteristics": [
+        "botonadura frontal frecuente",
+        "cuello y puños posibles",
+        "estructura camisera"
+      ],
+      "positive_cues": [
+        "apertura camisera y confección de camisa",
+        "ficha identifica camisa"
+      ],
+      "negative_cues": [
+        "género no diferencia camisa de blusa",
+        "una blusa también puede tener botones"
+      ],
+      "commonly_confused_with": [
+        4,
+        8,
+        11
+      ],
+      "distinction_rules": [
+        "Frente a BLUSAS ponderar construcción camisera frente a caída suave; aceptar solapamiento.",
+        "Tejido de punto no anula una camisa: hay camisas de punto documentadas."
+      ],
+      "aliases_es": [
+        "camisa",
+        "camisas"
+      ],
+      "aliases_en": [
+        "shirt",
+        "shirts",
+        "button-up shirt",
+        "button-down shirt"
+      ],
+      "broader_role": "UPPER",
+      "compatible_size_group": {
+        "system": "ALFA",
+        "group": "SUPERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "camisa oxford",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "camisa fluida",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "camisa de punto",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "cambridge-shirt",
+        "cambridge-blouse",
+        "fashionpedia-ontology"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 4,
+      "commercial_name": "BLUSAS",
+      "commercial_description": "Blusas fluidas y piezas de caida suave.",
+      "commercial_active": true,
+      "canonical_name": "blouses",
+      "definition": "Categoría Mati para blusas fluidas y piezas de caída suave. Se propone destacar drapeado y confección fluida sin exigir adornos, ausencia de botones ni género del usuario.",
+      "visual_characteristics": [
+        "caída suave",
+        "volumen o drapeado posibles",
+        "escotes, lazos o volantes opcionales"
+      ],
+      "positive_cues": [
+        "ficha describe blusa",
+        "construcción fluida en el contexto completo"
+      ],
+      "negative_cues": [
+        "blusa puede llevar cuello y botones",
+        "una camisa también puede ser fluida"
+      ],
+      "commonly_confused_with": [
+        3,
+        8,
+        11
+      ],
+      "distinction_rules": [
+        "Frente a CAMISAS distinguir tendencia de construcción, no regla absoluta de botones.",
+        "Si estructura camisera y fluidez coinciden, etiqueta comercial verificada y revisión humana deciden."
+      ],
+      "aliases_es": [
+        "blusa",
+        "blusas"
+      ],
+      "aliases_en": [
+        "blouse",
+        "blouses"
+      ],
+      "broader_role": "UPPER",
+      "compatible_size_group": {
+        "system": "ALFA",
+        "group": "SUPERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "blusa fluida",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "blusa con botones",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "cambridge-blouse",
+        "cambridge-shirt",
+        "fashionpedia-ontology"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 5,
+      "commercial_name": "VESTIDOS",
+      "commercial_description": "Vestidos de linea diaria, evento y ocasion.",
+      "commercial_active": true,
+      "canonical_name": "dresses",
+      "definition": "Categoría Mati para vestidos de uso diario, evento u ocasión. Se propone una pieza continua que integra zona superior y falda; ni ocasión ni largo identifican por sí solos un vestido.",
+      "visual_characteristics": [
+        "continuidad entre torso y falda",
+        "una sola prenda principal",
+        "largo variable"
+      ],
+      "positive_cues": [
+        "pieza única con zona de falda",
+        "ficha identifica vestido"
+      ],
+      "negative_cues": [
+        "dos piezas coordinadas no son vestido por parecer continuas",
+        "un mono con perneras no se fuerza a vestido"
+      ],
+      "commonly_confused_with": [
+        6,
+        10
+      ],
+      "distinction_rules": [
+        "Frente a CONJUNTOS comprobar continuidad constructiva frente a piezas separables.",
+        "Frente a FALDAS comprobar si la zona superior forma parte de la misma pieza."
+      ],
+      "aliases_es": [
+        "vestido",
+        "vestidos"
+      ],
+      "aliases_en": [
+        "dress",
+        "dresses"
+      ],
+      "broader_role": "ONE_PIECE",
+      "compatible_size_group": {
+        "system": "ALFA",
+        "group": "SUPERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "vestido midi",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "vestido de tirantes",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "fashionpedia-ontology"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 6,
+      "commercial_name": "FALDAS",
+      "commercial_description": "Faldas para look diario, oficina o ocasion.",
+      "commercial_active": true,
+      "canonical_name": "skirts",
+      "definition": "Categoría Mati para faldas de uso diario, oficina u ocasión. Se propone prenda inferior suspendida desde la cintura, sin dos perneras separadas; uso y largo no fijan la categoría.",
+      "visual_characteristics": [
+        "cintura y caída inferior",
+        "silueta inferior sin dos perneras",
+        "largo variable"
+      ],
+      "positive_cues": [
+        "prenda inferior independiente",
+        "ficha identifica falda"
+      ],
+      "negative_cues": [
+        "falda de un vestido no es artículo falda separado",
+        "pantalón ancho puede simular falda"
+      ],
+      "commonly_confused_with": [
+        7,
+        5
+      ],
+      "distinction_rules": [
+        "Frente a PANTALONES buscar separación constructiva de perneras; con oclusión conservar duda.",
+        "Frente a VESTIDOS revisar continuidad con el torso."
+      ],
+      "aliases_es": [
+        "falda",
+        "faldas"
+      ],
+      "aliases_en": [
+        "skirt",
+        "skirts"
+      ],
+      "broader_role": "LOWER",
+      "compatible_size_group": {
+        "system": "NUMERICA",
+        "group": "INFERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "falda midi",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "falda plisada",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "fashionpedia-ontology"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 7,
+      "commercial_name": "PANTALONES",
+      "commercial_description": "Pantalones sastreros, rectos y de silueta amplia.",
+      "commercial_active": true,
+      "canonical_name": "trousers",
+      "definition": "Categoría Mati para pantalones sastreros, rectos y de silueta amplia. Se propone prenda inferior con dos perneras, sin limitarla a un tejido, género o anchura.",
+      "visual_characteristics": [
+        "cintura",
+        "dos perneras",
+        "largo y anchura variables"
+      ],
+      "positive_cues": [
+        "separación constructiva de piernas",
+        "ficha identifica pantalón"
+      ],
+      "negative_cues": [
+        "silueta ancha no prueba falda",
+        "jeans es subtipo, no categoría comercial nueva"
+      ],
+      "commonly_confused_with": [
+        6,
+        10
+      ],
+      "distinction_rules": [
+        "Frente a FALDAS verificar perneras, no sólo contorno.",
+        "Un pantalón dentro de un set no identifica por sí solo todo el artículo CONJUNTOS."
+      ],
+      "aliases_es": [
+        "pantalón",
+        "pantalones"
+      ],
+      "aliases_en": [
+        "trousers",
+        "pants",
+        "trouser"
+      ],
+      "broader_role": "LOWER",
+      "compatible_size_group": {
+        "system": "NUMERICA",
+        "group": "INFERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "pantalón sastrero",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "pantalón recto",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "fashionpedia-ontology"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 8,
+      "commercial_name": "POLOS Y KNITWEAR",
+      "commercial_description": "Punto ligero, knitwear y polos de base.",
+      "commercial_active": true,
+      "canonical_name": "polos_and_knitwear",
+      "definition": "Categoría Mati combinada para punto ligero, knitwear y polos de base. Se propone incluir prendas superiores de punto y polos; es una agrupación comercial, no una sola construcción visual homogénea.",
+      "visual_characteristics": [
+        "punto o mallas visibles cuando la resolución permite",
+        "cuello de polo y tapeta posibles",
+        "jersey o cárdigan posibles"
+      ],
+      "positive_cues": [
+        "ficha identifica polo o knitwear",
+        "construcción de punto superior documentada"
+      ],
+      "negative_cues": [
+        "todo tejido jersey no equivale a suéter",
+        "tener cuello no basta: una camisa también puede ser de punto"
+      ],
+      "commonly_confused_with": [
+        3,
+        4,
+        11,
+        2
+      ],
+      "distinction_rules": [
+        "Frente a POLERA considerar término regional y construcción; categoría11 carece de definición comercial.",
+        "Frente a CAMISAS no usar sólo punto, pues hay camisa de punto.",
+        "Imagen13 es un jersey físico diagnóstico y no ground truth humano ni prueba de categoría comercial universal."
+      ],
+      "aliases_es": [
+        "polo",
+        "polos",
+        "knitwear",
+        "jersey",
+        "suéter",
+        "prendas de punto"
+      ],
+      "aliases_en": [
+        "polo shirt",
+        "polo shirts",
+        "knitwear",
+        "sweater",
+        "sweaters",
+        "cardigan"
+      ],
+      "broader_role": "UPPER",
+      "compatible_size_group": {
+        "system": "ALFA",
+        "group": "SUPERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "polo de base",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "jersey de punto",
+          "kind": "illustrative_not_product_claim"
+        },
+        {
+          "description": "cárdigan",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "cambridge-knitwear",
+        "mati-segmentation-limitations"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 9,
+      "commercial_name": "ACCESORIOS",
+      "commercial_description": "Complementos de styling y piezas de apoyo.",
+      "commercial_active": true,
+      "canonical_name": "accessories",
+      "definition": "Categoría Mati para complementos de styling y piezas de apoyo. Se propone separar accesorios de las prendas principales; la lista concreta de productos admitidos requiere revisión comercial.",
+      "visual_characteristics": [
+        "formas y funciones de complemento heterogéneas",
+        "no exige cubrir torso o piernas"
+      ],
+      "positive_cues": [
+        "ficha y categoría comercial identifican accesorio"
+      ],
+      "negative_cues": [
+        "un bolso visible junto a una prenda no demuestra que sea el producto objetivo",
+        "calzado tiene grupo de talla propio, no inferir cobertura de catálogo9"
+      ],
+      "commonly_confused_with": [
+        10
+      ],
+      "distinction_rules": [
+        "Distinguir artículo accesorio de complemento incidental en una foto.",
+        "No mapear todo objeto detectado a ACCESORIOS ni crear subcategorías comerciales."
+      ],
+      "aliases_es": [
+        "accesorio",
+        "accesorios",
+        "complementos"
+      ],
+      "aliases_en": [
+        "accessory",
+        "accessories"
+      ],
+      "broader_role": "ACCESSORY",
+      "compatible_size_group": {
+        "system": "UNICA",
+        "group": "GENERAL",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "complemento de styling",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "fashionpedia-ontology"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 10,
+      "commercial_name": "CONJUNTOS",
+      "commercial_description": "Sets coordinados y propuestas armadas.",
+      "commercial_active": true,
+      "canonical_name": "coordinated_multi_piece_sets",
+      "definition": "Categoría Mati para sets coordinados y propuestas armadas. Se propone conjunto de varias piezas separables comercializadas como unidad; no se impone una construcción de una sola pieza.",
+      "visual_characteristics": [
+        "dos o más piezas coordinadas",
+        "coordinación de tejido o diseño posible"
+      ],
+      "positive_cues": [
+        "ficha describe set y sus componentes",
+        "identidad comercial conjunta documentada"
+      ],
+      "negative_cues": [
+        "persona con varias prendas no prueba set comercial",
+        "una sola pieza continua no prueba conjunto"
+      ],
+      "commonly_confused_with": [
+        5,
+        7,
+        8
+      ],
+      "distinction_rules": [
+        "Frente a VESTIDOS verificar piezas separables frente a continuidad constructiva.",
+        "La coordinación visual sin ficha no prueba que las piezas se vendan juntas.",
+        "Conservar ALFA/SUPERIOR del catálogo aunque el rol conceptual sea MULTI_PIECE."
+      ],
+      "aliases_es": [
+        "conjunto",
+        "conjuntos",
+        "set coordinado"
+      ],
+      "aliases_en": [
+        "coordinated set",
+        "co-ord set",
+        "two-piece set",
+        "matching set"
+      ],
+      "broader_role": "MULTI_PIECE",
+      "compatible_size_group": {
+        "system": "ALFA",
+        "group": "SUPERIOR",
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "set coordinado superior e inferior",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc"
+      ],
+      "version": "1.0.0",
+      "review_status": "proposed_semantics_pending_mati_domain_review"
+    },
+    {
+      "commercial_id": 11,
+      "commercial_name": "POLERA",
+      "commercial_description": null,
+      "commercial_active": true,
+      "canonical_name": "polera_unresolved_local_term",
+      "definition": "POLERA es categoría comercial activa Mati sin descripción. ASALE documenta sentidos regionales de camiseta y suéter; el uso boliviano orienta a camiseta, pero su frontera con POLOS Y KNITWEAR debe confirmarse con Mati. No se fija equivalencia exclusiva.",
+      "visual_characteristics": [
+        "rasgos pendientes de definición comercial",
+        "camiseta básica es hipótesis contextual, no criterio obligatorio"
+      ],
+      "positive_cues": [
+        "ID11 y nombre comercial verificados",
+        "ejemplos históricos se titulan polera y remiten a t-shirts"
+      ],
+      "negative_cues": [
+        "polera no significa universalmente polo con cuello",
+        "manga o material solos no resuelven el uso regional"
+      ],
+      "commonly_confused_with": [
+        8,
+        3,
+        4
+      ],
+      "distinction_rules": [
+        "Revisar etiqueta comercial y construcción real; no resolver por traducción automática.",
+        "No completar gru_tal_cat=null con SUPERIOR porque un ejemplo documental lo sugiera.",
+        "No introducir aliases ingleses definitivos hasta revisión de Mati."
+      ],
+      "aliases_es": [
+        "polera"
+      ],
+      "aliases_en": [],
+      "broader_role": "UPPER",
+      "compatible_size_group": {
+        "system": "ALFA",
+        "group": null,
+        "scope": "Commercial suggestion profile; not restrictive validation or body measurement"
+      },
+      "examples": [
+        {
+          "description": "ejemplo contextual: camiseta titulada POLERA en documentación existente",
+          "kind": "illustrative_not_product_claim"
+        }
+      ],
+      "source": [
+        "mati-db",
+        "mati-catalog-doc",
+        "asale-polera",
+        "mati-sizing-doc"
+      ],
+      "version": "1.0.0",
+      "review_status": "ambiguous_pending_mati_domain_review"
+    }
+  ],
+  "alias_ambiguities": [
+    {
+      "term": "polera",
+      "category_ids": [
+        11,
+        8
+      ],
+      "explanation": "ASALE registra usos regionales de camiseta y suéter; Mati11 carece de descripción. Sólo alias exacto del nombre comercial11; no inferir equivalencia knitwear."
+    },
+    {
+      "term": "shirt, blouse",
+      "category_ids": [
+        3,
+        4
+      ],
+      "explanation": "Fashionpedia agrupa ambos; una etiqueta externa mixta no resuelve CAMISAS3/BLUSAS4."
+    },
+    {
+      "term": "jersey",
+      "category_ids": [
+        8,
+        11
+      ],
+      "explanation": "Suéter/punto, tejido jersey y usos regionales de polera se solapan. Alias operativo8 propuesto, no relabeling automático11."
+    }
+  ],
+  "global_rules": [
+    "No usar género, marca, color o talla como condición necesaria de categoría.",
+    "Las señales son indicios contextuales, no reglas visuales suficientes ni ground truth.",
+    "Si faltan rasgos o varias categorías encajan, conservar incertidumbre y revisión humana.",
+    "La foto con varias prendas no equivale a producto CONJUNTOS.",
+    "Jerarquía conceptual y grupo comercial de talla son campos distintos.",
+    "No modificar prompts SigLIP, embeddings canónicos, FULL/NONE ni el guard comercial de color."
+  ],
+  "comparisons": [
+    {
+      "id": "comparison:camisa-blusa",
+      "category_ids": [
+        3,
+        4
+      ],
+      "rules": [
+        "En Mati CAMISAS enfatiza construcción camisera y botonadura; BLUSAS enfatiza fluidez y caída suave.",
+        "Son tendencias solapadas: ambas pueden tener cuello, botones, tejido fluido o punto.",
+        "No usar género como separación ni etiqueta externa shirt,blouse como decisión uno a uno."
+      ]
+    },
+    {
+      "id": "comparison:blazer-abrigo",
+      "category_ids": [
+        2,
+        1
+      ],
+      "rules": [
+        "Mati BLAZERS enfatiza sastrería ligera y estructura; ABRIGOS función de exterior y cobertura.",
+        "Solapas, botones o largo no resuelven solos; hay fronteras y variantes."
+      ]
+    },
+    {
+      "id": "comparison:polera-knitwear",
+      "category_ids": [
+        11,
+        8
+      ],
+      "rules": [
+        "POLOS Y KNITWEAR combina polo y punto; POLERA conserva ambigüedad local sin descripción.",
+        "Término, construcción y ficha se consideran conjuntamente; no reasignar automáticamente jersey, camiseta o cuello polo."
+      ]
+    },
+    {
+      "id": "comparison:vestido-conjunto",
+      "category_ids": [
+        5,
+        10
+      ],
+      "rules": [
+        "Vestido propone una pieza continua con falda; conjunto propone varias piezas separables comercializadas juntas.",
+        "Varias prendas en una persona no bastan para probar conjunto; mono sin categoría específica no se fuerza a ninguna."
+      ]
+    },
+    {
+      "id": "comparison:lower-garments",
+      "category_ids": [
+        6,
+        7
+      ],
+      "rules": [
+        "Faldas y pantalones son inferiores; dos perneras separadas orientan pantalón.",
+        "Oclusiones y volumen pueden ocultar estructura; conservar duda."
+      ]
+    },
+    {
+      "id": "comparison:cold-weather",
+      "category_ids": [
+        1,
+        8
+      ],
+      "rules": [
+        "Abrigos y ciertas prendas de punto pueden aportar capas para frío.",
+        "La categoría no garantiza aislamiento térmico; tejido, grosor y condiciones concretas importan."
+      ]
+    }
+  ]
+}

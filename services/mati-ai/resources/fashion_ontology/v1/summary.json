@@ -1,0 +1,32 @@
+{
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "artifact_type": "summary",
+  "counts": {
+    "families": 12,
+    "categories": 47,
+    "subcategories": 22,
+    "attributes": 69,
+    "styles": 14,
+    "materials": 20,
+    "patterns": 13,
+    "body_zones": 18,
+    "concepts": 454,
+    "relations": 97,
+    "relation_types": 14,
+    "garment_identity_concepts": 81,
+    "style_core": 10,
+    "aesthetics": 4,
+    "fibers": 12,
+    "non_textile_materials": 8,
+    "label_fields": 69,
+    "commercial_categories": 11,
+    "coverage_rows": 828
+  },
+  "checks": {
+    "domain_freeze_approved": false,
+    "validation": "Run the read-only validator; counts are not domain approval."
+  },
+  "concept_count_policy": "All bilingual IDs: taxonomy, attribute descriptors, vocabulary values, zones and layer roles. Excludes relationship IDs and relation type IDs."
+}

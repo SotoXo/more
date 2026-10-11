@@ -1,0 +1,2207 @@
+{
+  "schema_version": "fashion-catalog-readonly-audit-1",
+  "ontology_version": "1.0.0-draft",
+  "read_only": true,
+  "live_database_queried": false,
+  "database_preservation_current_task": "UNVERIFIED_NO_LIVE_DB_ACCESS",
+  "scope": "Local snapshots, static SQL text, manifest descriptions, source contracts. No DB write, migration, inference, benchmark, training or catalog mutation.",
+  "access_limits": [
+    "PHP/Docker/psql commands unavailable in session PATH; WSL execution unavailable.",
+    "storage/app/ai-rag inaccessible; original baseline master not read or rehashed.",
+    "Existing preservation probe writes historical evidence paths and was not executed."
+  ],
+  "secondary_master_summary": {
+    "source": "DOCUMENTACION/IA/RAG_TAXONOMIA/01_taxonomia_mati.md",
+    "evidence": "Prior snapshot documentation; inaccessible original ai-rag exports not reread",
+    "commercial_colors_total": 56,
+    "commercial_colors_active": 55,
+    "color_families": 15,
+    "inactive_color": {
+      "id": 18,
+      "name": "ROJO VINO",
+      "active": false
+    },
+    "material_links": 0,
+    "texture_links": 0,
+    "gender_values": [
+      "mujer",
+      "hombre",
+      "unisex"
+    ],
+    "category_product_counts": [
+      {
+        "commercial_category_id": 1,
+        "count": 13
+      },
+      {
+        "commercial_category_id": 2,
+        "count": 10
+      },
+      {
+        "commercial_category_id": 3,
+        "count": 20
+      },
+      {
+        "commercial_category_id": 4,
+        "count": 8
+      },
+      {
+        "commercial_category_id": 5,
+        "count": 18
+      },
+      {
+        "commercial_category_id": 6,
+        "count": 7
+      },
+      {
+        "commercial_category_id": 7,
+        "count": 16
+      },
+      {
+        "commercial_category_id": 8,
+        "count": 22
+      },
+      {
+        "commercial_category_id": 9,
+        "count": 0
+      },
+      {
+        "commercial_category_id": 10,
+        "count": 3
+      },
+      {
+        "commercial_category_id": 11,
+        "count": 17
+      }
+    ],
+    "seasons": [
+      {
+        "id_temporada": "6",
+        "nom_tem": "CARNAVALERA",
+        "des_tem": "Carnaval",
+        "cod_tem": "C",
+        "fec_ini_tem": "\\N",
+        "fec_fin_tem": "\\N",
+        "est_tem": "t",
+        "source": "static_sql_dump_text"
+      },
+      {
+        "id_temporada": "1",
+        "nom_tem": "PRIMAVERA-VERANO",
+        "des_tem": "Piezas ligeras y clima cálido.",
+        "cod_tem": "PV",
+        "fec_ini_tem": "2026-09-01",
+        "fec_fin_tem": "2027-02-28",
+        "est_tem": "t",
+        "source": "static_sql_dump_text"
+      },
+      {
+        "id_temporada": "2",
+        "nom_tem": "OTOÑO-INVIERNO",
+        "des_tem": "Abrigo, punto y capas.",
+        "cod_tem": "OI",
+        "fec_ini_tem": "2026-03-01",
+        "fec_fin_tem": "2026-08-31",
+        "est_tem": "t",
+        "source": "static_sql_dump_text"
+      },
+      {
+        "id_temporada": "3",
+        "nom_tem": "RESORT",
+        "des_tem": "Viaje, transición y silueta relajada.",
+        "cod_tem": "RES",
+        "fec_ini_tem": "2026-11-01",
+        "fec_fin_tem": "2026-12-31",
+        "est_tem": "t",
+        "source": "static_sql_dump_text"
+      },
+      {
+        "id_temporada": "4",
+        "nom_tem": "CAPSULE",
+        "des_tem": "Edición corta y curada.",
+        "cod_tem": "CAP",
+        "fec_ini_tem": "2026-05-01",
+        "fec_fin_tem": "2026-05-31",
+        "est_tem": "t",
+        "source": "static_sql_dump_text"
+      },
+      {
+        "id_temporada": "5",
+        "nom_tem": "PERMANENTE",
+        "des_tem": "Base continua de fondo de armario.",
+        "cod_tem": "PER",
+        "fec_ini_tem": "2026-01-01",
+        "fec_fin_tem": "2026-12-31",
+        "est_tem": "t",
+        "source": "static_sql_dump_text"
+      },
+      {
+        "id_temporada": "7",
+        "nom_tem": "MUNDIAL",
+        "des_tem": "\\N",
+        "cod_tem": "TMP",
+        "fec_ini_tem": "2026-05-12",
+        "fec_fin_tem": "2026-08-01",
+        "est_tem": "t",
+        "source": "static_sql_dump_text"
+      }
+    ],
+    "materials": [
+      {
+        "commercial_id": 1,
+        "commercial_name": "ALGODÓN",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 2,
+        "commercial_name": "POLIÉSTER",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 3,
+        "commercial_name": "ELASTANO",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 4,
+        "commercial_name": "LANA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 5,
+        "commercial_name": "LINO",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 6,
+        "commercial_name": "VISCOSA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 7,
+        "commercial_name": "NYLON",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 8,
+        "commercial_name": "ACRÍLICO",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 9,
+        "commercial_name": "CUERO",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 10,
+        "commercial_name": "CUERO SINTÉTICO",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 11,
+        "commercial_name": "SEDA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 12,
+        "commercial_name": "OTRO",
+        "source": "prior_snapshot_documentation"
+      }
+    ],
+    "textures": [
+      {
+        "commercial_id": 1,
+        "commercial_name": "LISA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 2,
+        "commercial_name": "ACANALADA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 3,
+        "commercial_name": "TEJIDA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 4,
+        "commercial_name": "WAFFLE",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 5,
+        "commercial_name": "FELPA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 6,
+        "commercial_name": "ATERCIOPELADA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 7,
+        "commercial_name": "DENIM",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 8,
+        "commercial_name": "TEXTURIZADA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 9,
+        "commercial_name": "CALADA",
+        "source": "prior_snapshot_documentation"
+      },
+      {
+        "commercial_id": 10,
+        "commercial_name": "OTRA",
+        "source": "prior_snapshot_documentation"
+      }
+    ]
+  },
+  "commercial_fields": {
+    "prenda": [
+      "id_prenda",
+      "nom_pre",
+      "des_pre",
+      "modelo_pre",
+      "cod_categorias_pre",
+      "cod_marcas_pre",
+      "cod_temporadas_pre",
+      "gen_pre"
+    ],
+    "variant": [
+      "id_prenda_variante",
+      "cod_prendas_prv",
+      "cod_colores_prv",
+      "cod_tallas_prv",
+      "tip_pal_prv",
+      "sku_prv",
+      "cob_prv"
+    ],
+    "color_master": [
+      "id_color",
+      "nom_col",
+      "fam_col",
+      "hex_col",
+      "hex_dom_col",
+      "ord_col",
+      "est_col"
+    ],
+    "size_master": [
+      "id_talla",
+      "nom_tal",
+      "seg_tal",
+      "sis_tal",
+      "gru_tal",
+      "ord_tal",
+      "est_tal"
+    ],
+    "material_pivot": [
+      "porcentaje_pmt",
+      "ord_pmt"
+    ],
+    "palette_pivot": [
+      "es_principal_pvc",
+      "ord_pvc"
+    ],
+    "business_excluded_from_product_intelligence": [
+      "prices",
+      "costs",
+      "stock",
+      "inventory"
+    ]
+  },
+  "open_questions": [
+    "Confirm exact local POLERA scope and Henley handling.",
+    "Confirm commercial logic for polos/knitwear and permitted construction overlaps.",
+    "Confirm accessory inventory scope and footwear commercial placement.",
+    "Confirm sets sold as one identity and component descriptions.",
+    "Review size ID54 INFANTIL/ALFA/GENERAL name XXXXXXXXL.",
+    "Refresh original commercial masters and preservation live when read-only runtime becomes available."
+  ],
+  "inspected_utc": "2026-10-08T02:42:26.7072806Z",
+  "sources": [
+    {
+      "path": "services/mati-ai/resources/taxonomy/commercial-categories-v1.json",
+      "sha256": "5ba69a10a5065eef1e95ac96d38e9c4e6ac62e607dac63791232563cd0bdd261",
+      "access": "direct_local_file_read"
+    },
+    {
+      "path": "storage/app/ai-audit/catalog_taxonomies.json",
+      "sha256": "570d7dec44206f1c1ef64222e796950ab3a9e7f25db0bc715ecd5a19f4366e03",
+      "access": "direct_local_file_read"
+    },
+    {
+      "path": "storage/app/catalog-import/catalog_real_100.json",
+      "sha256": "f2c2d0acd4cfe9dacf488b7f114a20fe33bc08278f01601ee31c70bad23691e8",
+      "access": "direct_local_file_read"
+    },
+    {
+      "path": "storage/app/ai-semantic/catalog-final.json",
+      "sha256": "a341ea235d5e3eabbb14ab992c13ee5c6845f60be1a0f7a8a5305b3cf7e58d02",
+      "access": "direct_local_file_read"
+    },
+    {
+      "path": "storage/app/ai-rag-gate-v2/preservation-before.json",
+      "sha256": "0f969e7c07171e5960a62b84286d3443088e6b6baf5bfa4e8de2e75146b61951",
+      "access": "direct_local_file_read"
+    },
+    {
+      "path": "storage/app/ai-rag-gate-v2/preservation-after.json",
+      "sha256": "44e147025b1626a5152a88a98208cefa3904e32c02f16e525bbb09a2ce86857e",
+      "access": "direct_local_file_read"
+    },
+    {
+      "path": "DOCUMENTACION/IA/RAG_TAXONOMIA/01_taxonomia_mati.md",
+      "sha256": "33f6e13aaba4a6cc4157a48672560642f47ed6c94e2eda1e76cd459a8f1d0794",
+      "access": "direct_local_file_read"
+    },
+    {
+      "path": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+      "sha256": "5ef5ecc95ee9f19bfb4fb2d1370f21610ac1b4b9ed97fdb63adb72e2dc267e84",
+      "access": "direct_local_file_read"
+    },
+    {
+      "path": "more_db_actual.sql",
+      "sha256": "fe1619447f3d541e030996a407cf0fa18e3aba805d8f69fa30ddc22a9f6649f8",
+      "access": "direct_local_file_read"
+    }
+  ],
+  "commercial_category_snapshot": {
+    "captured_utc": "2026-10-05T15:14:55+00:00",
+    "source_path": "storage/app/ai-rag/catalog-master-baseline.json",
+    "declared_source_sha256": "8079a475b267cbeb99c2e8387d2e011dc92c2bc719f06f97ffbac37853033099",
+    "source_hash_independently_verified": false,
+    "categories": [
+      {
+        "id_categoria": 1,
+        "nom_cat": "ABRIGOS",
+        "des_cat": "Abrigos, capas y piezas de exterior.",
+        "est_cat": true,
+        "tip_tal_cat": "ALFA",
+        "gru_tal_cat": "SUPERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 2,
+        "nom_cat": "BLAZERS",
+        "des_cat": "Sastreria ligera y blazers de estructura definida.",
+        "est_cat": true,
+        "tip_tal_cat": "ALFA",
+        "gru_tal_cat": "SUPERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 3,
+        "nom_cat": "CAMISAS",
+        "des_cat": "Camisas y piezas de botonadura.",
+        "est_cat": true,
+        "tip_tal_cat": "ALFA",
+        "gru_tal_cat": "SUPERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 4,
+        "nom_cat": "BLUSAS",
+        "des_cat": "Blusas fluidas y piezas de caida suave.",
+        "est_cat": true,
+        "tip_tal_cat": "ALFA",
+        "gru_tal_cat": "SUPERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 5,
+        "nom_cat": "VESTIDOS",
+        "des_cat": "Vestidos de linea diaria, evento y ocasion.",
+        "est_cat": true,
+        "tip_tal_cat": "ALFA",
+        "gru_tal_cat": "SUPERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 6,
+        "nom_cat": "FALDAS",
+        "des_cat": "Faldas para look diario, oficina o ocasion.",
+        "est_cat": true,
+        "tip_tal_cat": "NUMERICA",
+        "gru_tal_cat": "INFERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 7,
+        "nom_cat": "PANTALONES",
+        "des_cat": "Pantalones sastreros, rectos y de silueta amplia.",
+        "est_cat": true,
+        "tip_tal_cat": "NUMERICA",
+        "gru_tal_cat": "INFERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 8,
+        "nom_cat": "POLOS Y KNITWEAR",
+        "des_cat": "Punto ligero, knitwear y polos de base.",
+        "est_cat": true,
+        "tip_tal_cat": "ALFA",
+        "gru_tal_cat": "SUPERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 9,
+        "nom_cat": "ACCESORIOS",
+        "des_cat": "Complementos de styling y piezas de apoyo.",
+        "est_cat": true,
+        "tip_tal_cat": "UNICA",
+        "gru_tal_cat": "GENERAL",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 10,
+        "nom_cat": "CONJUNTOS",
+        "des_cat": "Sets coordinados y propuestas armadas.",
+        "est_cat": true,
+        "tip_tal_cat": "ALFA",
+        "gru_tal_cat": "SUPERIOR",
+        "cod_categoria_padre_cat": null
+      },
+      {
+        "id_categoria": 11,
+        "nom_cat": "POLERA",
+        "des_cat": null,
+        "est_cat": true,
+        "tip_tal_cat": "ALFA",
+        "gru_tal_cat": null,
+        "cod_categoria_padre_cat": null
+      }
+    ]
+  },
+  "direct_master_view": {
+    "source": "storage/app/ai-audit/catalog_taxonomies.json",
+    "brands": [
+      {
+        "id": 1,
+        "name": "ZARA"
+      },
+      {
+        "id": 2,
+        "name": "BERSHKA"
+      },
+      {
+        "id": 3,
+        "name": "STRADIVARIUS"
+      },
+      {
+        "id": 4,
+        "name": "RALPH LAUREN"
+      },
+      {
+        "id": 5,
+        "name": "HUGO BOSS"
+      },
+      {
+        "id": 6,
+        "name": "MASSIMO DUTTI"
+      },
+      {
+        "id": 7,
+        "name": "MANGO"
+      },
+      {
+        "id": 8,
+        "name": "PULL&BEAR"
+      },
+      {
+        "id": 9,
+        "name": "RESERVED"
+      },
+      {
+        "id": 10,
+        "name": "COS"
+      },
+      {
+        "id": 11,
+        "name": "PATITO"
+      },
+      {
+        "id": 12,
+        "name": "PREMIER"
+      }
+    ],
+    "active_colors": [
+      {
+        "id": 1,
+        "name": "NEGRO",
+        "hex": "#111111",
+        "family": "NEGRO",
+        "family_hex": "#111111"
+      },
+      {
+        "id": 2,
+        "name": "BLANCO",
+        "hex": "#F7F6F2",
+        "family": "BLANCO",
+        "family_hex": "#F7F6F2"
+      },
+      {
+        "id": 3,
+        "name": "CREMA",
+        "hex": "#F2E8D8",
+        "family": "BLANCO",
+        "family_hex": "#F7F6F2"
+      },
+      {
+        "id": 4,
+        "name": "BEIGE",
+        "hex": "#D8C3A5",
+        "family": "BEIGE",
+        "family_hex": "#D8C3A5"
+      },
+      {
+        "id": 5,
+        "name": "CAMEL",
+        "hex": "#B88956",
+        "family": "CAMEL",
+        "family_hex": "#B88956"
+      },
+      {
+        "id": 6,
+        "name": "GRIS",
+        "hex": "#8A8F98",
+        "family": "GRIS",
+        "family_hex": "#8A8F98"
+      },
+      {
+        "id": 7,
+        "name": "AZUL MARINO",
+        "hex": "#1F2A44",
+        "family": "AZUL",
+        "family_hex": "#1F2A44"
+      },
+      {
+        "id": 8,
+        "name": "CELESTE",
+        "hex": "#A9C7E8",
+        "family": "AZUL",
+        "family_hex": "#6F9FD8"
+      },
+      {
+        "id": 9,
+        "name": "VERDE OLIVA",
+        "hex": "#66704A",
+        "family": "VERDE",
+        "family_hex": "#66704A"
+      },
+      {
+        "id": 10,
+        "name": "MARRÓN",
+        "hex": "#6F4E37",
+        "family": "MARRON",
+        "family_hex": "#6F4E37"
+      },
+      {
+        "id": 17,
+        "name": "NEGRO CARBON",
+        "hex": "#252525",
+        "family": "NEGRO",
+        "family_hex": "#111111"
+      },
+      {
+        "id": 11,
+        "name": "BORGONA",
+        "hex": "#6F1D2C",
+        "family": "ROJO",
+        "family_hex": "#8A2332"
+      },
+      {
+        "id": 12,
+        "name": "ROSA PALO",
+        "hex": "#D8A7B1",
+        "family": "ROSA",
+        "family_hex": "#D28FA0"
+      },
+      {
+        "id": 13,
+        "name": "AZUL PETROLEO",
+        "hex": "#18378B",
+        "family": "AZUL",
+        "family_hex": "#1D4ED8"
+      },
+      {
+        "id": 14,
+        "name": "AMARILLO",
+        "hex": "#F5DC1E",
+        "family": "AMARILLO",
+        "family_hex": "#EAB308"
+      },
+      {
+        "id": 19,
+        "name": "BLANCO HUESO",
+        "hex": "#F4F0E8",
+        "family": "BLANCO",
+        "family_hex": "#F7F6F2"
+      },
+      {
+        "id": 20,
+        "name": "MARFIL",
+        "hex": "#FFF8E7",
+        "family": "BLANCO",
+        "family_hex": "#F7F6F2"
+      },
+      {
+        "id": 21,
+        "name": "ARENA",
+        "hex": "#CDBA96",
+        "family": "BEIGE",
+        "family_hex": "#D8C3A5"
+      },
+      {
+        "id": 22,
+        "name": "TAUPE",
+        "hex": "#8B7D74",
+        "family": "BEIGE",
+        "family_hex": "#D8C3A5"
+      },
+      {
+        "id": 23,
+        "name": "CAQUI",
+        "hex": "#A69F72",
+        "family": "BEIGE",
+        "family_hex": "#D8C3A5"
+      },
+      {
+        "id": 24,
+        "name": "GRIS CLARO",
+        "hex": "#C8CDD2",
+        "family": "GRIS",
+        "family_hex": "#8A8F98"
+      },
+      {
+        "id": 25,
+        "name": "GRIS OSCURO",
+        "hex": "#4B5059",
+        "family": "GRIS",
+        "family_hex": "#8A8F98"
+      },
+      {
+        "id": 26,
+        "name": "ROJO",
+        "hex": "#E53935",
+        "family": "ROJO",
+        "family_hex": "#E53935"
+      },
+      {
+        "id": 27,
+        "name": "ROJO CARMÍN",
+        "hex": "#B31B34",
+        "family": "ROJO",
+        "family_hex": "#E53935"
+      },
+      {
+        "id": 28,
+        "name": "TERRACOTA",
+        "hex": "#C96B4B",
+        "family": "ROJO",
+        "family_hex": "#E53935"
+      },
+      {
+        "id": 29,
+        "name": "CORAL",
+        "hex": "#FF7F6A",
+        "family": "ROJO",
+        "family_hex": "#E53935"
+      },
+      {
+        "id": 30,
+        "name": "NARANJA",
+        "hex": "#F57C00",
+        "family": "NARANJA",
+        "family_hex": "#F57C00"
+      },
+      {
+        "id": 31,
+        "name": "NARANJA QUEMADO",
+        "hex": "#C65D16",
+        "family": "NARANJA",
+        "family_hex": "#F57C00"
+      },
+      {
+        "id": 32,
+        "name": "DURAZNO",
+        "hex": "#F7B38A",
+        "family": "NARANJA",
+        "family_hex": "#F57C00"
+      },
+      {
+        "id": 33,
+        "name": "AMARILLO PASTEL",
+        "hex": "#F7E89B",
+        "family": "AMARILLO",
+        "family_hex": "#F5DC1E"
+      },
+      {
+        "id": 34,
+        "name": "MOSTAZA",
+        "hex": "#C49A20",
+        "family": "AMARILLO",
+        "family_hex": "#F5DC1E"
+      },
+      {
+        "id": 35,
+        "name": "VERDE MENTA",
+        "hex": "#98D8AA",
+        "family": "VERDE",
+        "family_hex": "#009B77"
+      },
+      {
+        "id": 36,
+        "name": "VERDE SALVIA",
+        "hex": "#9CAF88",
+        "family": "VERDE",
+        "family_hex": "#009B77"
+      },
+      {
+        "id": 37,
+        "name": "VERDE ESMERALDA",
+        "hex": "#009B77",
+        "family": "VERDE",
+        "family_hex": "#009B77"
+      },
+      {
+        "id": 38,
+        "name": "VERDE BOTELLA",
+        "hex": "#205B45",
+        "family": "VERDE",
+        "family_hex": "#009B77"
+      },
+      {
+        "id": 39,
+        "name": "VERDE BOSQUE",
+        "hex": "#244D35",
+        "family": "VERDE",
+        "family_hex": "#009B77"
+      },
+      {
+        "id": 40,
+        "name": "VERDE LIMA",
+        "hex": "#A4C639",
+        "family": "VERDE",
+        "family_hex": "#009B77"
+      },
+      {
+        "id": 41,
+        "name": "AZUL CIELO",
+        "hex": "#64B5F6",
+        "family": "AZUL",
+        "family_hex": "#2447D8"
+      },
+      {
+        "id": 42,
+        "name": "AZUL TURQUESA",
+        "hex": "#20B2AA",
+        "family": "AZUL",
+        "family_hex": "#2447D8"
+      },
+      {
+        "id": 43,
+        "name": "AZUL REY",
+        "hex": "#2447D8",
+        "family": "AZUL",
+        "family_hex": "#2447D8"
+      },
+      {
+        "id": 44,
+        "name": "AZUL ELÉCTRICO",
+        "hex": "#0066FF",
+        "family": "AZUL",
+        "family_hex": "#2447D8"
+      },
+      {
+        "id": 45,
+        "name": "LAVANDA",
+        "hex": "#B39DDB",
+        "family": "MORADO",
+        "family_hex": "#6A1B9A"
+      },
+      {
+        "id": 46,
+        "name": "LILA",
+        "hex": "#C8A2C8",
+        "family": "MORADO",
+        "family_hex": "#6A1B9A"
+      },
+      {
+        "id": 47,
+        "name": "VIOLETA",
+        "hex": "#8F3FB0",
+        "family": "MORADO",
+        "family_hex": "#6A1B9A"
+      },
+      {
+        "id": 48,
+        "name": "MORADO",
+        "hex": "#6A1B9A",
+        "family": "MORADO",
+        "family_hex": "#6A1B9A"
+      },
+      {
+        "id": 49,
+        "name": "CIRUELA",
+        "hex": "#673957",
+        "family": "MORADO",
+        "family_hex": "#6A1B9A"
+      },
+      {
+        "id": 50,
+        "name": "ROSA BEBÉ",
+        "hex": "#F6C9D8",
+        "family": "ROSA",
+        "family_hex": "#F48FB1"
+      },
+      {
+        "id": 51,
+        "name": "ROSA",
+        "hex": "#F48FB1",
+        "family": "ROSA",
+        "family_hex": "#F48FB1"
+      },
+      {
+        "id": 52,
+        "name": "ROSA FUERTE",
+        "hex": "#E75480",
+        "family": "ROSA",
+        "family_hex": "#F48FB1"
+      },
+      {
+        "id": 53,
+        "name": "FUCSIA",
+        "hex": "#E91E63",
+        "family": "ROSA",
+        "family_hex": "#F48FB1"
+      },
+      {
+        "id": 54,
+        "name": "MAGENTA",
+        "hex": "#C2185B",
+        "family": "ROSA",
+        "family_hex": "#F48FB1"
+      },
+      {
+        "id": 55,
+        "name": "MARRÓN CLARO",
+        "hex": "#A87652",
+        "family": "MARRON",
+        "family_hex": "#6F4E37"
+      },
+      {
+        "id": 56,
+        "name": "CHOCOLATE",
+        "hex": "#4E2E23",
+        "family": "MARRON",
+        "family_hex": "#6F4E37"
+      },
+      {
+        "id": 57,
+        "name": "DORADO",
+        "hex": "#C9A227",
+        "family": "DORADO",
+        "family_hex": "#C9A227"
+      },
+      {
+        "id": 58,
+        "name": "PLATEADO",
+        "hex": "#B5BAC3",
+        "family": "PLATEADO",
+        "family_hex": "#B5BAC3"
+      }
+    ],
+    "sizes": [
+      {
+        "id_talla": 1,
+        "nom_tal": "UNITALLA",
+        "seg_tal": "ADULTO",
+        "sis_tal": "UNICA",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 2,
+        "nom_tal": "XS",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 3,
+        "nom_tal": "S",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 4,
+        "nom_tal": "M",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 5,
+        "nom_tal": "L",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 6,
+        "nom_tal": "XL",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 7,
+        "nom_tal": "XXL",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 8,
+        "nom_tal": "32",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 9,
+        "nom_tal": "34",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 10,
+        "nom_tal": "36",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 11,
+        "nom_tal": "38",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 12,
+        "nom_tal": "40",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 13,
+        "nom_tal": "42",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 14,
+        "nom_tal": "44",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 15,
+        "nom_tal": "46",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 16,
+        "nom_tal": "48",
+        "seg_tal": "ADULTO",
+        "sis_tal": "NUMERICA",
+        "gru_tal": "INFERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 17,
+        "nom_tal": "XXXS",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 18,
+        "nom_tal": "XXS",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 19,
+        "nom_tal": "XXXL",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 20,
+        "nom_tal": "XXXXL",
+        "seg_tal": "ADULTO",
+        "sis_tal": "ALFA",
+        "gru_tal": "SUPERIOR",
+        "est_tal": true
+      },
+      {
+        "id_talla": 21,
+        "nom_tal": "6 US",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_US",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 22,
+        "nom_tal": "6.5 US",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_US",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 23,
+        "nom_tal": "7 US",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_US",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 24,
+        "nom_tal": "7.5 US",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_US",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 25,
+        "nom_tal": "8 US",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_US",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 26,
+        "nom_tal": "8.5 US",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_US",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 27,
+        "nom_tal": "9 US",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_US",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 28,
+        "nom_tal": "36 EU",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_EU",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 29,
+        "nom_tal": "37 EU",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_EU",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 30,
+        "nom_tal": "38 EU",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_EU",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 31,
+        "nom_tal": "39 EU",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_EU",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 32,
+        "nom_tal": "40 EU",
+        "seg_tal": "ADULTO",
+        "sis_tal": "CALZADO_EU",
+        "gru_tal": "CALZADO",
+        "est_tal": true
+      },
+      {
+        "id_talla": 33,
+        "nom_tal": "2A",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "EDAD",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 34,
+        "nom_tal": "3A",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "EDAD",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 35,
+        "nom_tal": "4A",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "EDAD",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 36,
+        "nom_tal": "5A",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "EDAD",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 37,
+        "nom_tal": "6A",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "EDAD",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 38,
+        "nom_tal": "8A",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "EDAD",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 39,
+        "nom_tal": "10A",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "EDAD",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 40,
+        "nom_tal": "12A",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "EDAD",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 41,
+        "nom_tal": "92 CM",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "ALTURA_CM",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 42,
+        "nom_tal": "98 CM",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "ALTURA_CM",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 43,
+        "nom_tal": "104 CM",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "ALTURA_CM",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 44,
+        "nom_tal": "110 CM",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "ALTURA_CM",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 45,
+        "nom_tal": "116 CM",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "ALTURA_CM",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 46,
+        "nom_tal": "122 CM",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "ALTURA_CM",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 47,
+        "nom_tal": "128 CM",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "ALTURA_CM",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 48,
+        "nom_tal": "0-3M",
+        "seg_tal": "BEBE",
+        "sis_tal": "MESES",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 49,
+        "nom_tal": "3-6M",
+        "seg_tal": "BEBE",
+        "sis_tal": "MESES",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 50,
+        "nom_tal": "6-9M",
+        "seg_tal": "BEBE",
+        "sis_tal": "MESES",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 51,
+        "nom_tal": "9-12M",
+        "seg_tal": "BEBE",
+        "sis_tal": "MESES",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 52,
+        "nom_tal": "12-18M",
+        "seg_tal": "BEBE",
+        "sis_tal": "MESES",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 53,
+        "nom_tal": "18-24M",
+        "seg_tal": "BEBE",
+        "sis_tal": "MESES",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      },
+      {
+        "id_talla": 54,
+        "nom_tal": "XXXXXXXXL",
+        "seg_tal": "INFANTIL",
+        "sis_tal": "ALFA",
+        "gru_tal": "GENERAL",
+        "est_tal": true
+      }
+    ],
+    "patterns": [
+      {
+        "id": 1,
+        "name": "LISO"
+      },
+      {
+        "id": 2,
+        "name": "RAYAS"
+      },
+      {
+        "id": 3,
+        "name": "CUADROS"
+      },
+      {
+        "id": 4,
+        "name": "ESTAMPADO"
+      },
+      {
+        "id": 5,
+        "name": "FLORAL"
+      },
+      {
+        "id": 6,
+        "name": "GEOMÉTRICO"
+      },
+      {
+        "id": 7,
+        "name": "CAMUFLAJE"
+      },
+      {
+        "id": 8,
+        "name": "ANIMAL PRINT"
+      },
+      {
+        "id": 9,
+        "name": "DEGRADADO"
+      },
+      {
+        "id": 10,
+        "name": "OTRO"
+      }
+    ]
+  },
+  "import_manifest": {
+    "source": "storage/app/catalog-import/catalog_real_100.json",
+    "entry_count": 120,
+    "not_complete_catalog": true,
+    "category_counts": [
+      {
+        "commercial_name": "ABRIGOS",
+        "count": 10
+      },
+      {
+        "commercial_name": "BLAZERS",
+        "count": 10
+      },
+      {
+        "commercial_name": "BLUSAS",
+        "count": 8
+      },
+      {
+        "commercial_name": "CAMISAS",
+        "count": 19
+      },
+      {
+        "commercial_name": "CONJUNTOS",
+        "count": 3
+      },
+      {
+        "commercial_name": "FALDAS",
+        "count": 7
+      },
+      {
+        "commercial_name": "PANTALONES",
+        "count": 14
+      },
+      {
+        "commercial_name": "POLERA",
+        "count": 14
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "count": 17
+      },
+      {
+        "commercial_name": "VESTIDOS",
+        "count": 18
+      }
+    ],
+    "accessory_entries": 0,
+    "all_entries_commercial_season": "PERMANENTE",
+    "gender_counts": {
+      "mujer": 89,
+      "hombre": 31
+    },
+    "ambiguity_examples": [
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY PUNTO ASIMETRICO BAJO RIB 01645702",
+        "model_reference": "01645702",
+        "description": "Jersey punto cuello barca y manga larga con hombros decubiertos. Bajo ajustado. Detalle de acabados en rib. Disponible en varios",
+        "source_title": "jersey punto asimetrico bajo rib",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA MANGA CORTA ESTAMPADO 08071695",
+        "model_reference": "08071695",
+        "description": "Camiseta de cuello redondo con detalle de estampado en delantero. Manga corta. Disponible en varios colores.",
+        "source_title": "camiseta manga corta estampado",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA PRINT 08045525",
+        "model_reference": "08045525",
+        "description": "Camiseta de cuello redondo. Detalle de ribetes a contraste en cuello y mangas. Manga corta.",
+        "source_title": "camiseta print",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY PUNTO DOBLE 1509-130-104",
+        "model_reference": "1509/130/104",
+        "description": "Jersey de punto con efecto doble, rayas, cuello redondo y manga larga.",
+        "source_title": "JERSEY PUNTO DOBLE",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA TÉCNICA ESTRUCTURA 4387-305-611",
+        "model_reference": "4387/305/611",
+        "description": "Camiseta técnica ligera y elástica, corte relajado, cuello redondo, manga corta y logo en el bajo.",
+        "source_title": "CAMISETA TÉCNICA ESTRUCTURA",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA RUNNING ALGODÓN 6224-344-682",
+        "model_reference": "6224/344/682",
+        "description": "Camiseta de algodón y manga corta con gráficos a tono y efecto lavado.",
+        "source_title": "CAMISETA RUNNING ALGODÓN",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA BORDADO SÁNDWICH 6224-687-730",
+        "model_reference": "6224/687/730",
+        "description": "Camiseta de corte regular con cuello redondo, manga corta y bordados y estampados a contraste.",
+        "source_title": "CAMISETA BORDADO SÁNDWICH",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY BÁSICO PUNTO MANGA CORTA 8851-008-250",
+        "model_reference": "8851/008/250",
+        "description": "Jersey de punto con cuello redondo, manga corta y botones decorativos en los hombros.",
+        "source_title": "JERSEY BÁSICO PUNTO MANGA CORTA",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA ASIMÉTRICA LENTEJUELAS 5063-303-712",
+        "model_reference": "5063/303/712",
+        "description": "Camiseta amplia de cuello redondo, manga corta y bajo asimétrico con lentejuelas a contraste.",
+        "source_title": "CAMISETA ASIMÉTRICA LENTEJUELAS",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "POLO PUNTO LANA 6674-404-507",
+        "model_reference": "6674/404/507",
+        "description": "Polo de punto de lana, corte regular, cuello solapa, botones delanteros y manga larga.",
+        "source_title": "POLO PUNTO LANA",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "POLO RAYAS TEXTURA 1634-404-401",
+        "model_reference": "1634/404/401",
+        "description": "Polo de algodón a rayas con manga corta, cuello solapa, botones y bolsillo de parche en el pecho.",
+        "source_title": "POLO RAYAS TEXTURA",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA COMBINADA ENCAJE CUELLO PANADERO 4813-365-712",
+        "model_reference": "4813/365/712",
+        "description": "Camiseta con mezcla de algodón, cuello redondo con botones, manga corta y bajo asimétrico combinado con encaje a tono.",
+        "source_title": "PLAYERA COMBINADA ENCAJE CUELLO PANADERO",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY CUELLO REDONDO TRENZADO 1484-663-902",
+        "model_reference": "1484/663/902",
+        "description": "Jersey rosa de cuello redondo con punto trenzado.",
+        "source_title": "JERSEY CUELLO REDONDO TRENZADO",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY MANGA LARGA BARDOT 1432-071-812",
+        "model_reference": "1432/071/812",
+        "description": "Jersey gris con escote bardot y mangas largas.",
+        "source_title": "JERSEY MANGA LARGA BARDOT",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY PUNTO MANGA CORTA 37005868",
+        "model_reference": "37005868",
+        "description": "Jersey de punto recto, cuello redondo, manga corta y terminaciones de canalé.",
+        "source_title": "Jersey punto manga corta",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY PUNTO CUELLO REDONDO MEZCLA LANA 5713-594",
+        "model_reference": "5713/594",
+        "description": "Jersey de punto de mezcla de lana con cuello redondo, manga larga y acabados de canalé en escote, puños y bajo.",
+        "source_title": "Jersey punto cuello redondo mezcla lana",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY PUNTO TRENZADO CON LANA 5855-536",
+        "model_reference": "5855/536",
+        "description": "Jersey de punto con lana, cuello cisne, manga larga y hombros caídos. Detalles de trenzas y ochos en relieve y acabados de canalé.",
+        "source_title": "Jersey punto trenzado con lana",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY MANGA CORTA DETALLE ROMBOS 5612-528",
+        "model_reference": "5612/528",
+        "description": "Jersey con lana de cuello redondo y manga corta con acabados en rib. El título oficial indica detalle de rombos.",
+        "source_title": "Jersey manga corta detalle rombos",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY PUNTO CUELLO CISNE RAYAS 5805-577",
+        "model_reference": "5805/577",
+        "description": "Jersey de punto con lana de manga larga y cuello cisne, con estampado de rayas.",
+        "source_title": "Jersey punto cuello cisne rayas",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "CÁRDIGAN CUELLO ALTO BOTONES 7563323401",
+        "model_reference": "7563323401",
+        "description": "Cárdigan de cuello alto con cierre de botones.",
+        "source_title": "Cárdigan cuello alto botones",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY PUNTO ASIMÉTRICO 7540325630",
+        "model_reference": "7540325630",
+        "description": "Jersey de punto de manga larga, con puños ceñidos y escote asimétrico.",
+        "source_title": "Jersey punto asimétrico",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA PUNTO GRÁFICO 7231397805",
+        "model_reference": "7231397805",
+        "description": "Camiseta de manga larga en tejido de punto cortado, con gráfico y rib en contraste. Colección Pacific Republic.",
+        "source_title": "Camiseta punto gráfico",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "CAMISETA RAYAS DICKIES 7232362105",
+        "model_reference": "7232362105",
+        "description": "Camiseta de manga larga a rayas marrones y naranjas, con cuello redondo y bolsillo de parche en el pecho. Colección Dickies.",
+        "source_title": "Camiseta rayas Dickies",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY DE LANA Y ALGODON CON BOLSILLO KHAKI 1293229002",
+        "model_reference": "1293229002",
+        "description": "Jersey de cuello redondo con bolsillo de parche tonal y puños y bajo acanalados.",
+        "source_title": "POCKET DETAIL WOOL CREW NECK JUMPER KHAKI",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY GRUESO DE LANA CON CUELLO ALTO BEIGE OSCURO 1296275004",
+        "model_reference": "1296275004",
+        "description": "Jersey de lana gruesa de corte relajado con cuello alto, hombros caídos y mangas redondeadas.",
+        "source_title": "CHUNKY FUNNEL NECK WOOL JUMPER DARK BEIGE",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLOS Y KNITWEAR",
+        "product_name": "JERSEY ATELIER MERINO CUELLO VUELTO VERDE OSCURO 1208558001",
+        "model_reference": "1208558001",
+        "description": "Jersey ATELIER de lana merino con corte regular, cuello vuelto con abertura lateral y bordes acanalados.",
+        "source_title": "THE MERINO WOOL ROLL NECK JUMPER DARK GREEN",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "CONJUNTOS",
+        "product_name": "CONJUNTO BOSS PIQUE VERDE OSCURO CON LOGOS BORDADOS hbeu50569918_398",
+        "model_reference": "hbeu50569918_398",
+        "description": "Conjunto masculino de dos piezas de piqué de mezcla de algodón, corte regular y logos bordados.",
+        "source_title": "Tracksuit set in cotton-blend piqué",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "CONJUNTOS",
+        "product_name": "CONJUNTO BOSS VERDE CLARO DE ALGODON ELASTICO CON FRANJAS hbeu50533738_357",
+        "model_reference": "hbeu50533738_357",
+        "description": "Conjunto masculino de algodón elástico con aplicaciones de franjas y detalles de marca.",
+        "source_title": "Stretch-cotton regular-fit tracksuit set with stripe inserts",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "CONJUNTOS",
+        "product_name": "CONJUNTO BOSS BEIGE DE ALGODON CON CAPUCHA hbeu50541065_246",
+        "model_reference": "hbeu50541065_246",
+        "description": "Conjunto masculino de algodón con detalles discretos de marca; sudadera con capucha y bolsillo canguro.",
+        "source_title": "Casual cotton tracksuit set with a minimalist logo",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "POLERA NEGRA BOSS CON LOGO ESTAMPADO hbeu50481923_001",
+        "model_reference": "hbeu50481923_001",
+        "description": "Polera de jersey suave de algodón con corte regular y gran logotipo de goma en contraste.",
+        "source_title": "Cotton-jersey T-shirt with large logo print",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "POLERA RALPH LAUREN BORGONA CON PONY 710671438545",
+        "model_reference": "710671438545",
+        "description": "Polera masculina de algodón, manga corta y cuello redondo; corte entallado y Pony en el pecho.",
+        "source_title": "Polo Ralph Lauren Burgundy T-shirt | Menswear Online",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "POLERA RALPH LAUREN VERDE CON PONY 710671438546",
+        "model_reference": "710671438546",
+        "description": "Polera masculina de algodón de aspecto lavado, manga corta, cuello redondo y Pony en el pecho.",
+        "source_title": "Polo Ralph Lauren Green Custom Slim Fit Jersey T-shirt | Menswear Online",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "POLERA RALPH LAUREN AZUL JASPEADA CON PONY 710671438541",
+        "model_reference": "710671438541",
+        "description": "Polera masculina de algodón, manga corta y cuello redondo, con acabado jaspeado azul y Pony en el pecho.",
+        "source_title": "Polo Ralph Lauren Blue Heather T-shirt | Menswear Online",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      },
+      {
+        "commercial_name": "POLERA",
+        "product_name": "POLERA RALPH LAUREN BLANCA POLO BEAR 710B14615001",
+        "model_reference": "710B14615001",
+        "description": "Polera masculina de algodón de corte clásico, manga corta y cuello redondo; estampado frontal Polo Bear.",
+        "source_title": "Polo Ralph Lauren Classic Fit White Teddy Bear Tee | Menswear Online",
+        "evidence_status": "local_import_manifest_text_not_live_product_annotation"
+      }
+    ]
+  },
+  "mapping_recommendations": [
+    {
+      "commercial_category_id": 1,
+      "commercial_name": "ABRIGOS",
+      "candidate_ontology_targets": [
+        "garment.category.coat",
+        "garment.category.cape"
+      ],
+      "mapping_type": "one_to_many_candidates",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial identity preserved. Product evidence and Mati review required."
+    },
+    {
+      "commercial_category_id": 2,
+      "commercial_name": "BLAZERS",
+      "candidate_ontology_targets": [
+        "garment.category.blazer"
+      ],
+      "mapping_type": "nominal_candidate",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial identity preserved. Product evidence and Mati review required."
+    },
+    {
+      "commercial_category_id": 3,
+      "commercial_name": "CAMISAS",
+      "candidate_ontology_targets": [
+        "garment.category.shirt"
+      ],
+      "mapping_type": "nominal_candidate",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial identity preserved. Product evidence and Mati review required."
+    },
+    {
+      "commercial_category_id": 4,
+      "commercial_name": "BLUSAS",
+      "candidate_ontology_targets": [
+        "garment.category.blouse"
+      ],
+      "mapping_type": "nominal_candidate",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial identity preserved. Product evidence and Mati review required."
+    },
+    {
+      "commercial_category_id": 5,
+      "commercial_name": "VESTIDOS",
+      "candidate_ontology_targets": [
+        "garment.category.dress"
+      ],
+      "mapping_type": "nominal_candidate",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial identity preserved. Product evidence and Mati review required."
+    },
+    {
+      "commercial_category_id": 6,
+      "commercial_name": "FALDAS",
+      "candidate_ontology_targets": [
+        "garment.category.skirt"
+      ],
+      "mapping_type": "nominal_candidate",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial identity preserved. Product evidence and Mati review required."
+    },
+    {
+      "commercial_category_id": 7,
+      "commercial_name": "PANTALONES",
+      "candidate_ontology_targets": [
+        "garment.category.trousers"
+      ],
+      "mapping_type": "nominal_candidate",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial identity preserved. Product evidence and Mati review required."
+    },
+    {
+      "commercial_category_id": 8,
+      "commercial_name": "POLOS Y KNITWEAR",
+      "candidate_ontology_targets": [
+        "garment.category.polo",
+        "garment.category.sweater",
+        "garment.category.cardigan"
+      ],
+      "mapping_type": "one_to_many_candidates",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial union. Examples cover polo/sweater/cardigan. Knit construction alone cannot determine category."
+    },
+    {
+      "commercial_category_id": 9,
+      "commercial_name": "ACCESORIOS",
+      "candidate_ontology_targets": [
+        "garment.category.handbag",
+        "garment.category.backpack",
+        "garment.category.waist_bag",
+        "garment.category.travel_bag",
+        "garment.category.belt",
+        "garment.category.glasses",
+        "garment.category.watch",
+        "garment.category.necklace",
+        "garment.category.bracelet",
+        "garment.category.ring",
+        "garment.category.earring",
+        "garment.category.brooch",
+        "garment.category.scarf",
+        "garment.category.tie",
+        "garment.category.hat",
+        "garment.category.cap",
+        "garment.category.gloves",
+        "garment.category.pocket_square"
+      ],
+      "mapping_type": "one_to_many_candidates",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "No observed accessory products. Targets are candidate ontology coverage, not asserted commercial scope; footwear deliberately excluded pending Mati placement."
+    },
+    {
+      "commercial_category_id": 10,
+      "commercial_name": "CONJUNTOS",
+      "candidate_ontology_targets": [
+        "garment.category.coordinated_set"
+      ],
+      "mapping_type": "nominal_candidate",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Commercial identity preserved. Product evidence and Mati review required."
+    },
+    {
+      "commercial_category_id": 11,
+      "commercial_name": "POLERA",
+      "candidate_ontology_targets": [
+        "garment.category.tshirt"
+      ],
+      "mapping_type": "nominal_candidate",
+      "review_status": "NEEDS MATI REVIEW",
+      "automatic_resolution_enabled": false,
+      "version": "1.0.0-draft",
+      "notes": "Local import text supports T-shirt candidate including long/short sleeves and potential Henley; scope and regional alias unconfirmed."
+    }
+  ],
+  "historical_preservation": {
+    "before_path": "storage/app/ai-rag-gate-v2/preservation-before.json",
+    "after_path": "storage/app/ai-rag-gate-v2/preservation-after.json",
+    "before_utc": "2026-10-06T02:24:44+00:00",
+    "after_utc": "2026-10-06T03:14:58+00:00",
+    "source_claim_checks": {
+      "commercial_34_tables_identical": true,
+      "visual_134_rows_identical": true,
+      "ai_counts_identical": true,
+      "source_images_identical": true,
+      "rag_1_23_23_23": true,
+      "rag_rows_identical": true
+    },
+    "commercial_fingerprints": {
+      "audit_logs": {
+        "columns": "id, cod_usuario_aul, tabla_aul, registro_id_aul, accion_aul, modulo_aul, valores_anteriores_aul, valores_nuevos_aul, campos_modificados_aul, descripcion_aul, nivel_aul, ip_aul, user_agent_aul, ruta_aul, created_at, updated_at",
+        "count": 437,
+        "sha256": "d21bb715901cd18703b9b45d866576584d7758344c6035774488a83788c617b4"
+      },
+      "categoria_complementarias": {
+        "columns": "id_categoria_complementaria, cod_categoria_origen_cc, cod_categoria_destino_cc, pri_cc, est_cc, created_at, updated_at",
+        "count": 44,
+        "sha256": "cd452517ce41b193f0f33010bae572a27655dddaad9ecf0bcfa9f4c28d13fa15"
+      },
+      "categorias": {
+        "columns": "id_categoria, nom_cat, des_cat, cod_categoria_padre_cat, est_cat, fec_cat, created_at, updated_at, tip_tal_cat, gru_tal_cat",
+        "count": 11,
+        "sha256": "2c5da8173410e33d504d09344b50ce880c8c8afc6fb0fa0e4f0c22ba7e070457"
+      },
+      "colores": {
+        "columns": "id_color, nom_col, hex_col, est_col, fec_col, created_at, updated_at, fam_col, hex_dom_col, ord_col",
+        "count": 56,
+        "sha256": "bd9b1fdf9e8f0ea7fdaa4cc359284bccc76d0b077aef7f4cf3e6178cc24a116f"
+      },
+      "commercial_operations": {
+        "columns": "id, user_id, path, request_hash, redirect_to, created_at",
+        "count": 1,
+        "sha256": "b8d32d29bd9faeccfd64fdda7392694775aea8f6220ae54a8aee45a30be78ede"
+      },
+      "database_backups": {
+        "columns": "id, nombre_bak, archivo_bak, ruta_bak, disco_bak, tamano_bak, estado_bak, mensaje_bak, cod_usuario_bak, fec_bak, created_at, updated_at",
+        "count": 2,
+        "sha256": "a151600af7eebf7ed80465108c1d83f78baf805d30e03fbfadc23c8c5c39710c"
+      },
+      "detalle_reservas": {
+        "columns": "id_detalle_reserva, cod_reservas_dre, cod_prenda_variantes_dre, can_dre, fec_dre, created_at, updated_at, pun_dre, sub_dre",
+        "count": 10,
+        "sha256": "6f1c606103a83715bbe4cfc8a5020b8e6e798045db4beced05ec299e28fcaf20"
+      },
+      "detalle_ventas": {
+        "columns": "id_detalle_venta, cod_ventas_dve, cod_prenda_variantes_dve, can_dve, pun_dve, sub_dve, fec_dve, created_at, updated_at",
+        "count": 13,
+        "sha256": "2207ebe4649ce45e5e63fa0b3277abfacb15d07afa6567dbf7b1fdf9a2ccf086"
+      },
+      "favoritos": {
+        "columns": "id_favorito, cod_usuarios_fav, cod_prendas_fav, fec_fav, created_at, updated_at",
+        "count": 5,
+        "sha256": "5c6468905f3d42670171d6b85cf433705991003833136bbee162599e82d4addf"
+      },
+      "imagenes_prenda": {
+        "columns": "id_imagen_prenda, cod_prendas_igp, cod_prenda_variantes_igp, rut_igp, url_igp, pri_igp, ord_igp, fue_igp, fec_igp, created_at, updated_at",
+        "count": 134,
+        "sha256": "db1d8e66ca155e27d89c20d6b92a3262b8558fb1308e4f5893bb797d105fb83a"
+      },
+      "inventario_movimientos": {
+        "columns": "id, cod_inventario_inm, cod_prenda_variante_inm, tipo_movimiento_inm, cantidad_inm, cdi_antes_inm, cdi_despues_inm, cre_antes_inm, cre_despues_inm, ubicacion_antes_inm, ubicacion_despues_inm, referencia_tipo_inm, referencia_id_inm, cod_usuario_inm, descripcion_inm, metadata_inm, created_at, updated_at",
+        "count": 140,
+        "sha256": "60bf5b1c844b11aa2b45e879aac6ab26bc4e06e4a233fb75b4f49d4943f1a392"
+      },
+      "inventarios": {
+        "columns": "id_inventario, cod_prenda_variantes_inv, cdi_inv, cre_inv, ubi_inv, created_at, updated_at",
+        "count": 134,
+        "sha256": "9485bba7c72735d4c3c133631192f189f9366e5afc9e138d91f6e92aa8a61a34"
+      },
+      "marcas": {
+        "columns": "id_marca, nom_mar, des_mar, est_mar, fec_mar, created_at, updated_at",
+        "count": 12,
+        "sha256": "27b7ad432f124b962e2bc549227bda051ec38abf0d88021215679c1bb4124c5f"
+      },
+      "materiales": {
+        "columns": "id_material, nom_mat, des_mat, est_mat, created_at, updated_at",
+        "count": 12,
+        "sha256": "36c0e672437ec6ba75c8c88c204809861e6e62b6f94d193b9c0e443511eb1818"
+      },
+      "notifications": {
+        "columns": "id, type, notifiable_type, notifiable_id, data, read_at, created_at, updated_at",
+        "count": 41,
+        "sha256": "7c88ddcabc7848751f20dfd4bdc496967da32c7b7bb941931d2234a4537910ff"
+      },
+      "patrones": {
+        "columns": "id_patron, nom_pat, des_pat, est_pat, ord_pat, created_at, updated_at",
+        "count": 10,
+        "sha256": "f6e0ed1a8947bac53963454f3dcd90715fe47da7787a7619b0ba5381f577daa9"
+      },
+      "prenda_danio_imagenes": {
+        "columns": "id, cod_prenda_danio_reporte_pdi, ruta_pdi, url_pdi, descripcion_pdi, orden_pdi, created_at, updated_at",
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "prenda_danio_reportes": {
+        "columns": "id, codigo_pdr, nombre_prenda_pdr, descripcion_prenda_pdr, cod_prenda_pdr, cod_prenda_variante_pdr, cod_inventario_pdr, cod_usuario_reporta_pdr, cod_usuario_revisa_pdr, causa_pdr, tipo_danio_pdr, severidad_pdr, cantidad_pdr, estado_pdr, decision_pdr, observacion_pdr, observacion_revision_pdr, fecha_reporte_pdr, fecha_revision_pdr, afecta_inventario_pdr, metadata_pdr, created_at, updated_at",
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "prenda_materiales": {
+        "columns": "id_prenda_material, cod_prenda_pmt, cod_material_pmt, porcentaje_pmt, ord_pmt, created_at, updated_at",
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "prenda_patrones": {
+        "columns": "id_prenda_patron, cod_prenda_ppn, cod_patron_ppn, created_at, updated_at",
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "prenda_texturas": {
+        "columns": "id_prenda_textura, cod_prenda_ptx, cod_textura_ptx, created_at, updated_at",
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "prenda_variante_colores": {
+        "columns": "id_prenda_variante_color, cod_prenda_variante_pvc, cod_color_pvc, es_principal_pvc, ord_pvc, created_at, updated_at",
+        "count": 134,
+        "sha256": "718fa707d5920945266cfe0ebd0322f98b8e5ecd57890f6208e3360013474c30"
+      },
+      "prenda_variantes": {
+        "columns": "id_prenda_variante, cod_prendas_prv, cod_colores_prv, cod_tallas_prv, sku_prv, cob_prv, pve_prv, cos_prv, est_prv, fec_prv, created_at, updated_at, tip_pal_prv",
+        "count": 134,
+        "sha256": "55b97f16fd7c18e5afbcfaab3d9eb3c3344606a03faacbe78b42a6abc8371bf6"
+      },
+      "prendas": {
+        "columns": "id_prenda, nom_pre, des_pre, cod_categorias_pre, cod_marcas_pre, cod_temporadas_pre, gen_pre, prb_pre, est_pre, cod_usuario_registra_pre, fec_pre, created_at, updated_at",
+        "count": 134,
+        "sha256": "f8c2a7f76f5e1aa2f30ed6f9b4afc7f142b2c79f5c51efbf9ecdaeaaf9b84323"
+      },
+      "reserva_pagos": {
+        "columns": "id_reserva_pago, cod_reservas_rpg, monto_declarado_rpg, monto_confirmado_rpg, porcentaje_rpg, metodo_pago_rpg, comprobante_ruta_rpg, comprobante_url_rpg, est_rpg, cod_usuario_verifica_rpg, fec_verificacion_rpg, obs_rpg, fec_rpg, created_at, updated_at",
+        "count": 13,
+        "sha256": "41de1982bffd3949916a893684dbae9ac52754eddda03245eb9f8f80e708bba2"
+      },
+      "reservas": {
+        "columns": "id_reserva, nre_res, cod_usuario_cliente_res, cod_usuario_responsable_res, est_res, ven_res, obs_res, fec_res, created_at, updated_at, sub_res, des_res, tot_res, monto_pagado_res, saldo_res, est_pago_res, fec_disponible_recojo_res, fec_limite_recojo_res, punto_recojo_res, origen_stock_res, cod_usuario_verifica_pago_res, fec_verificacion_pago_res, obs_pago_res, est_logistico_res, fec_recogida_res, cod_usuario_entrega_res",
+        "count": 9,
+        "sha256": "73fd57172c1479301d43077cdb0d142301a6fed0e421714e4a7ce0a5adff39e3"
+      },
+      "roles": {
+        "columns": "id_rol, nom_rol, des_rol, est_rol, fec_rol, created_at, updated_at",
+        "count": 3,
+        "sha256": "5a5e9c675147fba7231ccc67356d88f1720b072d8f38c80e3308d986450a36cd"
+      },
+      "system_logs": {
+        "columns": "id, cod_usuario_slg, rol_slg, modulo_slg, accion_slg, entidad_tipo_slg, entidad_id_slg, descripcion_slg, nivel_slg, ip_slg, user_agent_slg, metodo_http_slg, ruta_slg, metadata_slg, created_at, updated_at",
+        "count": 804,
+        "sha256": "1e50c7e59a0d052340da66704279bb6850d15af18f199c68d826e9fa1ea06072"
+      },
+      "tallas": {
+        "columns": "id_talla, nom_tal, ord_tal, est_tal, fec_tal, created_at, updated_at, sis_tal, gru_tal, seg_tal",
+        "count": 54,
+        "sha256": "fceb0ebfcc98ea45645b62a9e8f2c9737cd1d424375d00b3577f9da004eb91a9"
+      },
+      "temporadas": {
+        "columns": "id_temporada, nom_tem, des_tem, est_tem, fec_tem, created_at, updated_at, cod_tem, ord_tem, fec_ini_tem, fec_fin_tem",
+        "count": 7,
+        "sha256": "8c1d184036cc8f3e9425fd2e4b7f8545c815906cf4aee9a80cab6e917a51df4b"
+      },
+      "texturas": {
+        "columns": "id_textura, nom_tex, des_tex, est_tex, ord_tex, created_at, updated_at",
+        "count": 10,
+        "sha256": "db0fd624c1eb1aac78823a9e36976073d7a8af71e81b63dc6e9c1a2212e9e096"
+      },
+      "users": {
+        "columns": "id, email, email_verified_at, password, remember_token, created_at, updated_at, nom_usu, app_usu, apm_usu, tel_usu, cod_roles_usu, est_usu, fec_usu",
+        "count": 8,
+        "sha256": "c1e3722e07917ce8d8a83f1fc5c2ba29a09d123233b985f55b8d010d904c8f77"
+      },
+      "venta_pagos": {
+        "columns": "id_venta_pago, cod_ventas_vpg, monto_declarado_vpg, monto_verificado_vpg, metodo_pago_vpg, comprobante_ruta_vpg, comprobante_url_vpg, est_vpg, cod_usuario_verifica_vpg, fec_verificacion_vpg, obs_vpg, fec_vpg, created_at, updated_at",
+        "count": 7,
+        "sha256": "c66eea7f06b52443bbce6fa6bcfdcec8edb0b081edb846fa50f9d99458f1cdae"
+      },
+      "ventas": {
+        "columns": "id_venta, nve_ven, cod_usuario_cliente_ven, cod_usuario_vendedor_ven, tiv_ven, sub_ven, des_ven, tot_ven, mpa_ven, est_ven, fec_ven, created_at, updated_at, est_logistico_ven, fec_disponible_recojo_ven, fec_limite_recojo_ven, punto_recojo_ven, origen_stock_ven, fec_entrega_ven, cod_usuario_entrega_ven",
+        "count": 12,
+        "sha256": "5382e59cd5dae75c0808f25b082fe1f7a9a4d3a3e047ebd4070f6eddb503ed8f"
+      }
+    },
+    "ai_counts": {
+      "ai_model_versions": 4,
+      "ai_runs": 147,
+      "ai_suggestions": 11,
+      "ai_human_reviews": 2,
+      "ai_product_embeddings": 134
+    },
+    "canonical_sha256": "6f8cff5ff9da8ffff23850b38898b7a2998dc934207949e160a83cf605da5199",
+    "source_images_sha256": "1ebe30332e75915fbed525181a3469c81abae66171c4246f8046d2cda95e27d0",
+    "rag_fingerprints": {
+      "rag_model_versions": {
+        "count": 1,
+        "sha256": "cd2bf442da77ccdfe357359d637b6dc5c9403d49f7c02ad0be907e18df58d3d5"
+      },
+      "rag_documents": {
+        "count": 23,
+        "sha256": "3f6b916aa50f471cc6377d01069823842f1aefbcbc7212aa22d8cded96cfb351"
+      },
+      "rag_chunks": {
+        "count": 23,
+        "sha256": "f7f38bf0f8b5549caed918612dd9a8935c0454cc40d8098cf7156ae2ae9a44cb"
+      },
+      "rag_embeddings": {
+        "count": 23,
+        "sha256": "3311203366a7b2984a683bcded0499ee676f067aaa0f6e4353578efbd2ee03ed"
+      }
+    },
+    "pair_rechecked_locally": {
+      "commercial_fingerprints_identical": true,
+      "canonical_hash_identical": true,
+      "source_images_hash_identical": true,
+      "ai_counts_identical": true,
+      "rag_fingerprints_identical": true
+    },
+    "interpretation": "Equality between historical DB snapshots. Does not certify live DB preservation during this task."
+  },
+  "local_source_preservation": {
+    "protected_files": [
+      {
+        "path": "services/mati-ai/resources/taxonomy/commercial-categories-v1.json",
+        "sha256_before": "5ba69a10a5065eef1e95ac96d38e9c4e6ac62e607dac63791232563cd0bdd261",
+        "sha256_after": "5ba69a10a5065eef1e95ac96d38e9c4e6ac62e607dac63791232563cd0bdd261",
+        "identical": true
+      },
+      {
+        "path": "storage/app/ai-audit/catalog_taxonomies.json",
+        "sha256_before": "570d7dec44206f1c1ef64222e796950ab3a9e7f25db0bc715ecd5a19f4366e03",
+        "sha256_after": "570d7dec44206f1c1ef64222e796950ab3a9e7f25db0bc715ecd5a19f4366e03",
+        "identical": true
+      },
+      {
+        "path": "storage/app/catalog-import/catalog_real_100.json",
+        "sha256_before": "f2c2d0acd4cfe9dacf488b7f114a20fe33bc08278f01601ee31c70bad23691e8",
+        "sha256_after": "f2c2d0acd4cfe9dacf488b7f114a20fe33bc08278f01601ee31c70bad23691e8",
+        "identical": true
+      },
+      {
+        "path": "storage/app/ai-semantic/catalog-final.json",
+        "sha256_before": "a341ea235d5e3eabbb14ab992c13ee5c6845f60be1a0f7a8a5305b3cf7e58d02",
+        "sha256_after": "a341ea235d5e3eabbb14ab992c13ee5c6845f60be1a0f7a8a5305b3cf7e58d02",
+        "identical": true
+      },
+      {
+        "path": "storage/app/ai-semantic/catalog-before.json",
+        "sha256_before": "cea404e81e037e95c4b44b136f130bfa7e0d8f7f7caad85b1cf9995f99bb1555",
+        "sha256_after": "cea404e81e037e95c4b44b136f130bfa7e0d8f7f7caad85b1cf9995f99bb1555",
+        "identical": true
+      },
+      {
+        "path": "storage/app/ai-rag-gate-v2/preservation-before.json",
+        "sha256_before": "0f969e7c07171e5960a62b84286d3443088e6b6baf5bfa4e8de2e75146b61951",
+        "sha256_after": "0f969e7c07171e5960a62b84286d3443088e6b6baf5bfa4e8de2e75146b61951",
+        "identical": true
+      },
+      {
+        "path": "storage/app/ai-rag-gate-v2/preservation-after.json",
+        "sha256_before": "44e147025b1626a5152a88a98208cefa3904e32c02f16e525bbb09a2ce86857e",
+        "sha256_after": "44e147025b1626a5152a88a98208cefa3904e32c02f16e525bbb09a2ce86857e",
+        "identical": true
+      },
+      {
+        "path": "more_db_actual.sql",
+        "sha256_before": "fe1619447f3d541e030996a407cf0fa18e3aba805d8f69fa30ddc22a9f6649f8",
+        "sha256_after": "fe1619447f3d541e030996a407cf0fa18e3aba805d8f69fa30ddc22a9f6649f8",
+        "identical": true
+      },
+      {
+        "path": "app/Models/Prenda.php",
+        "sha256_before": "02429dd8f47f5f1f8b241916041c2af433a5a047b978a39443bc834d2a85a277",
+        "sha256_after": "02429dd8f47f5f1f8b241916041c2af433a5a047b978a39443bc834d2a85a277",
+        "identical": true
+      },
+      {
+        "path": "app/Models/PrendaVariante.php",
+        "sha256_before": "79adde5690b162baabb495d2520337920adcbb7343eac8546a88cc398386ca74",
+        "sha256_after": "79adde5690b162baabb495d2520337920adcbb7343eac8546a88cc398386ca74",
+        "identical": true
+      },
+      {
+        "path": "app/Models/Color.php",
+        "sha256_before": "56619379ef7d7984158f9881191a3d781ae92f3606892807e6445a5e012f4dd6",
+        "sha256_after": "56619379ef7d7984158f9881191a3d781ae92f3606892807e6445a5e012f4dd6",
+        "identical": true
+      },
+      {
+        "path": "app/Models/Talla.php",
+        "sha256_before": "7c033f2a03b3eceb8597bb4e7aaff1db363306f49192032c9b9e90e3fd7630dd",
+        "sha256_after": "7c033f2a03b3eceb8597bb4e7aaff1db363306f49192032c9b9e90e3fd7630dd",
+        "identical": true
+      },
+      {
+        "path": "database/seeders/CategoriasTableSeeder.php",
+        "sha256_before": "b795bff157360ce2e1040a23b9cec174cf6e56b52b7742f845d4dee3ce9fe317",
+        "sha256_after": "b795bff157360ce2e1040a23b9cec174cf6e56b52b7742f845d4dee3ce9fe317",
+        "identical": true
+      },
+      {
+        "path": "database/seeders/TemporadasTableSeeder.php",
+        "sha256_before": "ab4de5c9cabf71c0cf1397a7a69917c69626778684bad8aa780d0f3be4cfb820",
+        "sha256_after": "ab4de5c9cabf71c0cf1397a7a69917c69626778684bad8aa780d0f3be4cfb820",
+        "identical": true
+      },
+      {
+        "path": "database/seeders/MarcasTableSeeder.php",
+        "sha256_before": "21a9ea85173f2ce8a93a8515788c69c0060e8e3c8b06c0aa86749941a013d34e",
+        "sha256_after": "21a9ea85173f2ce8a93a8515788c69c0060e8e3c8b06c0aa86749941a013d34e",
+        "identical": true
+      },
+      {
+        "path": "database/seeders/PrendaAttributeCatalogSeeder.php",
+        "sha256_before": "31738e9ade1f69e7053c643134cbdddaca0bbe1a016ba25b0dc31b9329dbdfb9",
+        "sha256_after": "31738e9ade1f69e7053c643134cbdddaca0bbe1a016ba25b0dc31b9329dbdfb9",
+        "identical": true
+      },
+      {
+        "path": "services/mati-ai/scripts/gate_v2/probe_preservation.php",
+        "sha256_before": "5558916ddd54a9b197178691afc5d06739f20308b204053cbbad199c1bfd6592",
+        "sha256_after": "5558916ddd54a9b197178691afc5d06739f20308b204053cbbad199c1bfd6592",
+        "identical": true
+      }
+    ],
+    "protected_files_count": 17,
+    "all_identical": true,
+    "interpretation": "SHA256 of inspected local files before vs after audit artifacts, no live DB claim."
+  }
+}

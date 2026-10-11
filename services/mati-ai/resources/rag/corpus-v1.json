@@ -1,0 +1,1017 @@
+{
+  "schema_version": "mati-rag-corpus-1",
+  "corpus_version": "1.0.0",
+  "created_date": "2026-10-05",
+  "review_status": "curated_proposal_pending_mati_domain_review",
+  "annotator": "Codex_curated_not_human_domain_ground_truth",
+  "embedding_input_contract": "title + '\\n' + chunk.section + '\\n' + chunk.content; UTF8 exact, ordered chunks; model-specific prefix added only by embedding profile",
+  "content_hash_contract": {
+    "chunk": "SHA256 UTF8 content exact",
+    "document": "SHA256 UTF8 join('\\n\\n', ordered [title+'\\n'+section+'\\n'+content])"
+  },
+  "taxonomy_path": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+  "taxonomy_sha256": "5ef5ecc95ee9f19bfb4fb2d1370f21610ac1b4b9ed97fdb63adb72e2dc267e84",
+  "sources": [
+    {
+      "id": "mati-db",
+      "kind": "commercial_snapshot",
+      "uri": "storage/app/ai-rag/catalog-master-baseline.json",
+      "sha256": "8079a475b267cbeb99c2e8387d2e011dc92c2bc719f06f97ffbac37853033099",
+      "captured_utc": "2026-10-05T15:14:55+00:00",
+      "scope": "IDs, nombres, descripciones, estado y perfiles de talla; no certifica reglas visuales propuestas"
+    },
+    {
+      "id": "mati-sizing-doc",
+      "kind": "local_document",
+      "uri": "DOCUMENTACION/10_categorias_tallas_superadmin.md",
+      "scope": "Sugerencias de talla; ejemplo POLERA/SUPERIOR difiere de gru_tal_cat=null observado",
+      "sha256": "f0cfb061e4a1c5da92ad99bec6d894bcb9c3ed9dab819c380a63b6b1d8335267"
+    },
+    {
+      "id": "mati-catalog-doc",
+      "kind": "local_document",
+      "uri": "DOCUMENTACION/DATOS/catalogo_real_100_prendas.md",
+      "scope": "Ejemplos históricos y procedencia; no autoridad para disponibilidad o clasificación automática",
+      "sha256": "5a31787614a3137c33c01e772a72a3640e25276721ff9b1454ebc53cd324c969"
+    },
+    {
+      "id": "mati-segmentation-limitations",
+      "kind": "local_document",
+      "uri": "DOCUMENTACION/IA/SEGMENTACION_SEMANTICA/06_limitaciones.md",
+      "scope": "Sin target automático promovido; caso13 diagnóstico asistido sin ground truth humano",
+      "sha256": "20fef82d163230be0eee5df7ff436c0216a719c120a1a51c82e6e47ecb12c7d9"
+    },
+    {
+      "id": "asale-polera",
+      "kind": "primary_lexicography",
+      "uri": "https://www.asale.org/damer/polera",
+      "version": "Diccionario de americanismos 2010",
+      "access": "search-index entry checked 2026-10-05; direct open returned404",
+      "scope": "Variación regional del término, no significado comercial definitivo Mati"
+    },
+    {
+      "id": "cambridge-shirt",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/us/dictionary/learner-english/shirt",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Parte superior y frecuente botonadura; no regla universal"
+    },
+    {
+      "id": "cambridge-blouse",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/us/dictionary/english/blouse",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Solapamiento terminológico shirt/blouse; género lexicográfico no se usa como clasificador"
+    },
+    {
+      "id": "cambridge-blazer",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/us/dictionary/english/blazer",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Chaqueta formal; Mati conserva su definición comercial, sin exigir insignias o color distinto"
+    },
+    {
+      "id": "cambridge-coat",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/us/dictionary/english/coat",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Uso exterior por encima de otras piezas y abrigo habitual, no garantía térmica"
+    },
+    {
+      "id": "cambridge-knitwear",
+      "kind": "primary_lexicography",
+      "uri": "https://dictionary.cambridge.org/dictionary/english/knitwear",
+      "access": "indexed primary entry checked2026-10-05",
+      "scope": "Construcción de punto; no prueba de fibra específica"
+    },
+    {
+      "id": "fashionpedia-ontology",
+      "kind": "primary_research_ontology",
+      "uri": "https://github.com/KMnP/fashionpedia-api/blob/master/data/demo/category_attributes_descriptions.json",
+      "access": "primary repository read2026-10-05",
+      "scope": "Categorías upperbody/lowerbody; shirt,blouse agrupadas externamente, sin equivalencia uno a uno a Mati"
+    },
+    {
+      "id": "fashionpedia-paper",
+      "kind": "primary_research",
+      "uri": "https://arxiv.org/abs/2004.12276",
+      "version": "2020",
+      "scope": "Ontología desarrollada por expertos; inspiración estructural, sin importar categorías ni pesos"
+    },
+    {
+      "id": "mati-semantic-request",
+      "kind": "user_design_requirement",
+      "uri": "user-requirement://mati-semantic-foundation/2026-10-05",
+      "version": "2026-10-05",
+      "scope": "RAG vs Tools, separate vector spaces, no LLM, cosine terminology and data-only retrieval; requested design, not claim of deployed functionality"
+    }
+  ],
+  "documents": [
+    {
+      "id": "category:1",
+      "document_type": "taxonomy_category",
+      "title": "ABRIGOS",
+      "source": "mati-curated://semantic-foundation/category:1",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          1
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "cambridge-coat"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "ABRIGOS",
+          "abrigo",
+          "abrigos",
+          "capa",
+          "coat",
+          "coats",
+          "cape",
+          "overcoat"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:1#definition",
+          "section": "definition",
+          "content": "ABRIGOS: abrigos, capas y piezas de exterior sobre otras prendas. Función habitual de cobertura y abrigo para clima frío; la foto no garantiza aislamiento térmico. Solapas o largo solos no separan un abrigo de un blazer. Regla Mati propuesta, pendiente de revisión.",
+          "content_hash": "9fe731245e603a56aeb1df1fe712acb2330f9a2cdbd4cc1db0a86daac795c1d0",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "2897ade00650e0f42c5dc5ce7c012a568eb86ca5d982c24fccb56aa677aeff8b"
+    },
+    {
+      "id": "category:2",
+      "document_type": "taxonomy_category",
+      "title": "BLAZERS",
+      "source": "mati-curated://semantic-foundation/category:2",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          2
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "cambridge-blazer"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "BLAZERS",
+          "blazer",
+          "blazers",
+          "americana"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:2#definition",
+          "section": "definition",
+          "content": "BLAZERS: sastrería ligera y chaquetas de estructura definida. Solapas, frente abierto y hombros estructurados son pistas posibles. Se distingue de ABRIGOS por construcción sastrera ligera y función; ninguna pista aislada garantiza categoría. Propuesta Mati pendiente de revisión.",
+          "content_hash": "37d6eccccdbc14572cbf99aa12712b06e0c6255cb3b23ac163909b17d6dc2232",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "8e09c82f81277e5cc06c7cde54b11315cf084e93403344446c2515056cfc9397"
+    },
+    {
+      "id": "category:3",
+      "document_type": "taxonomy_category",
+      "title": "CAMISAS",
+      "source": "mati-curated://semantic-foundation/category:3",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          3
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "cambridge-shirt",
+          "cambridge-blouse",
+          "fashionpedia-ontology"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "CAMISAS",
+          "camisa",
+          "camisas",
+          "shirt",
+          "shirts",
+          "button-up shirt",
+          "button-down shirt"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:3#definition",
+          "section": "definition",
+          "content": "CAMISAS: prendas superiores de construcción camisera y botonadura. Cuello y puños son frecuentes, no obligatorios. Una camisa puede ser fluida o de punto. BLUSAS también puede llevar botones; género y marca no deciden la frontera. Propuesta Mati pendiente de revisión.",
+          "content_hash": "0af79b3469eeac367d6b836507291dd5bb7906a56fa3c4e046f37d1f4ce0abbd",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "f4395210ff78be9b1a5717b1adec35c0a69bcf31687c5d877b0599e3ed47f05a"
+    },
+    {
+      "id": "category:4",
+      "document_type": "taxonomy_category",
+      "title": "BLUSAS",
+      "source": "mati-curated://semantic-foundation/category:4",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          4
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "cambridge-blouse",
+          "cambridge-shirt",
+          "fashionpedia-ontology"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "BLUSAS",
+          "blusa",
+          "blusas",
+          "blouse",
+          "blouses"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:4#definition",
+          "section": "definition",
+          "content": "BLUSAS: prendas superiores fluidas y de caída suave. Pueden tener cuello, botones, lazos o volantes; ninguno es obligatorio. Frente a CAMISAS se propone ponderar fluidez y construcción completa, sin usar género como criterio determinista. Hay solapamiento y se requiere revisión Mati.",
+          "content_hash": "53eb49aca5a5a181d2c413fa1fe9588b1137b6142b048e75e7ecf9b3a0bc5912",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "21bdc6ad025be9a0670b8e81097716bac50ac55ae5aee613917e507996dfdcf0"
+    },
+    {
+      "id": "category:5",
+      "document_type": "taxonomy_category",
+      "title": "VESTIDOS",
+      "source": "mati-curated://semantic-foundation/category:5",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          5
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "fashionpedia-ontology"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "VESTIDOS",
+          "vestido",
+          "vestidos",
+          "dress",
+          "dresses"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:5#definition",
+          "section": "definition",
+          "content": "VESTIDOS: prenda de una pieza continua que integra torso y zona de falda, con largos y ocasiones variables. Dos piezas separables coordinadas orientan CONJUNTOS. Una foto de varias prendas no prueba set y un mono con perneras no se fuerza a vestido. Propuesta pendiente de revisión.",
+          "content_hash": "d88c726e6caa229a1255ae6c169c8967d551fe813b438c2d5e16b85a6f2d4a7d",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "5a76c74e392e552e50e1db1e0b257e710a006535cda01f1e6e3434688b966093"
+    },
+    {
+      "id": "category:6",
+      "document_type": "taxonomy_category",
+      "title": "FALDAS",
+      "source": "mati-curated://semantic-foundation/category:6",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          6
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "fashionpedia-ontology"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "FALDAS",
+          "falda",
+          "faldas",
+          "skirt",
+          "skirts"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:6#definition",
+          "section": "definition",
+          "content": "FALDAS: prendas inferiores independientes con cintura y caída sin dos perneras separadas. Largo, plisado u ocasión pueden variar. La falda de un vestido no es artículo separado; pantalones amplios pueden parecer faldas. Con estructura oculta conservar duda. Propuesta Mati pendiente de revisión.",
+          "content_hash": "301564a988cecd9379701b1548c0b82caa86f1653b6ed995f23ae0cbb29c1217",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "6c74997c1c2cedece0c4f2ca981fb5672235aa8bfeb8bf5f613c1e9416731ae5"
+    },
+    {
+      "id": "category:7",
+      "document_type": "taxonomy_category",
+      "title": "PANTALONES",
+      "source": "mati-curated://semantic-foundation/category:7",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          7
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "fashionpedia-ontology"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "PANTALONES",
+          "pantalón",
+          "pantalones",
+          "trousers",
+          "pants",
+          "trouser"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:7#definition",
+          "section": "definition",
+          "content": "PANTALONES: prendas inferiores con dos perneras, incluidos sastreros, rectos y de silueta amplia. Contrastar separación de piernas con FALDAS, no sólo volumen. Tejido, género o anchura no fijan categoría. Un pantalón visible no prueba que se venda un conjunto. Propuesta Mati pendiente de revisión.",
+          "content_hash": "c501b2caf9e76cf74724246d56a78533eb7083f1a762c346edcd117522ee1f27",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "f00f9d07011ef23017afced76c0f92cd5172bde8bbd75e0d95a20aba0fae4382"
+    },
+    {
+      "id": "category:8",
+      "document_type": "taxonomy_category",
+      "title": "POLOS Y KNITWEAR",
+      "source": "mati-curated://semantic-foundation/category:8",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          8
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "cambridge-knitwear",
+          "mati-segmentation-limitations"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "POLOS Y KNITWEAR",
+          "polo",
+          "polos",
+          "knitwear",
+          "jersey",
+          "suéter",
+          "prendas de punto",
+          "polo shirt",
+          "polo shirts",
+          "sweater",
+          "sweaters",
+          "cardigan"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:8#definition",
+          "section": "definition",
+          "content": "POLOS Y KNITWEAR: agrupación Mati de polos de base y prendas superiores de punto, como jerseys o cárdigans. Punto no prueba fibra ni aislamiento térmico. Una camisa también puede ser de punto. POLERA conserva frontera regional pendiente; no fusionar categorías. Propuesta pendiente de revisión.",
+          "content_hash": "1667b8d3200bc26a96162927633c9d422c76602dbba282f0108812b8cb589363",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "7086f2ac2b86a4e4adc8b2dcbb8a1a9def1a7242407d89374cb8ffa59791f19d"
+    },
+    {
+      "id": "category:9",
+      "document_type": "taxonomy_category",
+      "title": "ACCESORIOS",
+      "source": "mati-curated://semantic-foundation/category:9",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          9
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "fashionpedia-ontology"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "ACCESORIOS",
+          "accesorio",
+          "accesorios",
+          "complementos",
+          "accessory",
+          "accessories"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:9#definition",
+          "section": "definition",
+          "content": "ACCESORIOS: complementos de styling y piezas de apoyo, separados conceptualmente de prendas principales. Objetos incidentales en la foto, como un bolso junto a un jersey, no prueban producto objetivo. La lista comercial concreta de accesorios y calzado requiere revisión Mati.",
+          "content_hash": "e6c74c393e5510dc0af47c92dc445f7898f2411b253e997325f28a5ef9efabf3",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "42a25b3ce70f6fc42537349fe857e73c6cd422171d9c591452dc2dc1be59ee7f"
+    },
+    {
+      "id": "category:10",
+      "document_type": "taxonomy_category",
+      "title": "CONJUNTOS",
+      "source": "mati-curated://semantic-foundation/category:10",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          10
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [
+          "CONJUNTOS",
+          "conjunto",
+          "conjuntos",
+          "set coordinado",
+          "coordinated set",
+          "co-ord set",
+          "two-piece set",
+          "matching set"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:10#definition",
+          "section": "definition",
+          "content": "CONJUNTOS: sets coordinados de varias piezas separables, comercializados como una unidad. Se distingue de VESTIDOS, que integran torso y falda en una pieza continua. La coordinación visual o varias prendas en una persona no prueban venta conjunta. No imponer ONE_PIECE. Propuesta pendiente de revisión.",
+          "content_hash": "cb5a5f549255e1e376de291d22db0cdb9ee66081c9ac416fce1354b036601eb5",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "f0d09fb2e345855ece6753e9c776f2baa2fd51c962f3af10becfe1a723febffe"
+    },
+    {
+      "id": "category:11",
+      "document_type": "taxonomy_category",
+      "title": "POLERA",
+      "source": "mati-curated://semantic-foundation/category:11",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          11
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc",
+          "asale-polera",
+          "mati-sizing-doc"
+        ],
+        "review_status": "ambiguous_pending_mati_domain_review",
+        "aliases": [
+          "POLERA",
+          "polera"
+        ],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "definition",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "category:11#definition",
+          "section": "definition",
+          "content": "POLERA: categoría Mati activa sin descripción comercial ni grupo de talla. El término varía regionalmente entre camiseta y suéter; en Bolivia ASALE recoge camiseta de manga corta. Ejemplos Mati apuntan a t-shirts, pero no fijan frontera universal con POLOS Y KNITWEAR. Requiere confirmación humana.",
+          "content_hash": "069dfdc680a034f1ca74185ce4f5fcb89bd89cc3ec04fb48d7129763cd90fd77",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "e5299ece0f1f70ccd6b46c1e6e810dfe01caa93e7443167c230cfff26c77cfc7"
+    },
+    {
+      "id": "comparison:camisa-blusa",
+      "document_type": "comparison",
+      "title": "CAMISA vs BLUSA",
+      "source": "mati-curated://semantic-foundation/comparison:camisa-blusa",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          3,
+          4
+        ],
+        "source_ids": [
+          "mati-db",
+          "cambridge-shirt",
+          "cambridge-blouse",
+          "fashionpedia-ontology"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "comparison",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "comparison:camisa-blusa#comparison",
+          "section": "comparison",
+          "content": "En Mati, CAMISAS enfatiza construcción camisera y botonadura; BLUSAS enfatiza fluidez y caída suave. Ambas pueden tener cuello, botones y tejidos fluidos. No separar por género ni por un detalle aislado. Una etiqueta externa shirt,blouse agrupa conceptos que Mati mantiene separados. Ante solapamiento, ficha verificada y revisión humana.",
+          "content_hash": "1573542c68d6424dae5ff6fae8e684ff8c6fdfa7f4f8a30b38b23a890280b6d2",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "4a3c19a1bdc581fef9e77b569604f215d175852dc54a48999da03d4514549532"
+    },
+    {
+      "id": "comparison:blazer-abrigo",
+      "document_type": "comparison",
+      "title": "BLAZER vs ABRIGO",
+      "source": "mati-curated://semantic-foundation/comparison:blazer-abrigo",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          2,
+          1
+        ],
+        "source_ids": [
+          "mati-db",
+          "cambridge-blazer",
+          "cambridge-coat"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "comparison",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "comparison:blazer-abrigo#comparison",
+          "section": "comparison",
+          "content": "BLAZERS prioriza sastrería ligera y estructura definida; ABRIGOS prioriza piezas de exterior y cobertura sobre otras prendas. Solapas, botones y largo pueden aparecer en ambos. No deducir aislamiento térmico de una imagen ni decidir sólo por silueta. Comparación operativa propuesta para revisión Mati.",
+          "content_hash": "78c605bd32cbfe01316fd7836ab0a8479d491927f55ef325bd4b2c1d05e95837",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "85c566f667ea2d3b302633a7800b022116a0fa657a03127c625a7f89c4b0bc9a"
+    },
+    {
+      "id": "comparison:polera-knitwear",
+      "document_type": "comparison",
+      "title": "POLERA vs POLOS Y KNITWEAR",
+      "source": "mati-curated://semantic-foundation/comparison:polera-knitwear",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          11,
+          8
+        ],
+        "source_ids": [
+          "mati-db",
+          "asale-polera",
+          "cambridge-knitwear"
+        ],
+        "review_status": "ambiguous_pending_mati_domain_review",
+        "aliases": [],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "comparison",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "comparison:polera-knitwear#comparison",
+          "section": "comparison",
+          "content": "POLOS Y KNITWEAR combina polos y prendas de punto. POLERA tiene descripción comercial vacía y significado regional variable: camiseta o suéter según uso. Una camiseta puede ser de tejido jersey, sin ser necesariamente un suéter. No traducir ni fusionar categorías automáticamente; confirmar con Mati construcción y etiqueta.",
+          "content_hash": "6812d1c5dba2d32564668c69b3c0d70c32c4023310ad32daa5dceb36bfaf79a3",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "a697568c9114e3969a31c17b9955768b54d1e81beb180d7b103e9ecec07c353e"
+    },
+    {
+      "id": "comparison:vestido-conjunto",
+      "document_type": "comparison",
+      "title": "VESTIDO vs CONJUNTO",
+      "source": "mati-curated://semantic-foundation/comparison:vestido-conjunto",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          5,
+          10
+        ],
+        "source_ids": [
+          "mati-db",
+          "mati-catalog-doc"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "comparison",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "comparison:vestido-conjunto#comparison",
+          "section": "comparison",
+          "content": "VESTIDOS propone pieza continua que integra torso y falda; CONJUNTOS propone varias piezas separables vendidas como unidad. Una foto con pantalón y superior no demuestra conjunto comercial. Un mono con perneras no se fuerza a vestido o set. Verificar construcción y ficha; propuesta pendiente de revisión Mati.",
+          "content_hash": "388fbe1a6c4619a5b19cbae5606055d24e5ac2d5636375bc47ff076bca65818e",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "e4544315a8758a00b794d06d403a27d09d3990bea2764741d4b30e9ed297e3f8"
+    },
+    {
+      "id": "comparison:lower-garments",
+      "document_type": "comparison",
+      "title": "Prendas inferiores: FALDAS y PANTALONES",
+      "source": "mati-curated://semantic-foundation/comparison:lower-garments",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          6,
+          7
+        ],
+        "source_ids": [
+          "mati-db",
+          "fashionpedia-ontology"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "comparison",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "comparison:lower-garments#comparison",
+          "section": "comparison",
+          "content": "FALDAS y PANTALONES cubren la parte inferior. El pantalón se construye con dos perneras; la falda cae desde cintura sin esa separación. Un pantalón amplio puede parecer falda. Oclusiones impiden confirmar construcción; largo, color o género no deciden. Jerarquía conceptual LOWER, sin alterar categorías ni tallas.",
+          "content_hash": "8a76ab3c1295f76653c1f3a5ad1cdeeca88e1b665c97f822e407a3e5fa541d97",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "95b2c9adf1ca88795ee998d6e3bf5f9cd4ec013b750045849d5b8981462b74e5"
+    },
+    {
+      "id": "comparison:cold-weather",
+      "document_type": "comparison",
+      "title": "Capas para frío: ABRIGOS y punto",
+      "source": "mati-curated://semantic-foundation/comparison:cold-weather",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [
+          1,
+          8
+        ],
+        "source_ids": [
+          "mati-db",
+          "cambridge-coat",
+          "cambridge-knitwear"
+        ],
+        "review_status": "proposed_semantics_pending_mati_domain_review",
+        "aliases": [],
+        "source_document": "services/mati-ai/resources/taxonomy/mati-taxonomy-v1.json",
+        "source_section": "comparison",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "comparison:cold-weather#comparison",
+          "section": "comparison",
+          "content": "ABRIGOS aporta piezas de exterior y POLOS Y KNITWEAR incluye prendas de punto que pueden usarse como capas para frío. No todos los polos o puntos abrigan igual. Fibra, grosor, construcción y condiciones concretas importan; categoría o fotografía no garantizan protección térmica. Conocimiento general, sin recomendación personalizada.",
+          "content_hash": "38857e73bb9d9aa0b9791d75009cfb430073fae3f294cfb13e8b6e55c995c8ac",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "f06b155b7d854fffb3892106a6b51266463fbdc89fe84a9fa889334835e7ec8f"
+    },
+    {
+      "id": "color:family-vs-variant",
+      "document_type": "color_knowledge",
+      "title": "Familia de color y tono comercial",
+      "source": "mati-curated://semantic-foundation/color:family-vs-variant",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [],
+        "source_ids": [
+          "mati-db"
+        ],
+        "review_status": "curated_design_knowledge_not_human_gt",
+        "aliases": [],
+        "source_document": "Mati semantic foundation v1 curated knowledge",
+        "source_section": "knowledge",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "color:family-vs-variant#knowledge",
+          "section": "knowledge",
+          "content": "Familia y tono comercial son niveles distintos. En el snapshot Mati, NEGRO y NEGRO CARBON son nombres diferentes de la familia NEGRO; sus HEX de referencia también difieren. Compartir familia no autoriza sustituir un ID por otro. Una muestra de referencia no demuestra el color físico de una prenda fotografiada.",
+          "content_hash": "36e396badd2da788efa56f10571c85e3faae429b9458e2c43e562e3281e8e3d8",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "0b132b83b6c61b7b2ed19da15ede48e0e8a6a9b67792c3d715aa50c52d6a27b8"
+    },
+    {
+      "id": "color:observed-vs-commercial",
+      "document_type": "color_knowledge",
+      "title": "Color observado y color comercial",
+      "source": "mati-curated://semantic-foundation/color:observed-vs-commercial",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [],
+        "source_ids": [
+          "mati-segmentation-limitations"
+        ],
+        "review_status": "curated_design_knowledge_not_human_gt",
+        "aliases": [],
+        "source_document": "Mati semantic foundation v1 curated knowledge",
+        "source_section": "knowledge",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "color:observed-vs-commercial#knowledge",
+          "section": "knowledge",
+          "content": "Una paleta de píxeles observados es información diagnóstica. Para aplicarla al color comercial hace falta evidencia de qué píxeles pertenecen a la prenda objetivo y validación del catálogo. Fondo, piel, iluminación o accesorios pueden contaminarla. Sin identidad del objetivo verificada, conservar selección manual de color; semejanza de color no es certeza semántica.",
+          "content_hash": "b0d18ffc28f40bbdac0496c1c86c8bcff765aa564434cf4d6ecb18ac4437c5f8",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "e368de16f34cb35479818a528a795077228f25c26451d6385a4465df623d6d95"
+    },
+    {
+      "id": "technical:text-vs-image",
+      "document_type": "technical_explanation",
+      "title": "Embeddings de texto y de imagen",
+      "source": "mati-curated://semantic-foundation/technical:text-vs-image",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [],
+        "source_ids": [
+          "mati-semantic-request"
+        ],
+        "review_status": "curated_design_knowledge_not_human_gt",
+        "aliases": [],
+        "source_document": "Mati semantic foundation v1 curated knowledge",
+        "source_section": "explanation",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "technical:text-vs-image#explanation",
+          "section": "explanation",
+          "content": "Un embedding textual representa texto; un embedding visual representa imagen en el espacio de su modelo. Aunque ambos tengan 768 dimensiones, sus coordenadas no son intercambiables. Mantener perfiles, revisión, normalización y preprocess explícitos y almacenamiento separado. RAG recupera conocimiento textual; no reemplaza SigLIP ni sus vectores visuales.",
+          "content_hash": "1e76d96cb47513c7870e2ac0461b9ed78a723e10b7b6430cc215f7dd3ba3ba22",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "662264460cc7eba03ec098fd193dda88888688f3d0b363465b30cf850a32ed59"
+    },
+    {
+      "id": "technical:rag-vs-tools",
+      "document_type": "technical_explanation",
+      "title": "RAG y Tools Laravel",
+      "source": "mati-curated://semantic-foundation/technical:rag-vs-tools",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [],
+        "source_ids": [
+          "mati-semantic-request"
+        ],
+        "review_status": "curated_design_knowledge_not_human_gt",
+        "aliases": [],
+        "source_document": "Mati semantic foundation v1 curated knowledge",
+        "source_section": "explanation",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "technical:rag-vs-tools#explanation",
+          "section": "explanation",
+          "content": "RAG recupera definiciones y contexto relativamente estable con fuente y versión. Stock, precio, disponibilidad, inventario, pagos y estado de reservas requieren consulta autorizada a Tools Laravel y base comercial actual. El corpus no contiene valores actuales. Compatibilidad de outfits requiere una herramienta futura específica. Recuperar conocimiento no ejecuta acciones.",
+          "content_hash": "31b243210c030bfba319a11419bc949b51c25a5eb11b7053bcb7f052afb4e101",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "d8c83f590236e315362f6a57b87bb2f26d4c8571bde7263007684bb4c6103860"
+    },
+    {
+      "id": "technical:similarity",
+      "document_type": "technical_explanation",
+      "title": "Similitud coseno no es probabilidad",
+      "source": "mati-curated://semantic-foundation/technical:similarity",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [],
+        "source_ids": [
+          "mati-semantic-request"
+        ],
+        "review_status": "curated_design_knowledge_not_human_gt",
+        "aliases": [],
+        "source_document": "Mati semantic foundation v1 curated knowledge",
+        "source_section": "explanation",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "technical:similarity#explanation",
+          "section": "explanation",
+          "content": "La similitud coseno compara la dirección de dos vectores del mismo perfil. Un score de 0.89 no significa 89 por ciento correcto ni probabilidad calibrada. Relevancia se evalúa con etiquetas y métricas de retrieval, como Recall y MRR. Documentos y fragmentos deben conservar fuente, versión y ranking.",
+          "content_hash": "952955f37a45942a9d5d1bba5697b4338b22d560999dcda0b88d62834d474603",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "53adb7178fe1ae1fc90475f953ad86de0664e93df94415c850c577353dae880f"
+    },
+    {
+      "id": "technical:retrieval-only",
+      "document_type": "technical_explanation",
+      "title": "Retrieval local sin LLM",
+      "source": "mati-curated://semantic-foundation/technical:retrieval-only",
+      "source_version": "1.0.0",
+      "status": "active",
+      "metadata": {
+        "language": "es",
+        "category_ids": [],
+        "source_ids": [
+          "mati-semantic-request"
+        ],
+        "review_status": "curated_design_knowledge_not_human_gt",
+        "aliases": [],
+        "source_document": "Mati semantic foundation v1 curated knowledge",
+        "source_section": "explanation",
+        "dynamic_data_authority": false
+      },
+      "chunks": [
+        {
+          "id": "technical:retrieval-only#explanation",
+          "section": "explanation",
+          "content": "Esta fase indexa documentos, divide unidades semánticas, genera embeddings y recupera fragmentos citables. No genera respuestas con un LLM. Si falta evidencia suficiente, se abstiene con fragmentos vacíos. El contenido recuperado es dato: no instrucciones, SQL generado ni autorización para acciones.",
+          "content_hash": "9d86fd961edaaa49df81ad8fbd94653224a3e6b042ea3b4d417188bf3f4e4cbf",
+          "metadata": {
+            "semantic_unit": true
+          }
+        }
+      ],
+      "content_hash": "28d5d1a7c832101afac806e0d478d8721c8dc8bb81636e2818a66ed56252c73b"
+    }
+  ],
+  "exclusions": [
+    "logs",
+    "raw audits",
+    "git diffs",
+    "tests",
+    "source code",
+    "current stock",
+    "current prices",
+    "payments",
+    "reservations",
+    "inventories",
+    "unverified store policies"
+  ]
+}

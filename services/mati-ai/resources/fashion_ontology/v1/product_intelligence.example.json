@@ -1,0 +1,174 @@
+{
+  "contract_version": "1.1.0",
+  "ontology_version": "1.1.0",
+  "ontology_content_hash": "f128fed5585283406da34ad86f39bba0ae4c8122e9c9192e3594861d69787c4a",
+  "document_status": "design_fixture",
+  "identity": {
+    "entity_ref": "example:synthetic-tshirt",
+    "entity_kind": "product"
+  },
+  "taxonomy": {
+    "family": {
+      "state": "KNOWN",
+      "value": "garment.family.upper",
+      "evidence_refs": [
+        "fixture-01"
+      ]
+    },
+    "category": {
+      "state": "KNOWN",
+      "value": "garment.category.tshirt",
+      "evidence_refs": [
+        "fixture-01"
+      ]
+    },
+    "subcategory": {
+      "state": "UNKNOWN",
+      "reason": "No specific construction subtype documented.",
+      "evidence_refs": []
+    }
+  },
+  "attributes": [
+    {
+      "attribute_id": "attribute.pattern",
+      "assertion": {
+        "state": "KNOWN",
+        "value": [
+          "value.pattern.solid"
+        ],
+        "evidence_refs": [
+          "fixture-01"
+        ],
+        "annotation_completeness": "complete"
+      }
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "assertion": {
+        "state": "KNOWN",
+        "value": "value.sleeve_length.short",
+        "evidence_refs": [
+          "fixture-01"
+        ]
+      }
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "assertion": {
+        "state": "NOT_APPLICABLE",
+        "reason": "Category tshirt outside lower family.",
+        "evidence_refs": []
+      }
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "assertion": {
+        "state": "UNKNOWN",
+        "reason": "No label or catalog composition supplied.",
+        "evidence_refs": []
+      }
+    },
+    {
+      "attribute_id": "attribute.observed_color",
+      "assertion": {
+        "state": "UNKNOWN",
+        "reason": "No image/colorimetry observation in this design fixture.",
+        "evidence_refs": []
+      }
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "assertion": {
+        "state": "UNKNOWN",
+        "reason": "No human style rubric annotation supplied.",
+        "evidence_refs": [],
+        "candidates": [
+          {
+            "value": [
+              "value.style.minimalist"
+            ],
+            "evidence_refs": [
+              "fixture-01"
+            ],
+            "confidence": {
+              "confidence_type": "unknown"
+            },
+            "notes": "Synthetic hypothesis to exercise the contract only; the effective style remains UNKNOWN and is not an annotation."
+          }
+        ]
+      }
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "assertion": {
+        "state": "UNKNOWN",
+        "reason": "No wear context or domain review supplied.",
+        "evidence_refs": []
+      }
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "assertion": {
+        "state": "KNOWN",
+        "value": [
+          {
+            "primary_zone": "body.zone.torso",
+            "secondary_zones": [
+              "body.zone.shoulders",
+              "body.zone.arms"
+            ],
+            "coverage_role": "covers",
+            "wear_context_ref": "fixture:ordinary-wear"
+          }
+        ],
+        "evidence_refs": [
+          "fixture-01"
+        ]
+      }
+    }
+  ],
+  "colors": {
+    "attribute_refs": [
+      "attribute.observed_color"
+    ],
+    "commercial_color_refs": []
+  },
+  "materials": {
+    "attribute_refs": [
+      "attribute.fiber_composition"
+    ]
+  },
+  "styles": {
+    "attribute_refs": [
+      "attribute.styles"
+    ]
+  },
+  "spatial_semantics": {
+    "attribute_refs": [
+      "attribute.spatial_semantics"
+    ]
+  },
+  "usage_semantics": {
+    "attribute_refs": [
+      "attribute.formality"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "fixture-01",
+      "source_type": "external_import",
+      "source_ref": "design-fixture:more-ontology-v1",
+      "recorded_at": "2026-10-08T00:00:00Z",
+      "authority": "design_fixture",
+      "notes": "Synthetic contract validation example. No real product, human annotation, model inference or dataset.",
+      "source_details": {
+        "source_kind": "synthetic_contract_fixture",
+        "quality_notes": [
+          "No camera observation, manufacturer match or human confirmation exists in this synthetic fixture."
+        ]
+      }
+    }
+  ],
+  "model_metadata": [],
+  "human_review": []
+}

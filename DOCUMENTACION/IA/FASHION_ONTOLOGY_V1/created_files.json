@@ -1,0 +1,263 @@
+{
+  "created_files": [
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/01_principios_y_alcance.md",
+      "bytes": 6383,
+      "sha256": "61639f4a308626de8d3d8c785d94c9f6c957f33ca064fcd184a0cf7db3eb88a4"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/02_investigacion_fuentes.md",
+      "bytes": 23666,
+      "sha256": "8eac7be1a35881ba5cb2492383e9a9ec256092be381368d3238bb9e6c8cf09ab"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/03_jerarquia_prendas.md",
+      "bytes": 9555,
+      "sha256": "c66d253df5d02ddace6c342b4052707e3a67308b5f6056547b653156666e442a"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/04_atributos_globales.md",
+      "bytes": 10435,
+      "sha256": "085a5d2819d504991be25f69950e5c73c2bdeea24fa2d4ff8fbbcf2c4891f213"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/05_atributos_por_familia.md",
+      "bytes": 9932,
+      "sha256": "15cc9243993f74094ec3611a541e66a02285c5d6bfffc981956322661e1bbd32"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/06_body_zones_layering.md",
+      "bytes": 4107,
+      "sha256": "e896d71a3da69f0d1c0998c704aa042b1e9467f34ef26c7db2b826dfcd39a603"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/07_estilos_formalidad_ocasiones.md",
+      "bytes": 4111,
+      "sha256": "34d72c697bd5ae4808e106979aa6016e6df20b381f4a651eb0f1665d65c99bfb"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/08_materiales_texturas_patrones.md",
+      "bytes": 10443,
+      "sha256": "a5dd93158cb143fc6489dca326b44ea6ee1981778612372e24375107a637ffdb"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/09_accessories_footwear.md",
+      "bytes": 10130,
+      "sha256": "c179f89d12123b6b71b60a1daf9e3d831c919d6c66a84d2e027be85a4c5ca3e6"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/10_commercial_mapping.md",
+      "bytes": 17070,
+      "sha256": "02ab80a84659d62b9d9a2004ed00807db26d0e28c82523b24fec60d941e7915d"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/11_ml_label_schema.md",
+      "bytes": 14464,
+      "sha256": "283c9067aefb4db29221971cbce0c99664c0f103f2b50c1e3130998cb4ea9e95"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/12_product_intelligence_contract.md",
+      "bytes": 6362,
+      "sha256": "a322905ff80b8a624a94fea51c40bff3a8e8ceacfc30d01748fc65e526c74c1e"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/13_integracion_futura.md",
+      "bytes": 7589,
+      "sha256": "daf189f4cdff18eb1921c6f36ce0e40250f3f3ea6f6903c4132a30dc522b2e31"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/14_limitaciones_y_decisiones_abiertas.md",
+      "bytes": 7716,
+      "sha256": "4a12f246c55d71c3d21342b7361887edd4385d1ef594372fa853a929d77e9854"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/15_decision_log.md",
+      "bytes": 8657,
+      "sha256": "8a9e051c99db1fd998f5f3b64936e5d77d14bfd652c1ba5b3e4125640b61e525"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/16_reporte_final.md",
+      "bytes": 17784,
+      "sha256": "419d3df83c0027cdc8cfedb36200aceb8b381a2bb74f570e4975b8805e5f7f79"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/catalog_audit.json",
+      "bytes": 74573,
+      "sha256": "2e47de6d6cf0d0eed0ff33fb9e5b3390ce2c0e0ff72edeca174bae7de6394472"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/git_diff_stat.txt",
+      "bytes": 465,
+      "sha256": "46ee2d6abf942554afb163e7b8bbf783f6afce449c4c807a6d8d00bf820c09cc"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/git_status.txt",
+      "bytes": 1697,
+      "sha256": "57172e9346e7b06644b329f64d6dbeb687eea9b2806464b0681da6595cb3f0ea"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/preservation_baseline.json",
+      "bytes": 49233,
+      "sha256": "dc58b4f1a1d312ee6722c0cfd8519290fe4b9fa4060f38a644f8413566a02b06"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/preservation_result.json",
+      "bytes": 1118,
+      "sha256": "84b137bbec800fb8454c183faf1db9e9dbdcaa7523007114f4f8fcc3861a3887"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/research_sources.json",
+      "bytes": 38660,
+      "sha256": "e5d51e5164b35fc28fd54b65ea037d62f4517ba0ebd16fbe4e94442656daf2a8"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/test_output.txt",
+      "bytes": 2634,
+      "sha256": "f6860612787e39dce47a54bdaa5c5276a41d94181a1e646f3c8410be1a492d2d"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/test_result.json",
+      "bytes": 5312,
+      "sha256": "b4f8cd1c33d6a97c4c9fa185938b5b3ad8556d9e54a2697277f14f7ed0c0a73b"
+    },
+    {
+      "path": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/validation_result.json",
+      "bytes": 1241,
+      "sha256": "8305adc2bb32ea14490d7f3245215d358b549016212e0945e9d8dfb9a5f9999b"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/annotation_matrix.csv",
+      "bytes": 7616,
+      "sha256": "49388592811e2ccdb96d076b1d616d2897b24a3caaaf8d57969fbc9762fbdf6b"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/attribute_applicability.json",
+      "bytes": 169236,
+      "sha256": "f6f6bed5722cae10bef35c0f137973293b1911fdd40dfec350003178cd44451b"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/attribute_values.json",
+      "bytes": 54371,
+      "sha256": "0686294d84a2025437d640f0f827499ee57346d5a73529a3dac541e2cb8b466d"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/body_zones.json",
+      "bytes": 22201,
+      "sha256": "fdb973348d048cc4e43177efe981c71b223487a7631b655d941c07808f2b7932"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/color_semantics.json",
+      "bytes": 6503,
+      "sha256": "3bad6059b811dc447b918a766168f19aacb0b51722aeb6f1fff93938520b3bcf"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/commercial_mapping.json",
+      "bytes": 6049,
+      "sha256": "cdcedfbb30c12a07170160cca8933559db11f3b7c28214a4d6c60cb759671569"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/commercial_season_mapping.json",
+      "bytes": 1923,
+      "sha256": "923e9579c2f141cd20f5c16589344623ae333b152a1b60463091b5fcb96dc974"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/coverage_matrix.csv",
+      "bytes": 55347,
+      "sha256": "7d7d520f4050b2f13914ec3d939d382f0004dfa501f7b7273e12076ab1964ad3"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/fabrics.json",
+      "bytes": 5840,
+      "sha256": "f131083d59cd4e2cbed40060082c9f6309dc8037509e9d5ef9406467017621b8"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/hashes.json",
+      "bytes": 2419,
+      "sha256": "84981abd15f857a9b8f4ce1dc4c02e8bf0cb737850825591df5c9a721123532d"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/label_schema.json",
+      "bytes": 56608,
+      "sha256": "7f47fd41b0488cb42a667f40d3b860b134a0b5e15184a6bcee50774f3da82eaa"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/layering.json",
+      "bytes": 5139,
+      "sha256": "afafc172ef79c08314d693bee43f24570268f2b72c7a36f08302704b99442ac9"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/materials.json",
+      "bytes": 7595,
+      "sha256": "1434d64fcf5aa1f45da862673a10ae8cd0b1bdfd1dff29ddd290f2c94d8e1bbc"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/ontology.json",
+      "bytes": 181170,
+      "sha256": "fdf54251545e69d5bad276099222a4147981dd02eaf648a1a22f461cc9dba1ee"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/ontology.schema.json",
+      "bytes": 30047,
+      "sha256": "b0c9bc09e7f3fbb67bd48fcbbb05730fd142f83984343bef6bb5d36a12cdf1d9"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/patterns.json",
+      "bytes": 4952,
+      "sha256": "410e606cd516cb6359d94f7c864ce87fe0a0fcc314484693641400b019930c75"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/product_intelligence.example.json",
+      "bytes": 3840,
+      "sha256": "48e252a7535bdb3790906fd737983c1bc606eb23247a2a0d6891cea3e431d5c1"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/product_intelligence.schema.json",
+      "bytes": 30560,
+      "sha256": "9165cf0f6b6dad803d869b6546d3889cbc77ec42c39bda885d25daca284fd511"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/styles.json",
+      "bytes": 5568,
+      "sha256": "864cbbd62a1c480dc1c8e5fcd92ac542225e6bfa6e9fd686c547ff7d8bb56575"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/summary.json",
+      "bytes": 935,
+      "sha256": "715f143361d691274838566356631cbe8e61fee00c8bfd2687946637e776e311"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/textures.json",
+      "bytes": 4705,
+      "sha256": "3e5b30ee8404aa0e5649ff124d3f940c08fc917f83ce6cc196311deeecd862a7"
+    },
+    {
+      "path": "services/mati-ai/resources/fashion_ontology/v1/usage.json",
+      "bytes": 11831,
+      "sha256": "97adb1ed004451b717d0e741a0ca3f96770800bb1331f2d51cd50d4736d8054b"
+    },
+    {
+      "path": "services/mati-ai/scripts/fashion_ontology/export_fashion_ontology.py",
+      "bytes": 4642,
+      "sha256": "bcbc828e66204c43eb10a0cf519cab7c67c7fd6a7b3efd783a8bec46bf142234"
+    },
+    {
+      "path": "services/mati-ai/scripts/fashion_ontology/README.md",
+      "bytes": 1888,
+      "sha256": "00d95079f24802be4acdc69ae08c40caddaf43a9943ac2c2505203d9f7d57efc"
+    },
+    {
+      "path": "services/mati-ai/scripts/fashion_ontology/test_fashion_ontology.py",
+      "bytes": 42959,
+      "sha256": "8b2a9b71a8df4c62f3d3f002909d610c1230295908e934f952909b57b2400940"
+    },
+    {
+      "path": "services/mati-ai/scripts/fashion_ontology/validate_fashion_ontology.py",
+      "bytes": 61501,
+      "sha256": "b91b9d71f78bfbb183abf322bec43122c6c47194fc4a6512bd46cdb4a9aa57f7"
+    }
+  ],
+  "total_deliverable_files_including_inventory": 52,
+  "inventory_file": "DOCUMENTACION/IA/FASHION_ONTOLOGY_V1/created_files.json",
+  "self_excluded_to_avoid_circular_hash": true,
+  "preexisting_project_files_modified": []
+}

@@ -1,0 +1,1429 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:more:product-intelligence:1.1.0",
+  "title": "MORE Product Intelligence V1 design contract",
+  "description": "Semantic product facts and evidence; business stock, price and SKU stay in Laravel. Section views reference central assertions without duplicating values. Optional source details and UNKNOWN candidates support future identification without implementing acquisition services.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "const": "1.1.0"
+    },
+    "ontology_version": {
+      "const": "1.1.0"
+    },
+    "ontology_content_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "document_status": {
+      "enum": [
+        "design_fixture",
+        "draft",
+        "human_reviewed"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entity_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entity_kind": {
+          "enum": [
+            "product",
+            "component",
+            "set"
+          ]
+        },
+        "commercial_product_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "component_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "entity_ref",
+        "entity_kind"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "entity_kind": {
+                "const": "set"
+              }
+            },
+            "required": [
+              "entity_kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "component_refs"
+            ],
+            "properties": {
+              "component_refs": {
+                "minItems": 2
+              }
+            }
+          }
+        }
+      ]
+    },
+    "taxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "$ref": "#/$defs/assertion"
+        },
+        "category": {
+          "$ref": "#/$defs/assertion"
+        },
+        "subcategory": {
+          "$ref": "#/$defs/assertion"
+        }
+      },
+      "required": [
+        "family",
+        "category",
+        "subcategory"
+      ]
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/attribute"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "colors": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "attribute_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "commercial_color_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "commercial_color_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "commercial_color_id",
+              "evidence_refs"
+            ]
+          },
+          "minItems": 0,
+          "uniqueItems": false
+        },
+        "observed_color_profile_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "attribute_refs",
+        "commercial_color_refs"
+      ]
+    },
+    "materials": {
+      "$ref": "#/$defs/attribute_view"
+    },
+    "styles": {
+      "$ref": "#/$defs/attribute_view"
+    },
+    "spatial_semantics": {
+      "$ref": "#/$defs/attribute_view"
+    },
+    "usage_semantics": {
+      "$ref": "#/$defs/attribute_view"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "model_metadata": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "model_version_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "model_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "task": {
+            "type": "string",
+            "minLength": 1
+          },
+          "encoder_profile_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "preprocess_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label_schema_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ontology_version": {
+            "const": "1.1.0"
+          }
+        },
+        "required": [
+          "model_version_id",
+          "model_name",
+          "task",
+          "label_schema_version",
+          "ontology_version"
+        ]
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "human_review": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "review_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decision": {
+            "enum": [
+              "accepted",
+              "corrected",
+              "rejected",
+              "pending"
+            ]
+          },
+          "predicted_value": {
+            "$ref": "#/$defs/assertion"
+          },
+          "human_value": {
+            "$ref": "#/$defs/assertion"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          },
+          "reviewer_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reviewed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "model_version_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "review_id",
+          "target_ref",
+          "decision",
+          "predicted_value",
+          "evidence_refs"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "decision": {
+                  "const": "corrected"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "human_value",
+                "reviewer_ref",
+                "reviewed_at"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "decision": {
+                  "enum": [
+                    "accepted",
+                    "rejected"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "reviewer_ref",
+                "reviewed_at"
+              ]
+            }
+          }
+        ]
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "related_instance_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "contract_version",
+    "ontology_version",
+    "ontology_content_hash",
+    "document_status",
+    "identity",
+    "taxonomy",
+    "attributes",
+    "colors",
+    "materials",
+    "styles",
+    "spatial_semantics",
+    "usage_semantics",
+    "evidence",
+    "model_metadata",
+    "human_review"
+  ],
+  "$defs": {
+    "confidence": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "confidence_type": {
+              "const": "probability"
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "calibration_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "confidence_type",
+            "score"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "confidence_type": {
+              "const": "cosine_similarity"
+            },
+            "score": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "confidence_type",
+            "score"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "confidence_type": {
+              "const": "rule_score"
+            },
+            "score": {
+              "type": "number"
+            },
+            "scale_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "confidence_type",
+            "score",
+            "scale_ref"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "confidence_type": {
+              "enum": [
+                "human_confirmed",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "confidence_type"
+          ]
+        }
+      ]
+    },
+    "assertion": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "context": {
+              "type": "object",
+              "properties": {
+                "sleeve_cuff_present": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "notes": {
+              "type": "string"
+            },
+            "confidence": {
+              "$ref": "#/$defs/confidence"
+            },
+            "state": {
+              "const": "KNOWN"
+            },
+            "value": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "array",
+                "object"
+              ]
+            },
+            "annotation_completeness": {
+              "enum": [
+                "complete",
+                "partial",
+                "not_relevant"
+              ]
+            },
+            "affinity_scores": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "concept_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+                  },
+                  "confidence": {
+                    "$ref": "#/$defs/confidence"
+                  },
+                  "evidence_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "concept_id",
+                  "confidence",
+                  "evidence_refs"
+                ]
+              },
+              "minItems": 0,
+              "uniqueItems": false
+            }
+          },
+          "required": [
+            "state",
+            "value",
+            "evidence_refs"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "context": {
+              "type": "object",
+              "properties": {
+                "sleeve_cuff_present": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "notes": {
+              "type": "string"
+            },
+            "confidence": {
+              "$ref": "#/$defs/confidence"
+            },
+            "state": {
+              "const": "UNKNOWN"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "candidates": {
+              "description": "Optional alternatives while the conclusion remains UNKNOWN. Values must obey the target ontology domain and cannot be copied into accepted facts.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/assertion_candidate"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "state",
+            "reason",
+            "evidence_refs"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "context": {
+              "type": "object",
+              "properties": {
+                "sleeve_cuff_present": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "notes": {
+              "type": "string"
+            },
+            "confidence": {
+              "$ref": "#/$defs/confidence"
+            },
+            "state": {
+              "const": "NOT_APPLICABLE"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "state",
+            "reason",
+            "evidence_refs"
+          ]
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_type": {
+          "enum": [
+            "human",
+            "vision_model",
+            "ocr",
+            "catalog",
+            "derived_rule",
+            "rag",
+            "external_import"
+          ]
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "model_version_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observation_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authority": {
+          "enum": [
+            "observed",
+            "declared",
+            "predicted",
+            "human_verified",
+            "design_fixture",
+            "unverified"
+          ]
+        },
+        "supporting_evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string"
+        },
+        "source_details": {
+          "$ref": "#/$defs/evidence_source_details"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "source_type",
+        "source_ref",
+        "recorded_at",
+        "authority"
+      ]
+    },
+    "attribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "attribute_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+        },
+        "assertion": {
+          "$ref": "#/$defs/assertion"
+        }
+      },
+      "required": [
+        "attribute_id",
+        "assertion"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "attribute_id": {
+                "const": "attribute.spatial_semantics"
+              },
+              "assertion": {
+                "properties": {
+                  "state": {
+                    "const": "KNOWN"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            },
+            "required": [
+              "attribute_id",
+              "assertion"
+            ]
+          },
+          "then": {
+            "properties": {
+              "assertion": {
+                "properties": {
+                  "value": {
+                    "$ref": "#/$defs/spatial_value_list"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "attribute_id": {
+                "const": "attribute.fiber_composition"
+              },
+              "assertion": {
+                "properties": {
+                  "state": {
+                    "const": "KNOWN"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            },
+            "required": [
+              "attribute_id",
+              "assertion"
+            ]
+          },
+          "then": {
+            "properties": {
+              "assertion": {
+                "properties": {
+                  "value": {
+                    "$ref": "#/$defs/fiber_composition"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "attribute_id": {
+                "const": "attribute.observed_color"
+              },
+              "assertion": {
+                "properties": {
+                  "state": {
+                    "const": "KNOWN"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            },
+            "required": [
+              "attribute_id",
+              "assertion"
+            ]
+          },
+          "then": {
+            "properties": {
+              "assertion": {
+                "properties": {
+                  "value": {
+                    "$ref": "#/$defs/observed_color"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "attribute_id": {
+                "const": "attribute.insulation"
+              },
+              "assertion": {
+                "properties": {
+                  "state": {
+                    "const": "KNOWN"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            },
+            "required": [
+              "attribute_id",
+              "assertion"
+            ]
+          },
+          "then": {
+            "properties": {
+              "assertion": {
+                "properties": {
+                  "value": {
+                    "$ref": "#/$defs/insulation"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "attribute_id": {
+                "const": "attribute.layering"
+              },
+              "assertion": {
+                "properties": {
+                  "state": {
+                    "const": "KNOWN"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            },
+            "required": [
+              "attribute_id",
+              "assertion"
+            ]
+          },
+          "then": {
+            "properties": {
+              "assertion": {
+                "properties": {
+                  "value": {
+                    "$ref": "#/$defs/layering_value"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "attribute_view": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "attribute_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "attribute_refs"
+      ]
+    },
+    "spatial_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primary_zone": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+        },
+        "secondary_zones": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "coverage_role": {
+          "enum": [
+            "covers",
+            "worn_at",
+            "carried_at",
+            "contacts"
+          ]
+        },
+        "component_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "wear_context_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "primary_zone",
+        "secondary_zones",
+        "coverage_role"
+      ]
+    },
+    "layer_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "over_instance_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "under_instance_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "zone_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "wear_context_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rule_kind": {
+          "enum": [
+            "structural_constraint",
+            "styling_preference",
+            "soft_rule",
+            "trend_exception",
+            "hard_incompatibility"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "uniqueItems": false
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "over_instance_ref",
+        "under_instance_ref",
+        "zone_refs",
+        "wear_context_ref",
+        "rule_kind",
+        "conditions",
+        "evidence_refs"
+      ]
+    },
+    "fiber_composition": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "component_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "composition_completeness": {
+            "enum": [
+              "complete",
+              "partial"
+            ]
+          },
+          "fibers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "fiber_id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+                },
+                "percent": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              },
+              "required": [
+                "fiber_id"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": false
+          }
+        },
+        "required": [
+          "component_ref",
+          "composition_completeness",
+          "fibers"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "observed_color": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "observation_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "colorimetry_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "palette": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "rgb": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "hex": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "lab": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "percentage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "rgb",
+              "hex",
+              "lab",
+              "percentage"
+            ]
+          }
+        }
+      },
+      "required": [
+        "observation_ref",
+        "colorimetry_version",
+        "palette"
+      ]
+    },
+    "insulation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "component_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fill_description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "declared_measurements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "property_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string",
+                "minLength": 1
+              },
+              "method_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "property_ref",
+              "value",
+              "unit",
+              "method_ref",
+              "evidence_refs"
+            ]
+          }
+        }
+      },
+      "required": [
+        "component_ref",
+        "fill_description"
+      ]
+    },
+    "layering_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "role_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/layer_edge"
+          }
+        }
+      }
+    },
+    "spatial_value_list": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/spatial_value"
+      }
+    },
+    "assertion_candidate": {
+      "description": "A retained hypothesis for an UNKNOWN assertion, never its effective value.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "object"
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "evidence_refs"
+      ]
+    },
+    "evidence_source_details": {
+      "description": "Optional compatible source metadata. source_kind is an extensible descriptive discriminator; source_type retains the established ontology annotation source.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scan_session_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "frame_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "region_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "external_product_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "external_variant_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "match_assessment_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "variant_verification_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quality_assessment_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "permission_record_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "accessed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "frame_timestamp_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "identity_match_status": {
+          "enum": [
+            "exact_verified",
+            "probable",
+            "similar",
+            "insufficient",
+            "no_results"
+          ]
+        },
+        "same_variant_verified": {
+          "type": "boolean"
+        },
+        "quality_notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "source_scope": {
+          "enum": [
+            "physical",
+            "local_catalog",
+            "external"
+          ],
+          "description": "Scope of the source independent from source_kind; local/physical evidence cannot masquerade as externally identified facts."
+        }
+      },
+      "required": [
+        "source_kind"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "identity_match_status": {
+                "const": "exact_verified"
+              }
+            },
+            "required": [
+              "identity_match_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "external_product_ref",
+              "external_variant_ref",
+              "match_assessment_ref",
+              "variant_verification_ref",
+              "same_variant_verified"
+            ],
+            "properties": {
+              "same_variant_verified": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "identity": {
+            "properties": {
+              "entity_kind": {
+                "const": "set"
+              }
+            },
+            "required": [
+              "entity_kind"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "taxonomy": {
+            "properties": {
+              "category": {
+                "properties": {
+                  "state": {
+                    "const": "KNOWN"
+                  },
+                  "value": {
+                    "const": "garment.category.coordinated_set"
+                  }
+                },
+                "required": [
+                  "state",
+                  "value"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "taxonomy": {
+            "properties": {
+              "category": {
+                "properties": {
+                  "state": {
+                    "const": "KNOWN"
+                  },
+                  "value": {
+                    "const": "garment.category.coordinated_set"
+                  }
+                },
+                "required": [
+                  "state",
+                  "value"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "identity": {
+            "properties": {
+              "entity_kind": {
+                "const": "set"
+              }
+            },
+            "required": [
+              "entity_kind"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "valid": true,
+  "ontology_version": "1.0.0",
+  "schema_version": "1.0.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "counts": {
+    "families": 12,
+    "categories": 47,
+    "subcategories": 22,
+    "attributes": 68,
+    "styles": 14,
+    "materials": 20,
+    "patterns": 13,
+    "body_zones": 18,
+    "relations": 97,
+    "concepts": 449
+  },
+  "checks": {
+    "parse": "PASS",
+    "schema": "PASS",
+    "unique_ids": "PASS",
+    "references_and_hierarchy": "PASS",
+    "aliases": "PASS",
+    "applicability_and_labels": "PASS",
+    "relationships": "PASS",
+    "body_zones_and_layering": "PASS",
+    "commercial_mapping": "PASS",
+    "commercial_season_mapping": "PASS",
+    "exported_matrices": "PASS",
+    "product_intelligence": "PASS",
+    "hashes_and_summary": "PASS"
+  },
+  "errors": [],
+  "read_only": true,
+  "domain_freeze_approved": false,
+  "validation_scope": {
+    "commercial_categories": "Exact IDs, names and SHA256 of the declared read-only source snapshot",
+    "commercial_seasons": "Documentary mapping structure, unique IDs and semantic references; no live season snapshot provided",
+    "domain_review": "Schema and semantic consistency do not approve human domain freeze"
+  }
+}

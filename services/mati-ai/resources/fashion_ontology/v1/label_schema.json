@@ -1,0 +1,1847 @@
+{
+  "artifact_type": "label_schema",
+  "ontology_version": "1.1.0",
+  "schema_version": "1.1.0",
+  "status": "DRAFT_FOR_REVIEW",
+  "labels": [
+    {
+      "attribute_id": "attribute.observed_color",
+      "label_type": "structured",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "EXISTING_COLORIMETRY",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.color_family",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "color_semantics.json",
+        "domain": "color_family"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.color_family",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.color_role",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "color_semantics.json",
+        "domain": "color_role"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "derived_rule"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.color_role",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.perceived_temperature",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "color_semantics.json",
+        "domain": "perceived_temperature"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.perceived_temperature",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.pattern",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "patterns.json",
+        "domain": "pattern"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "required",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "low",
+      "future_head": "GENERAL.pattern",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.fiber_composition",
+      "label_type": "structured",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "ocr",
+        "human",
+        "external_import"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.fiber_composition",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.non_textile_material",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "materials.json",
+        "domain": "non_textile_material"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "ocr",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.non_textile_material",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.textile_structure",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "fabrics.json",
+        "domain": "textile_structure"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog",
+        "ocr"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.textile_structure",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.weave",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "fabrics.json",
+        "domain": "weave"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.weave",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.knit_structure",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "fabrics.json",
+        "domain": "knit_structure"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.knit_structure",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.fabric_family",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "fabrics.json",
+        "domain": "fabric_family"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.fabric_family",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.surface_texture",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "textures.json",
+        "domain": "surface_texture"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.surface_texture",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.finish",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "textures.json",
+        "domain": "finish"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.finish",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.opacity",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "textures.json",
+        "domain": "opacity"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.opacity",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.fit",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "fit"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "SPECIALIST.fit",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.silhouette",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "silhouette"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "SPECIALIST.silhouette",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.construction",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "construction"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.construction",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.cut_technique",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "cut_technique"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "SPECIALIST.cut_technique",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.closure",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "closure"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.closure",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.structure",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "structure"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.bag"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.structure",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.styles",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "styles.json",
+        "domain": "style"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model",
+        "derived_rule"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.styles",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.aesthetics",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "styles.json",
+        "domain": "aesthetic"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "external_import"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.aesthetics",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.dress_codes",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "usage.json",
+        "domain": "dress_code"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "derived_rule"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.dress_codes",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.formality",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "usage.json",
+        "domain": "formality"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "derived_rule"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.formality",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.occasions",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "usage.json",
+        "domain": "occasion"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "derived_rule"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "GENERAL.occasions",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.calendar_seasons",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "usage.json",
+        "domain": "calendar_season"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog",
+        "derived_rule"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.calendar_seasons",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.climate_suitability",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "usage.json",
+        "domain": "climate_suitability"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog",
+        "derived_rule"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.climate_suitability",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.target_gender",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "target_gender"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.target_gender",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.target_age",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "target_age"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "GENERAL.target_age",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.leg_shape",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "leg_shape"
+      },
+      "applicable_families": [
+        "garment.family.lower",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.leg_shape",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.rise",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "rise"
+      },
+      "applicable_families": [
+        "garment.family.lower"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "high",
+      "future_head": "SPECIALIST.rise",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.waist_type",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "waist_type"
+      },
+      "applicable_families": [
+        "garment.family.lower",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.waist_type",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.inseam",
+      "label_type": "continuous",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.lower",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.inseam",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.upper_length",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "upper_length"
+      },
+      "applicable_families": [
+        "garment.family.upper"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.upper_length",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.lower_length",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "lower_length"
+      },
+      "applicable_families": [
+        "garment.family.lower",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.lower_length",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.skirt_dress_length",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "skirt_dress_length"
+      },
+      "applicable_families": [
+        "garment.family.lower",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.skirt_dress_length",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.outer_length",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "outer_length"
+      },
+      "applicable_families": [
+        "garment.family.outerwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.outer_length",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.neckline",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "neckline"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.neckline",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.sleeve_length",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "sleeve_length"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.sleeve_length",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.sleeve_shape",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "sleeve_shape"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.sleeve_shape",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.sleeve_attachment",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "sleeve_attachment"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.sleeve_attachment",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.sleeve_cuff_type",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "sleeve_cuff_type"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": {
+        "unknown_allowed": true,
+        "states": [
+          "KNOWN",
+          "UNKNOWN",
+          "NOT_APPLICABLE"
+        ],
+        "policy": "Hidden or unresolved cuff is UNKNOWN; confirmed absence of sleeve or differentiated cuff is NOT_APPLICABLE with evidence. Optional missing slot imposes no new legacy context requirement."
+      },
+      "annotation_sources": [
+        "human",
+        "catalog",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": null,
+      "trainable_visual": "no",
+      "notes": "Attribute contract approved by decision 10; values and annotation guidance pending. No cuff specialist training is authorized."
+    },
+    {
+      "attribute_id": "attribute.collar",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "collar"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.collar",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.hem",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "hem"
+      },
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.hem",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.slit",
+      "label_type": "boolean",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.lower",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.slit",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.pleats",
+      "label_type": "boolean",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.pleats",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.lapel",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "lapel"
+      },
+      "applicable_families": [
+        "garment.family.outerwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.lapel",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.insulation",
+      "label_type": "structured",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.outerwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "ocr",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.insulation",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.heel_height",
+      "label_type": "continuous",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.footwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.heel_height",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.heel_type",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "heel_type"
+      },
+      "applicable_families": [
+        "garment.family.footwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.heel_type",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.toe_shape",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "toe_shape"
+      },
+      "applicable_families": [
+        "garment.family.footwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.toe_shape",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.toe_open",
+      "label_type": "boolean",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.footwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.toe_open",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.shaft_height",
+      "label_type": "ordinal",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "shaft_height"
+      },
+      "applicable_families": [
+        "garment.family.footwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.shaft_height",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.sole_type",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "sole_type"
+      },
+      "applicable_families": [
+        "garment.family.footwear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.sole_type",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.carry_method",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "carry_method"
+      },
+      "applicable_families": [
+        "garment.family.bag"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.carry_method",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.strap_type",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "strap_type"
+      },
+      "applicable_families": [
+        "garment.family.bag",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.strap_type",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.bag_shape",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "bag_shape"
+      },
+      "applicable_families": [
+        "garment.family.bag"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.bag_shape",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.capacity",
+      "label_type": "continuous",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.bag"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.capacity",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.frame_shape",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "frame_shape"
+      },
+      "applicable_families": [
+        "garment.family.eyewear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.frame_shape",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.frame_style",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "frame_style"
+      },
+      "applicable_families": [
+        "garment.family.eyewear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.frame_style",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.lens_shape",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "frame_shape"
+      },
+      "applicable_families": [
+        "garment.family.eyewear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.lens_shape",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.lens_tint",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "lens_tint"
+      },
+      "applicable_families": [
+        "garment.family.eyewear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.lens_tint",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.frame_material",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "materials.json",
+        "domain": "non_textile_material"
+      },
+      "applicable_families": [
+        "garment.family.eyewear"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.frame_material",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.case_shape",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "case_shape"
+      },
+      "applicable_families": [
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.case_shape",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.watch_display",
+      "label_type": "single_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "watch_display"
+      },
+      "applicable_families": [
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.watch_display",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.jewelry_form",
+      "label_type": "multi_label",
+      "allowed_values_ref": {
+        "file": "attribute_values.json",
+        "domain": "jewelry_form"
+      },
+      "applicable_families": [
+        "garment.family.jewelry"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "vision_model"
+      ],
+      "visually_learnable": "yes",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.jewelry_form",
+      "trainable_visual": "conditional"
+    },
+    {
+      "attribute_id": "attribute.belt_width",
+      "label_type": "continuous",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "catalog",
+        "human"
+      ],
+      "visually_learnable": "no",
+      "annotation_difficulty": "medium",
+      "future_head": "SPECIALIST.belt_width",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.spatial_semantics",
+      "label_type": "structured",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "required",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "catalog",
+        "derived_rule"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "DERIVED_SPATIAL_CONTRACT",
+      "trainable_visual": "no"
+    },
+    {
+      "attribute_id": "attribute.layering",
+      "label_type": "structured",
+      "allowed_values_ref": null,
+      "applicable_families": [
+        "garment.family.upper",
+        "garment.family.lower",
+        "garment.family.outerwear",
+        "garment.family.one_piece",
+        "garment.family.multi_piece",
+        "garment.family.footwear",
+        "garment.family.bag",
+        "garment.family.headwear",
+        "garment.family.neckwear",
+        "garment.family.jewelry",
+        "garment.family.eyewear",
+        "garment.family.accessory"
+      ],
+      "requirement": "optional",
+      "unknown_policy": "explicit_state_masked_loss_not_negative",
+      "annotation_sources": [
+        "human",
+        "derived_rule"
+      ],
+      "visually_learnable": "partial",
+      "annotation_difficulty": "medium",
+      "future_head": "CONTEXTUAL_LAYERING_CONTRACT",
+      "trainable_visual": "no"
+    }
+  ],
+  "taxonomy_labels": {
+    "family": {
+      "label_type": "single_label",
+      "concepts_ref": "ontology.json#/families",
+      "required": true
+    },
+    "category": {
+      "label_type": "single_label",
+      "concepts_ref": "ontology.json#/categories",
+      "required": true
+    },
+    "subcategory": {
+      "label_type": "single_label",
+      "concepts_ref": "ontology.json#/subcategories",
+      "required": false
+    },
+    "multi_piece": "Entity-level coordinated_set plus separately labeled components; not a single image pseudo-garment"
+  },
+  "target_policy": {
+    "known": "Value loss computed only with evidence and adjudicated label.",
+    "unknown": "Mask loss and report coverage; never convert to negative.",
+    "not_applicable": "Mask value loss, validate applicability; separate routing if justified later.",
+    "multi_label_negatives": "Only explicitly adjudicated absent labels are negatives; incomplete sets have separate annotation completeness.",
+    "public_labels": "Map with direction and loss; never treat missing source annotations as MORE negatives."
+  },
+  "metrics": {
+    "single_label": [
+      "accuracy",
+      "macro-F1",
+      "per-class recall",
+      "coverage",
+      "selective error"
+    ],
+    "multi_label": [
+      "micro-F1",
+      "macro-F1",
+      "precision",
+      "recall",
+      "mAP where ranked complete GT exists",
+      "annotation coverage"
+    ],
+    "ordinal": [
+      "MAE on rank",
+      "quadratic weighted kappa",
+      "coverage"
+    ],
+    "continuous": [
+      "MAE",
+      "RMSE",
+      "correlation with support and units"
+    ],
+    "structured": [
+      "field validity",
+      "reference integrity",
+      "component/evidence completeness"
+    ],
+    "boolean": [
+      "precision",
+      "recall",
+      "F1",
+      "balanced accuracy",
+      "coverage",
+      "support by positive/negative"
+    ]
+  },
+  "evaluation_policy": "Global AND per-family/per-attribute metrics; unknown/N/A/support denominators explicit; no arbitrary promotion numbers.",
+  "head_policy": "Semantic scopes only. No encoder, multi-head, specialist network or MoE architecture selected.",
+  "metadata": {
+    "commercial_mapping_policy": "Commercial mappings are lookup candidates or scope policies, never automatic ground truth for training.",
+    "sleeve_cuff_training_policy": "No dedicated cuff specialist selected or authorized; future_head=null and trainable_visual=no in this draft."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "synthetic_only": true,
+  "implemented_services": false,
+  "results": [
+    {
+      "scenario": "Two distinct frames in one session can support a visible pattern",
+      "expected": "valid",
+      "passed": true,
+      "actual_valid": true,
+      "codes": []
+    },
+    {
+      "scenario": "Frames from another garment/session cannot be fused",
+      "expected": "PI_ACCUMULATION_SESSION",
+      "passed": true,
+      "actual_valid": false,
+      "codes": [
+        "PI_ACCUMULATION_SESSION"
+      ]
+    },
+    {
+      "scenario": "Repeated evaluations of one frame do not count twice",
+      "expected": "PI_ACCUMULATION_DISTINCT_FRAMES",
+      "passed": true,
+      "actual_valid": false,
+      "codes": [
+        "PI_ACCUMULATION_DISTINCT_FRAMES"
+      ]
+    },
+    {
+      "scenario": "Visual accumulation cannot confirm fiber composition",
+      "expected": "PI_NONVISUAL_EVIDENCE",
+      "passed": true,
+      "actual_valid": false,
+      "codes": [
+        "PI_ANNOTATION_SOURCE",
+        "PI_NONVISUAL_EVIDENCE"
+      ]
+    }
+  ]
+}

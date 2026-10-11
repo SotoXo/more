@@ -1,0 +1,1273 @@
+{
+  "schema_version": "mati-rag-evaluation-1",
+  "evaluation_version": "1.0.0",
+  "created_date": "2026-10-05",
+  "label_author": "Codex_curated_not_human_relevance_ground_truth",
+  "review_status": "controlled_small_proposal_pending_mati_domain_review",
+  "freeze_policy": "Freeze exact file SHA256 before any model embedding/retrieval; no query/relevance changes after results. Future changes require a new evaluation version.",
+  "corpus_path": "services/mati-ai/resources/rag/corpus-v1.json",
+  "corpus_sha256": "d1fd24f3a18e9c169c6197e6bf12da8a663359010ffc271c33918eb8893a3fe2",
+  "embedding_input_contract": "title + '\\n' + chunk.section + '\\n' + chunk.content; UTF8 exact, ordered chunks; model-specific prefix added only by embedding profile",
+  "queries": [
+    {
+      "id": "q001",
+      "text": "ABRIGOS",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:1"
+      ],
+      "relevant_chunk_ids": [
+        "category:1#definition"
+      ],
+      "relevance": {
+        "category:1#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q002",
+      "text": "BLAZERS",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:2"
+      ],
+      "relevant_chunk_ids": [
+        "category:2#definition"
+      ],
+      "relevance": {
+        "category:2#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q003",
+      "text": "CAMISAS",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:3"
+      ],
+      "relevant_chunk_ids": [
+        "category:3#definition"
+      ],
+      "relevance": {
+        "category:3#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q004",
+      "text": "BLUSAS",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:4"
+      ],
+      "relevant_chunk_ids": [
+        "category:4#definition"
+      ],
+      "relevance": {
+        "category:4#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q005",
+      "text": "VESTIDOS",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:5"
+      ],
+      "relevant_chunk_ids": [
+        "category:5#definition"
+      ],
+      "relevance": {
+        "category:5#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q006",
+      "text": "FALDAS",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:6"
+      ],
+      "relevant_chunk_ids": [
+        "category:6#definition"
+      ],
+      "relevance": {
+        "category:6#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q007",
+      "text": "PANTALONES",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:7"
+      ],
+      "relevant_chunk_ids": [
+        "category:7#definition"
+      ],
+      "relevance": {
+        "category:7#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q008",
+      "text": "POLOS Y KNITWEAR",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:8"
+      ],
+      "relevant_chunk_ids": [
+        "category:8#definition"
+      ],
+      "relevance": {
+        "category:8#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q009",
+      "text": "ACCESORIOS",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:9"
+      ],
+      "relevant_chunk_ids": [
+        "category:9#definition"
+      ],
+      "relevance": {
+        "category:9#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q010",
+      "text": "CONJUNTOS",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:10"
+      ],
+      "relevant_chunk_ids": [
+        "category:10#definition"
+      ],
+      "relevance": {
+        "category:10#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q011",
+      "text": "POLERA",
+      "language": "es",
+      "type": "exact_category",
+      "relevant_document_ids": [
+        "category:11"
+      ],
+      "relevant_chunk_ids": [
+        "category:11#definition"
+      ],
+      "relevance": {
+        "category:11#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q012",
+      "text": "What is an outer coat or cape?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:1"
+      ],
+      "relevant_chunk_ids": [
+        "category:1#definition"
+      ],
+      "relevance": {
+        "category:1#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q013",
+      "text": "What is a tailored blazer?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:2"
+      ],
+      "relevant_chunk_ids": [
+        "category:2#definition"
+      ],
+      "relevance": {
+        "category:2#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q014",
+      "text": "What defines a button-up shirt?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:3"
+      ],
+      "relevant_chunk_ids": [
+        "category:3#definition"
+      ],
+      "relevance": {
+        "category:3#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q015",
+      "text": "What does blouse mean in Mati?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:4"
+      ],
+      "relevant_chunk_ids": [
+        "category:4#definition"
+      ],
+      "relevance": {
+        "category:4#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q016",
+      "text": "What is a dress with a continuous top and skirt?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:5"
+      ],
+      "relevant_chunk_ids": [
+        "category:5#definition"
+      ],
+      "relevance": {
+        "category:5#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q017",
+      "text": "What is a skirt as a separate lower garment?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:6"
+      ],
+      "relevant_chunk_ids": [
+        "category:6#definition"
+      ],
+      "relevance": {
+        "category:6#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q018",
+      "text": "What are trousers with two separate legs?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:7"
+      ],
+      "relevant_chunk_ids": [
+        "category:7#definition"
+      ],
+      "relevance": {
+        "category:7#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q019",
+      "text": "What clothing belongs to polos and knitwear?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:8"
+      ],
+      "relevant_chunk_ids": [
+        "category:8#definition"
+      ],
+      "relevance": {
+        "category:8#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q020",
+      "text": "What are styling accessories?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:9"
+      ],
+      "relevant_chunk_ids": [
+        "category:9#definition"
+      ],
+      "relevance": {
+        "category:9#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q021",
+      "text": "What is a coordinated multi-piece set?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:10"
+      ],
+      "relevant_chunk_ids": [
+        "category:10#definition"
+      ],
+      "relevance": {
+        "category:10#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q022",
+      "text": "What does the local Mati category POLERA mean?",
+      "language": "en",
+      "type": "english_paraphrase",
+      "relevant_document_ids": [
+        "category:11"
+      ],
+      "relevant_chunk_ids": [
+        "category:11#definition"
+      ],
+      "relevance": {
+        "category:11#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q023",
+      "text": "¿Qué prenda exterior se lleva encima de otras para abrigarse?",
+      "language": "es",
+      "type": "semantic_paraphrase",
+      "relevant_document_ids": [
+        "category:1"
+      ],
+      "relevant_chunk_ids": [
+        "category:1#definition"
+      ],
+      "relevance": {
+        "category:1#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q024",
+      "text": "¿Cómo se llama la chaqueta ligera de sastrería con estructura definida?",
+      "language": "es",
+      "type": "semantic_paraphrase",
+      "relevant_document_ids": [
+        "category:2"
+      ],
+      "relevant_chunk_ids": [
+        "category:2#definition"
+      ],
+      "relevance": {
+        "category:2#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q025",
+      "text": "¿Qué categoría describe piezas superiores de construcción camisera y botonadura?",
+      "language": "es",
+      "type": "semantic_paraphrase",
+      "relevant_document_ids": [
+        "category:3"
+      ],
+      "relevant_chunk_ids": [
+        "category:3#definition"
+      ],
+      "relevance": {
+        "category:3#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q026",
+      "text": "¿Qué categoría enfatiza prendas superiores fluidas de caída suave?",
+      "language": "es",
+      "type": "semantic_paraphrase",
+      "relevant_document_ids": [
+        "category:4"
+      ],
+      "relevant_chunk_ids": [
+        "category:4#definition"
+      ],
+      "relevance": {
+        "category:4#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q027",
+      "text": "¿Qué prenda inferior tiene dos perneras aunque sea de silueta amplia?",
+      "language": "es",
+      "type": "semantic_paraphrase",
+      "relevant_document_ids": [
+        "category:7"
+      ],
+      "relevant_chunk_ids": [
+        "category:7#definition"
+      ],
+      "relevance": {
+        "category:7#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q028",
+      "text": "¿Dónde están los jerseys, cárdigans y polos de base?",
+      "language": "es",
+      "type": "semantic_paraphrase",
+      "relevant_document_ids": [
+        "category:8"
+      ],
+      "relevant_chunk_ids": [
+        "category:8#definition"
+      ],
+      "relevance": {
+        "category:8#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q029",
+      "text": "¿Cuál es la diferencia entre una camisa y una blusa?",
+      "language": "es",
+      "type": "category_comparison",
+      "relevant_document_ids": [
+        "category:3",
+        "category:4",
+        "comparison:camisa-blusa"
+      ],
+      "relevant_chunk_ids": [
+        "category:3#definition",
+        "category:4#definition",
+        "comparison:camisa-blusa#comparison"
+      ],
+      "relevance": {
+        "category:3#definition": 2,
+        "category:4#definition": 2,
+        "comparison:camisa-blusa#comparison": 3
+      },
+      "is_negative": false,
+      "essential": true,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q030",
+      "text": "¿En qué se distinguen un blazer y un abrigo?",
+      "language": "es",
+      "type": "category_comparison",
+      "relevant_document_ids": [
+        "category:2",
+        "category:1",
+        "comparison:blazer-abrigo"
+      ],
+      "relevant_chunk_ids": [
+        "category:2#definition",
+        "category:1#definition",
+        "comparison:blazer-abrigo#comparison"
+      ],
+      "relevance": {
+        "category:2#definition": 2,
+        "category:1#definition": 2,
+        "comparison:blazer-abrigo#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q031",
+      "text": "¿POLERA y POLOS Y KNITWEAR significan lo mismo?",
+      "language": "es",
+      "type": "category_comparison",
+      "relevant_document_ids": [
+        "category:11",
+        "category:8",
+        "comparison:polera-knitwear"
+      ],
+      "relevant_chunk_ids": [
+        "category:11#definition",
+        "category:8#definition",
+        "comparison:polera-knitwear#comparison"
+      ],
+      "relevance": {
+        "category:11#definition": 2,
+        "category:8#definition": 2,
+        "comparison:polera-knitwear#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q032",
+      "text": "¿Un vestido y un conjunto de dos piezas son iguales?",
+      "language": "es",
+      "type": "category_comparison",
+      "relevant_document_ids": [
+        "category:5",
+        "category:10",
+        "comparison:vestido-conjunto"
+      ],
+      "relevant_chunk_ids": [
+        "category:5#definition",
+        "category:10#definition",
+        "comparison:vestido-conjunto#comparison"
+      ],
+      "relevance": {
+        "category:5#definition": 2,
+        "category:10#definition": 2,
+        "comparison:vestido-conjunto#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q033",
+      "text": "What is the difference between a shirt and a blouse?",
+      "language": "en",
+      "type": "english_comparison",
+      "relevant_document_ids": [
+        "category:3",
+        "category:4",
+        "comparison:camisa-blusa"
+      ],
+      "relevant_chunk_ids": [
+        "category:3#definition",
+        "category:4#definition",
+        "comparison:camisa-blusa#comparison"
+      ],
+      "relevance": {
+        "category:3#definition": 2,
+        "category:4#definition": 2,
+        "comparison:camisa-blusa#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q034",
+      "text": "How does a blazer differ from an outer coat?",
+      "language": "en",
+      "type": "english_comparison",
+      "relevant_document_ids": [
+        "category:2",
+        "category:1",
+        "comparison:blazer-abrigo"
+      ],
+      "relevant_chunk_ids": [
+        "category:2#definition",
+        "category:1#definition",
+        "comparison:blazer-abrigo#comparison"
+      ],
+      "relevance": {
+        "category:2#definition": 2,
+        "category:1#definition": 2,
+        "comparison:blazer-abrigo#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q035",
+      "text": "Is POLERA the same as knitwear in Mati?",
+      "language": "en",
+      "type": "english_comparison",
+      "relevant_document_ids": [
+        "category:11",
+        "category:8",
+        "comparison:polera-knitwear"
+      ],
+      "relevant_chunk_ids": [
+        "category:11#definition",
+        "category:8#definition",
+        "comparison:polera-knitwear#comparison"
+      ],
+      "relevance": {
+        "category:11#definition": 2,
+        "category:8#definition": 2,
+        "comparison:polera-knitwear#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q036",
+      "text": "How is a dress different from a matching two-piece set?",
+      "language": "en",
+      "type": "english_comparison",
+      "relevant_document_ids": [
+        "category:5",
+        "category:10",
+        "comparison:vestido-conjunto"
+      ],
+      "relevant_chunk_ids": [
+        "category:5#definition",
+        "category:10#definition",
+        "comparison:vestido-conjunto#comparison"
+      ],
+      "relevance": {
+        "category:5#definition": 2,
+        "category:10#definition": 2,
+        "comparison:vestido-conjunto#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q037",
+      "text": "bluzas",
+      "language": "es",
+      "type": "small_typo",
+      "relevant_document_ids": [
+        "category:4"
+      ],
+      "relevant_chunk_ids": [
+        "category:4#definition"
+      ],
+      "relevance": {
+        "category:4#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q038",
+      "text": "pantalnoes",
+      "language": "es",
+      "type": "small_typo",
+      "relevant_document_ids": [
+        "category:7"
+      ],
+      "relevant_chunk_ids": [
+        "category:7#definition"
+      ],
+      "relevance": {
+        "category:7#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q039",
+      "text": "abrgo",
+      "language": "es",
+      "type": "small_typo",
+      "relevant_document_ids": [
+        "category:1"
+      ],
+      "relevant_chunk_ids": [
+        "category:1#definition"
+      ],
+      "relevance": {
+        "category:1#definition": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q040",
+      "text": "diferencia camiza y blusa",
+      "language": "es",
+      "type": "small_typo",
+      "relevant_document_ids": [
+        "category:3",
+        "category:4",
+        "comparison:camisa-blusa"
+      ],
+      "relevant_chunk_ids": [
+        "category:3#definition",
+        "category:4#definition",
+        "comparison:camisa-blusa#comparison"
+      ],
+      "relevance": {
+        "category:3#definition": 2,
+        "category:4#definition": 2,
+        "comparison:camisa-blusa#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q041",
+      "text": "¿Compartir familia NEGRO significa que NEGRO y NEGRO CARBON son el mismo tono?",
+      "language": "es",
+      "type": "color_knowledge",
+      "relevant_document_ids": [
+        "color:family-vs-variant"
+      ],
+      "relevant_chunk_ids": [
+        "color:family-vs-variant#knowledge"
+      ],
+      "relevance": {
+        "color:family-vs-variant#knowledge": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q042",
+      "text": "Can a pixel palette alone confirm the garment commercial color?",
+      "language": "en",
+      "type": "color_knowledge",
+      "relevant_document_ids": [
+        "color:observed-vs-commercial"
+      ],
+      "relevant_chunk_ids": [
+        "color:observed-vs-commercial#knowledge"
+      ],
+      "relevance": {
+        "color:observed-vs-commercial#knowledge": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q043",
+      "text": "¿Puedo comparar directamente un vector de texto y otro de imagen si ambos tienen 768 dimensiones?",
+      "language": "es",
+      "type": "technical_explanation",
+      "relevant_document_ids": [
+        "technical:text-vs-image"
+      ],
+      "relevant_chunk_ids": [
+        "technical:text-vs-image#explanation"
+      ],
+      "relevance": {
+        "technical:text-vs-image#explanation": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q044",
+      "text": "¿Qué diferencia hay entre conocimiento RAG y consultas a Tools Laravel?",
+      "language": "es",
+      "type": "technical_explanation",
+      "relevant_document_ids": [
+        "technical:rag-vs-tools"
+      ],
+      "relevant_chunk_ids": [
+        "technical:rag-vs-tools#explanation"
+      ],
+      "relevance": {
+        "technical:rag-vs-tools#explanation": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q045",
+      "text": "Does cosine similarity 0.89 mean 89 percent correct?",
+      "language": "en",
+      "type": "technical_explanation",
+      "relevant_document_ids": [
+        "technical:similarity"
+      ],
+      "relevant_chunk_ids": [
+        "technical:similarity#explanation"
+      ],
+      "relevance": {
+        "technical:similarity#explanation": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q046",
+      "text": "¿Este retrieval local genera respuestas con un LLM?",
+      "language": "es",
+      "type": "technical_explanation",
+      "relevant_document_ids": [
+        "technical:retrieval-only"
+      ],
+      "relevant_chunk_ids": [
+        "technical:retrieval-only#explanation"
+      ],
+      "relevance": {
+        "technical:retrieval-only#explanation": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q047",
+      "text": "¿Qué categorías de Mati corresponden a prendas para la parte inferior?",
+      "language": "es",
+      "type": "conceptual_role",
+      "relevant_document_ids": [
+        "category:6",
+        "category:7",
+        "comparison:lower-garments"
+      ],
+      "relevant_chunk_ids": [
+        "category:6#definition",
+        "category:7#definition",
+        "comparison:lower-garments#comparison"
+      ],
+      "relevance": {
+        "category:6#definition": 2,
+        "category:7#definition": 2,
+        "comparison:lower-garments#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    },
+    {
+      "id": "q048",
+      "text": "¿Qué categorías pueden aportar capas de ropa para clima frío?",
+      "language": "es",
+      "type": "conceptual_role",
+      "relevant_document_ids": [
+        "category:1",
+        "category:8",
+        "comparison:cold-weather"
+      ],
+      "relevant_chunk_ids": [
+        "category:1#definition",
+        "category:8#definition",
+        "comparison:cold-weather#comparison"
+      ],
+      "relevance": {
+        "category:1#definition": 2,
+        "category:8#definition": 2,
+        "comparison:cold-weather#comparison": 3
+      },
+      "is_negative": false,
+      "essential": false,
+      "expected_policy": "retrieve_stable_knowledge",
+      "expected_status": "completed",
+      "label_rationale": "Primary explicit semantic units answer the query; relevance frozen before model results."
+    }
+  ],
+  "negatives": [
+    {
+      "id": "n001",
+      "text": "¿Cuál es la capital de Mongolia?",
+      "language": "es",
+      "type": "no_corpus_evidence",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "no_evidence",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "No semantic unit in this curated corpus provides the answer; no fallback to unrelated documents."
+    },
+    {
+      "id": "n002",
+      "text": "How do I repair a car engine?",
+      "language": "en",
+      "type": "no_corpus_evidence",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "no_evidence",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "No semantic unit in this curated corpus provides the answer; no fallback to unrelated documents."
+    },
+    {
+      "id": "n003",
+      "text": "¿Cómo se hace pan de masa madre?",
+      "language": "es",
+      "type": "no_corpus_evidence",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "no_evidence",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "No semantic unit in this curated corpus provides the answer; no fallback to unrelated documents."
+    },
+    {
+      "id": "n004",
+      "text": "Explain orbital mechanics for satellites.",
+      "language": "en",
+      "type": "no_corpus_evidence",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "no_evidence",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "No semantic unit in this curated corpus provides the answer; no fallback to unrelated documents."
+    },
+    {
+      "id": "n005",
+      "text": "¿Cuál es la composición química de este medicamento?",
+      "language": "es",
+      "type": "no_corpus_evidence",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "no_evidence",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "No semantic unit in this curated corpus provides the answer; no fallback to unrelated documents."
+    },
+    {
+      "id": "n006",
+      "text": "What is the exchange rate today?",
+      "language": "en",
+      "type": "no_corpus_evidence",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "no_evidence",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "No semantic unit in this curated corpus provides the answer; no fallback to unrelated documents."
+    },
+    {
+      "id": "n007",
+      "text": "¿Cuántos días tengo para devolver una compra en Mati?",
+      "language": "es",
+      "type": "no_corpus_evidence",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "no_evidence",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "No semantic unit in this curated corpus provides the answer; no fallback to unrelated documents."
+    },
+    {
+      "id": "n008",
+      "text": "What is Mati's warranty policy for jewelry?",
+      "language": "en",
+      "type": "no_corpus_evidence",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "no_evidence",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "No semantic unit in this curated corpus provides the answer; no fallback to unrelated documents."
+    },
+    {
+      "id": "n009",
+      "text": "¿Quedan BLUSAS talla M disponibles ahora?",
+      "language": "es",
+      "type": "dynamic_data",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "requires_tool",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "Dynamic current_stock is authority of authenticated Laravel tools/current commercial DB, absent from corpus. No tool values are implemented by this dataset."
+    },
+    {
+      "id": "n010",
+      "text": "What is the current price of this blazer?",
+      "language": "en",
+      "type": "dynamic_data",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "requires_tool",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "Dynamic current_price is authority of authenticated Laravel tools/current commercial DB, absent from corpus. No tool values are implemented by this dataset."
+    },
+    {
+      "id": "n011",
+      "text": "¿Cuál es el estado de mi reserva MATI-123?",
+      "language": "es",
+      "type": "dynamic_data",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "requires_tool",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "Dynamic reservation_status is authority of authenticated Laravel tools/current commercial DB, absent from corpus. No tool values are implemented by this dataset."
+    },
+    {
+      "id": "n012",
+      "text": "Has my payment been confirmed?",
+      "language": "en",
+      "type": "dynamic_data",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "requires_tool",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "Dynamic payment_status is authority of authenticated Laravel tools/current commercial DB, absent from corpus. No tool values are implemented by this dataset."
+    },
+    {
+      "id": "n013",
+      "text": "¿Cuántos pantalones hay hoy en inventario?",
+      "language": "es",
+      "type": "dynamic_data",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "requires_tool",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "Dynamic current_inventory is authority of authenticated Laravel tools/current commercial DB, absent from corpus. No tool values are implemented by this dataset."
+    },
+    {
+      "id": "n014",
+      "text": "ZARA: ¿hay stock hoy?",
+      "language": "es",
+      "type": "dynamic_data",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "requires_tool",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "Dynamic brand_stock is authority of authenticated Laravel tools/current commercial DB, absent from corpus. No tool values are implemented by this dataset."
+    },
+    {
+      "id": "n015",
+      "text": "¿Cuánto cuesta actualmente la polera MATI-123?",
+      "language": "es",
+      "type": "dynamic_data",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "requires_tool",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "Dynamic product_price is authority of authenticated Laravel tools/current commercial DB, absent from corpus. No tool values are implemented by this dataset."
+    },
+    {
+      "id": "n016",
+      "text": "Which available accessories can I reserve right now?",
+      "language": "en",
+      "type": "dynamic_data",
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": [],
+      "relevance": {},
+      "is_negative": true,
+      "expected_policy": "requires_tool",
+      "expected_status": "insufficient_evidence",
+      "expected_chunks": [],
+      "label_rationale": "Dynamic current_availability is authority of authenticated Laravel tools/current commercial DB, absent from corpus. No tool values are implemented by this dataset."
+    }
+  ],
+  "metric_policy": {
+    "positive_denominator": "all48 frozen positive queries, including missing or abstained retrieval as zero",
+    "negative_denominator": "all16 frozen negatives reported separately; never dilute positive retrieval denominators",
+    "relevance": "Explicit chunk/doc IDs; binary relevance is any grade>0. nDCG uses grades declared here; fixed protocol defines gain/discount convention.",
+    "primary_evidence_policy": "A single-category query labels the category definition only; comparisons label both definitions and the explicit comparison. Other semantically related chunks remain unlabelled; this is a curated target task, not exhaustive human relevance.",
+    "small_sample_limit": "Controlled internal retrieval evaluation; not statistical validation or human-domain accuracy."
+  },
+  "essential_query_id": "q029"
+}
