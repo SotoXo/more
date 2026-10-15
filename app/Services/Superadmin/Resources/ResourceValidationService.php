@@ -23,6 +23,9 @@ class ResourceValidationService
     public function validateWrite(Request $request, array $definition, $record = null): array
     {
         $key = $this->definitions->definitionKey($definition);
+        $ownedVariantIds = $key === 'catalogo.prendas' && $record instanceof Prenda
+            ? $record->variantes()->pluck('id_prenda_variante')->map(fn ($id) => (int) $id)->all()
+            : [];
         $rules = match ($key) {
             'seguridad.roles' => [
                 'nom_rol' => ['required', 'string', 'max:50', 'regex:/^[\p{L}\s]+$/u', Rule::unique('roles', 'nom_rol')->ignore($record?->id_rol, 'id_rol')],
@@ -130,7 +133,12 @@ class ResourceValidationService
                 'variant_rows.*.cob_prv' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9\-]+$/', 'distinct'],
                 'variant_rows.*.pve_prv' => ['required', 'numeric', 'min:0.01'],
                 'variant_rows.*.cos_prv' => ['nullable', 'numeric', 'min:0'],
-                'variant_rows.*.stock_inicial' => ['required', 'integer', 'min:1'],
+                'variant_rows.*.stock_inicial' => Rule::forEach(function ($value, $attribute, $data, $row) use ($ownedVariantIds) {
+                    $isOwnedVariant = is_array($row) && is_scalar($row['id'] ?? null)
+                        && in_array((int) $row['id'], $ownedVariantIds, true);
+
+                    return ['required', 'integer', $isOwnedVariant ? 'min:0' : 'min:1'];
+                }),
                 'variant_rows.*.ubi_inv' => ['required', 'string', Rule::in(['DEPOSITO', 'TIENDA'])],
                 'variant_rows.*.est_prv' => ['nullable', 'boolean'],
                 'variant_rows.*.remove' => ['nullable', 'boolean'],
@@ -219,7 +227,7 @@ class ResourceValidationService
             'variant_rows.*.pve_prv.min' => 'El precio de venta debe ser mayor a 0.',
             'gallery_images.*.archivo.image' => 'Debes subir una imagen válida en la galería.',
             'gallery_images.*.archivo.max' => 'Cada imagen de galería puede pesar hasta 6 MB.',
-            'variant_rows.*.stock_inicial.min' => 'La cantidad inicial debe ser al menos 1.',
+            'variant_rows.*.stock_inicial.min' => 'La cantidad debe ser al menos :min.',
             'variant_rows.*.ubi_inv.in' => 'Selecciona una ubicación válida.',
             'ubi_inv.in' => 'Selecciona una ubicación válida.',
         ];

@@ -79,7 +79,7 @@ function variantIssue(row?: ProductVariantRow | null) {
     const cost = row.cos_prv === '' ? null : Number(row.cos_prv);
 
     if (!Number.isFinite(price) || price <= 0) return 'El precio de venta debe ser mayor a 0.';
-    if (!Number.isInteger(stock) || stock < 1) return 'La cantidad inicial debe ser un número entero mayor a 0.';
+    if (!Number.isInteger(stock) || stock < (row.id ? 0 : 1)) return row.id ? 'El stock disponible debe ser un número entero no negativo.' : 'La cantidad inicial debe ser un número entero mayor a 0.';
     if (cost !== null && (!Number.isFinite(cost) || cost < 0)) return 'El costo interno no puede ser negativo.';
     if (cost !== null && cost > price) return 'El costo interno no puede ser mayor al precio de venta.';
 
@@ -731,8 +731,8 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                         </label>
 
                                         <label className="space-y-2">
-                                            <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Cantidad inicial</span>
-                                            <input type="number" min="1" step="1" value={activeVariantRows[0]?.stock_inicial ?? '1'} onChange={(event) => updateVariantRow(firstActiveVariantIndex, 'stock_inicial', event.target.value)} className="sa-input w-full" placeholder="1" />
+                                            <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">{activeVariantRows[0]?.id ? 'Stock disponible (lectura)' : 'Cantidad inicial'}</span>
+                                            <input type="number" min={activeVariantRows[0]?.id ? 0 : 1} readOnly={Boolean(activeVariantRows[0]?.id)} step="1" value={activeVariantRows[0]?.stock_inicial ?? '1'} onChange={(event) => updateVariantRow(firstActiveVariantIndex, 'stock_inicial', event.target.value)} className="sa-input w-full" placeholder="1" />
                                             {errors['variant_rows.0.stock_inicial'] && <p className="text-sm text-rose-300">{errors['variant_rows.0.stock_inicial']}</p>}
                                         </label>
 
@@ -880,8 +880,8 @@ export default function ProductCreate({ meta, breadcrumbs, mode, recordLabel, su
                                                     </label>
 
                                                     <label className="space-y-2">
-                                                        <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">Cantidad inicial</span>
-                                                        <input type="number" min="1" step="1" value={row.stock_inicial} onChange={(event) => updateVariantRow(index, 'stock_inicial', event.target.value)} className="sa-input w-full" placeholder="1" />
+                                                        <span className="text-[0.68rem] uppercase tracking-[0.18em] text-stone-400">{row.id ? 'Stock disponible (lectura)' : 'Cantidad inicial'}</span>
+                                                        <input type="number" min={row.id ? 0 : 1} readOnly={Boolean(row.id)} step="1" value={row.stock_inicial} onChange={(event) => updateVariantRow(index, 'stock_inicial', event.target.value)} className="sa-input w-full" placeholder="1" />
                                                         {errors[`variant_rows.${index}.stock_inicial`] && <p className="text-sm text-rose-300">{errors[`variant_rows.${index}.stock_inicial`]}</p>}
                                                     </label>
 

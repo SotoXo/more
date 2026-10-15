@@ -12,6 +12,7 @@ use App\Services\Superadmin\Resources\ProductCatalogService;
 use App\Services\Superadmin\Resources\ProductImageService;
 use App\Services\Superadmin\Resources\ResourceDefinitionService;
 use App\Services\Superadmin\Resources\ResourceQueryService;
+use App\Services\Superadmin\Resources\ResourceValidationService;
 use App\Services\Superadmin\Resources\ResourceWriteService;
 use App\Services\Superadmin\SaleInventoryService;
 use App\Services\SystemLogService;
@@ -34,6 +35,8 @@ class InventoryP0RegressionTest extends TestCase
         DB::purge('sqlite');
         DB::reconnect('sqlite');
 
+        $this->assertSame('sqlite', DB::connection()->getDriverName());
+        $this->assertSame(':memory:', DB::connection()->getDatabaseName());
         $this->createTestSchema();
     }
 
@@ -63,6 +66,82 @@ class InventoryP0RegressionTest extends TestCase
         $this->assertSame(2, $inventory->cre_inv);
         $this->assertSame('PRENDA EDITADA', $product->fresh()->nom_pre);
         $this->assertSame(2, $product->fresh()->cod_categorias_pre);
+    }
+
+    public function test_sold_out_product_can_be_validated_and_edited_without_changing_inventory(): void
+    {
+        [$product, $variant] = $this->createProductWithInventory(0, 2);
+        $payload = $this->productValidationPayload($product, [$this->existingVariantRow($variant, 0)]);
+        $payload['nom_pre'] = 'PRENDA AGOTADA EDITADA';
+        $request = Request::create('/superadmin/catalogo/prendas/' . $product->id_prenda, 'PUT', $payload);
+
+        $validated = $this->productValidator()->validateWrite($request, $this->productDefinition(), $product);
+        $this->productCatalog()->updateProductRecord(
+            $request,
+            $product,
+            [...$this->productPayload($product), 'nom_pre' => $validated['nom_pre']],
+            $validated,
+        );
+
+        $inventory = $variant->inventario()->firstOrFail();
+        $this->assertSame('PRENDA AGOTADA EDITADA', $product->fresh()->nom_pre);
+        $this->assertSame(0, $inventory->cdi_inv);
+        $this->assertSame(2, $inventory->cre_inv);
+    }
+
+    public function test_new_variant_still_rejects_zero_initial_stock(): void
+    {
+        [$product, $variant] = $this->createProductWithInventory(0, 2);
+        $newRow = $this->existingVariantRow($variant, 0);
+        $newRow['id'] = '';
+        $newRow['cod_colores_prv'] = 2;
+        $newRow['cod_tallas_prv'] = 2;
+        $payload = $this->productValidationPayload($product, [$this->existingVariantRow($variant, 0), $newRow]);
+        $payload['usa_variantes'] = true;
+
+        try {
+            $this->productValidator()->validateWrite(
+                Request::create('/superadmin/catalogo/prendas/' . $product->id_prenda, 'PUT', $payload),
+                $this->productDefinition(),
+                $product,
+            );
+            $this->fail('La variante nueva sin stock inicial debió ser rechazada.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('variant_rows.1.stock_inicial', $exception->errors());
+        }
+
+        $payload['variant_rows'][1]['stock_inicial'] = 1;
+        $validated = $this->productValidator()->validateWrite(
+            Request::create('/superadmin/catalogo/prendas/' . $product->id_prenda, 'PUT', $payload),
+            $this->productDefinition(),
+            $product,
+        );
+        $this->assertSame(1, $validated['variant_rows'][1]['stock_inicial']);
+        $this->assertSame(1, $product->variantes()->count());
+        $this->assertSame(0, $variant->inventario()->firstOrFail()->cdi_inv);
+    }
+
+    public function test_foreign_variant_id_cannot_bypass_product_validation(): void
+    {
+        [$product] = $this->createProductWithInventory(0, 2);
+        [, $foreignVariant] = $this->createProductWithInventory(0, 3);
+        $payload = $this->productValidationPayload($product, [$this->existingVariantRow($foreignVariant, 0)]);
+
+        try {
+            $this->productValidator()->validateWrite(
+                Request::create('/superadmin/catalogo/prendas/' . $product->id_prenda, 'PUT', $payload),
+                $this->productDefinition(),
+                $product,
+            );
+            $this->fail('El ID de otra prenda debió ser rechazado.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('variant_rows', $exception->errors());
+            $this->assertArrayHasKey('variant_rows.0.stock_inicial', $exception->errors());
+        }
+
+        $inventory = $foreignVariant->inventario()->firstOrFail();
+        $this->assertSame(0, $inventory->cdi_inv);
+        $this->assertSame(3, $inventory->cre_inv);
     }
 
     public function test_existing_variant_ignores_stale_stock_payload_and_never_resets_reserved_stock(): void
@@ -320,6 +399,65 @@ class InventoryP0RegressionTest extends TestCase
             $logs,
             $this->movementService(),
         );
+    }
+
+    private function productValidator(): ResourceValidationService
+    {
+        return new ResourceValidationService(new AdminFormattingService(), new ResourceDefinitionService());
+    }
+
+    private function productDefinition(): array
+    {
+        return ['sectionKey' => 'catalogo', 'resourceKey' => 'prendas'];
+    }
+
+    private function productValidationPayload(Prenda $product, array $rows): array
+    {
+        foreach ([
+            ['marcas', 'id_marca'], ['temporadas', 'id_temporada'],
+            ['colores', 'id_color'], ['tallas', 'id_talla'],
+            ['patrones', 'id_patron'], ['texturas', 'id_textura'], ['materiales', 'id_material'],
+        ] as [$tableName, $primaryKey]) {
+            Schema::create($tableName, function (Blueprint $table) use ($primaryKey) {
+                $table->id($primaryKey);
+            });
+        }
+        foreach ([
+            ['prenda_patrones', 'cod_prenda_ppn', 'cod_patron_ppn'],
+            ['prenda_texturas', 'cod_prenda_ptx', 'cod_textura_ptx'],
+            ['prenda_materiales', 'cod_prenda_pmt', 'cod_material_pmt'],
+        ] as [$tableName, $productKey, $attributeKey]) {
+            Schema::create($tableName, function (Blueprint $table) use ($tableName, $productKey, $attributeKey) {
+                $table->unsignedBigInteger($productKey);
+                $table->unsignedBigInteger($attributeKey);
+                if ($tableName === 'prenda_materiales') {
+                    $table->decimal('porcentaje_pmt', 5, 2)->nullable();
+                    $table->integer('ord_pmt')->default(0);
+                }
+                $table->timestamps();
+            });
+        }
+        DB::table('marcas')->insert(['id_marca' => 1]);
+        DB::table('temporadas')->insert(['id_temporada' => 1]);
+        DB::table('colores')->insert([['id_color' => 1], ['id_color' => 2]]);
+        DB::table('tallas')->insert([['id_talla' => 1], ['id_talla' => 2]]);
+        $product->update(['cod_marcas_pre' => 1, 'cod_temporadas_pre' => 1]);
+        $imageId = DB::table('imagenes_prenda')->insertGetId([
+            'cod_prendas_igp' => $product->id_prenda,
+            'pri_igp' => true,
+            'ord_igp' => 0,
+        ], 'id_imagen_prenda');
+
+        return [
+            ...$this->productPayload($product),
+            'usa_variantes' => count($rows) > 1,
+            'existing_images' => [['id' => $imageId, 'ord_igp' => 0, 'pri_igp' => true, 'remove' => false]],
+            'gallery_images' => [],
+            'patron_ids' => [],
+            'textura_ids' => [],
+            'material_rows' => [],
+            'variant_rows' => $rows,
+        ];
     }
 
     private function movementService(): InventoryMovementService

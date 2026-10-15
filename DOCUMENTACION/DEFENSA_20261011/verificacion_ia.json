@@ -1,0 +1,201 @@
+{
+    "checked_at": "2026-10-11T12:15:08-04:00",
+    "capabilities": {
+        "request_id": "68d4fa0f-fff8-46bd-8917-fd5d6e87becd",
+        "contract_version": "1",
+        "status": "completed",
+        "data": {
+            "operations": [
+                "garments.analyze",
+                "garments.compatibility",
+                "garments.embedding",
+                "identification.barcode",
+                "identification.label",
+                "products.match",
+                "products.external-search",
+                "products.external-image",
+                "images.prepare-publication",
+                "rag.embed"
+            ],
+            "text_embeddings": {
+                "enabled": true,
+                "device": "cpu",
+                "vector_space": "text",
+                "loaded": false,
+                "request_downloads": false,
+                "trust_remote_code": false,
+                "max_batch": 16,
+                "max_text_codepoints": 8192,
+                "max_pending": 1,
+                "profile_available": true,
+                "model": {
+                    "model_id": "intfloat/multilingual-e5-small",
+                    "model_revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+                    "dimensions": 384,
+                    "normalization": "l2",
+                    "preprocess_version": "text-nfc-strip-meanpool-l2-e5querypassage512-1",
+                    "vector_space": "text",
+                    "pipeline_version": "text-embedding-1.0.0"
+                },
+                "max_tokens": 512,
+                "file_integrity_verified_in_child": false
+            },
+            "visual_model": {
+                "provider": "siglip",
+                "model_id": "google/siglip-base-patch16-224",
+                "local_files_only": true,
+                "loaded": false,
+                "model_revision": "7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed",
+                "embedding_dimension": 768,
+                "embedding_dimension_source": "cached_model_config",
+                "configured_model_revision": "7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed",
+                "pipeline_version": "registration-1.2.0",
+                "embedding_version": "projected-image-l2-1",
+                "preprocess_version": "srgb-exif-transformers-image-1",
+                "normalization": "l2",
+                "dimension_runtime_verified": false
+            },
+            "ocr": {
+                "provider": "easyocr",
+                "enabled": true,
+                "device": "cpu",
+                "languages": [
+                    "es",
+                    "en"
+                ],
+                "download_enabled": false,
+                "weights_present": {
+                    "craft_mlt_25k.pth": true,
+                    "latin_g2.pth": true
+                },
+                "weights_presence_is_not_load_validation": true,
+                "reader_loaded": false,
+                "quality_evaluated": false
+            },
+            "colorimetry": {
+                "enabled": true,
+                "scope": "observed_geometric_foreground",
+                "version": "garment-colorimetry-1.0.0",
+                "perceptual_space": "CIELAB_D65",
+                "distance_metric": "CIEDE2000",
+                "segmentation": "geometric_foreground_heuristic",
+                "target_garment_identity_verified": false,
+                "automatic_catalog_assignment": false,
+                "commercial_color_status": "insufficient_evidence",
+                "catalog_authority": "laravel",
+                "score_kind": "heuristic_uncalibrated",
+                "original_image_modified": false
+            },
+            "color_compatibility": {
+                "enabled": true,
+                "scope": "garment_pairs_only",
+                "rules_version": "garment-compatibility-1.0.0",
+                "input": "existing_garment_colorimetry",
+                "score_kind": "heuristic_ranking_signal",
+                "score_range": [
+                    0,
+                    100
+                ],
+                "harmonies": [
+                    "monochromatic",
+                    "analogous",
+                    "complementary",
+                    "split_complementary",
+                    "triadic",
+                    "neutrals",
+                    "neutral_accent",
+                    "light_dark_contrast"
+                ]
+            },
+            "barcode_symbologies": [
+                "EAN-13",
+                "EAN-8",
+                "UPC-A",
+                "UPC-E",
+                "CODE128",
+                "QR"
+            ],
+            "external_sources_configured": false,
+            "external_sources": [],
+            "limits": {
+                "image_bytes": 10485760,
+                "image_pixels": 24000000
+            }
+        },
+        "warnings": [],
+        "abstentions": [],
+        "model": {
+            "model_id": "deterministic",
+            "model_revision": "1",
+            "pipeline_version": "registration-1.2.0"
+        },
+        "timing_ms": [],
+        "human_review_required": true
+    },
+    "scope": "Laravel-Python; consultas PostgreSQL solo lectura; sin persistencia de resultados",
+    "analysis": {
+        "image_id": 136,
+        "image_sha256": "692499995e2c4520e346c7e09774ee14ab8305c5237949cece02bbffbbc64e16",
+        "status": "partial",
+        "model": {
+            "model_id": "google/siglip-base-patch16-224",
+            "model_revision": "7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed",
+            "pipeline_version": "registration-1.2.0"
+        },
+        "classification": {
+            "top_k": [
+                {
+                    "category_id": 11,
+                    "category_name": "POLERA",
+                    "similarity_score": 0.038362
+                },
+                {
+                    "category_id": 8,
+                    "category_name": "POLOS Y KNITWEAR",
+                    "similarity_score": 0.036192
+                },
+                {
+                    "category_id": 3,
+                    "category_name": "CAMISAS",
+                    "similarity_score": 0.03283
+                }
+            ],
+            "margin": 0.00217,
+            "abstained": true,
+            "score_kind": "cosine_similarity_uncalibrated",
+            "source": "zero_shot_visual_model"
+        },
+        "inference": {
+            "device": "cuda",
+            "vram_peak_mb": 856.83
+        },
+        "embedding_dimension": 768,
+        "embedding_values_count": 768,
+        "embedding_l2_norm": 0.9999999830931511,
+        "commercial_color_status": "insufficient_evidence",
+        "automatic_catalog_assignment": null,
+        "human_review_required": true,
+        "warnings": [
+            "BACKGROUND_INTERFERENCE",
+            "MULTIPLE_FOREGROUND_REGIONS",
+            "BACKGROUND_MAY_AFFECT_COLOR",
+            "COLOR_PROPERTIES_UNCERTAIN",
+            "TARGET_GARMENT_IDENTITY_UNVERIFIED",
+            "VISUAL_SCORES_ARE_NOT_CALIBRATED_PROBABILITIES"
+        ],
+        "abstentions": [
+            "COLORIMETRY_INSUFFICIENT_EVIDENCE",
+            "CATEGORY_LOW_MARGIN_OR_SIMILARITY"
+        ],
+        "error": null,
+        "timing_ms": {
+            "validation": 35.124,
+            "quality": 37.578,
+            "color": 120.074,
+            "barcode": 49.309,
+            "model_load": 3534.051,
+            "inference": 1377.122,
+            "total": 5154.034
+        }
+    }
+}
